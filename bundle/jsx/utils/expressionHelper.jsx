@@ -345,6 +345,15 @@ var bm_expressionHelper = (function () {
         } else if (expression.property.type === 'CallExpression') {
             handleCallExpression(expression.property);
         }
+        if (expression.object){
+            if (expression.object.type === 'BinaryExpression') {
+                expression.object = convertBinaryExpression(expression.property);
+            } else if (expression.object.type === 'UnaryExpression') {
+                expression.object = convertUnaryExpression(expression.property);
+            } else if (expression.object.type === 'CallExpression') {
+                handleCallExpression(expression.object);
+            }
+        }
     }
 
     function handleCallExpression(expression) {
@@ -357,7 +366,28 @@ var bm_expressionHelper = (function () {
                 args[i] = convertUnaryExpression(args[i]);
             } else  if (args[i].type === 'CallExpression') {
                 handleCallExpression(args[i]);
+            } else  if (args[i].type === 'MemberExpression') {
+                handleMemberExpression(args[i]);
             }
+        }
+        if(expression.callee.name === 'eval'){
+            var wrappingNode = {
+                type: 'MemberExpression',
+                computed: true,
+                object: {
+                    type: 'ArrayExpression',
+                    elements: [
+                        args[0]
+                    ]
+
+                },
+                property: {
+                    value: 0,
+                    type: 'Literal',
+                    raw: '0'
+                }
+            }
+            args[0] = wrappingNode
         }
     }
 
@@ -411,6 +441,11 @@ var bm_expressionHelper = (function () {
                 handleExpressionStatement(whileStatement.body);
             }
         }
+        if (whileStatement.test) {
+            if (whileStatement.test.type === 'MemberExpression') {
+                handleMemberExpression(whileStatement.test);
+            }
+        }
     }
 
     function handleForStatement(forStatement) {
@@ -453,6 +488,8 @@ var bm_expressionHelper = (function () {
                 assignmentExpression.right = convertUnaryExpression(assignmentExpression.right);
             } else if (assignmentExpression.right.type === 'CallExpression') {
                 handleCallExpression(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type=== 'MemberExpression') {
+                handleMemberExpression(assignmentExpression.right);
             }
         }
     }
@@ -617,17 +654,17 @@ var bm_expressionHelper = (function () {
             returnOb.x = expressionStr;
         }
     }
-    
+
     function renameNameProperty(str){
         var regName = /([.'"])name([\s'";.\)\]])/g;
         return str.replace(regName,'$1_name$2');
     }
-    
+
     function correctElseToken(str){
         var regElse = / else /g;
         return str.replace(regElse,'\n else ');
     }
-    
+
     function correctEaseAndWizz(str){
         var easeRegex = /Ease and Wizz\s[0-9. ]+:/;
         if (easeRegex.test(str)) {
