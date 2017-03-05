@@ -290,7 +290,6 @@ var bm_shapeHelper = (function () {
                     ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Roundness'), frameRate);
                 } else if(itemType === shapeItemTypes.star && !isText) {
                     ob = {};
-                    bm_generalUtils.iterateProperty(prop);
                     ob.ty = itemType;
                     ob.sy = prop.property("Type").value;
                     ob.d = prop.property("Shape Direction").value;

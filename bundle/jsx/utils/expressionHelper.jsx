@@ -124,6 +124,19 @@ var bm_expressionHelper = (function () {
             }
         }
 
+        function addTryStatement(statement){
+            if (statement.block) {
+                if (statement.block.type === 'BlockStatement') {
+                    findUndeclaredVariables(statement.block.body, 0, null, declared, undeclared, true);
+                }
+            }
+            if (statement.handler) {
+                if (statement.handler.body.type === 'BlockStatement') {
+                    findUndeclaredVariables(statement.handler.body.body, 0, null, declared, undeclared, true);
+                }
+            }
+        }
+
         if (!declared) {
             declared = [];
         }
@@ -181,6 +194,8 @@ var bm_expressionHelper = (function () {
                 }
             } else if (body[i].type === 'IfStatement') {
                 addIfStatement(body[i]);
+            } else if (body[i].type === 'TryStatement') {
+                addTryStatement(body[i]);
             } else if (body[i].type === 'FunctionDeclaration') {
                 if (body[i].body && body[i].body.type === 'BlockStatement') {
                     var p = [];
