@@ -1,0 +1,35 @@
+{
+  "name": "react-bodymovin",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "concurrently": "^3.4.0",
+    "event-stream": "^3.3.4",
+    "gulp": "^3.9.1",
+    "gulp-gzip": "^1.4.0",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-sequence": "^0.4.6",
+    "gulp-watch": "^4.3.11",
+    "react-scripts": "0.8.5"
+  },
+  "dependencies": {
+    "aphrodite": "^1.1.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "react-router": "^3.0.2",
+    "redux": "^3.6.0",
+    "redux-saga": "^0.14.3",
+    "reselect": "^2.5.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "start-dev": "concurrently --kill-others \"react-scripts start\" \"gulp watch-extension\"",
+    "watch-gulp": "gulp watch-extension",
+    "build": "react-scripts build && gulp copy-extension-bundle",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
