@@ -644,7 +644,9 @@ var bm_expressionHelper = (function () {
             searchUndeclaredVariables();
             var parsed = esprima.parse(expressionStr, options);
             var body = parsed.body;
-            replaceOperations(body);
+            if(expressionStr.indexOf("use javascript") !== 1){
+                replaceOperations(body);
+            }
             assignVariable(body);
 
             var escodegen = ob.escodegen;
