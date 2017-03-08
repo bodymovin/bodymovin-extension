@@ -19,7 +19,9 @@ var bm_effectsHelper = (function () {
         fill: 21,
         stroke: 22,
         tritone: 23,
-        proLevels: 24
+        proLevels: 24,
+        dropShadow: 25,
+        radialWipe: 26
     };
     
     function getEffectType(name) {
@@ -34,6 +36,10 @@ var bm_effectsHelper = (function () {
             return effectTypes.tritone;
         case 'ADBE Pro Levels2':
             return effectTypes.proLevels;
+        case 'ADBE Drop Shadow':
+            return effectTypes.dropShadow;
+        case 'ADBE Radial Wipe':
+            return effectTypes.radialWipe;
         default:
             return effectTypes.group;
         }
@@ -87,6 +93,7 @@ var bm_effectsHelper = (function () {
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
+        bm_eventDispatcher.log('effecteffect: ' + effect.value)
         ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
         return ob;
     }

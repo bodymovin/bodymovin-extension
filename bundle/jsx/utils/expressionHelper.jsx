@@ -595,6 +595,16 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function assignVariableToSwitchStatement(switchStatement) {
+        var cases = switchStatement.cases;
+        var i, len = cases.length;
+        for (i = 0; i < len; i += 1) {
+            if (cases[i].consequent.length) {
+                assignVariable(cases[i].consequent)
+            }
+        }
+    }
+
     function assignVariable(body){
         var len = body.length - 1;
         var flag = len >= 0 ? true : false;
@@ -605,6 +615,10 @@ var bm_expressionHelper = (function () {
                 assignVariableToIfStatement(lastElem);
                 body[len] = lastElem;
                 len -= 1;
+            } else if (lastElem.type === 'SwitchStatement') {
+                assignVariableToSwitchStatement(lastElem); 
+                body[len] = lastElem;
+                flag = false;
             } else if (lastElem.type === 'ExpressionStatement') {
                 lastElem = convertExpressionStatementToVariableDeclaration(lastElem);
                 body[len] = lastElem;
@@ -622,7 +636,7 @@ var bm_expressionHelper = (function () {
                 }
                 body[len] = lastElem;
                 flag = false;
-            }else if ((lastElem.type !== 'EmptyStatement' && lastElem.type !== 'FunctionDeclaration') || len === 0) {
+            } else if ((lastElem.type !== 'EmptyStatement' && lastElem.type !== 'FunctionDeclaration' && lastElem.type !== 'BreakStatement') || len === 0) {
                 flag = false;
             } else {
                 len -= 1;

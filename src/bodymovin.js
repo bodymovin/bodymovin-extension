@@ -6422,6 +6422,93 @@ SVGProLevelsFilter.prototype.renderFrame = function(forceRender){
         
     }
 };
+function SVGDropShadowEffect(filter, filterManager){
+    /*<feGaussianBlur in="SourceAlpha" stdDeviation="3"/> <!-- stdDeviation is how much to blur -->
+  <feOffset dx="2" dy="2" result="offsetblur"/> <!-- how much to offset -->
+  <feMerge> 
+    <feMergeNode/> <!-- this contains the offset blurred image -->
+    <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+  </feMerge>*/
+  /*<feFlood flood-color="#3D4574" flood-opacity="0.5" result="offsetColor"/>*/
+    filter.setAttribute('x','-100%');
+    filter.setAttribute('y','-100%');
+    filter.setAttribute('width','400%');
+    filter.setAttribute('height','400%');
+    this.filterManager = filterManager;
+
+    var feGaussianBlur = document.createElementNS(svgNS,'feGaussianBlur');
+    feGaussianBlur.setAttribute('in','SourceAlpha');
+    feGaussianBlur.setAttribute('result','drop_shadow_1');
+    feGaussianBlur.setAttribute('stdDeviation','0');
+    this.feGaussianBlur = feGaussianBlur;
+    filter.appendChild(feGaussianBlur);
+
+    var feOffset = document.createElementNS(svgNS,'feOffset');
+    feOffset.setAttribute('dx','25');
+    feOffset.setAttribute('dy','0');
+    feOffset.setAttribute('in','drop_shadow_1');
+    feOffset.setAttribute('result','drop_shadow_2');
+    this.feOffset = feOffset;
+    filter.appendChild(feOffset);
+    var feFlood = document.createElementNS(svgNS,'feFlood');
+    feFlood.setAttribute('flood-color','#00ff00');
+    feFlood.setAttribute('flood-opacity','1');
+    feFlood.setAttribute('result','drop_shadow_3');
+    this.feFlood = feFlood;
+    filter.appendChild(feFlood);
+
+    var feComposite = document.createElementNS(svgNS,'feComposite');
+    feComposite.setAttribute('in','drop_shadow_3');
+    feComposite.setAttribute('in2','drop_shadow_2');
+    feComposite.setAttribute('operator','in');
+    feComposite.setAttribute('result','drop_shadow_4');
+    filter.appendChild(feComposite);
+
+
+    var feMerge = document.createElementNS(svgNS,'feMerge');
+    filter.appendChild(feMerge);
+    var feMergeNode;
+    feMergeNode = document.createElementNS(svgNS,'feMergeNode');
+    feMerge.appendChild(feMergeNode);
+    feMergeNode = document.createElementNS(svgNS,'feMergeNode');
+    feMergeNode.setAttribute('in','SourceGraphic');
+    this.feMergeNode = feMergeNode;
+    this.feMerge = feMerge;
+    this.originalNodeAdded = false;
+    feMerge.appendChild(feMergeNode);
+}
+
+SVGDropShadowEffect.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager.mdf){
+        if(forceRender || this.filterManager.effectElements[4].p.mdf){
+            this.feGaussianBlur.setAttribute('stdDeviation', this.filterManager.effectElements[4].p.v / 4);
+        }
+        if(forceRender || this.filterManager.effectElements[0].p.mdf){
+            var col = this.filterManager.effectElements[0].p.v;
+            this.feFlood.setAttribute('flood-color',rgbToHex(Math.round(col[0]*255),Math.round(col[1]*255),Math.round(col[2]*255)));
+        }
+        if(forceRender || this.filterManager.effectElements[1].p.mdf){
+            this.feFlood.setAttribute('flood-opacity',this.filterManager.effectElements[1].p.v/255);
+        }
+        if(forceRender || this.filterManager.effectElements[2].p.mdf || this.filterManager.effectElements[3].p.mdf){
+            var distance = this.filterManager.effectElements[3].p.v
+            var angle = (this.filterManager.effectElements[2].p.v - 90) * degToRads
+            var x = distance * Math.cos(angle)
+            var y = distance * Math.sin(angle)
+            this.feOffset.setAttribute('dx', x);
+            this.feOffset.setAttribute('dy', y);
+        }
+        /*if(forceRender || this.filterManager.effectElements[5].p.mdf){
+            if(this.filterManager.effectElements[5].p.v === 1 && this.originalNodeAdded) {
+                this.feMerge.removeChild(this.feMergeNode);
+                this.originalNodeAdded = false;
+            } else if(this.filterManager.effectElements[5].p.v === 0 && !this.originalNodeAdded) {
+                this.feMerge.appendChild(this.feMergeNode);
+                this.originalNodeAdded = true;
+            }
+        }*/
+    }
+};
 function SVGEffects(elem){
     var i, len = elem.data.ef.length;
     var filId = randomString(10);
@@ -6448,6 +6535,10 @@ function SVGEffects(elem){
         }else if(elem.data.ef[i].ty === 24){
             count += 1;
             filterManager = new SVGProLevelsFilter(fil, elem.effects.effectElements[i]);
+            this.filters.push(filterManager);
+        }else if(elem.data.ef[i].ty === 25){
+            count += 1;
+            filterManager = new SVGDropShadowEffect(fil, elem.effects.effectElements[i]);
             this.filters.push(filterManager);
         }
     }
@@ -10875,6 +10966,11 @@ expressionsPlugin = Expressions;
     ShapePropertyFactory.getShapeProp = function(elem,data,type, arr, trims){
         var prop = propertyGetShapeProp(elem,data,type, arr, trims);
         prop.setGroupProperty = setGroupProperty;
+        if(prop.kf){
+            prop.getValueAtTime = getValueAtTime;
+        } else {
+            prop.getValueAtTime = getStaticValueAtTime;
+        }
         var isAdded = prop.k;
         if(data.ix !== undefined){
             Object.defineProperty(prop,'propertyIndex',{
@@ -12637,7 +12733,6 @@ var EffectsExpressionInterface = (function (){
         }
         var groupInterface = function(name){
             var effects = data.ef, i = 0, len = effects.length;
-           // console.log('effects:',effects);
             while(i<len) {
                 if(name === effects[i].nm || name === effects[i].mn || name === effects[i].ix){
                     if(effects[i].ty === 5){
@@ -12776,4 +12871,4 @@ GroupEffect.prototype.init = function(data,element,dynamicProperties){
                 break;
         }
     }
-};var bodymovinjs = {}; function play(animation){ animationManager.play(animation); } function pause(animation){ animationManager.pause(animation); } function togglePause(animation){ animationManager.togglePause(animation); } function setSpeed(value,animation){ animationManager.setSpeed(value, animation); } function setDirection(value,animation){ animationManager.setDirection(value, animation); } function stop(animation){ animationManager.stop(animation); } function moveFrame(value){ animationManager.moveFrame(value); } function searchAnimations(){ if(standalone === true){ animationManager.searchAnimations(animationData,standalone, renderer); }else{ animationManager.searchAnimations(); } } function registerAnimation(elem){ return animationManager.registerAnimation(elem); } function resize(){ animationManager.resize(); } function start(){ animationManager.start(); } function goToAndStop(val,isFrame, animation){ animationManager.goToAndStop(val,isFrame, animation); } function setSubframeRendering(flag){ subframeEnabled = flag; } function loadAnimation(params){ if(standalone === true){ params.animationData = JSON.parse(animationData); } return animationManager.loadAnimation(params); } function destroy(animation){ return animationManager.destroy(animation); } function setQuality(value){ if(typeof value === 'string'){ switch(value){ case 'high': defaultCurveSegments = 200; break; case 'medium': defaultCurveSegments = 50; break; case 'low': defaultCurveSegments = 10; break; } }else if(!isNaN(value) && value > 1){ defaultCurveSegments = value; } if(defaultCurveSegments >= 50){ roundValues(false); }else{ roundValues(true); } } function installPlugin(type,plugin){ if(type==='expressions'){ expressionsPlugin = plugin; } } function getFactory(name){ switch(name){ case "propertyFactory": return PropertyFactory;case "shapePropertyFactory": return ShapePropertyFactory; case "matrix": return Matrix; } } bodymovinjs.play = play; bodymovinjs.pause = pause; bodymovinjs.togglePause = togglePause; bodymovinjs.setSpeed = setSpeed; bodymovinjs.setDirection = setDirection; bodymovinjs.stop = stop; bodymovinjs.moveFrame = moveFrame; bodymovinjs.searchAnimations = searchAnimations; bodymovinjs.registerAnimation = registerAnimation; bodymovinjs.loadAnimation = loadAnimation; bodymovinjs.setSubframeRendering = setSubframeRendering; bodymovinjs.resize = resize; bodymovinjs.start = start; bodymovinjs.goToAndStop = goToAndStop; bodymovinjs.destroy = destroy; bodymovinjs.setQuality = setQuality; bodymovinjs.installPlugin = installPlugin; bodymovinjs.__getFactory = getFactory; bodymovinjs.version = '4.5.9'; function checkReady(){ if (document.readyState === "complete") { clearInterval(readyStateCheckInterval); searchAnimations(); } } function getQueryVariable(variable) { var vars = queryString.split('&'); for (var i = 0; i < vars.length; i++) { var pair = vars[i].split('='); if (decodeURIComponent(pair[0]) == variable) { return decodeURIComponent(pair[1]); } } } var standalone = '__[STANDALONE]__'; var animationData = '__[ANIMATIONDATA]__'; var renderer = ''; if(standalone) { var scripts = document.getElementsByTagName('script'); var index = scripts.length - 1; var myScript = scripts[index]; var queryString = myScript.src.replace(/^[^\?]+\??/,''); renderer = getQueryVariable('renderer'); } var readyStateCheckInterval = setInterval(checkReady, 100); return bodymovinjs; }));  
+};var bodymovinjs = {}; function play(animation){ animationManager.play(animation); } function pause(animation){ animationManager.pause(animation); } function togglePause(animation){ animationManager.togglePause(animation); } function setSpeed(value,animation){ animationManager.setSpeed(value, animation); } function setDirection(value,animation){ animationManager.setDirection(value, animation); } function stop(animation){ animationManager.stop(animation); } function moveFrame(value){ animationManager.moveFrame(value); } function searchAnimations(){ if(standalone === true){ animationManager.searchAnimations(animationData,standalone, renderer); }else{ animationManager.searchAnimations(); } } function registerAnimation(elem){ return animationManager.registerAnimation(elem); } function resize(){ animationManager.resize(); } function start(){ animationManager.start(); } function goToAndStop(val,isFrame, animation){ animationManager.goToAndStop(val,isFrame, animation); } function setSubframeRendering(flag){ subframeEnabled = flag; } function loadAnimation(params){ if(standalone === true){ params.animationData = JSON.parse(animationData); } return animationManager.loadAnimation(params); } function destroy(animation){ return animationManager.destroy(animation); } function setQuality(value){ if(typeof value === 'string'){ switch(value){ case 'high': defaultCurveSegments = 200; break; case 'medium': defaultCurveSegments = 50; break; case 'low': defaultCurveSegments = 10; break; } }else if(!isNaN(value) && value > 1){ defaultCurveSegments = value; } if(defaultCurveSegments >= 50){ roundValues(false); }else{ roundValues(true); } } function installPlugin(type,plugin){ if(type==='expressions'){ expressionsPlugin = plugin; } } function getFactory(name){ switch(name){ case "propertyFactory": return PropertyFactory;case "shapePropertyFactory": return ShapePropertyFactory; case "matrix": return Matrix; } } bodymovinjs.play = play; bodymovinjs.pause = pause; bodymovinjs.togglePause = togglePause; bodymovinjs.setSpeed = setSpeed; bodymovinjs.setDirection = setDirection; bodymovinjs.stop = stop; bodymovinjs.moveFrame = moveFrame; bodymovinjs.searchAnimations = searchAnimations; bodymovinjs.registerAnimation = registerAnimation; bodymovinjs.loadAnimation = loadAnimation; bodymovinjs.setSubframeRendering = setSubframeRendering; bodymovinjs.resize = resize; bodymovinjs.start = start; bodymovinjs.goToAndStop = goToAndStop; bodymovinjs.destroy = destroy; bodymovinjs.setQuality = setQuality; bodymovinjs.installPlugin = installPlugin; bodymovinjs.__getFactory = getFactory; bodymovinjs.version = '4.6.0'; function checkReady(){ if (document.readyState === "complete") { clearInterval(readyStateCheckInterval); searchAnimations(); } } function getQueryVariable(variable) { var vars = queryString.split('&'); for (var i = 0; i < vars.length; i++) { var pair = vars[i].split('='); if (decodeURIComponent(pair[0]) == variable) { return decodeURIComponent(pair[1]); } } } var standalone = '__[STANDALONE]__'; var animationData = '__[ANIMATIONDATA]__'; var renderer = ''; if(standalone) { var scripts = document.getElementsByTagName('script'); var index = scripts.length - 1; var myScript = scripts[index]; var queryString = myScript.src.replace(/^[^\?]+\??/,''); renderer = getQueryVariable('renderer'); } var readyStateCheckInterval = setInterval(checkReady, 100); return bodymovinjs; }));  
