@@ -2,7 +2,7 @@
 /*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app*/
 var bm_sourceHelper = (function () {
     'use strict';
-    var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, imageCount = 0;
+    var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -36,6 +36,7 @@ var bm_sourceHelper = (function () {
             source: item.source,
             width: item.source.width,
             height: item.source.height,
+            source_name: item.source.name,
             name: item.name,
             id: 'image_' + imageCount
         });
@@ -52,6 +53,72 @@ var bm_sourceHelper = (function () {
             i += 1;
         }
     }
+
+    var reservedChars = ['/','?','<','>','\\',':','*','|','"','\''];
+    function isReserverChar(charString){
+        var i = 0, len = reservedChars.length;
+        while( i < len) {
+            if(reservedChars[i] === charString){
+                return true;
+            }
+            i += 1;
+        }
+        return false
+    }
+
+    //                  A-Z      - .    0 - 9     _      a-z
+    var validRanges = [[65,90],[45,46],[48,57],[95,95],[97,122]]
+
+    function isValidChar(charCode) {
+        var i = 0, len = validRanges.length;
+        while(i < len) {
+            if(charCode >= validRanges[i][0] && charCode <= validRanges[i][1]){
+                return true
+            }
+            i += 1;
+        }
+        return false
+    }
+
+    function checkSanitizedNameExists(name) {
+        var i = 0, len = assetsArray.length;
+        while (i < len) {
+            if(assetsArray[i].p === name) {
+                return true
+            }
+            i += 1;
+        }
+        return false
+    }
+
+    function incrementSanizitedName(name) {
+        return name + '_' + imageName++
+    }
+
+    function formatImageName(name) {
+        var sanitizedName = '';
+        var totalChars = name.lastIndexOf('.');
+        if(totalChars < 0){
+            totalChars = name.length;
+        }
+        var i;
+        for(i = 0; i < totalChars; i += 1) {
+            /*var newChar = String.fromCharCode(name.charCodeAt(i) % (2 << 7))
+            if(!isReserverChar(newChar)){
+                sanitizedName += newChar
+            }*/
+            var charCode = name.charCodeAt(i)
+            if(isValidChar(charCode)) {
+                sanitizedName += name.substring(i,1)
+            } else {
+                sanitizedName += '_'
+            }
+            if(checkSanitizedNameExists(sanitizedName + '.png')){
+                sanitizedName = incrementSanizitedName(sanitizedName)
+            }
+        }
+        return sanitizedName + '.png';
+    }
     
     function saveNextImage() {
         if (bm_compsManager.cancelled) {
@@ -64,28 +131,30 @@ var bm_sourceHelper = (function () {
         var currentSourceData = imageSources[currentExportingImage];
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
+        var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
         assetsArray.push({
             id: currentSourceData.id,
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
-            p: 'img_' + currentExportingImage + '.png'
+            p: imageName
         });
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
-        var file = new File(folder.absoluteURI + '/img_' + currentExportingImage + '.png');
+        var file = new File(folder.absoluteURI + '/' + imageName);
         helperComp.saveFrameToPng(0, file);
         helperComp.remove();
         currentExportingImage += 1;
         saveNextImage();
     }
     
-    function exportImages(path, assets, compId) {
+    function exportImages(path, assets, compId, _originalNamesFlag) {
         if (imageSources.length === 0) {
             bm_renderManager.imagesReady();
             return;
         }
         currentCompID = compId;
+        originalNamesFlag = _originalNamesFlag;
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting images', compId: currentCompID, progress: 0});
         currentExportingImage = 0;
         var file = new File(path);
@@ -128,6 +197,7 @@ var bm_sourceHelper = (function () {
         imageSources.length = 0;
         fonts.length = 0;
         imageCount = 0;
+        imageName = 0;
     }
     
     return {

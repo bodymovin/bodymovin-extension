@@ -217,7 +217,7 @@ var bm_renderManager = (function () {
             bm_layerElement.renderLayer(nextLayerData);
         } else {
             removeExtraData();
-            bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID);
+            bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
         }
     }
     

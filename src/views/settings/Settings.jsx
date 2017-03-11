@@ -98,6 +98,7 @@ class Settings extends React.Component {
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
     this.toggleSegmented = this.toggleValue.bind(this,'segmented')
     this.toggleStandalone = this.toggleValue.bind(this,'standalone')
+    this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
@@ -192,6 +193,11 @@ class Settings extends React.Component {
                 {this.getExtraComps()}
               </div>
             </li>}
+            <SettingsListItem 
+              title='Original Asset Names'
+              description='Export assets with their original project names'
+              toggleItem={this.toggleOriginalNames}
+              active={this.props.settings ? this.props.settings.original_names : false}  />
             <SettingsListItem 
               title='Standalone'
               description='Exports animation and player bundled in a single file'

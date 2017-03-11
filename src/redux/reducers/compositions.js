@@ -39,6 +39,7 @@ function createComp(comp) {
         demo: false,
         glyphs: true,
         hiddens: false,
+        original_names: false,
         extraComps: {
             active: false,
             list:[]
