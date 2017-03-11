@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
 import BodymovinRefresh from '../bodymovin/bodymovin_refresh'
+import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
     container: {
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     separator: {
     	width: '100%',
     	height: '1px',
-    	backgroundColor: '#B3B3B3',
+    	backgroundColor: Variables.colors.gray2,
     	marginTop: '20px',
     	marginBottom: '20px'
     }

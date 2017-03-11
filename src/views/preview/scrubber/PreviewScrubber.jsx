@@ -18,14 +18,14 @@ const styles = StyleSheet.create({
     progressNumberContainer: {
       fontSize: '20px',
       lineHeight: '28px',
-      color: Variables.colors.green,
+      color: Variables.colors.blue,
       flexGrow: 0,
       cursor: 'pointer'
     },
     progressNumber: {
       fontSize: '20px',
       lineHeight: '28px',
-      color: Variables.colors.green,
+      color: Variables.colors.blue,
       display: 'inline-block'
     },
     inputNumber: {

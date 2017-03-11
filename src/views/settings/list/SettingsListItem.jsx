@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
       backgroundColor: '#333',
       borderRadius: '6px',
       maxWidth:'50px',
-      marginRight:'20px',
-      padding: '6px'
+      marginRight:'20px' ,
+      padding: '3px'
     },
     inputInput: {
       background: 'none',

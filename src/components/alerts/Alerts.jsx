@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top:'0',
     left:'0',
-    backgroundColor:'rgba(71,71,71,.8)',
+    backgroundColor:'rgba(71,71,71,.9)',
     overflow: 'auto'
   },
   aligner: {

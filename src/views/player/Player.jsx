@@ -76,7 +76,7 @@ class Player extends React.Component {
     return (
       <div className={css(styles.container)}>
         <div className={css(styles.back_container)}>
-          <BaseButton text={'Back'} onClick={this.goToComps} type="gray" />
+          <BaseButton text={'‹ Back'} onClick={this.goToComps} type="gray" />
         </div>
         <div className={css(styles.anim_container)}>
           <Bodymovin animationData={anim} autoplay={true} loop={true}>

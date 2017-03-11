@@ -19,14 +19,15 @@ const styles = StyleSheet.create({
     },
     green: {
     	backgroundColor: Variables.colors.green,
+      color: Variables.colors.white,
     	':disabled': {
           color: Variables.colors.gray2,
           backgroundColor: Variables.colors.gray,
       		cursor: 'default'
       },
       ':hover': {
-        backgroundColor: Variables.colors.white,
-        color: Variables.colors.green
+        backgroundColor: Variables.colors.green2,
+        color: Variables.colors.white
       },
       disabled:{
         color: Variables.colors.gray2,
@@ -36,15 +37,16 @@ const styles = StyleSheet.create({
     },
     gray: {
     	backgroundColor: Variables.colors.gray_lighter,
-    	border: '1px solid #595959',
-      color: Variables.colors.white,
+    	border: '1px solid ' + Variables.colors.button_gray_text,
+      color: Variables.colors.button_gray_text,
       ':disabled': {
           color: Variables.colors.gray2,
           cursor: 'default'
       },
       ':hover': {
-          backgroundColor: Variables.colors.white,
-          color: Variables.colors.gray_lighter
+          backgroundColor: Variables.colors.gray_lighter,
+          color: Variables.colors.white,
+          border: '1px solid ' + Variables.colors.white
       }
     },
     icon: {
