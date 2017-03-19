@@ -73,10 +73,19 @@ const styles = StyleSheet.create({
       left:0,
 			background: 'linear-gradient(left, rgb(0,142,211) 15%,rgb(0,182,72) 85%)'
     },
-    compsList: {
+    compsListContainer: {
       width: '100%',
       background: 'black',
       flexGrow: 1,
+      overflow: 'hidden',
+      position: 'relative'
+    },
+    compsList: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      top: '0',
+      left: '0',
       overflow: 'auto'
     },
     bottomNavigation: {
@@ -138,9 +147,11 @@ class Render extends React.Component {
     				<div className={css(styles.renderBarBackground)} />
     				<div className={css(styles.renderBarProgress)} style={barStyle} />
     			</div>
-	    		<ul className={css(styles.compsList)}>
-	    			{this.getItems()}
-	    		</ul>
+          <div className={css(styles.compsListContainer)}>
+  	    		<ul className={css(styles.compsList)}>
+  	    			{this.getItems()}
+            </ul>
+	    		</div>
 	    		<div className={css(styles.bottomNavigation)}>
 	    			<BaseButton text={finishText} type='green' onClick={this.endRender}></BaseButton>
 	    		</div>

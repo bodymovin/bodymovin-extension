@@ -32,7 +32,7 @@ function *getPaths(action) {
 
 function *saveStoredData() {
 	while(true) {
-		yield take([actions.COMPOSITION_SET_DESTINATION, actions.COMPOSITIONS_UPDATED, actions.SETTINGS_TOGGLE_VALUE, actions.SETTINGS_CANCEL])
+		yield take([actions.COMPOSITION_SET_DESTINATION, actions.COMPOSITIONS_TOGGLE_ITEM, actions.COMPOSITIONS_UPDATED, actions.SETTINGS_TOGGLE_VALUE, actions.SETTINGS_TOGGLE_EXTRA_COMP, actions.SETTINGS_CANCEL])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
 	}

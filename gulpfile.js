@@ -6,6 +6,7 @@ var gulpSequence = require('gulp-sequence');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
+var insert = require('gulp-insert');
 
 var version = '4.6.0'
 
@@ -29,8 +30,14 @@ gulp.task('copy-all', function() {
 });
 gulp.task('create-bm', function() {
     return gulp.src('player/bodymovin.min.js')
-    	.pipe(rename('bm.js'))
+        .pipe(rename('bm.js'))
         .pipe(gulp.dest('build/assets/player'));
+});
+gulp.task('create-bm-extension-player', function() {
+    return gulp.src('player/bodymovin.js')
+        .pipe(rename('bodymovin.js'))
+    	.pipe(insert.prepend('/* eslint-disable */var define = define || null;'))
+        .pipe(gulp.dest('./src/'));
 });
 gulp.task('create-standalone', function() {
     return gulp.src('player/bodymovin.min.js')

@@ -109,7 +109,7 @@ var bm_sourceHelper = (function () {
             }*/
             var charCode = name.charCodeAt(i)
             if(isValidChar(charCode)) {
-                sanitizedName += name.substring(i,1)
+                sanitizedName += name.substr(i,1)
             } else {
                 sanitizedName += '_'
             }

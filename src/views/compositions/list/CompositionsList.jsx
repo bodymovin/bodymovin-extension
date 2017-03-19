@@ -4,7 +4,7 @@ import CompositionsListItem from './CompositionsListItem'
 
 const styles = StyleSheet.create({
     list: {
-      height: 'calc( 100vh - 180px)',
+      height: 'calc( 100% - 180px)',
       overflow: 'auto'
     }
 })

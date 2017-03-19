@@ -117,11 +117,13 @@ class Range extends React.Component {
 	render() {
 		let pos = this.state.width * this.props.progress
 		let styler = {
-			'transform':'translateX(' + pos + 'px)'
+			'transform':'translateX(' + pos + 'px)',
+			'WebkitTransform':'translateX(' + pos + 'px)'
 		}
 
 		let progressStyler = {
-			'transform':'translateX(' + -(1-this.props.progress)*100 + '%)'
+			'transform':'translateX(' + -(1-this.props.progress)*100 + '%)',
+			'WebkitTransform':'translateX(' + -(1-this.props.progress)*100 + '%)'
 		}
 
 		return (<div 

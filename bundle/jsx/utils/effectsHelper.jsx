@@ -93,7 +93,6 @@ var bm_effectsHelper = (function () {
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        bm_eventDispatcher.log('effecteffect: ' + effect.value)
         ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
         return ob;
     }

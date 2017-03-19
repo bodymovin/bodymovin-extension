@@ -132,18 +132,21 @@ var bm_layerElement = (function () {
         } else {
             layerData.ddd = 0;
         }
-        layerData.ind = ind;
+        layerData.ind = layerInfo.index;
         layerData.ty = layerType;
         layerData.nm = layerInfo.name;
         var layerAttributes = bm_generalUtils.findAttributes(layerInfo.name);
         if(layerAttributes.ln){
             layerData.ln = layerAttributes.ln;
         }
+
+
+        
         if(layerAttributes.cl){
             layerData.cl = layerAttributes.cl;
         }
         if (layerInfo.parent !== null) {
-            layerData.parent = layerInfo.parent.index - 1;
+            layerData.parent = layerInfo.parent.index;
         }
         
         if (layerInfo.hasTrackMatte) {

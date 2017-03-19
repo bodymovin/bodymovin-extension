@@ -56,7 +56,7 @@ function setStoredData(state, action) {
   return newState
 }
 
-function addCompositions(state, action) {
+/*function addCompositions(state, action) {
   let newItems = {...state.items}
   let listChanged: false
   let itemsChanged = false
@@ -89,7 +89,82 @@ function addCompositions(state, action) {
     newState.items = newItems
   }
   return newState
+}*/
+
+function searchRemovedExtraComps(settings, compositions) {
+  let extraCompsList = settings.extraComps.list
+  let newExtraCompsList = []
+  let i, len = extraCompsList.length, item
+  let j, jLen = compositions.length
+  for(i=0;i<len;i++) {
+    item = extraCompsList[i]
+    j = 0
+    while(j < jLen) {
+      if(compositions[j].id === item) {
+        newExtraCompsList.push(item)
+        break
+      }
+      j += 1
+    }
+  }
+  if(newExtraCompsList.length === extraCompsList.length){
+    return settings
+  }
+  let newSettings = {...settings}
+  newSettings.extraComps = {...settings.extraComps, ...{list:newExtraCompsList}}
+  return newSettings
 }
+
+function addCompositions(state, action) {
+  let newItems = {...state.items}
+  let listChanged: false
+  let itemsChanged = false
+  let newList = []
+  let i, len = action.compositions.length
+  let item, index
+  for(i = 0; i < len; i += 1) {
+    item = action.compositions[i]
+    index = i
+    if(!newItems[item.id]) {
+      newItems[item.id] = createComp(item)
+      itemsChanged = true
+    } else{
+      let itemData = newItems[item.id]
+      if(newItems[item.id].name !== item.name) {
+        itemData = {...state.items[item.id], ...{name: item.name}}
+        newItems[item.id] = itemData
+        //newItems[item.id].name = item.name
+        itemsChanged = true
+      }
+      let settings = searchRemovedExtraComps(itemData.settings, action.compositions)
+      if(settings !== itemData.settings){
+        itemData = {...state.items[item.id], ...{settings: settings}}
+        newItems[item.id] = itemData
+        itemsChanged = true
+      }
+    } 
+    newList.push(item.id)
+    if(state.list[index] !== item.id) {
+      listChanged = true
+    }
+  }
+  if(!listChanged && state.list.length !== newList.length) {
+    listChanged = true
+  }
+  if(!itemsChanged && !listChanged) {
+    return state
+  }
+
+  let newState = {...state}
+  if(listChanged) {
+    newState.list = newList
+  }
+  if(itemsChanged) {
+    newState.items = newItems
+  }
+  return newState
+}
+
 
 function setCompositionDestination(state, action) {
   let newItems = {...state.items}
@@ -120,6 +195,29 @@ function startRender(state, action) {
   }
   return state
 }
+
+
+/*function startRender(state, action) {
+  let newState = {...state}
+  let newItems = {...state.items}
+  let itemsChanged = false
+  let i, len = state.list.length
+  let id
+  for(i = 0; i < len; i += 1) {
+    id = state.list[i]
+    let item = state.items[id]
+    if (item.renderStatus !== 0) {
+      let newItem = {...item, ...{renderStatus: 0}}
+      newItems[id] = newItem
+      itemsChanged = true
+    }
+  }
+  if(itemsChanged) {
+    newState.items = newItems
+    return newState
+  }
+  return state
+}*/
 
 function completeRender(state, action) {
   let newState = {...state}

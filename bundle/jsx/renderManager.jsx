@@ -6,6 +6,16 @@ var bm_renderManager = (function () {
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
+
+    function getParentData(layers, id) {
+        var i = 0, len = layers.length;
+        while(i < len) {
+            if(layers[i].ind === id) {
+                return layers[i];
+            }
+            i += 1;
+        }
+    }
     
     function restoreParents(layers) {
         
@@ -15,7 +25,7 @@ var bm_renderManager = (function () {
             if (layerData.parent){
             }
             if (layerData.parent !== undefined && layerData.render !== false) {
-                parentData = layers[layerData.parent];
+                parentData = getParentData(layers, layerData.parent);
                 if (parentData.render === false) {
                     parentData.ty = bm_layerElement.layerTypes.nullLayer;
                     hasChangedState = true;
@@ -41,7 +51,7 @@ var bm_renderManager = (function () {
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
-            layerData = bm_layerElement.prepareLayer(layerInfo, i);
+            layerData = bm_layerElement.prepareLayer(layerInfo);
             ob.renderData.exportData.ddd = layerData.ddd === 1 ? 1 : ob.renderData.exportData.ddd;
             if(currentCompSettings.hiddens && layerData.enabled === false){
                 layerData.render = true;
@@ -112,6 +122,7 @@ var bm_renderManager = (function () {
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
             w : comp.width,
             h : comp.height,
+            nm: comp.name,
             ddd : 0,
             assets : [],
             comps : [],
@@ -130,27 +141,29 @@ var bm_renderManager = (function () {
     }
 
     function exportExtraComps(exportData){
-        var list = currentCompSettings.extraComps.list;
-        var i, len = list.length, compData;
-        var j, jLen = currentExportedComps.length;
-        for(i=0;i<len;i+=1){
-            j = 0;
-            while(j<jLen){
-                if(currentExportedComps[j] === list[i]){
-                    break;
+        if(currentCompSettings.extraComps.active) {
+            var list = currentCompSettings.extraComps.list;
+            var i, len = list.length, compData;
+            var j, jLen = currentExportedComps.length;
+            for(i=0;i<len;i+=1){
+                j = 0;
+                while(j<jLen){
+                    if(currentExportedComps[j] === list[i]){
+                        break;
+                    }
+                    j += 1;
                 }
-                j += 1;
-            }
-            if(j===jLen){
-                var comp = bm_projectManager.getCompositionById(list[i]);
-                compData = {
-                    layers: [],
-                    id: comp.id,
-                    nm: comp.name,
-                    xt: 1
-                };
-                createLayers(comp, compData.layers, exportData.fr, false);
-                exportData.comps.push(compData);
+                if(j===jLen){
+                    var comp = bm_projectManager.getCompositionById(list[i]);
+                    compData = {
+                        layers: [],
+                        id: comp.id,
+                        nm: comp.name,
+                        xt: 1
+                    };
+                    createLayers(comp, compData.layers, exportData.fr, false);
+                    exportData.comps.push(compData);
+                }
             }
         }
     }

@@ -23,9 +23,12 @@ function updateFontsData(state, action) {
     fStyle:'',
     fName:''
   }
-  let fonts = action.data.fonts.map(function(item){
-    return {...fontFormData,...{fFamily: item.family, fStyle: item.style, fName: item.name}}
-  })
+  let fonts = []
+  let item, i, len = action.data.fonts.length
+  for(i = 0; i < len; i += 1) {
+    item = action.data.fonts[i]
+    fonts.push({...fontFormData,...{fFamily: item.family, fStyle: item.style, fName: item.name}})
+  }
   let newState = {...state, ...{fonts: fonts}}
   return newState
 }

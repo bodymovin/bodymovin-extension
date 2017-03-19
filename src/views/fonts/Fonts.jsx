@@ -51,9 +51,17 @@ const styles = StyleSheet.create({
       position: 'relative',
       backgroundColor: Variables.colors.gray_darkest,
       padding: '4px',
-      overflowY: 'auto',
+      overflowY: 'hidden',
       overflowX: 'hidden',
       marginBottom: '20px'
+    },
+    list_items: {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      overflowY: 'auto',
+      width: '100%',
+      height:'100%'
     },
     buttons: {
       width: '100%',
@@ -106,7 +114,9 @@ class Fonts extends React.Component {
             <div className={css(styles.headerTitle)}>Select font families and font paths when necessary</div>
           </div>
           <div className={css(styles.list)}>
-            {this.getFontsList()}
+            <div className={css(styles.list_items)}>
+              {this.getFontsList()}
+            </div>
           </div>
           <div className={css(styles.buttons)}>
             <BaseButton text='Cancel' type='green' onClick={this.cancelRender}></BaseButton>

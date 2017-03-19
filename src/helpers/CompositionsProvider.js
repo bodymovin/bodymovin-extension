@@ -5,7 +5,7 @@ import actions from '../redux/actions/actionTypes'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
-		let compositions = ev.data
+		let compositions = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
 				type: actions.COMPOSITIONS_UPDATED,
 				compositions: compositions
@@ -44,7 +44,7 @@ csInterface.addEventListener('console:log', function (ev) {
 
 csInterface.addEventListener('bm:render:update', function (ev) {
 	if(ev.data) {
-		let data = ev.data
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
 				type: actions.RENDER_UPDATE,
 				data: data
@@ -55,7 +55,10 @@ csInterface.addEventListener('bm:render:update', function (ev) {
 
 csInterface.addEventListener('bm:render:fonts', function (ev) {
 	if(ev.data) {
-		let data = ev.data
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		if(typeof data.fonts === "string") {
+			data.fonts = JSON.parse(data.fonts)
+		}
 		dispatcher({ 
 				type: actions.RENDER_FONTS,
 				data: data
@@ -67,7 +70,8 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 
 csInterface.addEventListener('bm:project:id', function (ev) {
 	if(ev.data) {
-		let id = ev.data.id
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		let id = data.id
 		dispatcher({ 
 				type: actions.PROJECT_SET_ID,
 				id: id
@@ -78,7 +82,7 @@ csInterface.addEventListener('bm:project:id', function (ev) {
 
 csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	if(ev.data) {
-		let compositionData = ev.data
+		let compositionData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
 				type: actions.COMPOSITION_SET_DESTINATION,
 				compositionData: compositionData
@@ -89,9 +93,10 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 
 csInterface.addEventListener('bm:alert', function (ev) {
 	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
 				type: actions.WRITE_ERROR,
-				pars: ev.data.message.split('<br />')
+				pars: data.message.split('<br />')
 		})
 	} else {
 	}

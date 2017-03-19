@@ -14,6 +14,9 @@ var bm_eventDispatcher = (function () {
             if (data && data instanceof Object) {
                 data = JSON.stringify(data);
             }
+            if(typeof data === 'number') {
+                data = data.toString()
+            }
             var eventObj = new CSXSEvent();
             eventObj.type = type;
             eventObj.data = data || '';

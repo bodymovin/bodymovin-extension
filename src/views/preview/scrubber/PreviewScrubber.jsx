@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     },
     navContainer: {
       width: '100%',
-      height: '30px',
+      height: '36px',
       display: 'flex'
     },
     progressNumberContainer: {
