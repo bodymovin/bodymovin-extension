@@ -4,7 +4,7 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
-import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp} from '../../redux/actions/compositionActions'
+import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 
 const styles = StyleSheet.create({
@@ -98,11 +98,12 @@ class Settings extends React.Component {
 
   cancelSettings() {
     this.props.cancelSettings(this.storedSettings)
-    browserHistory.push('/')
+    //browserHistory.push('/')
   }
 
   saveSettings() {
-    browserHistory.push('/')
+    //browserHistory.push('/')
+    this.props.goToComps()
   }
 
   toggleValue(name) {
@@ -198,7 +199,8 @@ const mapDispatchToProps = {
   cancelSettings: cancelSettings,
   toggleSettingsValue: toggleSettingsValue,
   updateSettingsValue: updateSettingsValue,
-  toggleExtraComp: toggleExtraComp
+  toggleExtraComp: toggleExtraComp,
+  goToComps: goToComps
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)

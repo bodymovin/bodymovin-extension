@@ -1,10 +1,9 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
-import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp} from '../../redux/actions/compositionActions'
+import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
 
@@ -120,11 +119,12 @@ class Settings extends React.Component {
 
   cancelSettings() {
     this.props.cancelSettings(this.storedSettings)
-    browserHistory.push('/')
+    //browserHistory.push('/')
   }
 
   saveSettings() {
-    browserHistory.push('/')
+    //browserHistory.push('/')
+    this.props.goToComps()
   }
 
   toggleValue(name) {
@@ -212,7 +212,7 @@ class Settings extends React.Component {
           <div className={css(styles.bottomNavigation)}>
             <BaseButton text='Cancel' type='gray' onClick={this.cancelSettings}></BaseButton>
             <div className={css(styles.bottomNavigationSeparator)}></div>
-            <BaseButton text='Save' type='green' onClick={this.saveSettings}></BaseButton>
+            <BaseButton text='Save' type='green' onClick={this.props.goToComps}></BaseButton>
           </div>
         </div>
     	</div>
@@ -227,6 +227,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   setCurrentCompId: setCurrentCompId,
   cancelSettings: cancelSettings,
+  goToComps: goToComps,
   toggleSettingsValue: toggleSettingsValue,
   updateSettingsValue: updateSettingsValue,
   toggleExtraComp: toggleExtraComp

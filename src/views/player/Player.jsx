@@ -1,11 +1,12 @@
 import React from 'react'
-import {browserHistory} from 'react-router'
+import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import Bodymovin from '../../components/bodymovin/bodymovin'
 import anim from '../../assets/animations/bm.json'
 import {openInBrowser, getPlayer} from '../../helpers/CompositionsProvider'
 import Variables from '../../helpers/styles/variables'
+import {goToComps} from '../../redux/actions/compositionActions'
 
 const styles = StyleSheet.create({
     container: {
@@ -68,15 +69,11 @@ class Player extends React.Component {
     getPlayer(true)
   }
 
-  goToComps(){
-    browserHistory.push('/')
-  }
-
   render() {
     return (
       <div className={css(styles.container)}>
         <div className={css(styles.back_container)}>
-          <BaseButton text={'‹ Back'} onClick={this.goToComps} type="gray" />
+          <BaseButton text={'‹ Back'} onClick={this.props.goToComps} type="gray" />
         </div>
         <div className={css(styles.anim_container)}>
           <Bodymovin animationData={anim} autoplay={true} loop={true}>
@@ -103,5 +100,8 @@ class Player extends React.Component {
       );
   }
 }
+const mapDispatchToProps = {
+  goToComps: goToComps
+}
 
-export default Player
+export default connect(null, mapDispatchToProps)(Player)

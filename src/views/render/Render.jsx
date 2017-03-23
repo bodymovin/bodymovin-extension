@@ -1,8 +1,8 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import {stopRender} from '../../redux/actions/renderActions'
+import {goToComps} from '../../redux/actions/compositionActions'
 import render_selector from '../../redux/selectors/render_selector'
 import RenderItem from './list/RenderItem'
 import BaseButton from '../../components/buttons/Base_button'
@@ -121,8 +121,10 @@ class Render extends React.Component {
   endRender() {
     if(!this.props.render.finished) {
       this.props.stopRender()
+    } else {
+      this.props.goToComps()
     }
-    browserHistory.push('/')
+    //browserHistory.push('/')
   }
 
   navigateToFolder(item) {
@@ -166,7 +168,8 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  stopRender: stopRender
+  stopRender: stopRender,
+  goToComps: goToComps
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Render)

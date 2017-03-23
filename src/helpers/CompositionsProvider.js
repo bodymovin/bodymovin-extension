@@ -1,4 +1,3 @@
-import {browserHistory} from 'react-router'
 import csInterface from './CSInterfaceHelper'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
@@ -63,7 +62,7 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 				type: actions.RENDER_FONTS,
 				data: data
 		})
-		browserHistory.push('/fonts')
+		//browserHistory.push('/fonts')
 	} else {
 	}
 })

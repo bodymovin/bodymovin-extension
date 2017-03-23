@@ -1,5 +1,4 @@
 import React from 'react'
-import {browserHistory} from 'react-router'
 import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../../helpers/styles/variables'
 import BaseButton from '../../../components/buttons/Base_button'
@@ -44,17 +43,13 @@ const styles = StyleSheet.create({
     }
 })
 
-function goToCompositions() {
-    browserHistory.push('/')
-}
-
 function PreviewHeader(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
                     <BaseButton text='Browse' type='green' classes={styles.button} onClick={props.browseFiles}/>
                     <BaseButton text='Current Renders' type='green' classes={styles.button} onClick={props.selectCurrentRenders}/>
                     <div className={css(styles.buttons_separator)}></div>
-					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={goToCompositions}/>
+					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={props.goToComps}/>
 				</div>
 				<div className={css(styles.separator)}></div>
 			</div>)

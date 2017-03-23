@@ -1,11 +1,10 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {browserHistory} from 'react-router'
 import { StyleSheet, css } from 'aphrodite'
 import CompositionsList from './list/CompositionsList'
 import CompositionsListHeader from './listHeader/CompositionsListHeader'
 import MainHeader from '../../components/header/Main_header'
-import {getDestination, filterChange, toggleItem, displaySettings, getCompositions} from '../../redux/actions/compositionActions'
+import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer} from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
 
@@ -25,7 +24,7 @@ class Compositions extends React.Component {
     this.selectDestination = this.selectDestination.bind(this)
     this.showSettings = this.showSettings.bind(this)
     this.renderComps = this.renderComps.bind(this)
-    this.goToPreview = this.goToPreview.bind(this)
+    //this.goToPreview = this.goToPreview.bind(this)
   }
 
   selectDestination(comp) {
@@ -41,17 +40,17 @@ class Compositions extends React.Component {
       this.props.showRenderBlock(['There are no Compositions to render.','Make sure you have at least one selected and a Destination Path set.'])
     } else {
       this.props.startRender()
-      browserHistory.push('/render')
+      //browserHistory.push('/render')
     }
     
   }
-  goToPreview() {
-    browserHistory.push('/preview')
-  }
+  /*goToPreview() {
+    //browserHistory.push('/preview')
+  }*/
   
-  goToPlayer() {
+  /*goToPlayer() {
     browserHistory.push('/player')
-  }
+  }*/
 
   render() {
 
@@ -60,9 +59,9 @@ class Compositions extends React.Component {
         <MainHeader 
           canRender={this.props.canRender}
           startRender={this.renderComps} 
-          goToPreview={this.goToPreview} 
+          goToPreview={this.props.goToPreview} 
           refresh={this.props.getCompositions} 
-          goToPlayer={this.goToPlayer} />
+          goToPlayer={this.props.goToPlayer} />
     		<CompositionsListHeader 
     			filterValue={this.props.filter} 
     			filterChange={this.props.filterChange} />
@@ -87,6 +86,8 @@ const mapDispatchToProps = {
 	getCompositions: getCompositions,
 	filterChange: filterChange,
   startRender: startRender,
+  goToPreview: goToPreview,
+  goToPlayer: goToPlayer,
   showRenderBlock: showRenderBlock
 }
 

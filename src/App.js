@@ -1,13 +1,7 @@
 import React, { Component } from 'react'
-import { Router, Route, browserHistory } from 'react-router'
 import { Provider } from 'react-redux'
 import { applyMiddleware, compose, createStore } from 'redux'
-import Render from './views/render/Render'
-import Compositions from './views/compositions/Compositions'
-import SettingsView from './views/settings/Settings'
-import PreviewView from './views/preview/Preview'
-import FontsView from './views/fonts/Fonts'
-import PlayerView from './views/player/Player'
+import ViewsContainer from './views/ViewsContainer'
 import Alerts from './components/alerts/Alerts'
 import reducer  from './redux/reducers/index'
 import createSagaMiddleware from 'redux-saga'
@@ -43,18 +37,22 @@ class App extends Component {
     }
     store.dispatch(getPaths())
   }
+
+
   render() {
+
     return (
       <Provider store={store}>
-        <div>
-          <Router history={browserHistory}>
+        <div style={{width:'100%',height:'100%'}}>
+          <ViewsContainer />
+          {/*<Router history={browserHistory}>
             <Route path="/" component={Compositions} />
             <Route path="/render" component={Render} />
             <Route path="/preview" component={PreviewView} />
             <Route path="/settings/:id" component={SettingsView} />
             <Route path="/fonts" component={FontsView} />
             <Route path="/player" component={PlayerView} />
-          </Router>
+          </Router>*/}
           <Alerts />
         </div>
       </Provider>

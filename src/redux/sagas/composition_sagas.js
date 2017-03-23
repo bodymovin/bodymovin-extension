@@ -1,9 +1,7 @@
 import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
-import {browserHistory} from 'react-router'
 import actions from '../actions/actionTypes'
 import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
-import settingsCompSelector from '../selectors/settings_comp_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 
 function *getCSCompositions(action) {
@@ -50,8 +48,9 @@ function *stopRender(action) {
 }
 
 function *goToSettings() {
-	let compId = yield select(settingsCompSelector)
-	browserHistory.push('/settings/' + compId)
+	yield put({ 
+		type: actions.GOTO_SETTINGS
+	})
 }
 
 export default [

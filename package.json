@@ -2,6 +2,7 @@
   "name": "react-bodymovin",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "devDependencies": {
     "concurrently": "^3.4.0",
     "event-stream": "^3.3.4",

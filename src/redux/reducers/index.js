@@ -5,8 +5,10 @@ import project from './project'
 import preview from './preview'
 import alerts from './alerts'
 import paths from './paths'
+import routes from './routes'
 
 export default combineReducers({
+  routes,
   compositions,
   render,
   project,

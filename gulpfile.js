@@ -55,7 +55,7 @@ gulp.task('copy-manifest', function() {
     return gulp.src('bundle/CSXS/manifest.xml')
     	.pipe(replace(/(<Extension Id="com\.bodymovin\.bodymovin" Version=")(.+)(" \/>)/g,'$1'+version+'$3'))
     	.pipe(replace(/(<ExtensionManifest Version="5\.0" ExtensionBundleId="com\.bodymovin\.bodymovin" ExtensionBundleVersion=")(.+)(")/g,'$1'+version+'$3'))
-    	.pipe(replace(/(<MainPath>\.\/)(index_dev.html)(<\/MainPath>)/g,'$1'+'index_server.html'+'$3'))
+    	.pipe(replace(/(<MainPath>\.\/)(index_dev.html)(<\/MainPath>)/g,'$1'+'index.html'+'$3'))
         .pipe(gulp.dest('build/CSXS/'));
 });
 

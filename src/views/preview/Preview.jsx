@@ -6,6 +6,7 @@ import PreviewScrubber from './scrubber/PreviewScrubber'
 import PreviewHeader from './header/PreviewHeader'
 import CurrentRenders from './current_renders/CurrentRenders'
 import {browsePreviewFile, updateProgress, setTotalFrames, showNoCurrentRenders, previewFromPath} from '../../redux/actions/previewActions'
+import {goToComps} from '../../redux/actions/compositionActions'
 import preview_view_selector from '../../redux/selectors/preview_view_selector'
 import FileSaver from '../../helpers/FileSaver'
 
@@ -94,7 +95,10 @@ class Preview extends React.Component {
       <div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
           <div className={css(styles.header)}>
-            <PreviewHeader browseFiles={this.props.browsePreviewFile} selectCurrentRenders={this.selectCurrentRenders} />
+            <PreviewHeader 
+              browseFiles={this.props.browsePreviewFile} 
+              goToComps={this.props.goToComps}
+              selectCurrentRenders={this.selectCurrentRenders} />
           </div>
           <div className={css(styles.animation)}> 
             <PreviewViewer 
@@ -131,6 +135,7 @@ const mapDispatchToProps = {
   previewFromPath: previewFromPath,
   updateProgress: updateProgress,
   setTotalFrames: setTotalFrames,
+  goToComps: goToComps,
   showNoCurrentRenders: showNoCurrentRenders
 }
 

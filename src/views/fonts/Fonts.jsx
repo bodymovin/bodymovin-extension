@@ -1,5 +1,4 @@
 import React from 'react'
-import {browserHistory} from 'react-router'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import fonts_view_selector from '../../redux/selectors/fonts_view_selector'
@@ -85,7 +84,7 @@ class Fonts extends React.Component {
 
   cancelRender() {
     this.props.stopRender()
-    browserHistory.push('/')
+    //browserHistory.push('/')
   }
 
   getFontsList() {
@@ -100,7 +99,7 @@ class Fonts extends React.Component {
 
   setFonts() {
     this.props.setFonts()
-    browserHistory.push('/render')
+    //browserHistory.push('/render')
   }
 
   render() {

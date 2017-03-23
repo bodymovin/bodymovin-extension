@@ -77,6 +77,24 @@ function toggleExtraComp(id) {
 	}
 }
 
+function goToPreview() {
+	return {
+		type: actionTypes.GOTO_PREVIEW,
+	}
+}
+
+function goToPlayer() {
+	return {
+		type: actionTypes.GOTO_PLAYER,
+	}
+}
+
+function goToComps() {
+	return {
+		type: actionTypes.GOTO_COMPS,
+	}
+}
+
 export {
 	filterChange,
 	toggleItem,
@@ -88,5 +106,8 @@ export {
 	cancelSettings,
 	toggleSettingsValue,
 	toggleExtraComp,
-	updateSettingsValue
+	updateSettingsValue,
+	goToPreview,
+	goToPlayer,
+	goToComps
 }
