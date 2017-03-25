@@ -14,6 +14,7 @@ var bm_shapeHelper = (function () {
         merge: 'mm',
         trim: 'tm',
         group: 'gr',
+        repeater: 'rp',
         roundedCorners: 'rd'
     };
     var navigationShapeTree = [];
@@ -46,6 +47,8 @@ var bm_shapeHelper = (function () {
             return shapeItemTypes.gfill;
         case 'ADBE Vector Graphic - G-Stroke':
             return shapeItemTypes.gStroke;
+        case 'ADBE Vector Filter - Repeater':
+            return shapeItemTypes.repeater;
         default:
             bm_eventDispatcher.log(matchName);
             return '';
@@ -359,6 +362,31 @@ var bm_shapeHelper = (function () {
                     }
                     getDashData(ob,prop, frameRate);
 
+                } else if (itemType === shapeItemTypes.repeater) {
+                    ob = {};
+                    ob.ty = itemType;
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Copies'), frameRate);
+                    ob.c.ix = prop.property('Copies').propertyIndex;
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
+                    ob.o.ix = prop.property('Offset').propertyIndex;
+                    ob.ix = prop.propertyIndex;
+                    var trOb = {};
+                    var transformProperty = prop.property('Transform');
+                    trOb.ty = 'tr';
+                    trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate);
+                    trOb.p.ix = transformProperty.property('Position').propertyIndex;
+                    trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate);
+                    trOb.a.ix = transformProperty.property('Anchor Point').propertyIndex;
+                    trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate);
+                    trOb.s.ix = transformProperty.property('Scale').propertyIndex;
+                    trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate);
+                    trOb.r.ix = transformProperty.property('Rotation').propertyIndex;
+                    trOb.so = bm_keyframeHelper.exportKeyframes(transformProperty.property('Start Opacity'), frameRate);
+                    trOb.so.ix = transformProperty.property('Start Opacity').propertyIndex;
+                    trOb.eo = bm_keyframeHelper.exportKeyframes(transformProperty.property('End Opacity'), frameRate);
+                    trOb.eo.ix = transformProperty.property('End Opacity').propertyIndex;
+                    trOb.nm = transformProperty.name;
+                    ob.tr = trOb;
                 } else if (itemType === shapeItemTypes.merge) {
                     ob = {};
                     ob.ty = itemType;
