@@ -494,6 +494,19 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function handleConditionalExpression(conditionalExpression) {
+        if(conditionalExpression.consequent){
+            if (conditionalExpression.consequent.type=== 'AssignmentExpression') {
+                handleAssignmentExpression(conditionalExpression.consequent);
+            }
+        }
+        if(conditionalExpression.alternate){
+            if (conditionalExpression.alternate.type=== 'AssignmentExpression') {
+                handleAssignmentExpression(conditionalExpression.alternate);
+            }
+        }
+    }
+
     function handleExpressionStatement(expressionStatement) {
         if (expressionStatement.expression.type === 'CallExpression') {
             handleCallExpression(expressionStatement.expression);
@@ -503,6 +516,8 @@ var bm_expressionHelper = (function () {
             expressionStatement.expression = convertUnaryExpression(expressionStatement.expression);
         } else if (expressionStatement.expression.type === 'AssignmentExpression') {
             handleAssignmentExpression(expressionStatement.expression);
+        } else if (expressionStatement.expression.type === 'ConditionalExpression') {
+            handleConditionalExpression(expressionStatement.expression);
         }
     }
 
