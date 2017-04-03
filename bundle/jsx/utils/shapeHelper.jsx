@@ -407,7 +407,9 @@ var bm_shapeHelper = (function () {
                         ty : itemType,
                         it: [],
                         nm: prop.name,
-                        np: prop.property('Contents').numProperties
+                        np: prop.property('Contents').numProperties,
+                        cix: prop.property('Contents').propertyIndex,
+                        ix: prop.propertyIndex
                     };
                     navigationShapeTree.push(prop.name);
                     iterateProperties(prop.property('Contents'), ob.it, frameRate, isText);

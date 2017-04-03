@@ -668,6 +668,7 @@ var bm_expressionHelper = (function () {
             doneBodies.length = 0;
             expressionStr = prop.expression;
             expressionStr = correctEaseAndWizz(expressionStr);
+            expressionStr = correctKhanyu(expressionStr);
             expressionStr = correctElseToken(expressionStr);
             expressionStr = renameNameProperty(expressionStr);
             searchUndeclaredVariables();
@@ -694,6 +695,15 @@ var bm_expressionHelper = (function () {
     function correctElseToken(str){
         var regElse = / else /g;
         return str.replace(regElse,'\n else ');
+    }
+
+    function correctKhanyu(str){
+        var easeRegex = /Khanyu\s[0-9. ]+/;
+        if (easeRegex.test(str)) {
+            str = str.replace('key(1)[1];', 'key(1)[1].length;');
+            str = str.replace('key(1)[2];', 'key(1)[2].length;');
+        }
+        return str;
     }
 
     function correctEaseAndWizz(str){

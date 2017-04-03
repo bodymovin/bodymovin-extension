@@ -88,16 +88,27 @@ var bm_keyframeHelper = (function () {
     }
     
     function exportKeys(prop, frRate, keyframeValues) {
+        var currentExpression = '';
         property = prop;
         var propertyValueType = property.propertyValueType;
         
         frameRate = frRate;
         beziersArray = [];
+        if(propertyValueType === PropertyValueType.SHAPE) {
+            if (prop.expressionEnabled && !prop.expressionError) {
+                currentExpression = prop.expression;
+                prop.expression = '';
+            }
+        }
         if (property.numKeys <= 1) {
             if(propertyValueType === PropertyValueType.NO_VALUE){
                 return keyframeValues;
             }
-            return getPropertyValue(property.valueAtTime(0, true), true);
+            var propertyValue = getPropertyValue(property.valueAtTime(0, true), true);
+            if(currentExpression !== ''){
+                prop.expression = currentExpression;
+            }
+            return propertyValue;
         }
         jLen = property.numKeys;
         var isPrevHoldInterpolated = false;
@@ -288,6 +299,9 @@ var bm_keyframeHelper = (function () {
             }
             beziersArray[beziersArray.length - 1].s = value;
             beziersArray[beziersArray.length - 1].h = 1;
+        }
+        if(currentExpression !== ''){
+            prop.expression = currentExpression;
         }
         return beziersArray;
     }
