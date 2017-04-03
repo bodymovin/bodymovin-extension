@@ -18,6 +18,7 @@ var bm_shapeHelper = (function () {
         roundedCorners: 'rd'
     };
     var navigationShapeTree = [];
+    var extraParams = {};
 
     function getItemType(matchName) {
         switch (matchName) {
@@ -263,13 +264,20 @@ var bm_shapeHelper = (function () {
             }
         }
     }
+
+    function checkAdditionalCases(prop) {
+        if(extraParams && extraParams.is_rubberhose_autoflop && prop.name === 'Admin'){
+            return true;
+        }
+        return false;
+    }
     
     function iterateProperties(iteratable, array, frameRate, isText) {
         var i, len = iteratable.numProperties, ob, prop, itemType;
         for (i = 0; i < len; i += 1) {
             ob = null;
             prop = iteratable.property(i + 1);
-            if (prop.enabled) {
+            if (prop.enabled || checkAdditionalCases(prop)) {
                 itemType = getItemType(prop.matchName);
                 if (isText && itemType !== shapeItemTypes.shape && itemType !== shapeItemTypes.group && itemType !== shapeItemTypes.merge) {
                     continue;
@@ -278,6 +286,7 @@ var bm_shapeHelper = (function () {
                     ob = {};
                     ob.ind = i;
                     ob.ty = itemType;
+                    ob.ix = prop.propertyIndex;
                     ob.ks = bm_keyframeHelper.exportKeyframes(prop.property('Path'), frameRate);
                     checkVertexCount(ob.ks.k);
                     if (prop.property("Shape Direction").value === 3) {
@@ -663,7 +672,8 @@ var bm_shapeHelper = (function () {
     }
     
     
-    function exportShape(layerInfo, layerOb, frameRate, isText) {
+    function exportShape(layerInfo, layerOb, frameRate, isText, params) {
+        extraParams = params;
         var containingComp = layerInfo.containingComp;
         navigationShapeTree.length = 0;
         navigationShapeTree.push(containingComp.name);

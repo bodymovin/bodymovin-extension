@@ -272,7 +272,11 @@ var bm_layerElement = (function () {
         }
         
         if (lType === ob.layerTypes.shape) {
-            bm_shapeHelper.exportShape(layerInfo, layerData, frameRate);
+            var extraParams = {is_rubberhose_autoflop:false};
+            if(layerInfo.name.indexOf('::AutoFlop') !== -1){
+                extraParams.is_rubberhose_autoflop = true;
+            }
+            bm_shapeHelper.exportShape(layerInfo, layerData, frameRate, false, extraParams);
         } else if (lType === ob.layerTypes.solid) {
             layerData.sw = layerInfo.source.width;
             layerData.sh = layerInfo.source.height;
