@@ -378,6 +378,7 @@ var bm_shapeHelper = (function () {
                     ob.c.ix = prop.property('Copies').propertyIndex;
                     ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
                     ob.o.ix = prop.property('Offset').propertyIndex;
+                    ob.m = prop.property('Composite').value;
                     ob.ix = prop.propertyIndex;
                     var trOb = {};
                     var transformProperty = prop.property('Transform');
