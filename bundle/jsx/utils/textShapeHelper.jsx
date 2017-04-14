@@ -22,6 +22,8 @@ var bm_textShapeHelper = (function () {
         dupl = comp.layers.addText();
         var textProp = dupl.property("Source Text");
         var textDocument = textProp.value;
+        textDocument.resetCharStyle();
+        textDocument.resetParagraphStyle();
         textDocument.fontSize = 100;
         textDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
 

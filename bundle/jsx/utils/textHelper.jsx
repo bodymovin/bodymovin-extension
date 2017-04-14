@@ -24,8 +24,9 @@ var bm_textHelper = (function () {
     }
     
     function exportTextDocumentData(layerInfo, data, frameRate) {
-
-        var sourceTextProp = layerInfo.property("Source Text");
+        var duplicatedLayerInfo = layerInfo.duplicate();
+        removeLayerAnimators(duplicatedLayerInfo);
+        var sourceTextProp = duplicatedLayerInfo.property("Source Text");
         bm_expressionHelper.checkExpression(sourceTextProp, data);
         var arr = [];
         data.k = arr;
@@ -69,6 +70,11 @@ var bm_textHelper = (function () {
             } else {
                 ob.lh = ob.s*1.2;
             }
+            if(textDocument.baselineShift){
+                ob.ls = textDocument.baselineShift;
+            } else {
+                ob.ls = 0;
+            }
             if (textDocument.applyFill) {
                 len = textDocument.fillColor.length;
                 ob.fc = [];
@@ -89,8 +95,32 @@ var bm_textHelper = (function () {
             }
             arr.push({s:ob,t:time*frameRate});
         }
+        duplicatedLayerInfo.remove();
         bm_textShapeHelper.addTextLayer(layerInfo);
 
+    }
+
+    function removeLayerAnimators(layerInfo){
+        var textProperty = layerInfo.property("Text");
+        var i, len = textProperty.numProperties;
+        for (i = 0; i < len; i += 1) {
+            switch (textProperty(i + 1).matchName) {
+            case "ADBE Text Animators":
+                removeAnimators(textProperty(i + 1));
+                break;
+            }
+        }
+    }
+    
+    function removeAnimators(layerInfo) {
+        var i, len = layerInfo.numProperties;
+        for (i = 0; i < len; i += 1) {
+            if (layerInfo.property(i + 1).matchName === "ADBE Text Animator") {
+                layerInfo.property(i + 1).remove();
+                i -= 1;
+                len -= 1;
+            }
+        }
     }
     
     function exportTextPathData(pathOptions, ob, masksProperties, frameRate) {
