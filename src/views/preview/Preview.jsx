@@ -104,6 +104,7 @@ class Preview extends React.Component {
             <PreviewViewer 
               animationData={this.props.preview.animationData} 
               path={this.props.preview.path} 
+              renderer={this.props.renderer} 
               progress={this.props.preview.progress} 
               setTotalFrames={this.props.setTotalFrames} 
               ref={(elem => this.previewViewer = elem)} />

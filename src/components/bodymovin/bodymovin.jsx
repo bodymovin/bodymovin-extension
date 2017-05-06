@@ -39,7 +39,7 @@ class Bodymovin extends React.Component {
 			try{
 				let params = {
 					container: this.element,
-					renderer: 'svg',
+					renderer: this.props.renderer || 'svg',
 					autoplay: this.props.autoplay,
 					loop: this.props.loop,
 					rendererSettings: {
@@ -137,7 +137,11 @@ class Bodymovin extends React.Component {
 
 	componentWillUnmount() {
 		if(this.animation) {
-			this.animation.destroy()
+			try {
+				this.animation.destroy()
+			} catch(err) {
+				console.log('destroy error')
+			}
 			this.animation = null
 		}
 		if(this.element) {

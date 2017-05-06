@@ -25,6 +25,7 @@ var bm_textHelper = (function () {
     
     function exportTextDocumentData(layerInfo, data, frameRate) {
         var duplicatedLayerInfo = layerInfo.duplicate();
+        duplicatedLayerInfo.locked = false;
         removeLayerAnimators(duplicatedLayerInfo);
         var sourceTextProp = duplicatedLayerInfo.property("Source Text");
         bm_expressionHelper.checkExpression(sourceTextProp, data);

@@ -27,7 +27,9 @@ class PreviewViewer extends React.Component {
       } catch(err) {
         console.log('errr: ', err)
       }
-      
+    }
+    if(this.props.animationData !== props.animationData){
+      this.selectRenderer()
     }
   }
 
@@ -39,9 +41,13 @@ class PreviewViewer extends React.Component {
     return this.bm_instance.element.innerHTML
   }
 
+  selectRenderer() {
+
+  }
+
   render() {
     return (
-      <Bodymovin ref={(elem)=>this.bm_instance = elem} path={this.props.path} autoplay={false} animationLoaded={this.animationLoaded} >
+      <Bodymovin ref={(elem)=>this.bm_instance = elem} renderer={this.props.renderer} path={this.props.path} autoplay={false} animationLoaded={this.animationLoaded} >
         <div className={css(styles.container)}/>
       </Bodymovin>
       );
