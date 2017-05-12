@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '4.6.8'
+var version = '4.6.9'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../Users/Deeandra/AppData/Roaming/Adobe/CEP/extensions/bodymovin';

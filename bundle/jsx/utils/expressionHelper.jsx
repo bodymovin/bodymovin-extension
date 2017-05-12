@@ -54,6 +54,9 @@ var bm_expressionHelper = (function () {
             var variableName;
             if (expression.left && expression.left.name) {
                 variableName = expression.left.name;
+                if(variableName === 'value'){
+                    return;
+                }
                 var i = 0, len = declared.length;
                 while (i < len) {
                     if (declared[i] === variableName) {
@@ -534,7 +537,12 @@ var bm_expressionHelper = (function () {
     function createAssignmentObject(){
         return {
             type: 'ExpressionStatement',
-            expression: {
+            expression: createAssignmentExpressionObject()
+        }
+    }
+
+    function createAssignmentExpressionObject(){
+        return {
                 left: {
                     name: '$bm_rt',
                         type: 'Identifier'
@@ -542,7 +550,6 @@ var bm_expressionHelper = (function () {
                 type: "AssignmentExpression",
                     operator: '='
             }
-        }
     }
 
     function convertExpressionStatementToVariableDeclaration(expressionStatement) {
@@ -587,6 +594,10 @@ var bm_expressionHelper = (function () {
             assignmentObject = createAssignmentObject();
             assignmentObject.expression.right = expressionStatement.expression;
             return assignmentObject;
+        } else if(expressionStatement.expression.type === 'SequenceExpression'){
+            assignmentObject = createAssignmentExpressionObject();
+            assignmentObject.right = expressionStatement.expression.expressions[expressionStatement.expression.expressions.length - 1];
+            expressionStatement.expression.expressions[expressionStatement.expression.expressions.length - 1] = assignmentObject;
         }
         return expressionStatement;
     }

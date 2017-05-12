@@ -21,7 +21,8 @@ var bm_effectsHelper = (function () {
         tritone: 23,
         proLevels: 24,
         dropShadow: 25,
-        radialWipe: 26
+        radialWipe: 26,
+        displacementMap: 27
     };
     
     function getEffectType(name) {
@@ -40,6 +41,8 @@ var bm_effectsHelper = (function () {
             return effectTypes.dropShadow;
         case 'ADBE Radial Wipe':
             return effectTypes.radialWipe;
+        case 'ADBE Displacement Map':
+            return effectTypes.displacementMap;
         default:
             return effectTypes.group;
         }
