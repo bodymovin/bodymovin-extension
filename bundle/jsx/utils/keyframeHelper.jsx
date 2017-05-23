@@ -86,6 +86,66 @@ var bm_keyframeHelper = (function () {
             }
         }
     }
+
+    function calcTweenData(property, startIndex, endIndex, framerate) {
+        var startTime = property.keyTime(startIndex);
+        var endTime = property.keyTime(endIndex);
+        var durationTime = endTime - startTime;
+
+        var startFrame = startTime * framerate;
+        var endFrame = endTime * framerate;
+        var durationFrames = endFrame - startFrame;
+
+        var startValue;
+        var endValue;
+
+        if (property.value instanceof Array) {
+            startValue = property.keyValue(startIndex)[0];
+            endValue = property.keyValue(endIndex)[0];
+        } else {
+            startValue = property.keyValue(startIndex);
+            endValue = property.keyValue(endIndex);
+        }
+
+        return {
+            startTime: startTime,
+            endTime: endTime,
+            durationTime: durationTime,
+            startFrame: startFrame,
+            endFrame: endFrame,
+            durationFrames: durationFrames,
+            startValue: startValue,
+            endValue: endValue
+        };
+    }
+
+    function calcOutgoingControlPoint(tweenData, property, keyIndex, framerate) {
+        var outgoingEase = property.keyOutTemporalEase(keyIndex);
+        var outgoingSpeed = outgoingEase[0].speed;
+        var outgoingInfluence = outgoingEase[0].influence / 100;
+
+        var m = outgoingSpeed / framerate; // Slope
+        var x = tweenData.durationFrames * outgoingInfluence;
+        var b = tweenData.startValue; // Y-intercept
+        var y = (m * x) + b;
+
+        var correctedX = tweenData.startFrame + x;
+        return [correctedX/tweenData.durationFrames, y*10];
+    }
+
+    function calcIncomingControlPoint(tweenData, property, keyIndex, framerate) {
+        var incomingEase = property.keyInTemporalEase(keyIndex + 1);
+        var incomingSpeed = incomingEase[0].speed;
+        var incomingInfluence = incomingEase[0].influence / 100;
+
+        var m = -incomingSpeed / framerate; // Slope
+        var x = tweenData.durationFrames * incomingInfluence;
+        var b = tweenData.endValue; // Y-intercept
+        var y = (m * x) + b;
+
+        var correctedX = tweenData.endFrame - x;
+        return [correctedX/tweenData.durationFrames, y*10];
+    }
     
     function exportKeys(prop, frRate, keyframeValues) {
         var currentExpression = '';
@@ -122,6 +182,12 @@ var bm_keyframeHelper = (function () {
             var key = {};
             var lastKey = {};
             var interpolationType = '';
+            var tweenData = calcTweenData(property, indexTime, indexTime + 1, frameRate);
+            var incomingPt = calcIncomingControlPoint(tweenData, property, indexTime, frameRate);
+            var outgoingPt = calcOutgoingControlPoint(tweenData, property, indexTime, frameRate);
+            bm_eventDispatcher.log(tweenData);
+            bm_eventDispatcher.log(incomingPt);
+            bm_eventDispatcher.log(outgoingPt);
             key.time = property.keyTime(indexTime + 1);
             lastKey.time = property.keyTime(indexTime);
             if(propertyValueType !== PropertyValueType.NO_VALUE){
