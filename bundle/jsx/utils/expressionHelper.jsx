@@ -478,6 +478,8 @@ var bm_expressionHelper = (function () {
                     declarations[i].init = convertUnaryExpression(declarations[i].init);
                 } else if (declarations[i].init.type === 'CallExpression') {
                     handleCallExpression(declarations[i].init);
+                } else if (declarations[i].init.type === 'ConditionalExpression') {
+                    handleConditionalExpression(declarations[i].init);
                 }
             }
         }
@@ -501,11 +503,15 @@ var bm_expressionHelper = (function () {
         if(conditionalExpression.consequent){
             if (conditionalExpression.consequent.type=== 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.consequent);
+            } else if (conditionalExpression.consequent.type=== 'BinaryExpression') {
+                conditionalExpression.consequent = convertBinaryExpression(conditionalExpression.consequent);
             }
         }
         if(conditionalExpression.alternate){
             if (conditionalExpression.alternate.type=== 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.alternate);
+            } else if (conditionalExpression.alternate.type=== 'BinaryExpression') {
+                conditionalExpression.alternate = convertBinaryExpression(conditionalExpression.alternate);
             }
         }
     }
