@@ -130,7 +130,7 @@ var bm_keyframeHelper = (function () {
         var y = (m * x) + b;
 
         var correctedX = tweenData.startFrame + x;
-        return [correctedX/tweenData.durationFrames, y*10];
+        return [correctedX/tweenData.durationFrames, y];
     }
 
     function calcIncomingControlPoint(tweenData, property, keyIndex, framerate) {
@@ -144,7 +144,38 @@ var bm_keyframeHelper = (function () {
         var y = (m * x) + b;
 
         var correctedX = tweenData.endFrame - x;
-        return [correctedX/tweenData.durationFrames, y*10];
+        return [correctedX/tweenData.durationFrames, y];
+    }
+
+    var clampInfiniteValues = true; // Whether to clamp Infinite values or leave them as "Infinite"
+
+    function getNormalizedCurve (tweenData, p0, p1) {
+        function normalize (val, min, max) {
+            var delta = max - min;
+            var normalized = (val - min)/delta;
+
+            // Clamps infinite values. Optional.
+            if (clampInfiniteValues) {
+                if (normalized === Number.NEGATIVE_INFINITY)
+                    normalized = -10;
+                if (normalized === Number.POSITIVE_INFINITY)
+                    normalized = 10;
+            }
+
+            return normalized;
+        }
+
+        var x1 = normalize(p0[0], tweenData.startFrame, tweenData.endFrame).toFixed(3);
+        var y1 = normalize(p0[1], tweenData.startValue, tweenData.endValue).toFixed(3);
+
+        if (isNaN(y1)) y1 = x1;
+
+        var x2 = normalize(p1[0], tweenData.startFrame, tweenData.endFrame).toFixed(3);
+        var y2 = normalize(p1[1], tweenData.startValue, tweenData.endValue).toFixed(3);
+
+        if (isNaN(y2)) y2 = x2;
+
+        return [x1, y1, x2, y2];
     }
     
     function exportKeys(prop, frRate, keyframeValues) {
@@ -182,12 +213,14 @@ var bm_keyframeHelper = (function () {
             var key = {};
             var lastKey = {};
             var interpolationType = '';
-            var tweenData = calcTweenData(property, indexTime, indexTime + 1, frameRate);
+            /*var tweenData = calcTweenData(property, indexTime, indexTime + 1, frameRate);
             var incomingPt = calcIncomingControlPoint(tweenData, property, indexTime, frameRate);
             var outgoingPt = calcOutgoingControlPoint(tweenData, property, indexTime, frameRate);
             bm_eventDispatcher.log(tweenData);
             bm_eventDispatcher.log(incomingPt);
             bm_eventDispatcher.log(outgoingPt);
+            var norma = getNormalizedCurve(tweenData, outgoingPt, incomingPt);
+            bm_eventDispatcher.log(norma);*/
             key.time = property.keyTime(indexTime + 1);
             lastKey.time = property.keyTime(indexTime);
             if(propertyValueType !== PropertyValueType.NO_VALUE){
@@ -304,12 +337,22 @@ var bm_keyframeHelper = (function () {
                         bezierOut.y = [];
                         kLen = key.easeIn.length;
                         for (k = 0; k < kLen; k += 1) {
-                            if (averageSpeed[k] === 0 || interpolationType === 'linear') {
+                            if (interpolationType === 'linear') {
                                 bezierIn.y[k] = bezierIn.x[k];
                                 bezierOut.y[k] = bezierOut.x[k];
                             } else {
-                                bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
-                                bezierOut.y[k] = ((lastKey.easeOut[k].speed) / averageSpeed[k]) * bezierOut.x[k];
+                                var DURATION_CONST = 5;
+                                var yNormal = (key.value[k] - lastKey.value[k]);
+                                if(yNormal === 0) {
+                                    yNormal = 1;
+                                }
+                                bm_eventDispatcher.log('ENTRO' + kLen)
+                                var bezierY = (lastKey.easeOut[k].speed*lastKey.easeOut[k].influence/100);
+                                var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
+                                //bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
+                                //bezierOut.y[k] = ((lastKey.easeOut[k].speed) / averageSpeed[k]) * bezierOut.x[k];
+                                bezierIn.y[k] = 1 - (bezierInY*duration/DURATION_CONST)/yNormal;
+                                bezierOut.y[k] = (bezierY*duration/DURATION_CONST)/yNormal;
                             }
                         }
                         break;
