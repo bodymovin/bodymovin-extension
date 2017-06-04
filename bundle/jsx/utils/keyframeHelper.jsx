@@ -346,7 +346,6 @@ var bm_keyframeHelper = (function () {
                                 if(yNormal === 0) {
                                     yNormal = 1;
                                 }
-                                bm_eventDispatcher.log('ENTRO' + kLen)
                                 var bezierY = (lastKey.easeOut[k].speed*lastKey.easeOut[k].influence/100);
                                 var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
                                 //bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
