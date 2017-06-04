@@ -46,6 +46,9 @@ var bm_projectManager = (function () {
         } else {
             storedProjectId = bm_XMPHelper.getMetadata('project_id');
         }
+        if(!app.project || app.project.numItems === 0) {
+            return;
+        }
         if(!storedProjectId) {
             storedProjectId = bm_generalUtils.random(20);
             bm_XMPHelper.setMetadata('project_id',storedProjectId);
