@@ -13,6 +13,7 @@ var bm_shapeHelper = (function () {
         stroke: 'st',
         merge: 'mm',
         trim: 'tm',
+        twist: 'tw',
         group: 'gr',
         repeater: 'rp',
         roundedCorners: 'rd'
@@ -40,6 +41,9 @@ var bm_shapeHelper = (function () {
         case 'ADBE Vector Graphic - Trim':
         case 'ADBE Vector Filter - Trim':
             return shapeItemTypes.trim;
+        case 'ADBE Vector Graphic - Twist':
+        case 'ADBE Vector Filter - Twist':
+            return shapeItemTypes.twist;
         case 'ADBE Vector Filter - RC':
             return shapeItemTypes.roundedCorners;
         case 'ADBE Vector Group':
@@ -411,6 +415,20 @@ var bm_shapeHelper = (function () {
                     ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
                     ob.o.ix = prop.property('Offset').propertyIndex;
                     ob.m = prop.property('Trim Multiple Shapes').value;
+                    ob.ix = prop.propertyIndex;
+                } else if (itemType === shapeItemTypes.twist) {
+                    ob = {};
+                    ob.ty = itemType;
+                    bm_generalUtils.iterateProperty(prop);
+                    ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate);
+                    ob.a.ix = prop.property('ADBE Vector Twist Angle').propertyIndex;
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate);
+                    ob.c.ix = prop.property('ADBE Vector Twist Center').propertyIndex;
+                    /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate);
+                    ob.e.ix = prop.property('End').propertyIndex;
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
+                    ob.o.ix = prop.property('Offset').propertyIndex;
+                    ob.m = prop.property('Trim Multiple Shapes').value;*/
                     ob.ix = prop.propertyIndex;
                 } else if (itemType === shapeItemTypes.group) {
                     ob = {
