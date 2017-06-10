@@ -58,7 +58,11 @@ var bm_layerElement = (function () {
                 } else if (lSource.name.toString().indexOf("].") !== -1) {
                     return ob.layerTypes.imageSeq;
                 } else {
-                    return ob.layerTypes.video;
+                    if(lMainSource.isStill) {
+                        return ob.layerTypes.still;
+                    } else {
+                        return ob.layerTypes.video;
+                    }
                 }
             } else if (lSource.frameDuration === 1) {
                 if (lMainSource instanceof PlaceholderSource) {
