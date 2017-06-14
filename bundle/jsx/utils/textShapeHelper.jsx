@@ -143,17 +143,20 @@ var bm_textShapeHelper = (function () {
         charData.data = {};
         if (ch !== ' ') {
             bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
+            while(charData.data.shapes.length > 1) {
+                charData.data.shapes.pop();
+            }
             lLen = charData.data.shapes[0].it.length;
             for (l = 0; l < lLen; l += 1) {
                 var ks = charData.data.shapes[0].it[l].ks;
                 if (ks) {
                     var k, kLen = ks.k.i.length;
-                    for (k = 0; k < kLen; k += 1) {
+                    /*for (k = 0; k < kLen; k += 1) {
                         ks.k.i[k][0] += ks.k.v[k][0];
                         ks.k.i[k][1] += ks.k.v[k][1];
                         ks.k.o[k][0] += ks.k.v[k][0];
                         ks.k.o[k][1] += ks.k.v[k][1];
-                    }
+                    }*/
                 } else {
                     charData.data.shapes[0].it.splice(l, 1);
                     l -= 1;
