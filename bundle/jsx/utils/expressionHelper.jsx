@@ -225,7 +225,6 @@ var bm_expressionHelper = (function () {
         exportNextBody();
     }
 
-
     function searchOperations(body) {
         var i, len = body.length;
         for (i = 0; i < len; i += 1) {
@@ -679,6 +678,28 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function findExpressionStatementsWithAssignmentExpressions(body) {
+
+        var i, len = body.length;
+        var j, jLen;
+        for(i = 0; i < len; i += 1) {
+            if (body[i].type === 'ExpressionStatement') {
+                if(body[i].expression.type === 'CallExpression') {
+                    jLen = body[i].expression.arguments.length;
+                    for (j = 0; j < jLen; j += 1) {
+                        if(body[i].expression.arguments[j].type === 'AssignmentExpression') {
+                            body[i].expression.arguments[j] = body[i].expression.arguments[j].right;
+                        }
+                    } 
+                }
+            } else if (body[i].type === 'FunctionDeclaration') {
+                if (body[i].body && body[i].body.type === 'BlockStatement') {
+                    findExpressionStatementsWithAssignmentExpressions(body[i].body.body);
+                }
+            }
+        }
+    }
+
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {
             pendingBodies.length = 0;
@@ -691,6 +712,7 @@ var bm_expressionHelper = (function () {
             searchUndeclaredVariables();
             var parsed = esprima.parse(expressionStr, options);
             var body = parsed.body;
+            findExpressionStatementsWithAssignmentExpressions(body);
             if(expressionStr.indexOf("use javascript") !== 1){
                 replaceOperations(body);
             }
