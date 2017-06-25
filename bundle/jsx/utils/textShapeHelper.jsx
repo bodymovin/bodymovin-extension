@@ -101,7 +101,8 @@ var bm_textShapeHelper = (function () {
             return;
         }
             //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
-        if (ch.charCodeAt(0) === 13 || ch.charCodeAt(0) === 160) {
+        if (ch.charCodeAt(0) === 13 || ch.charCodeAt(0) === 160 || ch.charCodeAt(0) === 65279) {
+            charData.w = 0;
             return;
         }
         var shapeLayer;
