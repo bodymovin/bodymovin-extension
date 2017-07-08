@@ -4,7 +4,7 @@ var bm_textAnimatorHelper = (function () {
     'use strict';
     var ob = {};
     
-    function exportTextSelector(layerInfo, frameRate) {
+    function exportTextSelector(layerInfo, frameRate, stretch) {
         var ob = {};
         var i, len;
         var selectorProperty;
@@ -39,9 +39,9 @@ var bm_textAnimatorHelper = (function () {
             
             var advancedProperty = selectorProperty.property('ADBE Text Range Advanced');
             ob.t = 0;
-            ob.xe = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Levels Max Ease'), frameRate);
-            ob.ne = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Levels Min Ease'), frameRate);
-            ob.a = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Selector Max Amount'), frameRate);
+            ob.xe = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Levels Max Ease'), frameRate, stretch);
+            ob.ne = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Levels Min Ease'), frameRate, stretch);
+            ob.a = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Selector Max Amount'), frameRate, stretch);
             ob.b = advancedProperty.property("ADBE Text Range Type2").value;
             ob.rn = advancedProperty.property("ADBE Text Randomize Order").value;
             ob.sh = advancedProperty.property("ADBE Text Range Shape").value;
@@ -50,23 +50,23 @@ var bm_textAnimatorHelper = (function () {
             var rangeUnits = advancedProperty.property('ADBE Text Range Units').value;
             if (rangeUnits === 1) {
                 if (selectorProperty.property('ADBE Text Percent Start').isModified) {
-                    ob.s = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent Start'), frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent Start'), frameRate, stretch);
                 }
                 if (selectorProperty.property('ADBE Text Percent End').isModified) {
-                    ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent End'), frameRate);
+                    ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent End'), frameRate, stretch);
                 }
                 if (selectorProperty.property('ADBE Text Percent Offset').isModified) {
-                    ob.o = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent Offset'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Percent Offset'), frameRate, stretch);
                 }
             } else {
                 if (selectorProperty.property('ADBE Text Index Start').isModified) {
-                    ob.s = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Start'), frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Start'), frameRate, stretch);
                 }
                 if (selectorProperty.property('ADBE Text Index End').isModified) {
-                    ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index End'), frameRate);
+                    ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index End'), frameRate, stretch);
                 }
                 if (selectorProperty.property('ADBE Text Index Offset').isModified) {
-                    ob.o = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Offset'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Offset'), frameRate, stretch);
                 }
             }
             ob.r = rangeUnits;
@@ -92,7 +92,7 @@ var bm_textAnimatorHelper = (function () {
         return ob;
     }
     
-    function exportAnimationSelector(layerInfo, frameRate) {
+    function exportAnimationSelector(layerInfo, frameRate, stretch) {
         var ob = {};
         var i, len, property, propertyName;
         len = layerInfo.numProperties;
@@ -102,67 +102,67 @@ var bm_textAnimatorHelper = (function () {
                 propertyName = property.matchName;
                 switch (propertyName) {
                 case 'ADBE Text Anchor Point 3D':
-                    ob.a = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.a = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Position 3D':
-                    ob.p = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.p = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Scale 3D':
-                    ob.s = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Rotation':
-                    ob.r = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.r = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Rotation X':
-                    ob.rx = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.rx = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Rotation Y':
-                    ob.ry = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.ry = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Opacity':
-                    ob.o = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Fill Color':
-                    ob.fc = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.fc = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Fill Hue':
-                    ob.fh = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.fh = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Fill Saturation':
-                    ob.fs = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.fs = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Fill Brightness':
-                    ob.fb = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.fb = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Color':
-                    ob.sc = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sc = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Hue':
-                    ob.sh = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sh = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Saturation':
-                    ob.ss = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.ss = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Brightness':
-                    ob.sb = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sb = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Width':
-                    ob.sw = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sw = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Fill Opacity':
-                    ob.fo = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.fo = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Stroke Opacity':
-                    ob.so = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.so = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Tracking Amount':
-                    ob.t = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.t = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Skew':
-                    ob.sk = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sk = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 case 'ADBE Text Skew Axis':
-                    ob.sa = bm_keyframeHelper.exportKeyframes(property, frameRate);
+                    ob.sa = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
                 }
             }
@@ -170,16 +170,16 @@ var bm_textAnimatorHelper = (function () {
         return ob;
     }
     
-    function exportAnimator(layerInfo, ob, frameRate) {
+    function exportAnimator(layerInfo, ob, frameRate, stretch) {
         var i, len;
         len = layerInfo.numProperties;
         for (i = 0; i < len; i += 1) {
             switch (layerInfo.property(i + 1).matchName) {
             case "ADBE Text Selectors":
-                ob.s = exportTextSelector(layerInfo.property(i + 1), frameRate);
+                ob.s = exportTextSelector(layerInfo.property(i + 1), frameRate, stretch);
                 break;
             case "ADBE Text Animator Properties":
-                ob.a = exportAnimationSelector(layerInfo.property(i + 1), frameRate);
+                ob.a = exportAnimationSelector(layerInfo.property(i + 1), frameRate, stretch);
                 break;
             }
         }

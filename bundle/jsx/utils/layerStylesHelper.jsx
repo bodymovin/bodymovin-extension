@@ -20,8 +20,8 @@ var bm_layerStylesHelper = (function () {
         var ob = {};
         ob.ty = layerStyleTypes.stroke;
         ob.nm = style.name;
-        ob.c = bm_keyframeHelper.exportKeyframes(style.property('frameFX/color'), frameRate);
-        ob.s = bm_keyframeHelper.exportKeyframes(style.property('frameFX/size'), frameRate);
+        ob.c = bm_keyframeHelper.exportKeyframes(style.property('frameFX/color'), frameRate, stretch);
+        ob.s = bm_keyframeHelper.exportKeyframes(style.property('frameFX/size'), frameRate, stretch);
         return ob;
     }
     
@@ -29,6 +29,7 @@ var bm_layerStylesHelper = (function () {
         if (!(layerInfo.property('Layer Styles') && layerInfo.property('Layer Styles').numProperties > 0)) {
             return;
         }
+        var stretch = layerData.sr;
         var styles = layerInfo.property('Layer Styles');
         var i, len = styles.numProperties, styleElement;
         var stylesArray = [];
@@ -38,7 +39,7 @@ var bm_layerStylesHelper = (function () {
                 var styleType = getStyleType(styleElement.matchName);
                 switch (styleType) {
                 case layerStyleTypes.stroke:
-                    stylesArray.push(exportStroke(styleElement, frameRate));
+                    stylesArray.push(exportStroke(styleElement, frameRate, stretch));
                     break;
                 }
             }

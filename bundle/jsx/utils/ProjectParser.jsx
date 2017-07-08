@@ -18,9 +18,14 @@ var bm_ProjectHelper = (function(){
     function getProjectData(){
         var proj = app.project;
         var ff = proj.file;
-        var demoFile = new File(ff.absoluteURI);
-        demoFile.open('r', 'TEXT', '????');
-        fileString = demoFile.read(demoFile.length);
+        if(!ff) {
+            fileString = '<no file>';
+        } else {
+            var demoFile = new File(ff.absoluteURI);
+            bm_eventDispatcher.log('ffff222:');
+            demoFile.open('r', 'TEXT', '????');
+            fileString = demoFile.read(demoFile.length);
+        }
     }
 
     function getGradientData(shapeNavigation, numKeys){

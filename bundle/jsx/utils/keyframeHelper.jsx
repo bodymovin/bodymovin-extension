@@ -178,7 +178,7 @@ var bm_keyframeHelper = (function () {
         return [x1, y1, x2, y2];
     }
     
-    function exportKeys(prop, frRate, keyframeValues) {
+    function exportKeys(prop, frRate, stretch, keyframeValues) {
         var currentExpression = '';
         property = prop;
         var propertyValueType = property.propertyValueType;
@@ -203,6 +203,7 @@ var bm_keyframeHelper = (function () {
         }
         jLen = property.numKeys;
         var isPrevHoldInterpolated = false;
+        var STRETCH_FACTOR = stretch;
         for (j = 1; j < jLen; j += 1) {
             isPrevHoldInterpolated = false;
             var segmentOb = {};
@@ -262,7 +263,7 @@ var bm_keyframeHelper = (function () {
                 }
                 segmentOb.h = 1;
             } else {
-                duration = key.time - lastKey.time;
+                duration = (key.time - lastKey.time)/STRETCH_FACTOR;
                 len = propertyValueType === PropertyValueType.NO_VALUE ? 0 : key.value.length;
                 bezierIn = {};
                 bezierOut = {};
@@ -325,8 +326,9 @@ var bm_keyframeHelper = (function () {
                             bezierIn.y = bezierIn.x;
                             bezierOut.y = bezierOut.x;
                         } else {
-                            bezierIn.y =  1 - ((key.easeIn.speed) / averageSpeed) * (infIn / 100);
-                            bezierOut.y = ((lastKey.easeOut.speed) / averageSpeed) * bezierOut.x;
+                            //bm_eventDispatcher.log('av: ' + averageSpeed);
+                            bezierIn.y =  1 - (key.easeIn.speed / averageSpeed)  * (infIn / 100);
+                            bezierOut.y = (lastKey.easeOut.speed / averageSpeed) * (infOut / 100);
                         }
                         break;
                     case PropertyValueType.ThreeD:
@@ -341,17 +343,16 @@ var bm_keyframeHelper = (function () {
                                 bezierIn.y[k] = bezierIn.x[k];
                                 bezierOut.y[k] = bezierOut.x[k];
                             } else {
-                                var DURATION_CONST = 5;
                                 var yNormal = (key.value[k] - lastKey.value[k]);
                                 if(yNormal === 0) {
                                     yNormal = 1;
                                 }
+                                /*bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
+                                bezierOut.y[k] = ((lastKey.easeOut[k].speed) / averageSpeed[k]) * bezierOut.x[k];*/
                                 var bezierY = (lastKey.easeOut[k].speed*lastKey.easeOut[k].influence/100);
                                 var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
-                                //bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
-                                //bezierOut.y[k] = ((lastKey.easeOut[k].speed) / averageSpeed[k]) * bezierOut.x[k];
-                                bezierIn.y[k] = 1 - (bezierInY*duration/DURATION_CONST)/yNormal;
-                                bezierOut.y[k] = (bezierY*duration/DURATION_CONST)/yNormal;
+                                bezierIn.y[k] = 1 - (bezierInY*duration)/yNormal;
+                                bezierOut.y[k] = (bezierY*duration)/yNormal;
                             }
                         }
                         break;
@@ -414,14 +415,14 @@ var bm_keyframeHelper = (function () {
         return beziersArray;
     }
     
-    function exportKeyframes(prop, frRate, keyframeValues) {
+    function exportKeyframes(prop, frRate, stretch, keyframeValues) {
         var returnOb = {}
         if (prop.numKeys <= 1) {
             returnOb.a = 0;
         } else {
             returnOb.a = 1;
         }
-        returnOb.k = exportKeys(prop, frRate, keyframeValues);
+        returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
         bm_expressionHelper.checkExpression(prop, returnOb);
         return returnOb;
     }

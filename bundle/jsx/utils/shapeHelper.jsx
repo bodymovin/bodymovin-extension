@@ -276,7 +276,7 @@ var bm_shapeHelper = (function () {
         return false;
     }
     
-    function iterateProperties(iteratable, array, frameRate, isText) {
+    function iterateProperties(iteratable, array, frameRate, stretch, isText) {
         var i, len = iteratable.numProperties, ob, prop, itemType;
         for (i = 0; i < len; i += 1) {
             ob = null;
@@ -291,7 +291,7 @@ var bm_shapeHelper = (function () {
                     ob.ind = i;
                     ob.ty = itemType;
                     ob.ix = prop.propertyIndex;
-                    ob.ks = bm_keyframeHelper.exportKeyframes(prop.property('Path'), frameRate);
+                    ob.ks = bm_keyframeHelper.exportKeyframes(prop.property('Path'), frameRate, stretch);
                     checkVertexCount(ob.ks.k);
                     if (prop.property("Shape Direction").value === 3) {
                         reverseShape(ob.ks.k);
@@ -301,103 +301,103 @@ var bm_shapeHelper = (function () {
                     ob = {};
                     ob.ty = itemType;
                     ob.d = prop.property("Shape Direction").value;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate);
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate);
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Roundness'), frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
+                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Roundness'), frameRate, stretch);
                 } else if(itemType === shapeItemTypes.star && !isText) {
                     ob = {};
                     ob.ty = itemType;
                     ob.sy = prop.property("Type").value;
                     ob.d = prop.property("Shape Direction").value;
-                    ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate);
+                    ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate, stretch);
                     ob.pt.ix = prop.property('Points').propertyIndex;
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate);
+                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
                     ob.p.ix = prop.property('Position').propertyIndex;
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Rotation'), frameRate);
+                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Rotation'), frameRate, stretch);
                     ob.r.ix = prop.property('Rotation').propertyIndex;
                     if(ob.sy === 1) {
-                        ob.ir = bm_keyframeHelper.exportKeyframes(prop.property('Inner Radius'), frameRate);
+                        ob.ir = bm_keyframeHelper.exportKeyframes(prop.property('Inner Radius'), frameRate, stretch);
                         ob.ir.ix = prop.property('Inner Radius').propertyIndex;
-                        ob.is = bm_keyframeHelper.exportKeyframes(prop.property('Inner Roundness'), frameRate);
+                        ob.is = bm_keyframeHelper.exportKeyframes(prop.property('Inner Roundness'), frameRate, stretch);
                         ob.is.ix = prop.property('Inner Roundness').propertyIndex;
                     }
-                    ob.or = bm_keyframeHelper.exportKeyframes(prop.property('Outer Radius'), frameRate);
+                    ob.or = bm_keyframeHelper.exportKeyframes(prop.property('Outer Radius'), frameRate, stretch);
                     ob.or.ix = prop.property('Outer Radius').propertyIndex;
-                    ob.os = bm_keyframeHelper.exportKeyframes(prop.property('Outer Roundness'), frameRate);
+                    ob.os = bm_keyframeHelper.exportKeyframes(prop.property('Outer Roundness'), frameRate, stretch);
                     ob.os.ix = prop.property('Outer Roundness').propertyIndex;
                     ob.ix = prop.propertyIndex;
                 } else if (itemType === shapeItemTypes.ellipse) {
                     ob = {};
                     ob.d = prop.property("Shape Direction").value;
                     ob.ty = itemType;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate);
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
                 } else if (itemType === shapeItemTypes.fill) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate);
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                     ob.r = prop.property('Fill Rule').value;
                 } else if (itemType === shapeItemTypes.gfill) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                     ob.r = prop.property('Fill Rule').value;
                     navigationShapeTree.push(prop.name);
-                    exportGradientData(ob,prop,frameRate, navigationShapeTree);
+                    exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
                     navigationShapeTree.pop();
 
                 } else if (itemType === shapeItemTypes.gStroke) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate);
-                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
                     navigationShapeTree.push(prop.name);
-                    exportGradientData(ob,prop,frameRate, navigationShapeTree);
+                    exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
                     navigationShapeTree.pop();
                     ob.lc = prop.property('Line Cap').value;
                     ob.lj = prop.property('Line Join').value;
                     if (ob.lj === 1) {
                         ob.ml = prop.property('Miter Limit').value;
                     }
-                    getDashData(ob,prop, frameRate);
+                    getDashData(ob,prop, frameRate, stretch);
 
                 } else if (itemType === shapeItemTypes.stroke) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate);
-                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate);
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
                     ob.lc = prop.property('Line Cap').value;
                     ob.lj = prop.property('Line Join').value;
                     if (ob.lj === 1) {
                         ob.ml = prop.property('Miter Limit').value;
                     }
-                    getDashData(ob,prop, frameRate);
+                    getDashData(ob,prop, frameRate, stretch);
 
                 } else if (itemType === shapeItemTypes.repeater) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Copies'), frameRate);
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Copies'), frameRate, stretch);
                     ob.c.ix = prop.property('Copies').propertyIndex;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
                     ob.o.ix = prop.property('Offset').propertyIndex;
                     ob.m = prop.property('Composite').value;
                     ob.ix = prop.propertyIndex;
                     var trOb = {};
                     var transformProperty = prop.property('Transform');
                     trOb.ty = 'tr';
-                    trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate);
+                    trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate, stretch);
                     trOb.p.ix = transformProperty.property('Position').propertyIndex;
-                    trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate);
+                    trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
                     trOb.a.ix = transformProperty.property('Anchor Point').propertyIndex;
-                    trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate);
+                    trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate, stretch);
                     trOb.s.ix = transformProperty.property('Scale').propertyIndex;
-                    trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate);
+                    trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate, stretch);
                     trOb.r.ix = transformProperty.property('Rotation').propertyIndex;
-                    trOb.so = bm_keyframeHelper.exportKeyframes(transformProperty.property('Start Opacity'), frameRate);
+                    trOb.so = bm_keyframeHelper.exportKeyframes(transformProperty.property('Start Opacity'), frameRate, stretch);
                     trOb.so.ix = transformProperty.property('Start Opacity').propertyIndex;
-                    trOb.eo = bm_keyframeHelper.exportKeyframes(transformProperty.property('End Opacity'), frameRate);
+                    trOb.eo = bm_keyframeHelper.exportKeyframes(transformProperty.property('End Opacity'), frameRate, stretch);
                     trOb.eo.ix = transformProperty.property('End Opacity').propertyIndex;
                     trOb.nm = transformProperty.name;
                     ob.tr = trOb;
@@ -408,11 +408,11 @@ var bm_shapeHelper = (function () {
                 } else if (itemType === shapeItemTypes.trim) {
                     ob = {};
                     ob.ty = itemType;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start'), frameRate);
+                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start'), frameRate, stretch);
                     ob.s.ix = prop.property('Start').propertyIndex;
-                    ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate);
+                    ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
                     ob.e.ix = prop.property('End').propertyIndex;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
                     ob.o.ix = prop.property('Offset').propertyIndex;
                     ob.m = prop.property('Trim Multiple Shapes').value;
                     ob.ix = prop.propertyIndex;
@@ -420,13 +420,13 @@ var bm_shapeHelper = (function () {
                     ob = {};
                     ob.ty = itemType;
                     bm_generalUtils.iterateProperty(prop);
-                    ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate);
+                    ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate, stretch);
                     ob.a.ix = prop.property('ADBE Vector Twist Angle').propertyIndex;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate);
+                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate, stretch);
                     ob.c.ix = prop.property('ADBE Vector Twist Center').propertyIndex;
-                    /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate);
+                    /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
                     ob.e.ix = prop.property('End').propertyIndex;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate);
+                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
                     ob.o.ix = prop.property('Offset').propertyIndex;
                     ob.m = prop.property('Trim Multiple Shapes').value;*/
                     ob.ix = prop.propertyIndex;
@@ -440,25 +440,25 @@ var bm_shapeHelper = (function () {
                         ix: prop.propertyIndex
                     };
                     navigationShapeTree.push(prop.name);
-                    iterateProperties(prop.property('Contents'), ob.it, frameRate, isText);
+                    iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText);
                     if (!isText) {
                         var trOb = {};
                         var transformProperty = prop.property('Transform');
                         trOb.ty = 'tr';
-                        trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate);
+                        trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate, stretch);
                         trOb.p.ix = transformProperty.property('Position').propertyIndex;
-                        trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate);
+                        trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
                         trOb.a.ix = transformProperty.property('Anchor Point').propertyIndex;
-                        trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate);
+                        trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate, stretch);
                         trOb.s.ix = transformProperty.property('Scale').propertyIndex;
-                        trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate);
+                        trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate, stretch);
                         trOb.r.ix = transformProperty.property('Rotation').propertyIndex;
-                        trOb.o = bm_keyframeHelper.exportKeyframes(transformProperty.property('Opacity'), frameRate);
+                        trOb.o = bm_keyframeHelper.exportKeyframes(transformProperty.property('Opacity'), frameRate, stretch);
                         trOb.o.ix = transformProperty.property('Opacity').propertyIndex;
                         if(transformProperty.property('Skew').canSetExpression) {
-                            trOb.sk = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew'), frameRate);
+                            trOb.sk = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew'), frameRate, stretch);
                             trOb.sk.ix = transformProperty.property('Skew').propertyIndex;
-                            trOb.sa = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew Axis'), frameRate);
+                            trOb.sa = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew Axis'), frameRate, stretch);
                             trOb.sa.ix = transformProperty.property('Skew Axis').propertyIndex;
                         }
                         trOb.nm = transformProperty.name;
@@ -470,7 +470,7 @@ var bm_shapeHelper = (function () {
                         ty : itemType,
                         nm: prop.name
                     };
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Radius'), frameRate);
+                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Radius'), frameRate, stretch);
                 }
                 if (ob) {
                     ob.nm = prop.name;
@@ -489,23 +489,23 @@ var bm_shapeHelper = (function () {
         }
     }
 
-    function exportGradientData(ob,prop,frameRate, navigationShapeTree){
+    function exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree){
         var property = prop.property('Colors');
         var gradientData = bm_ProjectHelper.getGradientData(navigationShapeTree, property.numKeys);
         ob.g = {
             p:gradientData.p,
-            k:bm_keyframeHelper.exportKeyframes(property, frameRate, gradientData.m)
+            k:bm_keyframeHelper.exportKeyframes(property, frameRate, stretch, gradientData.m)
         };
-        ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start Point'), frameRate);
-        ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End Point'), frameRate);
+        ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start Point'), frameRate, stretch);
+        ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End Point'), frameRate, stretch);
         ob.t = prop.property('Type').value;
         if(ob.t === 2){
-            ob.h = bm_keyframeHelper.exportKeyframes(prop.property('Highlight Length'), frameRate);
-            ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Highlight Angle'), frameRate);
+            ob.h = bm_keyframeHelper.exportKeyframes(prop.property('Highlight Length'), frameRate, stretch);
+            ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Highlight Angle'), frameRate, stretch);
         }
     }
     
-    function getDashData(ob,prop, frameRate){
+    function getDashData(ob,prop, frameRate, stretch){
         var j, jLen = prop.property('Dashes').numProperties;
         var dashesData = [];
         var changed = false;
@@ -523,7 +523,7 @@ var bm_shapeHelper = (function () {
                 }
                 dashData.n = name;
                 dashData.nm = prop.property('Dashes').property(j + 1).name.toLowerCase().split(' ').join('');
-                dashData.v = bm_keyframeHelper.exportKeyframes(prop.property('Dashes').property(j + 1), frameRate);
+                dashData.v = bm_keyframeHelper.exportKeyframes(prop.property('Dashes').property(j + 1), frameRate, stretch);
                 dashesData.push(dashData);
             }
         }
@@ -692,6 +692,7 @@ var bm_shapeHelper = (function () {
     
     
     function exportShape(layerInfo, layerOb, frameRate, isText, params) {
+        var stretch = layerOb.sr || 1;
         extraParams = params;
         var containingComp = layerInfo.containingComp;
         navigationShapeTree.length = 0;
@@ -699,7 +700,7 @@ var bm_shapeHelper = (function () {
         navigationShapeTree.push(layerInfo.name);
         var shapes = [], contents = layerInfo.property('Contents');
         layerOb.shapes = shapes;
-        iterateProperties(contents, shapes, frameRate, isText);
+        iterateProperties(contents, shapes, frameRate, stretch, isText);
         /*if (!isText) {
             getShapeBounds(layerOb);
         }*/

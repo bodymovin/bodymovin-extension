@@ -23,7 +23,7 @@ var bm_textHelper = (function () {
         }
     }
     
-    function exportTextDocumentData(layerInfo, data, frameRate) {
+    function exportTextDocumentData(layerInfo, data, frameRate, stretch) {
         var duplicatedLayerInfo = layerInfo.duplicate();
         duplicatedLayerInfo.locked = false;
         removeLayerAnimators(duplicatedLayerInfo);
@@ -94,6 +94,7 @@ var bm_textHelper = (function () {
                     ob.of = textDocument.strokeOverFill;
                 }
             }
+            //TODO check if it need to be multiplied by stretch
             arr.push({s:ob,t:time*frameRate});
         }
         duplicatedLayerInfo.remove();
@@ -124,30 +125,30 @@ var bm_textHelper = (function () {
         }
     }
     
-    function exportTextPathData(pathOptions, ob, masksProperties, frameRate) {
+    function exportTextPathData(pathOptions, ob, masksProperties, frameRate, stretch) {
         if (pathOptions.property("Path").value !== 0) {
             masksProperties[pathOptions.property("Path").value - 1].mode = 'n';
             ob.m = pathOptions.property("Path").value - 1;
-            ob.f = bm_keyframeHelper.exportKeyframes(pathOptions.property("First Margin"), frameRate);
-            ob.l = bm_keyframeHelper.exportKeyframes(pathOptions.property("Last Margin"), frameRate);
+            ob.f = bm_keyframeHelper.exportKeyframes(pathOptions.property("First Margin"), frameRate, stretch);
+            ob.l = bm_keyframeHelper.exportKeyframes(pathOptions.property("Last Margin"), frameRate, stretch);
             ob.a = pathOptions.property("Force Alignment").value;
             ob.p = pathOptions.property("Perpendicular To Path").value;
             ob.r = pathOptions.property("Reverse Path").value;
         }
     }
     
-    function exportMoreOptionsData(pathOptions, ob, frameRate) {
+    function exportMoreOptionsData(pathOptions, ob, frameRate, stretch) {
         ob.g = pathOptions.property("Anchor Point Grouping").value;
-        ob.a = bm_keyframeHelper.exportKeyframes(pathOptions.property("Grouping Alignment"), frameRate);
+        ob.a = bm_keyframeHelper.exportKeyframes(pathOptions.property("Grouping Alignment"), frameRate, stretch);
         
     }
     
-    function exportAnimators(layerInfo, animatorArr, frameRate) {
+    function exportAnimators(layerInfo, animatorArr, frameRate, stretch) {
         var i, len = layerInfo.numProperties;
         for (i = 0; i < len; i += 1) {
             if (layerInfo.property(i + 1).matchName === "ADBE Text Animator") {
                 var animatorOb = {};
-                bm_textAnimatorHelper.exportAnimator(layerInfo.property(i + 1), animatorOb, frameRate);
+                bm_textAnimatorHelper.exportAnimator(layerInfo.property(i + 1), animatorOb, frameRate, stretch);
                 animatorArr.push(animatorOb);
             }
         }
@@ -159,23 +160,24 @@ var bm_textHelper = (function () {
             p: {},
             m: {}
         };
-        exportTextDocumentData(layerInfo, layerOb.t.d, frameRate);
+        var stretch = layerOb.sr || 1;
+        exportTextDocumentData(layerInfo, layerOb.t.d, frameRate, stretch);
         var textProperty = layerInfo.property("Text");
         
         var i, len = textProperty.numProperties;
         for (i = 0; i < len; i += 1) {
             switch (textProperty(i + 1).matchName) {
             case "ADBE Text Path Options":
-                exportTextPathData(textProperty(i + 1), layerOb.t.p, layerOb.masksProperties, frameRate);
+                exportTextPathData(textProperty(i + 1), layerOb.t.p, layerOb.masksProperties, frameRate, stretch);
                 break;
             case "ADBE Text More Options":
-                exportMoreOptionsData(textProperty(i + 1), layerOb.t.m, frameRate);
+                exportMoreOptionsData(textProperty(i + 1), layerOb.t.m, frameRate, stretch);
                 break;
             case "ADBE Text Animators":
                 if (!layerOb.t.a) {
                     layerOb.t.a = [];
                 }
-                exportAnimators(textProperty(i + 1), layerOb.t.a, frameRate);
+                exportAnimators(textProperty(i + 1), layerOb.t.a, frameRate, stretch);
                 break;
             }
         }

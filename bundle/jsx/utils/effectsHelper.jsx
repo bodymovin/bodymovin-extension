@@ -80,7 +80,7 @@ var bm_effectsHelper = (function () {
         return '';
     }
     
-    function exportNoValueControl(effect, frameRate) {
+    function exportNoValueControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.noValue;
         ob.nm = effect.name;
@@ -90,83 +90,83 @@ var bm_effectsHelper = (function () {
         return ob;
     }
     
-    function exportSliderControl(effect, frameRate) {
+    function exportSliderControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.sliderControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportAngleControl(effect, frameRate) {
+    function exportAngleControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.angleControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportColorControl(effect, frameRate) {
+    function exportColorControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.colorControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportPointControl(effect, frameRate) {
+    function exportPointControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.pointControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportCheckboxControl(effect, frameRate) {
+    function exportCheckboxControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.checkboxControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportDropDownControl(effect, frameRate) {
+    function exportDropDownControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.dropDownControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportLayerIndexControl(effect, frameRate) {
+    function exportLayerIndexControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.layerIndex;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportMaskIndexControl(effect, frameRate) {
+    function exportMaskIndexControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.layerIndex;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
@@ -200,7 +200,7 @@ var bm_effectsHelper = (function () {
         }
     }
     
-    function exportCustomEffect(elem,effectType, frameRate) {
+    function exportCustomEffect(elem,effectType, frameRate, stretch) {
         var ob = {};
         ob.ty = effectType;
         ob.nm = elem.name;
@@ -215,27 +215,27 @@ var bm_effectsHelper = (function () {
                 var type = findEffectPropertyType(prop);
                 //effectTypes.noValue;
                 if (type === effectTypes.noValue) {
-                    ob.ef.push(exportNoValueControl(prop, frameRate));
+                    ob.ef.push(exportNoValueControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.sliderControl) {
-                    ob.ef.push(exportSliderControl(prop, frameRate));
+                    ob.ef.push(exportSliderControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.colorControl) {
-                    ob.ef.push(exportColorControl(prop, frameRate));
+                    ob.ef.push(exportColorControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.dropDownControl) {
-                    ob.ef.push(exportDropDownControl(prop, frameRate));
+                    ob.ef.push(exportDropDownControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.dropDownControl) {
-                    ob.ef.push(exportDropDownControl(prop, frameRate));
+                    ob.ef.push(exportDropDownControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.customValue) {
-                    ob.ef.push(exportCustomControl(prop, frameRate));
+                    ob.ef.push(exportCustomControl(prop, frameRate, stretch));
                 }  else if(type === effectTypes.layerIndex) {
-                    ob.ef.push(exportLayerIndexControl(prop, frameRate));
+                    ob.ef.push(exportLayerIndexControl(prop, frameRate, stretch));
                 }  else if(type === effectTypes.maskIndex) {
-                    ob.ef.push(exportMaskIndexControl(prop, frameRate));
+                    ob.ef.push(exportMaskIndexControl(prop, frameRate, stretch));
                 } else {
-                    ob.ef.push(exportPointControl(prop, frameRate));
+                    ob.ef.push(exportPointControl(prop, frameRate, stretch));
                 }
             } else {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
-                    ob.ef.push(exportCustomEffect(prop, frameRate));
+                    ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
                 }
             }
         }
@@ -246,6 +246,7 @@ var bm_effectsHelper = (function () {
         //bm_eventDispatcher.log('PropertyType.PROPERTY' + PropertyType.PROPERTY);
         //bm_eventDispatcher.log('PropertyType.INDEXED_GROUP' + PropertyType.INDEXED_GROUP);
         //bm_eventDispatcher.log('PropertyType.NAMED_GROUP' + PropertyType.NAMED_GROUP);
+        var stretch = layerData.sr;
         if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
             return;
         }
@@ -262,7 +263,7 @@ var bm_effectsHelper = (function () {
                 continue;
             }
             */
-            effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate));
+            effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
         }
         if (effectsArray.length) {
             layerData.ef = effectsArray;

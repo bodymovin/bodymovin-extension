@@ -5,9 +5,10 @@ var bm_timeremapHelper = (function () {
     
     var ob = {};
     
-    function exportTimeremap(layerInfo, layerData, frameRate) {
+    function exportTimeremap(layerInfo, layerData, frameRate, stretch) {
         if (layerInfo.canSetTimeRemapEnabled && layerInfo.timeRemapEnabled) {
-            layerData.tm = bm_keyframeHelper.exportKeyframes(layerInfo['Time Remap'], frameRate);
+        	var stretch = layerData.sr;
+            layerData.tm = bm_keyframeHelper.exportKeyframes(layerInfo['Time Remap'], frameRate, stretch);
         }
     }
     

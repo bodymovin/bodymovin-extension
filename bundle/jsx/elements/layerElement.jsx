@@ -265,6 +265,7 @@ var bm_layerElement = (function () {
             bm_renderManager.renderLayerComplete();
             return;
         }
+        layerData.sr = layerInfo.stretch/100;
         
         var lType = layerData.ty;
         if (lType !== ob.layerTypes.camera) {
@@ -297,7 +298,6 @@ var bm_layerElement = (function () {
         layerData.op = layerInfo.outPoint * frameRate;
         layerData.st = layerInfo.startTime * frameRate;
         layerData.bm = getBlendMode(layerInfo.blendingMode);
-        layerData.sr = layerInfo.stretch/100;
         
         bm_renderManager.renderLayerComplete();
     }

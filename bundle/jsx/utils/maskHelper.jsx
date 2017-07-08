@@ -27,6 +27,7 @@ var bm_maskHelper = (function () {
         if (!(layerInfo.mask && layerInfo.mask.numProperties > 0)) {
             return;
         }
+        var stretch = layerData.sr;
         layerData.hasMask = true;
         layerData.masksProperties = [];
         var masks = layerInfo.mask;
@@ -38,11 +39,11 @@ var bm_maskHelper = (function () {
                 inv: maskElement.inverted,
                 mode: getMaskMode(maskElement.maskMode)
             };
-            shapeData.pt = bm_keyframeHelper.exportKeyframes(maskElement.property('maskShape'), frameRate);
+            shapeData.pt = bm_keyframeHelper.exportKeyframes(maskElement.property('maskShape'), frameRate, stretch);
             bm_shapeHelper.checkVertexCount(shapeData.pt.k);
             //bm_generalUtils.convertPathsToAbsoluteValues(shapeData.pt.k);
-            shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate);
-            shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate);
+            shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
+            shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
             shapeData.nm = maskElement.name;
             layerData.masksProperties.push(shapeData);
         }
