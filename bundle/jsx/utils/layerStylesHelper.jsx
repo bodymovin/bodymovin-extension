@@ -16,7 +16,7 @@ var bm_layerStylesHelper = (function () {
         }
     }
     
-    function exportStroke(style, frameRate) {
+    function exportStroke(style, frameRate, stretch) {
         var ob = {};
         ob.ty = layerStyleTypes.stroke;
         ob.nm = style.name;

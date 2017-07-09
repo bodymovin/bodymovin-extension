@@ -5,7 +5,7 @@ var bm_cameraHelper = (function () {
     var ob = {};
     
     function exportCamera(layerInfo, data, frameRate) {
-        var stretch = layerOb.sr;
+        var stretch = data.sr;
         data.pe = bm_keyframeHelper.exportKeyframes(layerInfo.property('ADBE Camera Options Group').property('ADBE Camera Zoom'), frameRate, stretch);
         data.ks = {};
         if (layerInfo.transform.property('ADBE Anchor Point').canSetExpression) {
