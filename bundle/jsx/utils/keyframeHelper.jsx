@@ -18,7 +18,7 @@ var bm_keyframeHelper = (function () {
             var i, len = value.length;
             for (i = 0; i < len; i += 1) {
                 //value[i] = Math.round(value[i] * 255);
-                value[i] = Math.round(value[i]*10000000)/10000000;
+                value[i] = Math.round(value[i]*1000000000000)/1000000000000;
                 value[i] = value[i];
             }
             return value;
@@ -423,6 +423,9 @@ var bm_keyframeHelper = (function () {
             returnOb.a = 1;
         }
         returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
+        if(prop.propertyIndex) {
+            returnOb.ix = prop.propertyIndex;
+        }
         bm_expressionHelper.checkExpression(prop, returnOb);
         return returnOb;
     }

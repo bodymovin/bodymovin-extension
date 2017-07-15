@@ -286,6 +286,8 @@ var bm_expressionHelper = (function () {
                 return 'mul';
             case '/':
                 return 'div';
+            case '%':
+                return 'mod';
 
         }
     }
@@ -296,6 +298,7 @@ var bm_expressionHelper = (function () {
             case '-':
             case '*':
             case '/':
+            case '%':
                 return true;
         }
         return false;
@@ -306,6 +309,12 @@ var bm_expressionHelper = (function () {
             return expression;
         }
         if(!isOperatorTransformable(expression.operator)){
+            if(expression.left.type === 'BinaryExpression') {
+                expression.left = getBinaryElement(expression.left);
+            }
+            if(expression.right.type === 'BinaryExpression') {
+                expression.right = getBinaryElement(expression.right);
+            }
             return expression;
         }
         var callStatementOb = {
