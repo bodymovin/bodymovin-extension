@@ -513,6 +513,8 @@ var bm_expressionHelper = (function () {
                 handleAssignmentExpression(conditionalExpression.consequent);
             } else if (conditionalExpression.consequent.type=== 'BinaryExpression') {
                 conditionalExpression.consequent = convertBinaryExpression(conditionalExpression.consequent);
+            } else if (conditionalExpression.consequent.type=== 'SequenceExpression') {
+                handleSequenceExpressions(conditionalExpression.consequent.expressions);
             }
         }
         if(conditionalExpression.alternate){
@@ -520,6 +522,25 @@ var bm_expressionHelper = (function () {
                 handleAssignmentExpression(conditionalExpression.alternate);
             } else if (conditionalExpression.alternate.type=== 'BinaryExpression') {
                 conditionalExpression.alternate = convertBinaryExpression(conditionalExpression.alternate);
+            } else if (conditionalExpression.alternate.type=== 'SequenceExpression') {
+                handleSequenceExpressions(conditionalExpression.alternate.expressions);
+            }
+        }
+    }
+
+    function handleSequenceExpressions(expressions) {
+        var i, len = expressions.length;
+        for (i = 0; i < len; i += 1) {
+            if (expressions[i].type === 'CallExpression') {
+                handleCallExpression(expressions[i]);
+            } else if (expressions[i].type === 'BinaryExpression') {
+                expressions[i] = convertBinaryExpression(expressions[i]);
+            } else if (expressions[i].type === 'UnaryExpression') {
+                expressions[i] = convertUnaryExpression(expressions[i]);
+            } else if (expressions[i].type === 'AssignmentExpression') {
+                handleAssignmentExpression(expressions[i]);
+            } else if (expressions[i].type === 'ConditionalExpression') {
+                handleConditionalExpression(expressions[i]);
             }
         }
     }
@@ -535,6 +556,8 @@ var bm_expressionHelper = (function () {
             handleAssignmentExpression(expressionStatement.expression);
         } else if (expressionStatement.expression.type === 'ConditionalExpression') {
             handleConditionalExpression(expressionStatement.expression);
+        } else if (expressionStatement.expression.type === 'SequenceExpression') {
+            handleSequenceExpressions(expressionStatement.expression.expressions);
         }
     }
 
