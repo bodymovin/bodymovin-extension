@@ -1,6 +1,7 @@
 import csInterface from './CSInterfaceHelper'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
+import bodymovin2Avd from 'bodymovin-to-avd'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -90,6 +91,20 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:create:avd', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
+		try{
+			saveAVD(animationData);
+		} catch(err) {
+			var eScript = 'bm_dataManager.saveAVDFailed()';
+    		csInterface.evalScript(eScript);
+		}
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:alert', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -174,6 +189,14 @@ function goToFolder(path) {
     csInterface.evalScript(eScript);
 }
 
+function saveAVD(data) {
+	bodymovin2Avd(data).then(function(avdData){
+		console.log('avdData:', avdData);
+		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
+	    csInterface.evalScript(eScript);
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -182,5 +205,6 @@ export {
 	setFonts,
 	openInBrowser,
 	getPlayer,
-	goToFolder
+	goToFolder,
+	saveAVD
 }
