@@ -1,6 +1,7 @@
 import { call, put, take, select, fork, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {getProjectFromLocalStorage, saveProjectToLocalStorage, savePathsToLocalStorage, getPathsFromLocalStorage} from '../../helpers/localStorageHelper'
+import {getVersionFromExtension} from '../../helpers/CompositionsProvider'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 
@@ -29,6 +30,12 @@ function *getPaths(action) {
 	} catch(err){
 	}
 }
+function *getVersion(action) {
+	try{
+		yield call(getVersionFromExtension)
+	} catch(err){
+	}
+}
 
 function *saveStoredData() {
 	while(true) {
@@ -49,6 +56,7 @@ function *savePathsData() {
 export default [
   takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
   takeEvery(actions.PATHS_GET, getPaths),
+  takeEvery(actions.PATHS_GET, getVersion),
   fork(saveStoredData),
   fork(savePathsData)
 ]

@@ -6,6 +6,7 @@ var bm_renderManager = (function () {
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
+    var version_number = '4.8.0';
 
     function getParentData(layers, id) {
         var i = 0, len = layers.length;
@@ -116,7 +117,7 @@ var bm_renderManager = (function () {
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
-            v : '4.8.0',
+            v : version_number,
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
@@ -300,6 +301,10 @@ var bm_renderManager = (function () {
     function hasExpressions() {
         hasExpressionsFlag = true;
     }
+
+    function getVersion() {
+        bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+    }
     
     ob.renderData = {
         exportData : {
@@ -314,6 +319,7 @@ var bm_renderManager = (function () {
     ob.setFontData = setFontData;
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
+    ob.getVersion = getVersion;
     
     return ob;
 }());
