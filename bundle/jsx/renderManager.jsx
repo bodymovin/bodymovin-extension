@@ -174,14 +174,18 @@ var bm_renderManager = (function () {
         currentCompSettings = null;
         bm_ProjectHelper.end();
     }
-    
-    function saveData() {
-        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
-        bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings);
+
+    function dataSaved() {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
         reset();
         bm_textShapeHelper.removeComps();
         bm_compsManager.renderComplete();
+    }
+    
+    function saveData() {
+        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
+        bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
+        
     }
     
     function clearUnrenderedLayers(layers) {

@@ -99,6 +99,7 @@ class Settings extends React.Component {
     this.toggleStandalone = this.toggleValue.bind(this,'standalone')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
+    this.toggleAVD = this.toggleValue.bind(this,'avd')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
   }
@@ -208,6 +209,11 @@ class Settings extends React.Component {
               description='Exports an html for local preview'
               toggleItem={this.toggleDemo}
               active={this.props.settings ? this.props.settings.demo : false}  />
+            <SettingsListItem 
+              title='AVD'
+              description='Exports an xml for Androids Animated Vector Drawable'
+              toggleItem={this.toggleAVD}
+              active={this.props.settings ? this.props.settings.avd : false}  />
           </ul>
           <div className={css(styles.bottomNavigation)}>
             <BaseButton text='Cancel' type='gray' onClick={this.cancelSettings}></BaseButton>

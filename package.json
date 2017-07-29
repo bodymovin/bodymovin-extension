@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "aphrodite": "^1.1.0",
+    "bodymovin-to-avd": "^1.0.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-redux": "^5.0.2",

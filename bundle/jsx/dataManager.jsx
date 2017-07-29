@@ -156,7 +156,7 @@ var bm_dataManager = (function () {
         deleteLayerParams(data.layers);
     }
     
-    function saveData(data, destinationPath, config) {
+    function saveData(data, destinationPath, config, callback) {
         deleteExtraParams(data, config);
         separateComps(data.layers, data.comps);
         var dataFile, segmentPath, s, string;
@@ -221,6 +221,7 @@ var bm_dataManager = (function () {
             string = bodymovinJsStr.replace("\"__[ANIMATIONDATA]__\"",  string );
             string = string.replace("\"__[STANDALONE]__\"", 'true');
         }
+        
         ////
         try {
             dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
@@ -231,6 +232,7 @@ var bm_dataManager = (function () {
         }
         animationSegments = [];
         segmentCount = 0;
+        callback();
     }
     
     ob.saveData = saveData;

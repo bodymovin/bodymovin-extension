@@ -37,6 +37,7 @@ function createComp(comp) {
         segmentTime: 10,
         standalone: false,
         demo: false,
+        avd: false,
         glyphs: true,
         hiddens: false,
         original_names: false,
