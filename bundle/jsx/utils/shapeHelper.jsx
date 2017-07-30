@@ -277,104 +277,151 @@ var bm_shapeHelper = (function () {
     }
     
     function iterateProperties(iteratable, array, frameRate, stretch, isText) {
-        var i, len = iteratable.numProperties, ob, prop, itemType;
+        var i, len = iteratable.numProperties, ob, prop, itemType, enabled;
         for (i = 0; i < len; i += 1) {
             ob = null;
             prop = iteratable.property(i + 1);
-            if (prop.enabled || checkAdditionalCases(prop)) {
-                itemType = getItemType(prop.matchName);
-                if (isText && itemType !== shapeItemTypes.shape && itemType !== shapeItemTypes.group && itemType !== shapeItemTypes.merge) {
-                    continue;
+            enabled = prop.enabled || checkAdditionalCases(prop);
+            itemType = getItemType(prop.matchName);
+            if (isText && itemType !== shapeItemTypes.shape && itemType !== shapeItemTypes.group && itemType !== shapeItemTypes.merge) {
+                continue;
+            }
+            if (itemType === shapeItemTypes.shape) {
+                ob = {};
+                ob.ind = i;
+                ob.ty = itemType;
+                ob.ix = prop.propertyIndex;
+                ob.ks = bm_keyframeHelper.exportKeyframes(prop.property('Path'), frameRate, stretch);
+                checkVertexCount(ob.ks.k);
+                if (prop.property("Shape Direction").value === 3) {
+                    reverseShape(ob.ks.k);
                 }
-                if (itemType === shapeItemTypes.shape) {
-                    ob = {};
-                    ob.ind = i;
-                    ob.ty = itemType;
-                    ob.ix = prop.propertyIndex;
-                    ob.ks = bm_keyframeHelper.exportKeyframes(prop.property('Path'), frameRate, stretch);
-                    checkVertexCount(ob.ks.k);
-                    if (prop.property("Shape Direction").value === 3) {
-                        reverseShape(ob.ks.k);
-                    }
-                    //bm_generalUtils.convertPathsToAbsoluteValues(ob.ks.k);
-                } else if (itemType === shapeItemTypes.rect && !isText) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.d = prop.property("Shape Direction").value;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Roundness'), frameRate, stretch);
-                } else if(itemType === shapeItemTypes.star && !isText) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.sy = prop.property("Type").value;
-                    ob.d = prop.property("Shape Direction").value;
-                    ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate, stretch);
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Rotation'), frameRate, stretch);
-                    if(ob.sy === 1) {
-                        ob.ir = bm_keyframeHelper.exportKeyframes(prop.property('Inner Radius'), frameRate, stretch);
-                        ob.is = bm_keyframeHelper.exportKeyframes(prop.property('Inner Roundness'), frameRate, stretch);
-                    }
-                    ob.or = bm_keyframeHelper.exportKeyframes(prop.property('Outer Radius'), frameRate, stretch);
-                    ob.os = bm_keyframeHelper.exportKeyframes(prop.property('Outer Roundness'), frameRate, stretch);
-                    ob.ix = prop.propertyIndex;
-                } else if (itemType === shapeItemTypes.ellipse) {
-                    ob = {};
-                    ob.d = prop.property("Shape Direction").value;
-                    ob.ty = itemType;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
-                    ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
-                } else if (itemType === shapeItemTypes.fill) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
-                    ob.r = prop.property('Fill Rule').value;
-                } else if (itemType === shapeItemTypes.gfill) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
-                    ob.r = prop.property('Fill Rule').value;
-                    navigationShapeTree.push(prop.name);
-                    exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
-                    navigationShapeTree.pop();
+                //bm_generalUtils.convertPathsToAbsoluteValues(ob.ks.k);
+            } else if (itemType === shapeItemTypes.rect && !isText) {
+                ob = {};
+                ob.ty = itemType;
+                ob.d = prop.property("Shape Direction").value;
+                ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
+                ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Roundness'), frameRate, stretch);
+            } else if(itemType === shapeItemTypes.star && !isText) {
+                ob = {};
+                ob.ty = itemType;
+                ob.sy = prop.property("Type").value;
+                ob.d = prop.property("Shape Direction").value;
+                ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate, stretch);
+                ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
+                ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Rotation'), frameRate, stretch);
+                if(ob.sy === 1) {
+                    ob.ir = bm_keyframeHelper.exportKeyframes(prop.property('Inner Radius'), frameRate, stretch);
+                    ob.is = bm_keyframeHelper.exportKeyframes(prop.property('Inner Roundness'), frameRate, stretch);
+                }
+                ob.or = bm_keyframeHelper.exportKeyframes(prop.property('Outer Radius'), frameRate, stretch);
+                ob.os = bm_keyframeHelper.exportKeyframes(prop.property('Outer Roundness'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.ellipse) {
+                ob = {};
+                ob.d = prop.property("Shape Direction").value;
+                ob.ty = itemType;
+                ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                ob.p = bm_keyframeHelper.exportKeyframes(prop.property('Position'), frameRate, stretch);
+            } else if (itemType === shapeItemTypes.fill) {
+                ob = {};
+                ob.ty = itemType;
+                ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                ob.r = prop.property('Fill Rule').value;
+            } else if (itemType === shapeItemTypes.gfill) {
+                ob = {};
+                ob.ty = itemType;
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                ob.r = prop.property('Fill Rule').value;
+                navigationShapeTree.push(prop.name);
+                exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
+                navigationShapeTree.pop();
 
-                } else if (itemType === shapeItemTypes.gStroke) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
-                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
-                    navigationShapeTree.push(prop.name);
-                    exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
-                    navigationShapeTree.pop();
-                    ob.lc = prop.property('Line Cap').value;
-                    ob.lj = prop.property('Line Join').value;
-                    if (ob.lj === 1) {
-                        ob.ml = prop.property('Miter Limit').value;
-                    }
-                    getDashData(ob,prop, frameRate, stretch);
+            } else if (itemType === shapeItemTypes.gStroke) {
+                ob = {};
+                ob.ty = itemType;
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
+                navigationShapeTree.push(prop.name);
+                exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
+                navigationShapeTree.pop();
+                ob.lc = prop.property('Line Cap').value;
+                ob.lj = prop.property('Line Join').value;
+                if (ob.lj === 1) {
+                    ob.ml = prop.property('Miter Limit').value;
+                }
+                getDashData(ob,prop, frameRate, stretch);
 
-                } else if (itemType === shapeItemTypes.stroke) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
-                    ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
-                    ob.lc = prop.property('Line Cap').value;
-                    ob.lj = prop.property('Line Join').value;
-                    if (ob.lj === 1) {
-                        ob.ml = prop.property('Miter Limit').value;
-                    }
-                    getDashData(ob,prop, frameRate, stretch);
+            } else if (itemType === shapeItemTypes.stroke) {
+                ob = {};
+                ob.ty = itemType;
+                ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
+                ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
+                ob.lc = prop.property('Line Cap').value;
+                ob.lj = prop.property('Line Join').value;
+                if (ob.lj === 1) {
+                    ob.ml = prop.property('Miter Limit').value;
+                }
+                getDashData(ob,prop, frameRate, stretch);
 
-                } else if (itemType === shapeItemTypes.repeater) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Copies'), frameRate, stretch);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
-                    ob.m = prop.property('Composite').value;
-                    ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.repeater) {
+                ob = {};
+                ob.ty = itemType;
+                ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Copies'), frameRate, stretch);
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
+                ob.m = prop.property('Composite').value;
+                ob.ix = prop.propertyIndex;
+                var trOb = {};
+                var transformProperty = prop.property('Transform');
+                trOb.ty = 'tr';
+                trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate, stretch);
+                trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
+                trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate, stretch);
+                trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate, stretch);
+                trOb.so = bm_keyframeHelper.exportKeyframes(transformProperty.property('Start Opacity'), frameRate, stretch);
+                trOb.eo = bm_keyframeHelper.exportKeyframes(transformProperty.property('End Opacity'), frameRate, stretch);
+                trOb.nm = transformProperty.name;
+                ob.tr = trOb;
+            } else if (itemType === shapeItemTypes.merge) {
+                ob = {};
+                ob.ty = itemType;
+                ob.mm = prop.property('ADBE Vector Merge Type').value;
+            } else if (itemType === shapeItemTypes.trim) {
+                ob = {};
+                ob.ty = itemType;
+                ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start'), frameRate, stretch);
+                ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
+                ob.m = prop.property('Trim Multiple Shapes').value;
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.twist) {
+                ob = {};
+                ob.ty = itemType;
+                bm_generalUtils.iterateProperty(prop);
+                ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate, stretch);
+                ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate, stretch);
+                /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
+                ob.e.ix = prop.property('End').propertyIndex;
+                ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
+                ob.o.ix = prop.property('Offset').propertyIndex;
+                ob.m = prop.property('Trim Multiple Shapes').value;*/
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.group) {
+                ob = {
+                    ty : itemType,
+                    it: [],
+                    nm: prop.name,
+                    np: prop.property('Contents').numProperties,
+                    cix: prop.property('Contents').propertyIndex,
+                    ix: prop.propertyIndex
+                };
+                navigationShapeTree.push(prop.name);
+                iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText);
+                if (!isText) {
                     var trOb = {};
                     var transformProperty = prop.property('Transform');
                     trOb.ty = 'tr';
@@ -382,82 +429,35 @@ var bm_shapeHelper = (function () {
                     trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
                     trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate, stretch);
                     trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate, stretch);
-                    trOb.so = bm_keyframeHelper.exportKeyframes(transformProperty.property('Start Opacity'), frameRate, stretch);
-                    trOb.eo = bm_keyframeHelper.exportKeyframes(transformProperty.property('End Opacity'), frameRate, stretch);
+                    trOb.o = bm_keyframeHelper.exportKeyframes(transformProperty.property('Opacity'), frameRate, stretch);
+                    if(transformProperty.property('Skew').canSetExpression) {
+                        trOb.sk = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew'), frameRate, stretch);
+                        trOb.sa = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew Axis'), frameRate, stretch);
+                    }
                     trOb.nm = transformProperty.name;
-                    ob.tr = trOb;
-                } else if (itemType === shapeItemTypes.merge) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.mm = prop.property('ADBE Vector Merge Type').value;
-                } else if (itemType === shapeItemTypes.trim) {
-                    ob = {};
-                    ob.ty = itemType;
-                    ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Start'), frameRate, stretch);
-                    ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
-                    ob.m = prop.property('Trim Multiple Shapes').value;
-                    ob.ix = prop.propertyIndex;
-                } else if (itemType === shapeItemTypes.twist) {
-                    ob = {};
-                    ob.ty = itemType;
-                    bm_generalUtils.iterateProperty(prop);
-                    ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate, stretch);
-                    ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate, stretch);
-                    /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
-                    ob.e.ix = prop.property('End').propertyIndex;
-                    ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Offset'), frameRate, stretch);
-                    ob.o.ix = prop.property('Offset').propertyIndex;
-                    ob.m = prop.property('Trim Multiple Shapes').value;*/
-                    ob.ix = prop.propertyIndex;
-                } else if (itemType === shapeItemTypes.group) {
-                    ob = {
-                        ty : itemType,
-                        it: [],
-                        nm: prop.name,
-                        np: prop.property('Contents').numProperties,
-                        cix: prop.property('Contents').propertyIndex,
-                        ix: prop.propertyIndex
-                    };
-                    navigationShapeTree.push(prop.name);
-                    iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText);
-                    if (!isText) {
-                        var trOb = {};
-                        var transformProperty = prop.property('Transform');
-                        trOb.ty = 'tr';
-                        trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate, stretch);
-                        trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
-                        trOb.s = bm_keyframeHelper.exportKeyframes(transformProperty.property('Scale'), frameRate, stretch);
-                        trOb.r = bm_keyframeHelper.exportKeyframes(transformProperty.property('Rotation'), frameRate, stretch);
-                        trOb.o = bm_keyframeHelper.exportKeyframes(transformProperty.property('Opacity'), frameRate, stretch);
-                        if(transformProperty.property('Skew').canSetExpression) {
-                            trOb.sk = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew'), frameRate, stretch);
-                            trOb.sa = bm_keyframeHelper.exportKeyframes(transformProperty.property('Skew Axis'), frameRate, stretch);
-                        }
-                        trOb.nm = transformProperty.name;
-                        ob.it.push(trOb);
-                    }
-                    navigationShapeTree.pop();
-                } else if (itemType === shapeItemTypes.roundedCorners) {
-                    ob = {
-                        ty : itemType,
-                        nm: prop.name
-                    };
-                    ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Radius'), frameRate, stretch);
-                    ob.ix = prop.propertyIndex;
+                    ob.it.push(trOb);
                 }
-                if (ob) {
-                    ob.nm = prop.name;
-                    ob.mn = prop.matchName;
-                    var layerAttributes = bm_generalUtils.findAttributes(prop.name);
-                    if(layerAttributes.ln){
-                        ob.ln = layerAttributes.ln;
-                    }
-                    if(layerAttributes.cl){
-                        ob.cl = layerAttributes.cl;
-                    }
-                    array.push(ob);
+                navigationShapeTree.pop();
+            } else if (itemType === shapeItemTypes.roundedCorners) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Radius'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            }
+            if (ob) {
+                ob.nm = prop.name;
+                ob.mn = prop.matchName;
+                ob.hd = !enabled;
+                var layerAttributes = bm_generalUtils.findAttributes(prop.name);
+                if(layerAttributes.ln){
+                    ob.ln = layerAttributes.ln;
                 }
+                if(layerAttributes.cl){
+                    ob.cl = layerAttributes.cl;
+                }
+                array.push(ob);
             }
             
         }

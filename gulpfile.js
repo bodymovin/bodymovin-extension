@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '4.9.0'
+var version = '4.9.1'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../Users/Deeandra/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
@@ -66,7 +66,8 @@ gulp.task('copy-debug', function() {
 
 gulp.task('copy-renderManager', function() {
     return gulp.src('bundle/jsx/renderManager.jsx')
-    	.pipe(replace(/(v : ')(.+)(',)/g,'$1'+version+'$3'))
+        //.pipe(replace(/(v : ')(.+)(',)/g,'$1'+version+'$3'))
+    	.pipe(replace(/(version_number = ')(.+)(';)/g,'$1'+version+'$3'))
         .pipe(gulp.dest('build/jsx/'));
 });
 

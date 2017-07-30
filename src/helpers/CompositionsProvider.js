@@ -1,6 +1,7 @@
 import csInterface from './CSInterfaceHelper'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
+import {versionFetched} from '../redux/actions/generalActions'
 import bodymovin2Avd from 'bodymovin-to-avd'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
@@ -116,6 +117,14 @@ csInterface.addEventListener('bm:alert', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:version', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		dispatcher(versionFetched(data.value))
+	} else {
+	}
+})
+
 function getCompositions() {
 	csInterface.evalScript('bm_compsManager.updateData()')
 	let prom = new Promise(function(resolve, reject){
@@ -197,6 +206,15 @@ function saveAVD(data) {
 	})
 }
 
+function getVersionFromExtension() {
+	let prom = new Promise(function(resolve, reject){
+		resolve()
+	})
+	var eScript = 'bm_renderManager.getVersion()';
+    csInterface.evalScript(eScript);
+	return prom
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -206,5 +224,6 @@ export {
 	openInBrowser,
 	getPlayer,
 	goToFolder,
+	getVersionFromExtension,
 	saveAVD
 }

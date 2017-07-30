@@ -22,7 +22,8 @@ var bm_effectsHelper = (function () {
         proLevels: 24,
         dropShadow: 25,
         radialWipe: 26,
-        displacementMap: 27
+        displacementMap: 27,
+        matte3: 28
     };
     
     function getEffectType(name) {
@@ -43,6 +44,8 @@ var bm_effectsHelper = (function () {
             return effectTypes.radialWipe;
         case 'ADBE Displacement Map':
             return effectTypes.displacementMap;
+        case 'ADBE Set Matte3':
+            return effectTypes.matte3;
         default:
             return effectTypes.group;
         }

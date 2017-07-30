@@ -6,6 +6,7 @@ var bm_renderManager = (function () {
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
+    var version_number = '4.8.0';
 
     function getParentData(layers, id) {
         var i = 0, len = layers.length;
@@ -44,6 +45,20 @@ var bm_renderManager = (function () {
         }
         if (hasChangedState) {
             restoreParents(layers);
+        }
+    }
+
+    function removeHiddenContent(shapes) {
+        var i = 0, len = shapes.length;
+        while(i < len) {
+            if(shapes[i].hd) {
+                shapes.splice(i,1);
+                i -= 1;
+                len -= 1;
+            } else if(shapes[i].ty === 'gr') {
+                removeHiddenContent(shapes[i].it);
+            }
+            i += 1;
         }
     }
     
@@ -116,7 +131,7 @@ var bm_renderManager = (function () {
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
-            v : '4.8.0',
+            v : version_number,
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
@@ -232,6 +247,9 @@ var bm_renderManager = (function () {
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
             bm_layerElement.renderLayer(nextLayerData);
+            if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
+                removeHiddenContent(nextLayerData.data.shapes);
+            }
         } else {
             removeExtraData();
             bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
@@ -304,6 +322,10 @@ var bm_renderManager = (function () {
     function hasExpressions() {
         hasExpressionsFlag = true;
     }
+
+    function getVersion() {
+        bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+    }
     
     ob.renderData = {
         exportData : {
@@ -318,6 +340,7 @@ var bm_renderManager = (function () {
     ob.setFontData = setFontData;
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
+    ob.getVersion = getVersion;
     
     return ob;
 }());

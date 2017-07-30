@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import { applyMiddleware, compose, createStore } from 'redux'
 import ViewsContainer from './views/ViewsContainer'
 import Alerts from './components/alerts/Alerts'
+import Footer from './components/footer/Footer'
 import reducer  from './redux/reducers/index'
 import createSagaMiddleware from 'redux-saga'
 import rootSaga from './redux/sagas'
@@ -10,7 +11,7 @@ import './App.css';
 import './reset.css';
 import {setDispatcher} from './helpers/storeDispatcher'
 import {getCompositions} from './redux/actions/compositionActions'
-import {getPaths} from './redux/actions/generalActions'
+import {getPaths, getVersion} from './redux/actions/generalActions'
 
 const sagaMiddleware = createSagaMiddleware()
 
@@ -36,6 +37,7 @@ class App extends Component {
       store.dispatch(getCompositions())
     }
     store.dispatch(getPaths())
+    store.dispatch(getVersion())
   }
 
 
@@ -53,6 +55,7 @@ class App extends Component {
             <Route path="/fonts" component={FontsView} />
             <Route path="/player" component={PlayerView} />
           </Router>*/}
+          <Footer />
           <Alerts />
         </div>
       </Provider>
