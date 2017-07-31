@@ -49,16 +49,18 @@ var bm_renderManager = (function () {
     }
 
     function removeHiddenContent(shapes) {
-        var i = 0, len = shapes.length;
-        while(i < len) {
-            if(shapes[i].hd) {
-                shapes.splice(i,1);
-                i -= 1;
-                len -= 1;
-            } else if(shapes[i].ty === 'gr') {
-                removeHiddenContent(shapes[i].it);
+        if(shapes) {
+            var i = 0, len = shapes.length;
+            while(i < len) {
+                if(shapes[i].hd) {
+                    shapes.splice(i,1);
+                    i -= 1;
+                    len -= 1;
+                } else if(shapes[i].ty === 'gr') {
+                    removeHiddenContent(shapes[i].it);
+                }
+                i += 1;
             }
-            i += 1;
         }
     }
     
