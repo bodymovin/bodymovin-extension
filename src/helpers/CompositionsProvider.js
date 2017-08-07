@@ -195,7 +195,6 @@ function goToFolder(path) {
 
 function saveAVD(data) {
 	bodymovin2Avd(data).then(function(avdData){
-		console.log('avdData:', avdData);
 		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);
 	}).catch(function(){
