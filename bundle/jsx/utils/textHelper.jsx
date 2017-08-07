@@ -64,12 +64,16 @@ var bm_textHelper = (function () {
             ob.tr = textDocument.tracking;
             if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
                 if(textDocument.baselineLocs[5] > textDocument.baselineLocs[1]){
-                    ob.lh = Math.round((textDocument.baselineLocs[5] - textDocument.baselineLocs[1])*10000)/10000;
+                    ob.lh = textDocument.baselineLocs[5] - textDocument.baselineLocs[1];
+                    // Fix when there is an empty newLine between first and second line. AE return an extremely large number.
+                    if(ob.lh > 10000) {
+                        ob.lh = ob.s*1.2;
+                    }
                 } else {
-                    ob.lh = Math.round(ob.s*1.2*10000)/10000;
+                    ob.lh = ob.s*1.2;
                 }
             } else {
-                ob.lh = Math.round(ob.s*1.2*10000)/10000;
+                ob.lh = ob.s*1.2;
             }
             if(textDocument.baselineShift){
                 ob.ls = textDocument.baselineShift;

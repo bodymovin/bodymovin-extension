@@ -96,12 +96,7 @@ csInterface.addEventListener('bm:create:avd', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
-		try{
-			saveAVD(animationData);
-		} catch(err) {
-			var eScript = 'bm_dataManager.saveAVDFailed()';
-    		csInterface.evalScript(eScript);
-		}
+		saveAVD(animationData);
 	} else {
 	}
 })
@@ -203,6 +198,12 @@ function saveAVD(data) {
 		console.log('avdData:', avdData);
 		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);
+	}).catch(function(){
+		var eScript = 'bm_dataManager.saveAVDFailed()';
+		csInterface.evalScript(eScript);
+		dispatcher({ 
+				type: actions.RENDER_AVD_FAILED
+		})
 	})
 }
 
