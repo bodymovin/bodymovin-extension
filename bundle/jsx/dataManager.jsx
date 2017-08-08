@@ -159,7 +159,7 @@ var bm_dataManager = (function () {
     }
 
     function exportAVDVersion(data) {
-        bm_eventDispatcher.sendEvent('bm:create:avd', {animationData: JSON.stringify(data)});
+        bm_eventDispatcher.sendEvent('bm:create:avd', data);
     }
 
     function saveAVDData(data) {

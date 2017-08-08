@@ -94,8 +94,10 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 
 csInterface.addEventListener('bm:create:avd', function (ev) {
 	if(ev.data) {
-		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-		let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
+		let animationData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+		animationData.layers = (typeof animationData.layers === "string") ? JSON.parse(animationData.layers) :  animationData.layers;
+		animationData.assets = (typeof animationData.assets === "string") ? JSON.parse(animationData.assets) :  animationData.assets;
+		//let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
 		saveAVD(animationData);
 	} else {
 	}
@@ -195,7 +197,6 @@ function goToFolder(path) {
 
 function saveAVD(data) {
 	bodymovin2Avd(data).then(function(avdData){
-		console.log('avdData:', avdData);
 		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);
 	}).catch(function(){
