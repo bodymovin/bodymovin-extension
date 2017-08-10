@@ -1,4 +1,5 @@
 import csInterface from './CSInterfaceHelper'
+import extensionLoader from './ExtensionLoader'
 
 var resolve, reject
 
@@ -15,9 +16,12 @@ function browseFile(path) {
     	resolve = _resolve
     	reject = _reject
     })
-    path = path ? path.replace(/\\/g,"\\\\") : ''
-	var eScript = 'bm_main.browseFile("' + path + '")';
-    csInterface.evalScript(eScript);
+    
+    extensionLoader.then(function(){
+        path = path ? path.replace(/\\/g,"\\\\") : ''
+        var eScript = 'bm_main.browseFile("' + path + '")';
+        csInterface.evalScript(eScript);
+    })
     return promise
 }
 
