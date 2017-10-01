@@ -62,9 +62,7 @@ var bm_textAnimatorHelper = (function () {
                 if (selectorProperty.property('ADBE Text Index Start').isModified) {
                     ob.s = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Start'), frameRate, stretch);
                 }
-                if (selectorProperty.property('ADBE Text Index End').isModified) {
-                    ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index End'), frameRate, stretch);
-                }
+                ob.e = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index End'), frameRate, stretch);
                 if (selectorProperty.property('ADBE Text Index Offset').isModified) {
                     ob.o = bm_keyframeHelper.exportKeyframes(selectorProperty.property('ADBE Text Index Offset'), frameRate, stretch);
                 }

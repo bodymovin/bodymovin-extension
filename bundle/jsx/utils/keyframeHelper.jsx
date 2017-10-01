@@ -344,7 +344,7 @@ var bm_keyframeHelper = (function () {
                                 bezierOut.y[k] = bezierOut.x[k];
                             } else {
                                 var yNormal = (key.value[k] - lastKey.value[k]);
-                                if(yNormal === 0) {
+                                if(Math.abs(yNormal) < 0.0000001) {
                                     yNormal = 1;
                                 }
                                 /*bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
@@ -353,6 +353,7 @@ var bm_keyframeHelper = (function () {
                                 var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
                                 bezierIn.y[k] = 1 - (bezierInY*duration)/yNormal;
                                 bezierOut.y[k] = (bezierY*duration)/yNormal;
+                                bm_eventDispatcher.log('bezierOut.y[k]' + bezierOut.y[k])
                             }
                         }
                         break;
