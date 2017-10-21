@@ -100,8 +100,9 @@ var bm_textShapeHelper = (function () {
         if (bm_compsManager.cancelled) {
             return;
         }
+        var charCode = ch.charCodeAt(0);
             //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
-        if (ch.charCodeAt(0) === 13 || ch.charCodeAt(0) === 160 || ch.charCodeAt(0) === 65279 || ch.charCodeAt(0) === 9) {
+        if (charCode === 13 || charCode === 160 || charCode === 65279) {
             charData.w = 0;
             return;
         }
@@ -114,10 +115,10 @@ var bm_textShapeHelper = (function () {
         //removeLayerAnimators(dupl);
         var textProp = dupl.property("Source Text");
         var textDocument = textProp.value;
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             textDocument.text = ch + ch;
         } else {
-            textDocument.text = 'i i';
+            textDocument.text = 'i' + ch + 'i';
         }
         textDocument.font = originalTextDocument.font;
         textDocument.fontSize = 100;
@@ -126,13 +127,13 @@ var bm_textShapeHelper = (function () {
         textProp.setValue(textDocument);
         dupl.enabled = true;
         dupl.selected = true;
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             app.executeCommand(3781);
         }
         dupl.selected = false;
         var doubleSize, singleSize;
         doubleSize = dupl.sourceRectAtTime(0, false).width;
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             textDocument.text = ch;
         } else {
             textDocument.text = 'ii';
@@ -142,7 +143,7 @@ var bm_textShapeHelper = (function () {
         charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
         shapeLayer = comp.layers[1];
         charData.data = {};
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
             while(charData.data.shapes.length > 1) {
                 charData.data.shapes.pop();
