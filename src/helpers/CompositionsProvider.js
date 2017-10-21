@@ -1,4 +1,5 @@
 import csInterface from './CSInterfaceHelper'
+import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched} from '../redux/actions/generalActions'
@@ -94,8 +95,10 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 
 csInterface.addEventListener('bm:create:avd', function (ev) {
 	if(ev.data) {
-		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-		let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
+		let animationData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+		animationData.layers = (typeof animationData.layers === "string") ? JSON.parse(animationData.layers) :  animationData.layers;
+		animationData.assets = (typeof animationData.assets === "string") ? JSON.parse(animationData.assets) :  animationData.assets;
+		//let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
 		saveAVD(animationData);
 	} else {
 	}
@@ -121,9 +124,11 @@ csInterface.addEventListener('bm:version', function (ev) {
 })
 
 function getCompositions() {
-	csInterface.evalScript('bm_compsManager.updateData()')
 	let prom = new Promise(function(resolve, reject){
-		resolve()
+		extensionLoader.then(function(){
+			csInterface.evalScript('bm_compsManager.updateData()');
+			resolve();
+		})
 	})
 	return prom
 }
@@ -141,8 +146,10 @@ function getDestinationPath(comp, alternatePath) {
 		}
 		destinationPath = alternatePath
 	}
-	var eScript = 'bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = 'bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve, reject){
 		resolve()
 	})
@@ -150,8 +157,10 @@ function getDestinationPath(comp, alternatePath) {
 }
 
 function renderNextComposition(comp) {
-	var eScript = 'bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = 'bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve, reject){
 		resolve()
 	})
@@ -159,8 +168,10 @@ function renderNextComposition(comp) {
 }
 
 function stopRenderCompositions() {
-	var eScript = 'bm_compsManager.cancel()'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = 'bm_compsManager.cancel()'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve){
 		resolve()
 	})
@@ -172,8 +183,11 @@ function setFonts(fontsInfo) {
 		resolve()
 	})
 	var fontsInfoString = JSON.stringify({list:fontsInfo})
-    var eScript = 'bm_renderManager.setFontData(' + fontsInfoString + ')'
-    csInterface.evalScript(eScript)
+
+	extensionLoader.then(function(){
+	    var eScript = 'bm_renderManager.setFontData(' + fontsInfoString + ')'
+	    csInterface.evalScript(eScript)
+	})
 	return prom
 }
 
@@ -184,13 +198,17 @@ function openInBrowser(url) {
 
 function getPlayer(gzipped) {
 	let gzippedString = gzipped ? 'true' : 'false'
-	var eScript = 'bm_downloadManager.getPlayer(' + gzippedString + ')';
-    csInterface.evalScript(eScript);
+	extensionLoader.then(function(){
+		var eScript = 'bm_downloadManager.getPlayer(' + gzippedString + ')';
+	    csInterface.evalScript(eScript);
+	})
 }
 
 function goToFolder(path) {
-	var eScript = 'bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
-    csInterface.evalScript(eScript);
+	extensionLoader.then(function(){
+		var eScript = 'bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
+	    csInterface.evalScript(eScript);
+	})
 }
 
 function saveAVD(data) {
@@ -198,8 +216,10 @@ function saveAVD(data) {
 		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);
 	}).catch(function(){
-		var eScript = 'bm_dataManager.saveAVDFailed()';
-		csInterface.evalScript(eScript);
+		extensionLoader.then(function(){
+			var eScript = 'bm_dataManager.saveAVDFailed()';
+			csInterface.evalScript(eScript);
+		})
 		dispatcher({ 
 				type: actions.RENDER_AVD_FAILED
 		})
@@ -210,8 +230,10 @@ function getVersionFromExtension() {
 	let prom = new Promise(function(resolve, reject){
 		resolve()
 	})
-	var eScript = 'bm_renderManager.getVersion()';
-    csInterface.evalScript(eScript);
+	extensionLoader.then(function(){
+		var eScript = 'bm_renderManager.getVersion()';
+	    csInterface.evalScript(eScript);
+	})
 	return prom
 }
 

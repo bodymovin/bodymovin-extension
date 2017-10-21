@@ -740,6 +740,7 @@ var bm_expressionHelper = (function () {
             expressionStr = correctEaseAndWizz(expressionStr);
             expressionStr = correctKhanyu(expressionStr);
             expressionStr = correctElseToken(expressionStr);
+            expressionStr = fixThrowExpression(expressionStr);
             expressionStr = renameNameProperty(expressionStr);
             searchUndeclaredVariables();
             var parsed = esprima.parse(expressionStr, options);
@@ -784,6 +785,11 @@ var bm_expressionHelper = (function () {
             str = str.replace('key(1)[2];', 'key(1)[2].length;');
         }
         return str;
+    }
+
+    function fixThrowExpression(str){
+        var throwRegex = /(throw (["'])(?:(?=(\\?))\3[\S\s])*?\2)\s*([^;])/g;
+        return str.replace(throwRegex, '$1;\n$4');
     }
 
     ob.checkExpression = checkExpression;
