@@ -22,7 +22,6 @@ var bm_ProjectHelper = (function(){
             fileString = '<no file>';
         } else {
             var demoFile = new File(ff.absoluteURI);
-            bm_eventDispatcher.log('ffff222:');
             demoFile.open('r', 'TEXT', '????');
             fileString = demoFile.read(demoFile.length);
         }
