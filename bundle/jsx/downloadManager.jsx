@@ -10,9 +10,9 @@ var bm_downloadManager = (function () {
         folder = folder.parent;
         var fileName;
         if (zippedFlag) {
-            fileName = 'bm.js.gz';
+            fileName = 'lottie.js.gz';
         } else {
-            fileName = 'bm.js';
+            fileName = 'lottie.js';
         }
         var bmFile = new File(folder.absoluteURI + '/assets/player/' + fileName);
         

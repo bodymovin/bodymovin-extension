@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
 class Player extends React.Component {
 
   openInBrowser(){
-    openInBrowser('http://github.com/bodymovin/bodymovin')
+    openInBrowser('https://github.com/airbnb/lottie-web')
   }
   
   getPlayer(){
@@ -84,8 +84,8 @@ class Player extends React.Component {
             <div className={css(styles.text_title)}>Bodymovin</div>
             <div className={css(styles.text_par)}>
               <p>This plugin exports After Effects animations to a web compatible format.</p>
-              <p>In order to play the exported animation on your browser please follow the instructions at 
-                <a className={css(styles.link)} href='#' onClick={this.openInBrowser}> Bodymovin on github</a>
+              <p>In order to play the exported animation on your browser follow the instructions at 
+                <a className={css(styles.link)} href='#' onClick={this.openInBrowser}> Lottie on github</a>
               </p>
               <br />
               <p>You can get the latest version of the player from the repository or copy the one included in the extension here.</p>

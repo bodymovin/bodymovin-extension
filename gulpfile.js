@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '4.13.0'
+var version = '5.0.1'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../Users/Deeandra/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
@@ -29,23 +29,23 @@ gulp.task('copy-all', function() {
         .pipe(gulp.dest('./build'));
 });
 gulp.task('create-bm', function() {
-    return gulp.src('player/bodymovin.min.js')
+    return gulp.src('player/lottie.min.js')
         .pipe(rename('bm.js'))
         .pipe(gulp.dest('build/assets/player'));
 });
 gulp.task('create-bm-extension-player', function() {
-    return gulp.src('player/bodymovin.js')
-        .pipe(rename('bodymovin.js'))
+    return gulp.src('player/lottie.js')
+        .pipe(rename('lottie.js'))
     	.pipe(insert.prepend('/* eslint-disable */var define = define || null;'))
         .pipe(gulp.dest('./src/'));
 });
 gulp.task('create-standalone', function() {
-    return gulp.src('player/bodymovin.min.js')
+    return gulp.src('player/lottie.min.js')
     	.pipe(rename('standalone.js'))
         .pipe(gulp.dest('build/assets/player'));
 });
 gulp.task('create-gzip', function() {
-    return gulp.src('player/bodymovin.min.js')
+    return gulp.src('player/lottie.min.js')
     	.pipe(rename('bm.js'))
     	.pipe(gzip({ append: true }))
         .pipe(gulp.dest('build/assets/player'));
@@ -85,7 +85,7 @@ gulp.task('build-demo-data', function() {
         return eventstream.map(transform);
     }
 
-    return gulp.src('player/bodymovin.min.js')
+    return gulp.src('player/lottie.min.js')
         .pipe(saveToVar());
 });
 
