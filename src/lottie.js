@@ -1,4 +1,4 @@
-(function(root, factory) {
+/* eslint-disable */var define = define || null;(function(root, factory) {
     if (typeof define === "function" && define.amd) {
         define(function() {
             return factory(root);

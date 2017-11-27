@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '5.0.1'
+var version = '5.0.3'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../Users/Deeandra/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
@@ -30,7 +30,7 @@ gulp.task('copy-all', function() {
 });
 gulp.task('create-bm', function() {
     return gulp.src('player/lottie.min.js')
-        .pipe(rename('bm.js'))
+        .pipe(rename('lottie.js'))
         .pipe(gulp.dest('build/assets/player'));
 });
 gulp.task('create-bm-extension-player', function() {
@@ -46,7 +46,7 @@ gulp.task('create-standalone', function() {
 });
 gulp.task('create-gzip', function() {
     return gulp.src('player/lottie.min.js')
-    	.pipe(rename('bm.js'))
+    	.pipe(rename('lottie.js'))
     	.pipe(gzip({ append: true }))
         .pipe(gulp.dest('build/assets/player'));
 });

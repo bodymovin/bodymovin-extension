@@ -144,7 +144,8 @@ var bm_renderManager = (function () {
             assets : [],
             comps : [],
             fonts : [],
-            layers : []
+            layers : [],
+            markers : []
             
         };
         currentExportedComps.push(currentCompID);
@@ -152,9 +153,27 @@ var bm_renderManager = (function () {
         ob.renderData.firstFrame = exportData.ip * comp.frameRate;
         createLayers(comp, exportData.layers, exportData.fr, true);
         exportExtraComps(exportData);
+        exportCompMarkers(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
         app.scheduleTask('bm_renderManager.renderNextLayer();', 20, false);
+    }
+
+    function exportCompMarkers(exportData, comp) {
+        
+        if(comp.markerProperty && comp.markerProperty.numKeys >= 1) {
+            var markerProperty = comp.markerProperty;
+            var markersList = exportData.markers;
+            var len = markerProperty.numKeys, markerElement;
+            for (i = 0; i < len; i += 1) {
+                markerData = {};
+                markerElement = markerProperty.keyValue(i + 1);
+                markerData.tm = markerProperty.keyTime(i + 1) / exportData.fr;
+                markerData.cm = markerElement.comment;
+                markerData.dr = markerElement.duration / exportData.fr;
+                markersList.push(markerData);
+            }
+        }
     }
 
     function exportExtraComps(exportData){
