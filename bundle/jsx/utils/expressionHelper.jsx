@@ -732,8 +732,43 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function expressionIsValue(expression) {
+        if(expression === 'value') {
+            return true;
+        }
+        return false;
+    }
+
+    function expressionIsConstant(expressionTree) {
+        if(expressionTree.body.length === 1  && expressionTree.body[0].type === "ExpressionStatement") {
+            if (expressionTree.body[0].expression) {
+                if(expressionTree.body[0].expression.type === "ArrayExpression") {
+                    var i = 0, len = expressionTree.body[0].expression.elements.length;
+                    while(i < len) {
+                        if(expressionTree.body[0].expression.elements[i].type !== 'Literal') {
+                            return false;
+                        }
+                        i += 1;
+                    }
+                    return true;
+                } else if(expressionTree.body[0].expression.type === "Literal") {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function buildStaticValue(expression, returnOb) {
+        returnOb.a = 0;
+        returnOb.k = eval(expression)
+    }
+
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {
+            if(expressionIsValue(prop.expression)) {
+                return;
+            }
             pendingBodies.length = 0;
             doneBodies.length = 0;
             expressionStr = prop.expression;
@@ -744,6 +779,10 @@ var bm_expressionHelper = (function () {
             expressionStr = renameNameProperty(expressionStr);
             searchUndeclaredVariables();
             var parsed = esprima.parse(expressionStr, options);
+            if(expressionIsConstant(parsed)) {
+                buildStaticValue(expressionStr, returnOb);
+                return;
+            }
             var body = parsed.body;
             findExpressionStatementsWithAssignmentExpressions(body);
             if(expressionStr.indexOf("use javascript") !== 1){
