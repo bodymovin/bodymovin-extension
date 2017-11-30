@@ -210,6 +210,10 @@ var bm_expressionHelper = (function () {
                     }
                     pendingBodies.push({body: body[i].body.body, d: declared, u: undeclared, pre: p, pos: body[i].body.range[0] + 1});
                 }
+            } else if (body[i].type === 'ReturnStatement') {
+                if (body[i].argument && body[i].argument.type === 'CallExpression') {
+                    pendingBodies.push({body: body[i].argument.callee.body.body, d: declared, u: undeclared, pre: p, pos: body[i].argument.callee.body.range[0] + 1});
+                }
             }
         }
         if (!isContinuation) {
@@ -399,6 +403,8 @@ var bm_expressionHelper = (function () {
                 }
             }
             args[0] = wrappingNode
+        } else if (expression.callee.type === 'FunctionExpression') {
+            handleFunctionDeclaration(expression.callee);
         }
     }
 
