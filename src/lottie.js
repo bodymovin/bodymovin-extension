@@ -2281,6 +2281,10 @@ var PropertyFactory = (function(){
                     }
                     i += 1;
                 }
+                if(this.firstFrame) {
+                    this.firstFrame = false;
+                    this.mdf = true;
+                }
             } else {
                 this.pv = renderResult.value;
                 this.v = this.mult ? this.pv*this.mult : this.pv;
@@ -2345,6 +2349,7 @@ var PropertyFactory = (function(){
         this.data = data;
         this.mult = mult;
         this.elem = elem;
+        this.firstFrame = false;
         this.comp = elem.comp;
         this.v = mult ? data.k[0].s[0]*mult : data.k[0].s[0];
         this.pv = data.k[0].s[0];
@@ -2372,6 +2377,7 @@ var PropertyFactory = (function(){
         this.offsetTime = elem.data.st;
         this.k = true;
         this.kf = true;
+        this.firstFrame = true;
         this.mult = mult;
         this.elem = elem;
         this.comp = elem.comp;
@@ -2470,6 +2476,7 @@ var TransformPropertyFactory = (function() {
                 this.mdf = true;
             }
         }
+
         if (this.mdf) {
             this.v.reset();
             if (this.a) {
@@ -2564,6 +2571,12 @@ var TransformPropertyFactory = (function() {
             this.rx = PropertyFactory.getProp(elem, data.rx, 0, degToRads, this.dynamicProperties);
             this.ry = PropertyFactory.getProp(elem, data.ry, 0, degToRads, this.dynamicProperties);
             this.rz = PropertyFactory.getProp(elem, data.rz, 0, degToRads, this.dynamicProperties);
+            if(data.or.k[0].ti) {
+                var i, len = data.or.k.length;
+                for(i=0;i<len;i+=1) {
+                    data.or.k[i].to = data.or.k[i].ti = null;
+                }
+            }
             this.or = PropertyFactory.getProp(elem, data.or, 1, degToRads, this.dynamicProperties);
             //sh Indicates it needs to be capped between -180 and 180
             this.or.sh = true;
@@ -2579,7 +2592,7 @@ var TransformPropertyFactory = (function() {
             this.s = PropertyFactory.getProp(elem,data.s,1,0.01,this.dynamicProperties);
         }
         if(data.o){
-            this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this.dynamicProperties);
+            this.o = PropertyFactory.getProp(elem,data.o,0,0.01,arr);
         } else {
             this.o = {mdf:false,v:1};
         }
@@ -7097,7 +7110,9 @@ IShapeElement.prototype.renderPath = function(pathData,itemData){
         if(itemData.elements[l].data._render){
             redraw = itemData.sh.mdf || this.firstFrame;
             //M0 0 is needed for IE and Edge bug. If it's missing, and shape has a mask with a gradient fill, it won't show up. :/
-            pathStringTransformed = 'M0 0';
+            //Removing it because it's causing issues with Chrome, and also it's probably better not to have it so the shape won't be larger than needed.
+            //Keeping previous comment to try to find a solution.
+            pathStringTransformed = '';
             var paths = itemData.sh.paths;
             jLen = paths._length;
 
@@ -7738,16 +7753,16 @@ function SVGProLevelsFilter(filter, filterManager){
     var feComponentTransfer = createNS('feComponentTransfer');
     var feFuncR, feFuncG, feFuncB;
     
-    if(effectElements[9].p.k || effectElements[9].p.v !== 0 || effectElements[10].p.k || effectElements[10].p.v !== 1 || effectElements[11].p.k || effectElements[11].p.v !== 1 || effectElements[12].p.k || effectElements[12].p.v !== 0 || effectElements[13].p.k || effectElements[13].p.v !== 1){
+    if(effectElements[10].p.k || effectElements[10].p.v !== 0 || effectElements[11].p.k || effectElements[11].p.v !== 1 || effectElements[12].p.k || effectElements[12].p.v !== 1 || effectElements[13].p.k || effectElements[13].p.v !== 0 || effectElements[14].p.k || effectElements[14].p.v !== 1){
         this.feFuncR = this.createFeFunc('feFuncR', feComponentTransfer);
     }
-    if(effectElements[16].p.k || effectElements[16].p.v !== 0 || effectElements[17].p.k || effectElements[17].p.v !== 1 || effectElements[18].p.k || effectElements[18].p.v !== 1 || effectElements[19].p.k || effectElements[19].p.v !== 0 || effectElements[20].p.k || effectElements[20].p.v !== 1){
+    if(effectElements[17].p.k || effectElements[17].p.v !== 0 || effectElements[18].p.k || effectElements[18].p.v !== 1 || effectElements[19].p.k || effectElements[19].p.v !== 1 || effectElements[20].p.k || effectElements[20].p.v !== 0 || effectElements[21].p.k || effectElements[21].p.v !== 1){
         this.feFuncG = this.createFeFunc('feFuncG', feComponentTransfer);
     }
-    if(effectElements[23].p.k || effectElements[23].p.v !== 0 || effectElements[24].p.k || effectElements[24].p.v !== 1 || effectElements[25].p.k || effectElements[25].p.v !== 1 || effectElements[26].p.k || effectElements[26].p.v !== 0 || effectElements[27].p.k || effectElements[27].p.v !== 1){
+    if(effectElements[24].p.k || effectElements[24].p.v !== 0 || effectElements[25].p.k || effectElements[25].p.v !== 1 || effectElements[26].p.k || effectElements[26].p.v !== 1 || effectElements[27].p.k || effectElements[27].p.v !== 0 || effectElements[28].p.k || effectElements[28].p.v !== 1){
         this.feFuncB = this.createFeFunc('feFuncB', feComponentTransfer);
     }
-    if(effectElements[30].p.k || effectElements[30].p.v !== 0 || effectElements[31].p.k || effectElements[31].p.v !== 1 || effectElements[32].p.k || effectElements[32].p.v !== 1 || effectElements[33].p.k || effectElements[33].p.v !== 0 || effectElements[34].p.k || effectElements[34].p.v !== 1){
+    if(effectElements[31].p.k || effectElements[31].p.v !== 0 || effectElements[32].p.k || effectElements[32].p.v !== 1 || effectElements[33].p.k || effectElements[33].p.v !== 1 || effectElements[34].p.k || effectElements[34].p.v !== 0 || effectElements[35].p.k || effectElements[35].p.v !== 1){
         this.feFuncA = this.createFeFunc('feFuncA', feComponentTransfer);
     }
     
@@ -7757,7 +7772,7 @@ function SVGProLevelsFilter(filter, filterManager){
         feComponentTransfer = createNS('feComponentTransfer');
     }
 
-    if(effectElements[2].p.k || effectElements[2].p.v !== 0 || effectElements[3].p.k || effectElements[3].p.v !== 1 || effectElements[4].p.k || effectElements[4].p.v !== 1 || effectElements[5].p.k || effectElements[5].p.v !== 0 || effectElements[6].p.k || effectElements[6].p.v !== 1){
+    if(effectElements[3].p.k || effectElements[3].p.v !== 0 || effectElements[4].p.k || effectElements[4].p.v !== 1 || effectElements[5].p.k || effectElements[5].p.v !== 1 || effectElements[6].p.k || effectElements[6].p.v !== 0 || effectElements[7].p.k || effectElements[7].p.v !== 1){
 
         feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
         filter.appendChild(feComponentTransfer);
@@ -7804,30 +7819,30 @@ SVGProLevelsFilter.prototype.renderFrame = function(forceRender){
     if(forceRender || this.filterManager.mdf){
         var val, cnt, perc, bezier;
         var effectElements = this.filterManager.effectElements;
-        if(this.feFuncRComposed && (forceRender || effectElements[2].p.mdf || effectElements[3].p.mdf || effectElements[4].p.mdf || effectElements[5].p.mdf || effectElements[6].p.mdf)){
-            val = this.getTableValue(effectElements[2].p.v,effectElements[3].p.v,effectElements[4].p.v,effectElements[5].p.v,effectElements[6].p.v);
+        if(this.feFuncRComposed && (forceRender || effectElements[3].p.mdf || effectElements[4].p.mdf || effectElements[5].p.mdf || effectElements[6].p.mdf || effectElements[7].p.mdf)){
+            val = this.getTableValue(effectElements[3].p.v,effectElements[4].p.v,effectElements[5].p.v,effectElements[6].p.v,effectElements[7].p.v);
             this.feFuncRComposed.setAttribute('tableValues',val);
             this.feFuncGComposed.setAttribute('tableValues',val);
             this.feFuncBComposed.setAttribute('tableValues',val);
         }
 
-        if(this.feFuncR && (forceRender || effectElements[9].p.mdf || effectElements[10].p.mdf || effectElements[11].p.mdf || effectElements[12].p.mdf || effectElements[13].p.mdf)){
-            val = this.getTableValue(effectElements[9].p.v,effectElements[10].p.v,effectElements[11].p.v,effectElements[12].p.v,effectElements[13].p.v);
+        if(this.feFuncR && (forceRender || effectElements[10].p.mdf || effectElements[11].p.mdf || effectElements[12].p.mdf || effectElements[13].p.mdf || effectElements[14].p.mdf)){
+            val = this.getTableValue(effectElements[10].p.v,effectElements[11].p.v,effectElements[12].p.v,effectElements[13].p.v,effectElements[14].p.v);
             this.feFuncR.setAttribute('tableValues',val);
         }
 
-        if(this.feFuncG && (forceRender || effectElements[16].p.mdf || effectElements[17].p.mdf || effectElements[18].p.mdf || effectElements[19].p.mdf || effectElements[20].p.mdf)){
-            val = this.getTableValue(effectElements[16].p.v,effectElements[17].p.v,effectElements[18].p.v,effectElements[19].p.v,effectElements[20].p.v);
+        if(this.feFuncG && (forceRender || effectElements[17].p.mdf || effectElements[18].p.mdf || effectElements[19].p.mdf || effectElements[20].p.mdf || effectElements[21].p.mdf)){
+            val = this.getTableValue(effectElements[17].p.v,effectElements[18].p.v,effectElements[19].p.v,effectElements[20].p.v,effectElements[21].p.v);
             this.feFuncG.setAttribute('tableValues',val);
         }
 
-        if(this.feFuncB && (forceRender || effectElements[23].p.mdf || effectElements[24].p.mdf || effectElements[25].p.mdf || effectElements[26].p.mdf || effectElements[27].p.mdf)){
-            val = this.getTableValue(effectElements[23].p.v,effectElements[24].p.v,effectElements[25].p.v,effectElements[26].p.v,effectElements[27].p.v);
+        if(this.feFuncB && (forceRender || effectElements[24].p.mdf || effectElements[25].p.mdf || effectElements[26].p.mdf || effectElements[27].p.mdf || effectElements[28].p.mdf)){
+            val = this.getTableValue(effectElements[24].p.v,effectElements[25].p.v,effectElements[26].p.v,effectElements[27].p.v,effectElements[28].p.v);
             this.feFuncB.setAttribute('tableValues',val);
         }
 
-        if(this.feFuncA && (forceRender || effectElements[30].p.mdf || effectElements[31].p.mdf || effectElements[32].p.mdf || effectElements[33].p.mdf || effectElements[34].p.mdf)){
-            val = this.getTableValue(effectElements[30].p.v,effectElements[31].p.v,effectElements[32].p.v,effectElements[33].p.v,effectElements[34].p.v);
+        if(this.feFuncA && (forceRender || effectElements[31].p.mdf || effectElements[32].p.mdf || effectElements[33].p.mdf || effectElements[34].p.mdf || effectElements[35].p.mdf)){
+            val = this.getTableValue(effectElements[31].p.v,effectElements[32].p.v,effectElements[33].p.v,effectElements[34].p.v,effectElements[35].p.v);
             this.feFuncA.setAttribute('tableValues',val);
         }
         
@@ -8375,9 +8390,9 @@ var animationManager = (function(){
         }
     }
 
-    function start(){
+    /*function start(){
         window.requestAnimationFrame(first);
-    }
+    }*/
 
     function activate(){
         if(idled){
@@ -8388,7 +8403,7 @@ var animationManager = (function(){
 
     //start();
 
-    setTimeout(start,0);
+    //setTimeout(start,0);
 
     moduleOb.registerAnimation = registerAnimation;
     moduleOb.loadAnimation = loadAnimation;
@@ -8401,7 +8416,7 @@ var animationManager = (function(){
     moduleOb.togglePause = togglePause;
     moduleOb.searchAnimations = searchAnimations;
     moduleOb.resize = resize;
-    moduleOb.start = start;
+    //moduleOb.start = start;
     moduleOb.goToAndStop = goToAndStop;
     moduleOb.destroy = destroy;
     return moduleOb;
@@ -8421,7 +8436,6 @@ var AnimationItem = function () {
     this.playDirection = 1;
     this.pendingElements = 0;
     this.playCount = 0;
-    this.prerenderFramesFlag = true;
     this.animationData = {};
     this.layers = [];
     this.assets = [];
@@ -8430,7 +8444,6 @@ var AnimationItem = function () {
     this.loop = true;
     this.renderer = null;
     this.animationID = randomString(10);
-    this.scaleMode = 'fit';
     this.assetsPath = '';
     this.timeCompleted = 0;
     this.segmentPos = 0;
@@ -8476,7 +8489,6 @@ AnimationItem.prototype.setParams = function(params) {
     }
     this.autoplay = 'autoplay' in params ? params.autoplay : true;
     this.name = params.name ? params.name :  '';
-    this.prerenderFramesFlag = 'prerender' in params ? params.prerender : true;
     this.autoloadSegments = params.hasOwnProperty('autoloadSegments') ? params.autoloadSegments :  true;
     if(params.animationData){
         self.configAnimation(params.animationData);
@@ -8549,7 +8561,7 @@ AnimationItem.prototype.setData = function (wrapper, animationData) {
 AnimationItem.prototype.includeLayers = function(data) {
     if(data.op > this.animationData.op){
         this.animationData.op = data.op;
-        this.totalFrames = Math.floor(data.op - this.animationData.ip);
+        this.totalFrames = Math.floor(data.op - this.animationData.ip) - 1;
         this.animationData.tf = this.totalFrames;
     }
     var layers = this.animationData.layers;
@@ -8635,7 +8647,7 @@ AnimationItem.prototype.configAnimation = function (animData) {
     //animData.w = Math.round(animData.w/blitter);
     //animData.h = Math.round(animData.h/blitter);
     this.animationData = animData;
-    this.totalFrames = Math.floor(this.animationData.op - this.animationData.ip);
+    this.totalFrames = Math.floor(this.animationData.op - this.animationData.ip) - 1;
     this.animationData.tf = this.totalFrames;
     this.renderer.configAnimation(animData);
     if(!animData.assets){
@@ -8722,11 +8734,7 @@ AnimationItem.prototype.setSubframe = function(flag){
 }
 
 AnimationItem.prototype.gotoFrame = function () {
-    if(this.subframeEnabled){
-        this.currentFrame = this.currentRawFrame;
-    }else{
-        this.currentFrame = Math.floor(this.currentRawFrame);
-    }
+    this.currentFrame = this.subframeEnabled ? this.currentRawFrame : ~~this.currentRawFrame;
 
     if(this.timeCompleted !== this.totalFrames && this.currentFrame > this.timeCompleted){
         this.currentFrame = this.timeCompleted;
@@ -8843,9 +8851,9 @@ AnimationItem.prototype.adjustSegment = function(arr){
                 this.setDirection(-1);
             }
         }
-        this.totalFrames = arr[0] - arr[1];
+        this.totalFrames = arr[0] - arr[1] - 1;
         this.firstFrame = arr[1];
-        this.setCurrentRawFrameValue(this.totalFrames - 0.01);
+        this.setCurrentRawFrameValue(this.totalFrames);
     } else if(arr[1] > arr[0]){
         if(this.frameModifier < 0){
             if(this.playSpeed < 0){
@@ -8854,7 +8862,7 @@ AnimationItem.prototype.adjustSegment = function(arr){
                 this.setDirection(1);
             }
         }
-        this.totalFrames = arr[1] - arr[0];
+        this.totalFrames = arr[1] - arr[0] - 1;
         this.firstFrame = arr[0];
         this.setCurrentRawFrameValue(0);
     }
@@ -8866,12 +8874,12 @@ AnimationItem.prototype.setSegment = function (init,end) {
         if (this.currentRawFrame + this.firstFrame < init) {
             pendingFrame = init;
         } else if (this.currentRawFrame + this.firstFrame > end) {
-            pendingFrame = end - init - 0.01;
+            pendingFrame = end - init;
         }
     }
 
     this.firstFrame = init;
-    this.totalFrames = end - init;
+    this.totalFrames = end - init - 1;
     if(pendingFrame !== -1) {
         this.goToAndStop(pendingFrame,true);
     }
@@ -8928,23 +8936,18 @@ AnimationItem.prototype.destroy = function (name) {
 AnimationItem.prototype.setCurrentRawFrameValue = function(value){
     this.currentRawFrame = value;
     //console.log(this.totalFrames);
+    var _completeFlag = false;
     if (this.currentRawFrame >= this.totalFrames) {
         this.checkSegments();
         if(this.loop === false){
-            this.currentRawFrame = this.totalFrames - 0.01;
-            this.gotoFrame();
-            this.pause();
-            this.trigger('complete');
-            return;
+            this.currentRawFrame = this.totalFrames;
+            _completeFlag = true;
         }else{
             this.trigger('loopComplete');
             this.playCount += 1;
             if((this.loop !== true && this.playCount == this.loop) || this.pendingSegment){
-                this.currentRawFrame = this.totalFrames - 0.01;
-                this.gotoFrame();
-                this.pause();
-                this.trigger('complete');
-                return;
+                this.currentRawFrame = this.totalFrames;
+                _completeFlag = true;
             } else {
                 this.currentRawFrame = this.currentRawFrame % this.totalFrames;
             }
@@ -8957,19 +8960,18 @@ AnimationItem.prototype.setCurrentRawFrameValue = function(value){
         }
         if(this.loop === false  || this.pendingSegment){
             this.currentRawFrame = 0;
-            this.gotoFrame();
-            this.pause();
-            this.trigger('complete');
-            return;
+            _completeFlag = true;
         }else{
             this.trigger('loopComplete');
             this.currentRawFrame = (this.totalFrames + this.currentRawFrame) % this.totalFrames;
-            this.gotoFrame();
-            return;
         }
     }
 
     this.gotoFrame();
+    if(_completeFlag) {
+        this.pause();
+        this.trigger('complete');
+    }
 };
 
 AnimationItem.prototype.setSpeed = function (val) {
@@ -13612,7 +13614,9 @@ var LayerExpressionInterface = (function (){
         Object.defineProperty(_thisLayerFunction, "scale", getDescriptor(transformInterface, 'scale'));
         Object.defineProperty(_thisLayerFunction, "position", getDescriptor(transformInterface, 'position'));
         Object.defineProperty(_thisLayerFunction, "opacity", getDescriptor(transformInterface, 'opacity'));
-        Object.defineProperty(_thisLayerFunction, "anchorPoint", getDescriptor(transformInterface, 'anchorPoint'));
+        var anchorPointDescriptor = getDescriptor(transformInterface, 'anchorPoint');
+        Object.defineProperty(_thisLayerFunction, "anchorPoint", anchorPointDescriptor);
+        Object.defineProperty(_thisLayerFunction, "anchor_point", anchorPointDescriptor);
 
         Object.defineProperty(_thisLayerFunction, "transform", {
             get: function () {
@@ -14075,6 +14079,7 @@ GroupEffect.prototype.init = function(data,element,dynamicProperties){
                 this.effectElements.push(eff);
                 break;
             case 6:
+            default:
                 eff = new NoValueEffect(effects[i],element,dynamicProperties);
                 this.effectElements.push(eff);
                 break;
@@ -14130,9 +14135,9 @@ GroupEffect.prototype.init = function(data,element,dynamicProperties){
         animationManager.resize();
     }
 
-    function start() {
+    /*function start() {
         animationManager.start();
-    }
+    }*/
 
     function goToAndStop(val, isFrame, animation) {
         animationManager.goToAndStop(val, isFrame, animation);
@@ -14209,14 +14214,14 @@ GroupEffect.prototype.init = function(data,element,dynamicProperties){
     lottiejs.loadAnimation = loadAnimation;
     lottiejs.setSubframeRendering = setSubframeRendering;
     lottiejs.resize = resize;
-    lottiejs.start = start;
+    //lottiejs.start = start;
     lottiejs.goToAndStop = goToAndStop;
     lottiejs.destroy = destroy;
     lottiejs.setQuality = setQuality;
     lottiejs.inBrowser = inBrowser;
     lottiejs.installPlugin = installPlugin;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.0.3';
+    lottiejs.version = '5.0.5';
 
     function checkReady() {
         if (document.readyState === "complete") {

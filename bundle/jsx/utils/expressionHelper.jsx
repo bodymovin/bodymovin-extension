@@ -211,7 +211,7 @@ var bm_expressionHelper = (function () {
                     pendingBodies.push({body: body[i].body.body, d: declared, u: undeclared, pre: p, pos: body[i].body.range[0] + 1});
                 }
             } else if (body[i].type === 'ReturnStatement') {
-                if (body[i].argument && body[i].argument.type === 'CallExpression') {
+                if (body[i].argument && body[i].argument.type === 'CallExpression' && body[i].argument.callee.body) {
                     pendingBodies.push({body: body[i].argument.callee.body.body, d: declared, u: undeclared, pre: p, pos: body[i].argument.callee.body.range[0] + 1});
                 }
             }
