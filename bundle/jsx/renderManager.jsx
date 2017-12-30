@@ -323,7 +323,8 @@ var bm_renderManager = (function () {
         var exportData = ob.renderData.exportData;
         exportData.fonts = fontData;
         bm_textShapeHelper.exportFonts(fontData);
-        bm_textShapeHelper.exportChars(fontData);
+        //bm_textShapeHelper.exportChars(fontData);
+        saveData();
     }
     
     function setCharsData(charData) {
