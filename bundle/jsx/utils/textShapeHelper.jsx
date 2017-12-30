@@ -227,7 +227,7 @@ var bm_textShapeHelper = (function () {
     
     function exportFonts(fonts) {
         fontComp.openInViewer();
-        var i, len = fonts.list.length, rect;
+        var i, len = fonts.list.length, rect, baseLineShift;
         var fontProp = boxText.property("Source Text");
         var fontDocument = fontProp.value;
         fontDocument.text = 'm';
@@ -237,7 +237,11 @@ var bm_textShapeHelper = (function () {
             fontDocument.tracking = 0;
             fontProp.setValue(fontDocument);
             rect = boxText.sourceRectAtTime(0, false);
-            fonts.list[i].ascent = 250 + rect.top + rect.height;
+            baseLineShift = 0;
+            if(fontDocument.baselineShift){
+                baseLineShift = fontDocument.baselineShift;
+            }
+            fonts.list[i].ascent = 250 + rect.top + rect.height + baseLineShift;
         }
     }
     
