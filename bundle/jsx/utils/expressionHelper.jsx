@@ -140,6 +140,13 @@ var bm_expressionHelper = (function () {
             }
         }
 
+        function addSwitchStatement(statement) {
+            var i, len = statement.cases.length;
+            for (i = 0; i < len; i += 1) {
+                findUndeclaredVariables(statement.cases[i].consequent, 0, null, declared, undeclared, true);
+            }
+        }
+
         if (!declared) {
             declared = [];
         }
@@ -199,6 +206,8 @@ var bm_expressionHelper = (function () {
                 addIfStatement(body[i]);
             } else if (body[i].type === 'TryStatement') {
                 addTryStatement(body[i]);
+            } else if (body[i].type === 'SwitchStatement') {
+                addSwitchStatement(body[i]);
             } else if (body[i].type === 'FunctionDeclaration') {
                 if (body[i].body && body[i].body.type === 'BlockStatement') {
                     var p = [];
@@ -214,6 +223,8 @@ var bm_expressionHelper = (function () {
                 if (body[i].argument && body[i].argument.type === 'CallExpression' && body[i].argument.callee.body) {
                     pendingBodies.push({body: body[i].argument.callee.body.body, d: declared, u: undeclared, pre: p, pos: body[i].argument.callee.body.range[0] + 1});
                 }
+            } else if (body[i].type === 'BlockStatement') {
+                findUndeclaredVariables(body[i].body, 0, null, declared, undeclared, true);
             }
         }
         if (!isContinuation) {
