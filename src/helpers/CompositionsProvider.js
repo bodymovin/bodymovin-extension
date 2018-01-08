@@ -4,6 +4,7 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched} from '../redux/actions/generalActions'
 import bodymovin2Avd from 'bodymovin-to-avd'
+//import Jimp from 'jimp/index.js'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -119,6 +120,21 @@ csInterface.addEventListener('bm:version', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher(versionFetched(data.value))
+	} else {
+	}
+})
+
+csInterface.addEventListener('bm:image:convert', function (ev) {
+	if(ev.data) {
+		window.jimp_bridge.convert(ev.data.path);
+		/*Jimp.read(ev.data.path, function (err, lenna) {
+		    if (err) throw err;
+		    lenna.resize(256, 256)            // resize 
+		         .quality(60)                 // set JPEG quality 
+		         .greyscale()                 // set greyscale 
+		         .write("lena-small-bw.jpg"); // save 
+		});*/
+		console.log(ev.data);
 	} else {
 	}
 })

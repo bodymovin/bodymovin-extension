@@ -38,6 +38,7 @@ var bm_sourceHelper = (function () {
             height: item.source.height,
             source_name: item.source.name,
             name: item.name,
+            hasAlpha: item.source.mainSource.hasAlpha,
             id: 'image_' + imageCount
         });
         imageCount += 1;
@@ -131,12 +132,15 @@ var bm_sourceHelper = (function () {
         var currentSourceData = imageSources[currentExportingImage];
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
-        var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
+        var extension = currentSourceData.hasAlpha ? 'png' : 'jpg';
+        extension = 'png';
+        var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.' + extension;
         assetsArray.push({
             id: currentSourceData.id,
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
+            a: currentSourceData.hasAlpha,
             p: imageName
         });
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
@@ -145,6 +149,9 @@ var bm_sourceHelper = (function () {
         helperComp.saveFrameToPng(0, file);
         helperComp.remove();
         currentExportingImage += 1;
+        if(!currentSourceData.hasAlpha) {
+            bm_eventDispatcher.sendEvent('bm:image:convert', {path: folder.fsName + '/' + imageName, id: currentSourceData.id});
+        }
         saveNextImage();
     }
     

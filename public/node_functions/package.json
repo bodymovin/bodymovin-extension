@@ -1,0 +1,14 @@
+{
+  "name": "node_functions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hernan Torrisi <hernantorrisi@gmail.com> (http://codepen.io/airnan/)",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^0.2.28"
+  }
+}

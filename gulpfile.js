@@ -11,11 +11,17 @@ var insert = require('gulp-insert');
 var version = '5.1.1'
 
 var extensionSource = './bundle';
+var nodeFunctionsSource = './public/node_functions';
 var extensionDestination = '../../../Users/Deeandra/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
 gulp.task('watch-extension', function() {
     gulp.src(extensionSource + '/**/*', {base: extensionSource})
         .pipe(watch(extensionSource, {base: extensionSource}))
         .pipe(gulp.dest(extensionDestination));
+});
+gulp.task('watch-node-functions', function() {
+    gulp.src(nodeFunctionsSource + '/**/*', {base: nodeFunctionsSource})
+        .pipe(watch(nodeFunctionsSource, {base: nodeFunctionsSource}))
+        .pipe(gulp.dest(extensionDestination+'/node_functions'));
 });
 gulp.task('copy-extension', function() {
     gulp.src(extensionSource+'/**/*')
