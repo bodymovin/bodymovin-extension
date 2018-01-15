@@ -142,7 +142,10 @@ var bm_sourceHelper = (function () {
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
         var file = new File(folder.absoluteURI + '/' + imageName);
-        helperComp.saveFrameToPng(0, file);
+        //helperComp.saveFrameToPng(0, file);
+        //++++++++++++++++++++++++
+        savePNG(helperComp,file);
+        //++++++++++++++++++++++++
         helperComp.remove();
         currentExportingImage += 1;
         saveNextImage();
@@ -199,7 +202,71 @@ var bm_sourceHelper = (function () {
         imageCount = 0;
         imageName = 0;
     }
-    
+
+    //save png via renderQ
+    function savePNG(theComp,theLocation) {
+        //if the resolution isnt 'Full', store current resolution and set to Full, then restore later;
+        var res = [1,1];
+        if(theComp.resolutionFactor != "1,1"){
+            res = theComp.resolutionFactor;
+            theComp.resolutionFactor = [1,1];
+            }
+        
+        if(theLocation != null){
+            //close the renderQueue panel
+            app.project.renderQueue.showWindow(false);
+            //show the correct charactar in the path
+            theLocation = decodeURIComponent(theLocation);
+            //backup the render queue status, then uncheck the queued items
+            var RQbackup = storeRenderQueue();
+            //check if renderQ rendering, if so,render the png using old saveFrameToPng() way.
+            if(RQbackup[RQbackup.length-1] == "rendering"){
+                bm_eventDispatcher.sendEvent('alert', 'Render Queue is rendering item, now export the png using saveFrameToPng().');
+                theComp.saveFrameToPng(0, theLocation);
+            }else{
+                //call command "save frame as" to add current frame to render queue
+                theComp.openInViewer();
+                app.executeCommand(2104);
+                app.project.renderQueue.item(app.project.renderQueue.numItems).render = true;
+                var templateTemp = app.project.renderQueue.item(app.project.renderQueue.numItems).outputModule(1).templates;
+                //call hidden template '_HIDDEN X-Factor 16 Premul', which exports png with alpha
+                var setPNG = app.project.renderQueue.item(app.project.renderQueue.numItems).outputModule(1).templates[templateTemp.length-1];
+                app.project.renderQueue.item(app.project.renderQueue.numItems).outputModule(1).applyTemplate(setPNG);
+                app.project.renderQueue.item(app.project.renderQueue.numItems).outputModule(1).file = new File(theLocation);
+                var finalpath = app.project.renderQueue.item(app.project.renderQueue.numItems).outputModule(1).file.fsName;
+                app.project.renderQueue.render();
+                //remove the rendered item and restored the render queue items
+                app.project.renderQueue.item(app.project.renderQueue.numItems).remove();
+                if(RQbackup != null){
+                    restoreRenderQueue(RQbackup);					
+                }
+                app.activeViewer.setActive();
+                app.project.activeItem.resolutionFactor = res;
+            }
+        }
+    }
+    //store the renderQ,return the index of active render items
+    function storeRenderQueue(){
+        var checkeds = [];
+        for(var p = 1;p <= app.project.renderQueue.numItems; p++){
+            if (app.project.renderQueue.item(p).status == RQItemStatus.RENDERING){
+                checkeds.push("rendering");
+                break;
+            }else if(app.project.renderQueue.item(p).status == RQItemStatus.QUEUED){
+                    checkeds.push(p);
+                    app.project.renderQueue.item(p).render = false;
+            }
+        }
+        return checkeds;
+    }
+
+    //restore the renderQ
+    function restoreRenderQueue(checkedItems){
+        for(var q = 0;q < checkedItems.length; q++){
+            app.project.renderQueue.item(checkedItems[q]).render = true;
+        }
+    }
+
     return {
         checkCompSource: checkCompSource,
         checkImageSource: checkImageSource,
