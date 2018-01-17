@@ -168,9 +168,9 @@ var bm_renderManager = (function () {
             for (i = 0; i < len; i += 1) {
                 markerData = {};
                 markerElement = markerProperty.keyValue(i + 1);
-                markerData.tm = markerProperty.keyTime(i + 1) / exportData.fr;
+                markerData.tm = markerProperty.keyTime(i + 1) * exportData.fr;
                 markerData.cm = markerElement.comment;
-                markerData.dr = markerElement.duration / exportData.fr;
+                markerData.dr = markerElement.duration * exportData.fr;
                 markersList.push(markerData);
             }
         }

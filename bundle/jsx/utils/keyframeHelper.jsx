@@ -343,7 +343,12 @@ var bm_keyframeHelper = (function () {
                                 bezierIn.y[k] = bezierIn.x[k];
                                 bezierOut.y[k] = bezierOut.x[k];
                             } else {
-                                var yNormal = (key.value[k] - lastKey.value[k]);
+                                var yNormal;
+                                if(property.propertyValueType === PropertyValueType.COLOR){
+                                    yNormal = 255*(key.value[k] - lastKey.value[k]);
+                                } else {
+                                    yNormal = (key.value[k] - lastKey.value[k]);
+                                }
                                 if(Math.abs(yNormal) < 0.0000001) {
                                     yNormal = 1;
                                 }
@@ -353,7 +358,6 @@ var bm_keyframeHelper = (function () {
                                 var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
                                 bezierIn.y[k] = 1 - (bezierInY*duration)/yNormal;
                                 bezierOut.y[k] = (bezierY*duration)/yNormal;
-                                bm_eventDispatcher.log('bezierOut.y[k]' + bezierOut.y[k])
                             }
                         }
                         break;
