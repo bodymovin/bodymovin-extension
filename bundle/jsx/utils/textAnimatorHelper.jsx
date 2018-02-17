@@ -171,6 +171,8 @@ var bm_textAnimatorHelper = (function () {
     function exportAnimator(layerInfo, ob, frameRate, stretch) {
         var i, len;
         len = layerInfo.numProperties;
+
+        ob.nm = layerInfo.name;
         for (i = 0; i < len; i += 1) {
             switch (layerInfo.property(i + 1).matchName) {
             case "ADBE Text Selectors":

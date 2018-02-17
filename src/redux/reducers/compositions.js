@@ -4,7 +4,8 @@ let initialState = {
 	list: [],
   filter: '',
   items:{},
-  current: 0
+  current: 0,
+  show_only_selected: false
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -325,6 +326,12 @@ function updateSettingsValue(state, action) {
 
 }
 
+function toggleSelected(state, action) {
+  let newState = {...state}
+  newState.show_only_selected = !newState.show_only_selected
+  return newState
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -352,6 +359,8 @@ export default function compositions(state = initialState, action) {
       return toggleExtraComp(state, action)
     case actionTypes.SETTINGS_UPDATE_VALUE:
       return updateSettingsValue(state, action)
+    case actionTypes.SETTINGS_TOGGLE_SELECTED:
+      return toggleSelected(state, action)
     default:
       return state
   }

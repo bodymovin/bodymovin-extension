@@ -819,7 +819,7 @@ var Matrix = (function(){
         }
 
         // The "g" method returns the next (count) outputs as one number.
-        (me.g = function(count) {
+        me.g = function(count) {
             // Using instance members instead of closure state nearly doubles speed.
             var t, r = 0,
                 i = me.i, j = me.j, s = me.S;
@@ -832,7 +832,7 @@ var Matrix = (function(){
             // For robust unpredictability, the function call below automatically
             // discards an initial batch of values.  This is called RC4-drop[256].
             // See http://google.com/search?q=rsa+fluhrer+response&btnI
-        }(width));
+        };
     }
 
 //
@@ -4916,7 +4916,7 @@ TextProperty.prototype.completeTextData = function(documentData) {
             break;
         }
     }
-    documentData.fWeight = fWeight;
+    documentData.fWeight = fontData.fWeight || fWeight;
     documentData.fStyle = fStyle;
     len = documentData.t.length;
     documentData.finalSize = documentData.s;
@@ -4977,7 +4977,7 @@ TextProperty.prototype.completeTextData = function(documentData) {
                 flag = false;
             }
         }
-        
+
     }
     lineWidth = - trackingOffset;
     cLength = 0;
@@ -5142,6 +5142,7 @@ TextProperty.prototype.setMinimumFontSize = function(_fontValue) {
     this.minimumFontSize = Math.floor(_fontValue) || 1;
     this.recalculate(this.keysIndex);
 };
+
 var TextSelectorProp = (function(){
     var max = Math.max;
     var min = Math.min;
@@ -5157,7 +5158,7 @@ var TextSelectorProp = (function(){
                 }
             }
         }
-        var totalChars = this.elem.textProperty.currentData ? this.elem.textProperty.currentData.l.length : 0;
+        var totalChars = this.data.totalChars || this.elem.textProperty.currentData.l.length || 0;
         if(newCharsFlag && this.data.r === 2) {
             this.e.v = totalChars;
         }
@@ -6813,6 +6814,7 @@ ITextElement.prototype.initElement = function(data,globalData,comp){
     this.createContainerElements();
     this.addMasks();
     this.createContent();
+    this.hide();
     this.textAnimator.searchProperties(this.dynamicProperties);
 };
 
@@ -8781,18 +8783,25 @@ AnimationItem.prototype.advanceTime = function (value) {
     }
     var nextValue = this.currentRawFrame + value * this.frameModifier;
     var _isComplete = false;
-    if (nextValue >= this.totalFrames) {
-        if(!this.checkSegments(nextValue % this.totalFrames)) {
-            if (this.loop && !(++this.playCount === this.loop)) {
+    // Checking if nextValue > totalFrames - 1 for addressing non looping and looping animations.
+    // If animation won't loop, it should stop at totalFrames - 1. If it will loop it should complete the last frame and then loop.
+    if (nextValue >= this.totalFrames - 1 && this.frameModifier > 0) {
+        if (!this.loop || this.playCount === this.loop) {
+            if (!this.checkSegments(nextValue % this.totalFrames)) {
+                _isComplete = true;
+                nextValue = this.totalFrames - 1;
+            }
+        } else if (nextValue >= this.totalFrames) {
+            this.playCount += 1;
+            if (!this.checkSegments(nextValue % this.totalFrames)) {
                 this.setCurrentRawFrameValue(nextValue % this.totalFrames);
                 this.trigger('loopComplete');
-            } else {
-                _isComplete = true;
-                nextValue = this.totalFrames;
             }
+        } else {
+            this.setCurrentRawFrameValue(nextValue);
         }
     } else if(nextValue < 0) {
-        if(!this.checkSegments(nextValue % this.totalFrames)) {
+        if (!this.checkSegments(nextValue % this.totalFrames)) {
             if (this.loop && !(this.playCount-- <= 0 && this.loop !== true)) {
                 this.setCurrentRawFrameValue(this.totalFrames + (nextValue % this.totalFrames));
                 this.trigger('loopComplete');
@@ -9431,7 +9440,7 @@ HybridRenderer.prototype.createImage = function (data) {
 
 HybridRenderer.prototype.createComp = function (data) {
     if(!this.supports3d){
-        return new ICompElement(data, this.globalData, this);
+        return new SVGCompElement(data, this.globalData, this);
     }
     return new HCompElement(data, this.globalData, this);
 
@@ -10608,8 +10617,10 @@ HCompElement.prototype.createContainerElements = function(){
     if(this.data.hasMask){
         this.svgElement.setAttribute('width',this.data.w);
         this.svgElement.setAttribute('height',this.data.h);
+        this.transformedElement = this.baseElement;
+    } else {
+        this.transformedElement = this.layerElement;
     }
-    this.transformedElement = this.layerElement;
 };
 function HShapeElement(data,globalData,comp){
     //List of drawable elements
@@ -13006,6 +13017,12 @@ var TransformExpressionInterface = (function (){
                 case "ADBE Position":
                 case 2:
                     return _thisFunction.position;
+                case 'ADBE Position_0':
+                    return _thisFunction.xPosition;
+                case 'ADBE Position_1':
+                    return _thisFunction.yPosition;
+                case 'ADBE Position_2':
+                    return _thisFunction.zPosition;
                 case "anchorPoint":
                 case "AnchorPoint":
                 case "Anchor Point":
@@ -13531,7 +13548,7 @@ GroupEffect.prototype.init = function(data,element,dynamicProperties){
     lottiejs.inBrowser = inBrowser;
     lottiejs.installPlugin = installPlugin;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.1.4';
+    lottiejs.version = '5.1.7';
 
     function checkReady() {
         if (document.readyState === "complete") {

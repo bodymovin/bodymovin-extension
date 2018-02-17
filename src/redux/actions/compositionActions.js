@@ -95,8 +95,16 @@ function goToComps() {
 	}
 }
 
+function toggleShowSelected() {
+	console.log('toggleShowSelected:')
+	return {
+		type: actionTypes.SETTINGS_TOGGLE_SELECTED,
+	}
+}
+
 export {
 	filterChange,
+	toggleShowSelected,
 	toggleItem,
 	getCompositions,
 	getDestination,

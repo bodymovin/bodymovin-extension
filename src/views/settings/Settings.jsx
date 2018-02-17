@@ -162,7 +162,7 @@ class Settings extends React.Component {
           <ul className={css(styles.compsList)}>
             <SettingsListItem 
               title='Split'
-              description='Splits comp in multiple files every X seconds'
+              description='Splits comp in multiple json files every X seconds'
               toggleItem={this.toggleSegmented}
               active={this.props.settings ? this.props.settings.segmented : false} 
               needsInput={true} 
@@ -170,22 +170,22 @@ class Settings extends React.Component {
               inputValueChange={this.segmentedChange} />
             <SettingsListItem 
               title='Glyphs'
-              description='Checked converts fonts to shapes'
+              description='If selected it converts fonts to shapes'
               toggleItem={this.toggleGlyphs}
               active={this.props.settings ? this.props.settings.glyphs : false} />
             <SettingsListItem 
               title='Hidden'
-              description='Check if you need HIDDEN layers to be exported'
+              description='Select if you need HIDDEN layers to be exported'
               toggleItem={this.toggleHiddens}
               active={this.props.settings ? this.props.settings.hiddens : false}  />
             <SettingsListItem 
               title='Guides'
-              description='Check if you need GUIDED layers to be exported'
+              description='Select if you need GUIDED layers to be exported'
               toggleItem={this.toggleGuideds}
               active={this.props.settings ? this.props.settings.guideds : false}  />
             <SettingsListItem 
               title='Extra Comps'
-              description='Check if expressions are pointing to external comps'
+              description='Select if expressions are pointing to external comps'
               toggleItem={this.toggleExtraComps}
               active={this.props.settings ? this.props.settings.extraComps.active : false}  />
               {this.props.settings && this.props.settings.extraComps.active && 
