@@ -143,11 +143,11 @@ var bm_layerElement = (function () {
         if(layerAttributes.ln){
             layerData.ln = layerAttributes.ln;
         }
-
-
-        
         if(layerAttributes.cl){
             layerData.cl = layerAttributes.cl;
+        }
+        if(layerAttributes.tg){
+            layerData.tg = layerAttributes.tg;
         }
         if (layerInfo.parent !== null) {
             layerData.parent = layerInfo.parent.index;

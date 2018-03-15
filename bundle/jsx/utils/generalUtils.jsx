@@ -114,7 +114,8 @@ var bm_generalUtils = (function () {
     function findAttributes(name){
         var ob = {
             ln: null,
-            cl: ''
+            cl: '',
+            tg: ''
         }
         var regexElem = /[\.|#][a-zA-Z0-9\-_]*/g;
         var match,firstChar, matchString;
@@ -123,10 +124,16 @@ var bm_generalUtils = (function () {
             firstChar = matchString.substring(0,1);
             if (firstChar === '#') {
                 ob.ln = matchString.substring(1);
-            } else {
+            }else {
                 ob.cl += ob.cl === '' ? '' : ' ';
                 ob.cl += matchString.substring(1);
             }
+        }
+        regexElem = /<([a-zA-Z0-9\-_]*)>/g;
+        while(match = regexElem.exec(name)){
+            bm_eventDispatcher.log('FOUND')
+            bm_eventDispatcher.log(match[1])
+            ob.tg = match[1];
         }
         return ob;
     }

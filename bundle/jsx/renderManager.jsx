@@ -120,6 +120,7 @@ var bm_renderManager = (function () {
     }
     
     function render(comp, destination, fsDestination, compSettings) {
+        app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
         bm_ProjectHelper.init();
         hasExpressionsFlag = false;
@@ -216,6 +217,7 @@ var bm_renderManager = (function () {
         reset();
         bm_textShapeHelper.removeComps();
         bm_compsManager.renderComplete();
+        app.endUndoGroup();
     }
     
     function saveData() {
