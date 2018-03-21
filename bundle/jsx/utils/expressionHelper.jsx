@@ -281,7 +281,7 @@ var bm_expressionHelper = (function () {
             }
         }
         iterateElements(body);
-
+        
         if (!isContinuation) {
             doneBodies.push({u: undeclared, p: pos});
             exportNextBody();
@@ -439,18 +439,7 @@ var bm_expressionHelper = (function () {
 
     function handleCallExpression(expression) {
         var args = expression['arguments'];
-        var i, len = args.length;
-        for (i = 0; i < len; i += 1) {
-            if (args[i].type === 'BinaryExpression') {
-                args[i] = convertBinaryExpression(args[i]);
-            } else if (args[i].type === 'UnaryExpression') {
-                args[i] = convertUnaryExpression(args[i]);
-            } else  if (args[i].type === 'CallExpression') {
-                handleCallExpression(args[i]);
-            } else  if (args[i].type === 'MemberExpression') {
-                handleMemberExpression(args[i]);
-            }
-        }
+        handleSequenceExpressions(args);
         if(expression.callee.name === 'eval'){
             var wrappingNode = {
                 type: 'MemberExpression',
@@ -613,6 +602,10 @@ var bm_expressionHelper = (function () {
                 handleAssignmentExpression(expressions[i]);
             } else if (expressions[i].type === 'ConditionalExpression') {
                 handleConditionalExpression(expressions[i]);
+            } else if (expressions[i].type === 'MemberExpression') {
+                handleMemberExpression(expressions[i]);
+            } else  if (expressions[i].type === 'ArrayExpression') {
+                handleSequenceExpressions(expressions[i].elements);
             }
         }
     }
