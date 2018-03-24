@@ -131,6 +131,7 @@ var bm_renderManager = (function () {
         fsDestinationPath = fsDestination;
         bm_sourceHelper.reset();
         bm_textShapeHelper.reset();
+        bm_layerElement.reset();
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {

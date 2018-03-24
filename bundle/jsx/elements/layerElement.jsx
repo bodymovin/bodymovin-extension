@@ -301,10 +301,15 @@ var bm_layerElement = (function () {
         
         bm_renderManager.renderLayerComplete();
     }
+
+    function reset() {
+        compCount = 0;
+    }
     
     ob.prepareLayer = prepareLayer;
     ob.checkLayerSource = checkLayerSource;
     ob.renderLayer = renderLayer;
     ob.getLayerType = getLayerType;
+    ob.reset = reset;
     return ob;
 }());
