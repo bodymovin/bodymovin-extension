@@ -95,6 +95,19 @@ var bm_textShapeHelper = (function () {
         resetProp(textLayer.transform.position, [0, 0, 0]);
         resetProp(textLayer.transform.rotation, 0);
     }
+
+    function getOutlinesLayer(comp) {
+        var i = 1, len = comp.layers.length;
+        while(i <= len) {
+            layer = comp.layers[i];
+            var layerType = bm_layerElement.getLayerType(layer);
+            //bm_eventDispatcher.log('layerType: ' + layerType)
+            if(layerType === bm_layerElement.layerTypes.shape) {
+                return layer;
+            }
+            i += 1;
+        }
+    }
     
     function createNewChar(layerInfo, originalTextDocument, ch, charData) {
         if (bm_compsManager.cancelled) {
@@ -141,7 +154,7 @@ var bm_textShapeHelper = (function () {
         textProp.setValue(textDocument);
         singleSize = dupl.sourceRectAtTime(0, false).width;
         charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
-        shapeLayer = comp.layers[1];
+        shapeLayer = getOutlinesLayer(comp);
         charData.data = {};
         if (charCode !== 32 && charCode !== 9) {
             bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
@@ -167,6 +180,7 @@ var bm_textShapeHelper = (function () {
             }
         }
         shapeLayer.selected = false;
+        shapeLayer.remove();
     }
     
     function exportChars(fonts) {
