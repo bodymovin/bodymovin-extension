@@ -140,7 +140,9 @@ var bm_textShapeHelper = (function () {
         textProp.setValue(textDocument);
         dupl.enabled = true;
         dupl.selected = true;
+        var hasShapeData = true;
         if (charCode !== 32 && charCode !== 9) {
+            hasShapeData = false;
             app.executeCommand(3781);
         }
         dupl.selected = false;
@@ -179,8 +181,14 @@ var bm_textShapeHelper = (function () {
                 }
             }
         }
+
+
+
+
         shapeLayer.selected = false;
-        shapeLayer.remove();
+        if(hasShapeData) {
+            shapeLayer.remove();
+        }
     }
     
     function exportChars(fonts) {
