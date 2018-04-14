@@ -185,8 +185,8 @@ var bm_textShapeHelper = (function () {
 
 
 
-        shapeLayer.selected = false;
-        if(hasShapeData) {
+        if(shapeLayer && shapeLayer.containingComp) {
+            shapeLayer.selected = false;
             shapeLayer.remove();
         }
     }
