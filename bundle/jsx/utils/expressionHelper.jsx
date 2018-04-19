@@ -9,7 +9,7 @@ var bm_expressionHelper = (function () {
         range: true
     };
     var expressionStr;
-    var pendingBodies = [], doneBodies = [];
+    var pendingBodies = [], doneBodies = [], separate_functions = {bodies:[],names:[]};
     function spliceSlice(str, index, count, add) {
         return str.slice(0, index) + (add || "") + str.slice(index + count);
     }
@@ -460,6 +460,32 @@ var bm_expressionHelper = (function () {
             args[0] = wrappingNode
         } else if (expression.callee.type === 'FunctionExpression') {
             handleFunctionDeclaration(expression.callee);
+        } else {
+            replaceCalledExpressionIdentifier(expression);
+        }
+    }
+
+    function findFunctionNameInFunctions(name) {
+        var names = separate_functions.names;
+        var _index = -1;
+        var i = names.length - 1;
+        while(i >= 0) {
+            if(names[i] === name) {
+                _index = i;
+                break;
+            }
+            i -= 1;
+        }
+        return _index;
+    }
+
+    function replaceCalledExpressionIdentifier(expression) {
+        var index = findFunctionNameInFunctions(expression.callee.name);
+        if(index !== -1) {
+            expression.callee.type = 'MemberExpression';
+            expression.callee.computed = true;
+            expression.callee.object = {type:'Identifier', name: '__expression_functions'};
+            expression.callee.property = {type:'Literal', raw: index.toString(), value: index}
         }
     }
 
@@ -576,6 +602,8 @@ var bm_expressionHelper = (function () {
                 conditionalExpression.consequent = convertBinaryExpression(conditionalExpression.consequent);
             } else if (conditionalExpression.consequent.type=== 'SequenceExpression') {
                 handleSequenceExpressions(conditionalExpression.consequent.expressions);
+            } else if (conditionalExpression.consequent.type=== 'CallExpression') {
+                handleCallExpression(conditionalExpression.consequent);
             }
         }
         if(conditionalExpression.alternate){
@@ -585,6 +613,8 @@ var bm_expressionHelper = (function () {
                 conditionalExpression.alternate = convertBinaryExpression(conditionalExpression.alternate);
             } else if (conditionalExpression.alternate.type=== 'SequenceExpression') {
                 handleSequenceExpressions(conditionalExpression.alternate.expressions);
+            } else if (conditionalExpression.alternate.type=== 'CallExpression') {
+                handleCallExpression(conditionalExpression.alternate);
             }
         }
     }
@@ -829,6 +859,21 @@ var bm_expressionHelper = (function () {
         returnOb.k = eval(expression)
     }
 
+    function separateBodyDeclaredFunctions(body) {
+        var i, len = body.length;
+        separate_functions.bodies.length = 0;
+        separate_functions.names.length = 0;
+        for(i = 0; i < len; i += 1) {
+            if (body[i].type === 'FunctionDeclaration') {
+                separate_functions.names.push(body[i].id.name);
+                separate_functions.bodies.push(body[i]);
+                body.splice(i,1);
+                i -= 1;
+                len -= 1;
+            }
+        }
+    }
+
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {
             if(expressionIsValue(prop.expression)) {
@@ -849,17 +894,29 @@ var bm_expressionHelper = (function () {
                 return;
             }
             var body = parsed.body;
+            separateBodyDeclaredFunctions(body);
             findExpressionStatementsWithAssignmentExpressions(body);
+            findExpressionStatementsWithAssignmentExpressions(separate_functions.bodies);
             if(expressionStr.indexOf("use javascript") !== 1){
                 replaceOperations(body);
+                replaceOperations(separate_functions.bodies);
             }
             assignVariable(body);
+            assignVariable(separate_functions.bodies);
 
             var escodegen = ob.escodegen;
             expressionStr = escodegen.generate(parsed);
 
             expressionStr = 'var $bm_rt;\n' + expressionStr;
+            var generatedFunctions = [];
+            var i, len = separate_functions.bodies.length;
+            for(i = 0; i < len; i += 1) {
+                generatedFunctions.push(escodegen.generate(separate_functions.bodies[i]));
+            }
             returnOb.x = expressionStr;
+            if(generatedFunctions.length) {
+                returnOb.xf = generatedFunctions;
+            }
         }
     }
 
