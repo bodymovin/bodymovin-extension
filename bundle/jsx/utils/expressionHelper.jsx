@@ -580,7 +580,26 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function convertAssignmentToBinaryExpression(assignmentExpression) {
+        var current_right = assignmentExpression.right;
+        assignmentExpression.right = {
+            type: 'CallExpression',
+            arguments: [
+                {
+                    type: 'Identifier',
+                    name: assignmentExpression.left.name
+                },
+                current_right
+            ],
+            callee: {name:getOperatorName(assignmentExpression.operator.substr(0,1)), type:'Identifier'}
+        }
+        assignmentExpression.operator = '=';
+    }
+
     function handleAssignmentExpression(assignmentExpression) {
+        if(assignmentExpression.operator === '+=' || assignmentExpression.operator === '-=') {
+            convertAssignmentToBinaryExpression(assignmentExpression)
+        }
         if(assignmentExpression.right){
             if(assignmentExpression.right.type === 'BinaryExpression') {
                 assignmentExpression.right = convertBinaryExpression(assignmentExpression.right);
@@ -894,7 +913,10 @@ var bm_expressionHelper = (function () {
                 return;
             }
             var body = parsed.body;
-            separateBodyDeclaredFunctions(body);
+            // TODO this needs more work. 
+            // Global declared variables are not accessible to functions and should be.
+            // Methods invoked from within an array need to be renamed
+            //separateBodyDeclaredFunctions(body);
             findExpressionStatementsWithAssignmentExpressions(body);
             findExpressionStatementsWithAssignmentExpressions(separate_functions.bodies);
             if(expressionStr.indexOf("use javascript") !== 1){

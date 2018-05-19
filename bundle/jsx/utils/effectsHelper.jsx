@@ -23,7 +23,8 @@ var bm_effectsHelper = (function () {
         dropShadow: 25,
         radialWipe: 26,
         displacementMap: 27,
-        matte3: 28
+        matte3: 28,
+        gaussianBlur2: 29
     };
     
     function getEffectType(name) {
@@ -46,6 +47,8 @@ var bm_effectsHelper = (function () {
             return effectTypes.displacementMap;
         case 'ADBE Set Matte3':
             return effectTypes.matte3;
+        case 'ADBE Gaussian Blur 2':
+            return effectTypes.gaussianBlur2;
         default:
             return effectTypes.group;
         }
