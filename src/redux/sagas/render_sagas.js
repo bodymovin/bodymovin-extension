@@ -1,9 +1,10 @@
 import { call, take, put, takeEvery, fork, select } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveFontsFromLocalStorage, getFontsFromLocalStorage} from '../../helpers/localStorageHelper'
-import {setFonts} from '../../helpers/CompositionsProvider'
+import {setFonts, imageProcessed} from '../../helpers/CompositionsProvider'
 import renderFontSelector from '../selectors/render_font_selector'
 import setFontsSelector from '../selectors/set_fonts_selector'
+import imageProcessor from '../../helpers/ImageProcessorHelper'
 
 function *searchStoredFonts(action) {
 	try{
@@ -47,8 +48,14 @@ function *storeFontData() {
 	}
 }
 
+function *processImage(action) {
+	let response = yield call(imageProcessor, action.data.path)
+	imageProcessed(response)
+}
+
 export default [
   takeEvery(actions.RENDER_FONTS, searchStoredFonts),
   takeEvery(actions.RENDER_SET_FONTS, saveFonts),
+  takeEvery(actions.RENDER_PROCESS_IMAGE, processImage),
   fork(storeFontData)
 ]

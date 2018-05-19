@@ -17,7 +17,7 @@ var bm_generalUtils = (function () {
     function setTimeout(func, millis) {
         var guid = random(10);
         ob.Gtlym.CALL["interval_" + guid] = func;
-        return app.scheduleTask('generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
+        return app.scheduleTask('bm_generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
     }
 
     function roundArray(arr, decimals) {

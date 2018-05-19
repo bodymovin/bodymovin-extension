@@ -70,6 +70,21 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:image:process', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		if(typeof data.fonts === "string") {
+			data.fonts = JSON.parse(data.fonts)
+		}
+		dispatcher({ 
+				type: actions.RENDER_PROCESS_IMAGE,
+				data: data
+		})
+		//browserHistory.push('/fonts')
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:project:id', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -237,6 +252,13 @@ function getVersionFromExtension() {
 	return prom
 }
 
+function imageProcessed(image_path) {
+	extensionLoader.then(function(){
+		var eScript = 'bm_sourceHelper.imageProcessed(' + !!image_path + ')';
+	    csInterface.evalScript(eScript);
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -247,5 +269,6 @@ export {
 	getPlayer,
 	goToFolder,
 	getVersionFromExtension,
+	imageProcessed,
 	saveAVD
 }

@@ -3,6 +3,7 @@
 var bm_sourceHelper = (function () {
     'use strict';
     var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
+    var currentSavingAsset;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -132,13 +133,14 @@ var bm_sourceHelper = (function () {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
         var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
-        assetsArray.push({
+        currentSavingAsset = {
             id: currentSourceData.id,
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
             p: imageName
-        });
+        }
+        assetsArray.push(currentSavingAsset);
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
         var file = new File(folder.absoluteURI + '/' + imageName);
@@ -174,6 +176,7 @@ var bm_sourceHelper = (function () {
                 if (bug.exists) {
                     bug.rename(imageName);
                 }
+                bm_eventDispatcher.sendEvent('bm:image:process', {path: folder.fsName + '/' + imageName})
             }
         };
 
@@ -181,6 +184,13 @@ var bm_sourceHelper = (function () {
         app.project.renderQueue.render();
 
         helperComp.remove();
+    }
+
+    function imageProcessed(changedFlag) {
+        if(changedFlag) {
+            bm_eventDispatcher.log('changedFlag: ' + changedFlag)
+            currentSavingAsset.p = currentSavingAsset.p.replace(new RegExp('png' + '$'), 'jpg')
+        }
         currentExportingImage += 1;
         saveNextImage();
     }
@@ -278,6 +288,7 @@ var bm_sourceHelper = (function () {
     }
     
     return {
+        imageProcessed: imageProcessed,
         checkCompSource: checkCompSource,
         checkImageSource: checkImageSource,
         setCompSourceId: setCompSourceId,

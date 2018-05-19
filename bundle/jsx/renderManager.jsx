@@ -224,7 +224,6 @@ var bm_renderManager = (function () {
     function saveData() {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
         bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
-        
     }
     
     function clearUnrenderedLayers(layers) {
