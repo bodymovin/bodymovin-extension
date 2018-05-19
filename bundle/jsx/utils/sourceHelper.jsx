@@ -142,15 +142,83 @@ var bm_sourceHelper = (function () {
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
         var file = new File(folder.absoluteURI + '/' + imageName);
-        helperComp.saveFrameToPng(0, file);
+
+        // Overwrite any existing file.
+        if (file.exists) {
+            file.remove();
+        }
+
+        // Add composition item to render queue and set to render.
+        var item = app.project.renderQueue.items.add(helperComp);
+        item.render = true;
+
+        // Set output parameters.
+        // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
+        var outputModule = item.outputModule(1);
+        outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
+        outputModule.file = file;
+
+        // Set cleanup.
+        item.onStatusChanged = function() {
+            if (item.status === RQItemStatus.DONE) {
+                // Due to an apparent bug, "00000" is appended to the file extension.
+                // NOTE: This appears to be related to the "File Template" setting's
+                //       frame number parameter ('[#####]').
+                //       However, attempts to fix this by setting the "File Template"
+                //       and/or "File Name" parameter of the output module's "Output
+                //       File Info" setting had no effect.
+                // NOTE: Also tried setting output module's "Use Comp Frame Number"
+                //       setting to false.
+                // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
+                var bug = new File(folder.absoluteURI + '/' + imageName + '00000');
+                if (bug.exists) {
+                    bug.rename(imageName);
+                }
+            }
+        };
+
+        // Render.
+        app.project.renderQueue.render();
+
         helperComp.remove();
         currentExportingImage += 1;
         saveNextImage();
     }
     
+    function renderQueueIsBusy() {
+        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
+            if (app.project.renderQueue.item(i).status == RQItemStatus.RENDERING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function backupRenderQueue() {
+        var queue = [];
+        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
+            var item = app.project.renderQueue.item(i);
+            if (item.status == RQItemStatus.QUEUED) {
+                queue.push(i);
+                item.render = false;
+            }
+        }
+        return queue;
+    }
+
+    function restoreRenderQueue(queue) {
+        for (var i = 0; i < queue.length; i++) {
+            app.project.renderQueue.item(queue[i]).render = true;
+        }
+    }
+
     function exportImages(path, assets, compId, _originalNamesFlag) {
         if (imageSources.length === 0) {
             bm_renderManager.imagesReady();
+            return;
+        }
+        if (renderQueueIsBusy()) {
+            bm_eventDispatcher.sendEvent('alert', 'render queue is currently busy');
             return;
         }
         currentCompID = compId;
@@ -162,14 +230,23 @@ var bm_sourceHelper = (function () {
         folder.changePath('images/');
         assetsArray = assets;
         if (!folder.exists) {
-            if (folder.create()) {
-                saveNextImage();
-            } else {
+            if (!folder.create()) {
                 bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + folder.fsName);
+                return;
             }
-        } else {
-            saveNextImage();
         }
+
+        var playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        var autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+
+        var queue = backupRenderQueue();
+        saveNextImage();
+        restoreRenderQueue(queue);
+
+        app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
     }
     
     function addFont(fontName, fontFamily, fontStyle) {
