@@ -87,6 +87,12 @@ class Bodymovin extends React.Component {
 		}
 	}
 
+	setDirection(dir) {
+		if(this.animation){
+			this.animation.setDirection(dir)
+		}
+	}
+
 	resetSegments(flag) {
 		if(this.animation){
 			this.animation.resetSegments(flag)

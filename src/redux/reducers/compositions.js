@@ -9,6 +9,32 @@ let initialState = {
 }
 let extensionReplacer = /\.\w*$/g
 
+let defaultComposition = {
+    id: 0,
+    name: '',
+    destination: '',
+    absoluteURI: '',
+    selected: false,
+    renderStatus: 0,
+    settings: {
+        segmented: false,
+        segmentTime: 10,
+        standalone: false,
+        demo: false,
+        avd: false,
+        glyphs: true,
+        hiddens: false,
+        original_names: false,
+        should_compress: false,
+        compression_rate: 80,
+        extraComps: {
+            active: false,
+            list:[]
+        },
+        guideds: false
+    }
+  }
+
 function updateFilter(state, action) {
 	let newState = {...state}
 	newState.filter = action.value
@@ -26,33 +52,18 @@ function toggleComposition(state, action) {
 }
 
 function createComp(comp) {
-  return {
-    id: comp.id,
-    name: comp.name,
-    destination: '',
-    absoluteURI: '',
-    selected: false,
-    renderStatus: 0,
-    settings: {
-        segmented: false,
-        segmentTime: 10,
-        standalone: false,
-        demo: false,
-        avd: false,
-        glyphs: true,
-        hiddens: false,
-        original_names: false,
-        extraComps: {
-            active: false,
-            list:[]
-        },
-        guideds: false
-    }
-  }
+  return {...defaultComposition, id:comp.id, name: comp.name, settings: {...defaultComposition.settings}}
 }
 
 function setStoredData(state, action) {
   let compositions = action.projectData.compositions
+  var item
+  for(var comp in compositions) {
+    if(compositions.hasOwnProperty(comp)){
+      item = compositions[comp]
+      compositions[comp] = {...item, settings:{...defaultComposition.settings, ...item.settings}}
+    }
+  }
   let newState = {...state}
   newState.items = compositions
   return newState

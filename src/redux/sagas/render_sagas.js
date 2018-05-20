@@ -49,7 +49,7 @@ function *storeFontData() {
 }
 
 function *processImage(action) {
-	let response = yield call(imageProcessor, action.data.path)
+	let response = yield call(imageProcessor, action.data)
 	imageProcessed(response)
 }
 

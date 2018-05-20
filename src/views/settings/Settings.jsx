@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class Settings extends React.Component {
+class Settings extends React.PureComponent {
 
   constructor() {
     /*demo: false
@@ -98,10 +99,13 @@ class Settings extends React.Component {
     this.toggleSegmented = this.toggleValue.bind(this,'segmented')
     this.toggleStandalone = this.toggleValue.bind(this,'standalone')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
+    this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
+    this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
     this.toggleAVD = this.toggleValue.bind(this,'avd')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
+    this.qualityChange = this.qualityChange.bind(this)
   }
 
 	componentDidMount() {
@@ -141,6 +145,17 @@ class Settings extends React.Component {
       return
     }
     this.props.updateSettingsValue('segmentedTime', segments)
+  }
+
+  qualityChange(ev) {
+    let segments = parseInt(ev.target.value, 10)
+    if(ev.target.value === '') {
+      this.props.updateSettingsValue('compression_rate', 0)
+    }
+    if(isNaN(segments) || segments < 0) {
+      return
+    }
+    this.props.updateSettingsValue('compression_rate', segments)
   }
 
   getExtraComps() {
@@ -194,11 +209,29 @@ class Settings extends React.Component {
                 {this.getExtraComps()}
               </div>
             </li>}
-            <SettingsListItem 
-              title='Original Asset Names'
-              description='Export assets with their original project names'
-              toggleItem={this.toggleOriginalNames}
-              active={this.props.settings ? this.props.settings.original_names : false}  />
+            <SettingsCollapsableItem 
+              title={'Assets'}
+              description={'Rasterized assets settings (jpg, png)'}
+              >
+              <SettingsListItem 
+                title='Original Asset Names'
+                description='Export assets with their original project names'
+                toggleItem={this.toggleOriginalNames}
+                active={this.props.settings ? this.props.settings.original_names : false}  />
+              <SettingsListItem 
+                title='Enable compression'
+                description='Set compression ratio for jpgs (0-100)'
+                toggleItem={this.toggleCompressImages}
+                needsInput={true} 
+                inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
+                inputValueChange={this.qualityChange}
+                active={this.props.settings ? this.props.settings.should_compress : false}  />
+              <SettingsListItem 
+                title='Include in json'
+                description='Include rasterized images encoded in the json'
+                toggleItem={this.toggleEncodeImages}
+                active={this.props.settings ? this.props.settings.should_encode_images : false}  />
+            </SettingsCollapsableItem>
             <SettingsListItem 
               title='Standalone'
               description='Exports animation and player bundled in a single file'

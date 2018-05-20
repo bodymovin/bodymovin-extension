@@ -350,6 +350,18 @@ var bm_renderManager = (function () {
     function getVersion() {
         bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
     }
+
+    function shouldCompressImages() {
+        return currentCompSettings.should_compress;
+    }
+
+    function getCompressionQuality() {
+        return currentCompSettings.compression_rate;
+    }
+
+    function shouldEncodeImages() {
+        return currentCompSettings.should_encode_images;
+    }
     
     ob.renderData = {
         exportData : {
@@ -365,6 +377,9 @@ var bm_renderManager = (function () {
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
     ob.getVersion = getVersion;
+    ob.shouldCompressImages = shouldCompressImages;
+    ob.getCompressionQuality = getCompressionQuality;
+    ob.shouldEncodeImages = shouldEncodeImages;
     
     return ob;
 }());

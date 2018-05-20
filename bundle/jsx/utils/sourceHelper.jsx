@@ -4,6 +4,8 @@ var bm_sourceHelper = (function () {
     'use strict';
     var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
+    var temporaryFolder;
+    var queue, playSound, autoSave;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -120,12 +122,39 @@ var bm_sourceHelper = (function () {
         }
         return sanitizedName + '.png';
     }
+
+    function saveFilesToFolder() {
+        var i, len = assetsArray.length;
+        var copyingFile;
+        for(i = 0; i < len; i += 1) {
+            if(!assetsArray[i].e) {
+                copyingFile = new File(temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
+                if(copyingFile.exists) {
+                    if(!folder.exists) {
+                        folder.create()
+                    }
+                    copyingFile.copy(folder.absoluteURI+'/'+copyingFile.name);
+                }
+            }
+        }
+        var files = temporaryFolder.getFiles();
+        len = files.length;
+        for(i = 0; i < len; i += 1) {
+            files[i].remove();
+        }
+        temporaryFolder.remove();
+    }
     
     function saveNextImage() {
         if (bm_compsManager.cancelled) {
             return;
         }
         if (currentExportingImage === imageSources.length) {
+            saveFilesToFolder();
+            restoreRenderQueue(queue);
+
+            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);
             bm_renderManager.imagesReady();
             return;
         }
@@ -138,12 +167,13 @@ var bm_sourceHelper = (function () {
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
-            p: imageName
+            p: imageName,
+            e: 0
         }
         assetsArray.push(currentSavingAsset);
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
-        var file = new File(folder.absoluteURI + '/' + imageName);
+        var file = new File(temporaryFolder.absoluteURI + '/' + imageName);
 
         // Overwrite any existing file.
         if (file.exists) {
@@ -172,11 +202,17 @@ var bm_sourceHelper = (function () {
                 // NOTE: Also tried setting output module's "Use Comp Frame Number"
                 //       setting to false.
                 // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
-                var bug = new File(folder.absoluteURI + '/' + imageName + '00000');
+                var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
                 if (bug.exists) {
                     bug.rename(imageName);
                 }
-                bm_eventDispatcher.sendEvent('bm:image:process', {path: folder.fsName + '/' + imageName})
+
+                bm_eventDispatcher.sendEvent('bm:image:process', {
+                    path: temporaryFolder.fsName + '/' + imageName, 
+                    should_compress: bm_renderManager.shouldCompressImages(), 
+                    compression_rate: bm_renderManager.getCompressionQuality()/100,
+                    should_encode_images: bm_renderManager.shouldEncodeImages()
+                })
             }
         };
 
@@ -186,10 +222,14 @@ var bm_sourceHelper = (function () {
         helperComp.remove();
     }
 
-    function imageProcessed(changedFlag) {
+    function imageProcessed(changedFlag, encoded_data) {
         if(changedFlag) {
-            bm_eventDispatcher.log('changedFlag: ' + changedFlag)
             currentSavingAsset.p = currentSavingAsset.p.replace(new RegExp('png' + '$'), 'jpg')
+        }
+        if(encoded_data) {
+            currentSavingAsset.p = encoded_data;
+            currentSavingAsset.u = '';
+            currentSavingAsset.e = 1;
         }
         currentExportingImage += 1;
         saveNextImage();
@@ -238,25 +278,24 @@ var bm_sourceHelper = (function () {
         var file = new File(path);
         folder = file.parent;
         folder.changePath('images/');
+        var folder_random_name = bm_generalUtils.random(10);
+        temporaryFolder = new Folder(Folder.temp.absoluteURI);
+        temporaryFolder.changePath('Bodymovin/'+folder_random_name);
         assetsArray = assets;
-        if (!folder.exists) {
-            if (!folder.create()) {
-                bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + folder.fsName);
+        if (!temporaryFolder.exists) {
+            if (!temporaryFolder.create()) {
+                bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + temporaryFolder.fsName);
                 return;
             }
         }
 
-        var playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-        var autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
         app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
         app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
 
-        var queue = backupRenderQueue();
-        saveNextImage();
-        restoreRenderQueue(queue);
-
-        app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-        app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        queue = backupRenderQueue();
+        saveNextImage();  
     }
     
     function addFont(fontName, fontFamily, fontStyle) {

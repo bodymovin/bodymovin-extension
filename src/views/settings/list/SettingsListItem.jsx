@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class SettingsListItem extends React.Component {
+class SettingsListItem extends React.PureComponent {
 
 	render(){ 
 		return (<li 
