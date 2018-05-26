@@ -72,7 +72,23 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 
 csInterface.addEventListener('bm:image:process', function (ev) {
 	if(ev.data) {
+		console.log('ev.data')
+		console.log(typeof ev.data === "string")
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		
+		//Fix for AE 2014
+		if(data && data.should_compress === 'false') {
+			data.should_compress = false
+		}
+		if(data && data.should_encode_images === 'false') {
+			data.should_encode_images = false
+
+		}
+		if(data && typeof data.compression_rate === 'string') {
+			data.compression_rate = Number(data.compression_rate)
+		}
+		//End fix for AE 2014
+
 		dispatcher({ 
 				type: actions.RENDER_PROCESS_IMAGE,
 				data: data

@@ -5,7 +5,7 @@ var bm_sourceHelper = (function () {
     var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
     var temporaryFolder;
-    var queue, playSound, autoSave;
+    var queue, playSound, autoSave, canEditPrefs = true;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -124,6 +124,7 @@ var bm_sourceHelper = (function () {
     }
 
     function saveFilesToFolder() {
+        bm_eventDispatcher.log('saveFilesToFolder')
         var i, len = assetsArray.length;
         var copyingFile;
         for(i = 0; i < len; i += 1) {
@@ -153,8 +154,10 @@ var bm_sourceHelper = (function () {
             saveFilesToFolder();
             restoreRenderQueue(queue);
 
-            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);
+            if(canEditPrefs) {
+                app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+                app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);   
+            }
             bm_renderManager.imagesReady();
             return;
         }
@@ -289,10 +292,14 @@ var bm_sourceHelper = (function () {
             }
         }
 
-        playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-        autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-        app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-        app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+        try {
+            playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);
+        }  catch(err) {
+            canEditPrefs = false;
+        }
 
         queue = backupRenderQueue();
         saveNextImage();  

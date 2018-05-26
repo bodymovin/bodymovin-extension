@@ -1,5 +1,5 @@
 import fs from 'fs'
-import pngToJpeg from 'png-to-jpeg'
+//import pngToJpeg from 'png-to-jpeg'
 var path = require('path');
 path.parse = function(_path){
 	return {
@@ -61,8 +61,9 @@ function loadImage(path) {
 
 function saveNewImage(path, todata) {
 	return new Promise(function(res, rej){
-		var img = todata.replace(/^data:image\/\w+;base64,/, "").replace(/\s/g,'+');
-		var buf = new Buffer(img, 'base64');
+		var img = todata.replace(/^data:image\/\w+;base64,/, "");
+		//Use window.Buffer instead of Buffer because they differ and Bufer doesn't work with older AE versions
+		var buf = new window.Buffer(img, 'base64');
 		var finalPath = path.replace(new RegExp('png$'), 'jpg');
 		fs.writeFile(finalPath, buf, function(err) {
 			if(err) {
@@ -191,19 +192,6 @@ function encode(image, data) {
 function processImage(actionData) {
 
 	let path = actionData.path
-
-	console.log('pathaaa: ', path)
-	/*var new_path = path.replace(new RegExp('\.png$'), '_test.png')
-
-	let buffer = fs.readFileSync(path);
-	pngToJpeg({quality: 10})(buffer)
-	.then(function(output) {fs.writeFileSync(new_path, buffer)});
-
-	return Promise.reject({
-					new_path: new_path,
-					encoded: false,
-					compressed: true
-				})*/
 
 	return new Promise(function(res, rej){
 		loadImage(path)
