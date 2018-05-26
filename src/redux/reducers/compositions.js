@@ -25,7 +25,9 @@ let defaultComposition = {
         glyphs: true,
         hiddens: false,
         original_names: false,
+        should_encode_images: false,
         should_compress: false,
+        should_skip_images: false,
         compression_rate: 80,
         extraComps: {
             active: false,

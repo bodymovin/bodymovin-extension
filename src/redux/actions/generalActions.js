@@ -24,9 +24,17 @@ function versionFetched(version) {
 	}
 }
 
+function appVersionFetched(version) {
+	return {
+		type: actionTypes.APP_VERSION_FETCHED,
+		version: version
+	}
+}
+
 export {
 	hideAlert,
 	getPaths,
 	getVersion,
-	versionFetched
+	versionFetched,
+	appVersionFetched
 }

@@ -101,6 +101,7 @@ class Settings extends React.PureComponent {
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
+    this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
     this.toggleAVD = this.toggleValue.bind(this,'avd')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
@@ -218,19 +219,24 @@ class Settings extends React.PureComponent {
                 description='Export assets with their original project names'
                 toggleItem={this.toggleOriginalNames}
                 active={this.props.settings ? this.props.settings.original_names : false}  />
-              <SettingsListItem 
+              {this.props.canCompressAssets && <SettingsListItem 
                 title='Enable compression'
                 description='Set compression ratio for jpgs (0-100)'
                 toggleItem={this.toggleCompressImages}
                 needsInput={true} 
                 inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
                 inputValueChange={this.qualityChange}
-                active={this.props.settings ? this.props.settings.should_compress : false}  />
+                active={this.props.settings ? this.props.settings.should_compress : false}  />}
               <SettingsListItem 
                 title='Include in json'
                 description='Include rasterized images encoded in the json'
                 toggleItem={this.toggleEncodeImages}
                 active={this.props.settings ? this.props.settings.should_encode_images : false}  />
+              <SettingsListItem 
+                title='Skip images export'
+                description='they have not changed since last export'
+                toggleItem={this.toggleSkipImages}
+                active={this.props.settings ? this.props.settings.should_skip_images : false}  />
             </SettingsCollapsableItem>
             <SettingsListItem 
               title='Standalone'

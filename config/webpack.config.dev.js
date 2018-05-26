@@ -123,10 +123,10 @@ module.exports = {
       // Process JS with Babel.
       {
         test: /\.(js|jsx)$/,
-        include: paths.appSrc,
+        include: [paths.appSrc,paths.appNodeModules],
         loader: 'babel',
         query: {
-          
+          presets: ['es2015', 'stage-0', 'react'],
           // This is a feature of `babel-loader` for webpack (not Babel itself).
           // It enables caching results in ./node_modules/.cache/babel-loader/
           // directory for faster rebuilds.

@@ -2,7 +2,7 @@ import csInterface from './CSInterfaceHelper'
 import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
-import {versionFetched} from '../redux/actions/generalActions'
+import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import bodymovin2Avd from 'bodymovin-to-avd'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
@@ -131,6 +131,14 @@ csInterface.addEventListener('bm:version', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher(versionFetched(data.value))
+	} else {
+	}
+})
+
+csInterface.addEventListener('app:version', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		dispatcher(appVersionFetched(data.value))
 	} else {
 	}
 })

@@ -349,6 +349,7 @@ var bm_renderManager = (function () {
 
     function getVersion() {
         bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+        bm_eventDispatcher.sendEvent('app:version', {value: app.version});
     }
 
     function shouldCompressImages() {
@@ -361,6 +362,10 @@ var bm_renderManager = (function () {
 
     function shouldEncodeImages() {
         return currentCompSettings.should_encode_images;
+    }
+
+    function shouldSkipImages() {
+        return currentCompSettings.should_skip_images && !currentCompSettings.should_encode_images;
     }
     
     ob.renderData = {
@@ -380,6 +385,7 @@ var bm_renderManager = (function () {
     ob.shouldCompressImages = shouldCompressImages;
     ob.getCompressionQuality = getCompressionQuality;
     ob.shouldEncodeImages = shouldEncodeImages;
+    ob.shouldSkipImages = shouldSkipImages;
     
     return ob;
 }());

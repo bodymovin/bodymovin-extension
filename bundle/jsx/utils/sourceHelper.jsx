@@ -263,7 +263,7 @@ var bm_sourceHelper = (function () {
     }
 
     function exportImages(path, assets, compId, _originalNamesFlag) {
-        if (imageSources.length === 0) {
+        if (imageSources.length === 0 || bm_renderManager.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }

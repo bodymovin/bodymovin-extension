@@ -1,5 +1,5 @@
-import Jimp from 'jimp/index.js'
 import fs from 'fs'
+import pngToJpeg from 'png-to-jpeg'
 var path = require('path');
 path.parse = function(_path){
 	return {
@@ -7,42 +7,61 @@ path.parse = function(_path){
 	}
 }
 
-/*function convertImage(path, compression, image) {
-	return new Promise(function(res, rej) {
-		var opaque_image = image.clone().opaque()
-		var diff = Jimp.diff(image, opaque_image, 0);
-		if(diff.percent === 0) {
-				var canvas = document.createElement('canvas');
-				var imageData = image.bitmap;
-				canvas.width = image.bitmap.width;
-				canvas.height = image.bitmap.height;
+function ImageObject(_canvas) {
+	this.canvas = _canvas;
+	this.updateBitmap();
+}
 
-				var ctx = canvas.getContext('2d')
-				var palette = ctx.getImageData(0,0,image.bitmap.width,image.bitmap.height);
-				var clamped = new Uint8ClampedArray(imageData.data);
-				palette.data.set(clamped);
-				ctx.putImageData(palette, 0, 0);
+ImageObject.prototype.updateBitmap = function() {
+	var context = this.canvas.getContext('2d');
+	var imageData = context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+	this.bitmap = imageData;
+}
 
-				var todata = canvas.toDataURL('image/jpeg', compression);
-				var img = todata.replace(/^data:image\/\w+;base64,/, "");
-				var buf = new Buffer(img, 'base64');
-				var finalPath = path.replace(new RegExp('png$'), 'jpg');
-				fs.writeFile(finalPath, buf, function(err) {
-					if(err) {
-						res('')
-					} else {
-						res(finalPath)
-					}
-				});
-		} else {
-			res('')
+ImageObject.prototype.clone = function() {
+	return new ImageObject(this.copyCanvas());
+}
+
+
+ImageObject.prototype.opaque = function() {
+	var clonedCanvas = this.copyCanvas();
+	var canvasCtx = this.canvas.getContext('2d');
+	canvasCtx.fillStyle = 'white';
+	canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	canvasCtx.drawImage(clonedCanvas, 0, 0);
+	this.updateBitmap();
+	return this;
+}
+
+ImageObject.prototype.copyCanvas = function() {
+	var clonedCanvas = document.createElement('canvas');
+	clonedCanvas.width = this.canvas.width;
+	clonedCanvas.height = this.canvas.height;
+	var clonedCanvasCtx = clonedCanvas.getContext('2d');
+	clonedCanvasCtx.drawImage(this.canvas, 0, 0);
+	return clonedCanvas;
+}
+
+function loadImage(path) {
+	return new Promise(function(res, rej){
+
+		var img = document.createElement('img');
+		img.onload = function(){
+			var canvas = document.createElement('canvas');
+			canvas.width = img.width;
+			canvas.height = img.height;
+			var ctx = canvas.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+
+			res(new ImageObject(canvas));
 		}
-	})
-}*/
+		img.src = path;
+	});
+}
 
 function saveNewImage(path, todata) {
 	return new Promise(function(res, rej){
-		var img = todata.replace(/^data:image\/\w+;base64,/, "");
+		var img = todata.replace(/^data:image\/\w+;base64,/, "").replace(/\s/g,'+');
 		var buf = new Buffer(img, 'base64');
 		var finalPath = path.replace(new RegExp('png$'), 'jpg');
 		fs.writeFile(finalPath, buf, function(err) {
@@ -85,10 +104,28 @@ function getDrawnCanvas(image) {
 	})
 }
 
+function difference(image1, image2) {
+	var percent = 0
+	var data1 = image1.bitmap.data
+	var data2 = image2.bitmap.data
+	var i = 0, len = data1.length;
+	while(i < len) {
+		if(data1[i] !== data2[i]){
+			percent = 1;
+			break;
+		}
+		i += 1;
+	}
+
+	return {
+		percent: percent
+	}
+}
+
 function compressAndSave(image, data) {
 	return new Promise(function(res, rej){
 		var opaque_image = image.clone().opaque()
-		var diff = Jimp.diff(image, opaque_image, 0);
+		var diff = difference(image, opaque_image, 0);
 		if(diff.percent === 0) {
 			getDrawnCanvas(image)
 			.then(function(canvas){
@@ -115,7 +152,7 @@ function compressAndSave(image, data) {
 
 function compressAndEncode(image, data) {
 	var opaque_image = image.clone().opaque()
-	var diff = Jimp.diff(image, opaque_image, 0);
+	var diff = difference(image, opaque_image, 0);
 	if(diff.percent === 0) {
 		return new Promise(function(res, rej){
 			getDrawnCanvas(image)
@@ -155,9 +192,21 @@ function processImage(actionData) {
 
 	let path = actionData.path
 
+	console.log('pathaaa: ', path)
+	/*var new_path = path.replace(new RegExp('\.png$'), '_test.png')
+
+	let buffer = fs.readFileSync(path);
+	pngToJpeg({quality: 10})(buffer)
+	.then(function(output) {fs.writeFileSync(new_path, buffer)});
+
+	return Promise.reject({
+					new_path: new_path,
+					encoded: false,
+					compressed: true
+				})*/
+
 	return new Promise(function(res, rej){
-		var _image;
-		Jimp.read(path)
+		loadImage(path)
 		.then(function (image) {
 			if(actionData.should_encode_images && actionData.should_compress) {
 				return compressAndEncode(image, actionData)
