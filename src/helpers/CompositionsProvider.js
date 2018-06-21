@@ -42,6 +42,10 @@ csInterface.addEventListener('bm:render:start', function (ev) {
 
 csInterface.addEventListener('console:log', function (ev) {
 	console.log('LOGGING:', ev.data)
+		dispatcher({ 
+				type: actions.GENERAL_LOG,
+				data: ev.data
+		})
 })
 
 csInterface.addEventListener('bm:render:update', function (ev) {

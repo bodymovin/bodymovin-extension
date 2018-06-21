@@ -191,7 +191,7 @@ var bm_dataManager = (function () {
         separateComps(data.layers, data.comps);
         var dataFile, segmentPath, s, string;
         if (config.segmented) {
-            splitAnimation(data, config.segmentTime);
+            splitAnimation(data, config.segmentedTime);
             var i, len = animationSegments.length;
             var filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
             filePathName = filePathName.substr(0, filePathName.lastIndexOf('.'));

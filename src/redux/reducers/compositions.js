@@ -18,7 +18,7 @@ let defaultComposition = {
     renderStatus: 0,
     settings: {
         segmented: false,
-        segmentTime: 10,
+        segmentedTime: 10,
         standalone: false,
         demo: false,
         avd: false,

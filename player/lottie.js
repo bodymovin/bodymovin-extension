@@ -4181,7 +4181,7 @@ var assetLoader = (function(){
 		}
 	}
 
-	function loadAsset(path, callback, error) {
+	function loadAsset(path, callback, errorCallback) {
 		var response;
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', path, true);
@@ -4198,8 +4198,8 @@ var assetLoader = (function(){
 	            		response = formatResponse(xhr);
 	            		callback(response);
 	                }catch(err){
-	                	if(error_callback) {
-	                		error_callback(err);
+	                	if(errorCallback) {
+	                		errorCallback(err);
 	                	}
 	                }
 	            }
@@ -4210,6 +4210,7 @@ var assetLoader = (function(){
 		load: loadAsset
 	}
 }())
+
 function TextAnimatorProperty(textData, renderType, elem){
     this._isFirstFrame = true;
 	this._hasMaskedPath = false;
@@ -5750,13 +5751,14 @@ function SVGRenderer(animationItem, config){
     this.layers = null;
     this.renderedFrame = -1;
     this.svgElement = createNS('svg');
+    var defs = createNS( 'defs');
+    this.svgElement.appendChild(defs);
     var maskElement = createNS('g');
     this.svgElement.appendChild(maskElement);
     this.layerElement = maskElement;
-    var defs = createNS( 'defs');
-    this.svgElement.appendChild(defs);
     this.renderConfig = {
         preserveAspectRatio: (config && config.preserveAspectRatio) || 'xMidYMid meet',
+        imagePreserveAspectRatio: (config && config.imagePreserveAspectRatio) || 'xMidYMid slice',
         progressiveLoad: (config && config.progressiveLoad) || false,
         hideOnTransparent: (config && config.hideOnTransparent === false) ? false : true,
         viewBoxOnly: (config && config.viewBoxOnly) || false,
@@ -7196,7 +7198,7 @@ IShapeElement.prototype = {
     ljEnum: {
         '1': 'miter',
         '2': 'round',
-        '3': 'butt'
+        '3': 'bevel'
     },
     searchProcessedElement: function(elem){
         var elements = this.processedElements;
@@ -7414,7 +7416,7 @@ IImageElement.prototype.createContent = function(){
     this.innerElem = createNS('image');
     this.innerElem.setAttribute('width',this.assetData.w+"px");
     this.innerElem.setAttribute('height',this.assetData.h+"px");
-    this.innerElem.setAttribute('preserveAspectRatio','xMidYMid slice');
+    this.innerElem.setAttribute('preserveAspectRatio',this.assetData.pr || this.globalData.renderConfig.imagePreserveAspectRatio);
     this.innerElem.setAttributeNS('http://www.w3.org/1999/xlink','href',assetPath);
     
     this.layerElement.appendChild(this.innerElem);
@@ -8788,7 +8790,9 @@ AnimationItem.prototype.setParams = function(params) {
         this.fileName = params.path.substr(params.path.lastIndexOf('/')+1);
         this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.json'));
 
-        assetLoader.load(params.path, this.configAnimation.bind(this));
+        assetLoader.load(params.path, this.configAnimation.bind(this), function() {
+            this.trigger('data_failed');
+        }.bind(this));
     }
 };
 
@@ -8872,7 +8876,9 @@ AnimationItem.prototype.loadNextSegment = function() {
     this.timeCompleted = segment.time * this.frameRate;
     var segmentPath = this.path+this.fileName+'_' + this.segmentPos + '.json';
     this.segmentPos += 1;
-    assetLoader.load(segmentPath, this.includeLayers.bind(this));
+    assetLoader.load(segmentPath, this.includeLayers.bind(this), function() {
+        this.trigger('data_failed');
+    }.bind(this));
 };
 
 AnimationItem.prototype.loadSegments = function() {
@@ -9055,7 +9061,7 @@ AnimationItem.prototype.advanceTime = function (value) {
     // If animation won't loop, it should stop at totalFrames - 1. If it will loop it should complete the last frame and then loop.
     if (nextValue >= this.totalFrames - 1 && this.frameModifier > 0) {
         if (!this.loop || this.playCount === this.loop) {
-            if (!this.checkSegments(nextValue % this.totalFrames)) {
+            if (!this.checkSegments(nextValue >  this.totalFrames ? nextValue % this.totalFrames : 0)) {
                 _isComplete = true;
                 nextValue = this.totalFrames - 1;
             }
@@ -9286,6 +9292,7 @@ function CanvasRenderer(animationItem, config){
         context: (config && config.context) || null,
         progressiveLoad: (config && config.progressiveLoad) || false,
         preserveAspectRatio: (config && config.preserveAspectRatio) || 'xMidYMid meet',
+        imagePreserveAspectRatio: (config && config.imagePreserveAspectRatio) || 'xMidYMid slice',
         className: (config && config.className) || ''
     };
     this.renderConfig.dpr = (config && config.dpr) || 1;
@@ -9609,6 +9616,7 @@ function HybridRenderer(animationItem, config){
     this.renderedFrame = -1;
     this.renderConfig = {
         className: (config && config.className) || '',
+        imagePreserveAspectRatio: (config && config.imagePreserveAspectRatio) || 'xMidYMid slice',
         hideOnTransparent: (config && config.hideOnTransparent === false) ? false : true
     };
     this.globalData = {
@@ -10013,6 +10021,7 @@ CVBaseElement.prototype.show = CVBaseElement.prototype.showElement;
 function CVImageElement(data, globalData, comp){
     this.failed = false;
     this.img = new Image();
+    this.img.crossOrigin = 'anonymous';
     this.assetData = globalData.getAssetData(data.refId);
     this.initElement(data,globalData,comp);
     this.globalData.addPendingElement();
@@ -10035,7 +10044,8 @@ CVImageElement.prototype.imageLoaded = function() {
         var imgRel = imgW / imgH;
         var canvasRel = this.assetData.w/this.assetData.h;
         var widthCrop, heightCrop;
-        if(imgRel>canvasRel){
+        var par = this.assetData.pr || this.globalData.renderConfig.imagePreserveAspectRatio;
+        if((imgRel > canvasRel && par === 'xMidYMid slice') || (imgRel < canvasRel && par !== 'xMidYMid slice')) {
             heightCrop = imgH;
             widthCrop = heightCrop*canvasRel;
         } else {
@@ -13946,7 +13956,7 @@ GroupEffect.prototype.init = function(data,element){
     lottiejs.unfreeze = animationManager.unfreeze;
     lottiejs.getRegisteredAnimations = animationManager.getRegisteredAnimations;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.1.16';
+    lottiejs.version = '5.1.18';
 
     function checkReady() {
         if (document.readyState === "complete") {

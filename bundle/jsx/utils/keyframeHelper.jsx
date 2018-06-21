@@ -3,6 +3,7 @@
 var bm_keyframeHelper = (function () {
     'use strict';
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
+    var hasRovingKeyframes = false;
     
     function getPropertyValue(value, roundFlag) {
         switch (property.propertyValueType) {
@@ -214,14 +215,6 @@ var bm_keyframeHelper = (function () {
             var key = {};
             var lastKey = {};
             var interpolationType = '';
-            /*var tweenData = calcTweenData(property, indexTime, indexTime + 1, frameRate);
-            var incomingPt = calcIncomingControlPoint(tweenData, property, indexTime, frameRate);
-            var outgoingPt = calcOutgoingControlPoint(tweenData, property, indexTime, frameRate);
-            bm_eventDispatcher.log(tweenData);
-            bm_eventDispatcher.log(incomingPt);
-            bm_eventDispatcher.log(outgoingPt);
-            var norma = getNormalizedCurve(tweenData, outgoingPt, incomingPt);
-            bm_eventDispatcher.log(norma);*/
             key.time = property.keyTime(indexTime + 1);
             lastKey.time = property.keyTime(indexTime);
             if(propertyValueType !== PropertyValueType.NO_VALUE){
@@ -250,6 +243,7 @@ var bm_keyframeHelper = (function () {
                     break;
                 }
             }
+
             if (interpolationType === 'hold') {
                 isPrevHoldInterpolated = true;
                 segmentOb.t = bm_generalUtils.roundNumber(lastKey.time * frameRate, 3);
@@ -326,7 +320,6 @@ var bm_keyframeHelper = (function () {
                             bezierIn.y = bezierIn.x;
                             bezierOut.y = bezierOut.x;
                         } else {
-                            //bm_eventDispatcher.log('av: ' + averageSpeed);
                             bezierIn.y =  1 - (key.easeIn.speed / averageSpeed)  * (infIn / 100);
                             bezierOut.y = (lastKey.easeOut.speed / averageSpeed) * (infOut / 100);
                         }
@@ -419,6 +412,42 @@ var bm_keyframeHelper = (function () {
         }
         return beziersArray;
     }
+
+    function searchRovingKeyframes(property) {
+        /*var cmdID = bm_projectManager.getCommandID('RoveAcrossTime');
+        var cmdID2 = bm_projectManager.getCommandID('roveAcrossTime');
+        bm_eventDispatcher.log('cmdID: ' + cmdID)
+        bm_eventDispatcher.log('cmdID2: ' + cmdID2)*/
+        hasRovingKeyframes = false;
+        if(property.propertyValueType === PropertyValueType.ThreeD_SPATIAL ||  property.propertyValueType === PropertyValueType.TwoD_SPATIAL){
+            var numKeys = property.numKeys;
+            var keyIndex;
+            for(keyIndex = 1; keyIndex <= numKeys; keyIndex += 1) {
+                if(property.keyRoving(keyIndex)) {
+                    hasRovingKeyframes = true;
+                    property.setSelectedAtKey(keyIndex, true);
+                    bm_eventDispatcher.log('IT IS ROVING')
+                    //This sets roving values at the actual easing value and then in turns it back on
+                    /*property.setRovingAtKey(keyIndex, false);
+                    property.setRovingAtKey(keyIndex, true);*/
+                }
+            }
+            if(hasRovingKeyframes) {
+                app.executeCommand(3153);
+            }
+        }
+    }
+
+    function restoreRovingKeyframes(property) {
+
+        if(hasRovingKeyframes) {
+            app.executeCommand(16);
+            var keyIndex, numKeys = property.numKeys;
+            for(keyIndex = 1; keyIndex <= numKeys; keyIndex += 1) {
+                property.setSelectedAtKey(keyIndex, false);
+            }
+        }
+    }
     
     function exportKeyframes(prop, frRate, stretch, keyframeValues) {
         var returnOb = {}
@@ -427,11 +456,13 @@ var bm_keyframeHelper = (function () {
         } else {
             returnOb.a = 1;
         }
+        searchRovingKeyframes(prop);
         returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
         if(prop.propertyIndex) {
             returnOb.ix = prop.propertyIndex;
         }
         bm_expressionHelper.checkExpression(prop, returnOb);
+        restoreRovingKeyframes(prop);
         return returnOb;
     }
     

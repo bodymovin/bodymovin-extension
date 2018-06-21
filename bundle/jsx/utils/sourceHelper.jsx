@@ -124,7 +124,6 @@ var bm_sourceHelper = (function () {
     }
 
     function saveFilesToFolder() {
-        bm_eventDispatcher.log('saveFilesToFolder')
         var i, len = assetsArray.length;
         var copyingFile;
         for(i = 0; i < len; i += 1) {

@@ -55,7 +55,7 @@ var bm_shapeHelper = (function () {
         case 'ADBE Vector Filter - Repeater':
             return shapeItemTypes.repeater;
         default:
-            bm_eventDispatcher.log(matchName);
+            //bm_eventDispatcher.log(matchName);
             return '';
         }
     }
@@ -672,7 +672,7 @@ var bm_shapeHelper = (function () {
         navigationShapeTree.length = 0;
         navigationShapeTree.push(containingComp.name);
         navigationShapeTree.push(layerInfo.name);
-        var shapes = [], contents = layerInfo.property('Contents');
+        var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
         iterateProperties(contents, shapes, frameRate, stretch, isText);
         /*if (!isText) {

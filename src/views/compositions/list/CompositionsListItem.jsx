@@ -122,9 +122,9 @@ class CompositionsListItem extends React.Component {
                 onMouseLeave={this.settingsLeft}>
                 </button>
             </BodymovinSettings>
-  				<div className={css(styles.item, styles.name, textEllipsis)}>{this.props.item.name}</div>
+  				<div className={css(styles.item, styles.name, textEllipsis)} title={this.props.item.name}>{this.props.item.name}</div>
   				{this.props.item.destination 
-            && <div className={css(styles.item, styles.destination, textEllipsis)} onClick={this.selectDestination}>{this.props.item.destination}</div>}
+            && <div className={css(styles.item, styles.destination, textEllipsis)} onClick={this.selectDestination} title={this.props.item.destination}>{this.props.item.destination}</div>}
           {!this.props.item.destination && <div className={css(styles.item, styles.destinationPlaceholder)}>
             <BodymovinDots onClick={this.selectDestination} />
           </div>}
