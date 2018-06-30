@@ -505,165 +505,136 @@ var bm_shapeHelper = (function () {
             ob.d = dashesData;
         }
     }
-    
-    
-    
 
-    function getPoint(p1, p2, p3, p4, t) {
-        var a = p1[0], b = p2[0], c = p3[0], d = p4[0];
-        var x = a * Math.pow(1 - t, 3) + b * 3 * Math.pow(1 - t, 2) * t + c * 3 * (1 - t) * Math.pow(t, 2) + d * Math.pow(t, 3);
-        a = p1[1];
-        b = p2[1];
-        c = p3[1];
-        d = p4[1];
-        var y = a * Math.pow(1 - t, 3) + b * 3 * Math.pow(1 - t, 2) * t + c * 3 * (1 - t) * Math.pow(t, 2) + d * Math.pow(t, 3);
-        return [x, y];
-    }
-
-    function getTPos(p1, p2, p3, p4, arr) {
-        var i;
-        for (i = 0; i < 2; i += 1) {
-            var c1 = p1[i], c2 = p2[i], c3 = p3[i], c4 = p4[i];
-            var a = 3 * (-c1 + 3 * c2 - 3 * c3 + c4);
-            var b = 6 * (c1 - 2 * c2 + c3);
-            var c = 3 * (c2 - c1);
-            var toSquareTerm = Math.pow(b, 2) - 4 * a * c;
-            if (toSquareTerm >= 0) {
-                var t1 = (-b + Math.sqrt(toSquareTerm)) / (2 * a);
-                var t2 = (-b - Math.sqrt(toSquareTerm)) / (2 * a);
-                if (t1 >= 0 && t1 <= 1) {
-                    arr.push(getPoint(p1, p2, p3, p4, t1));
+    function compareShapeWithBox(shape, matrix, containerBox) {
+        var shapeBox;
+        if(shape.ks.a === 0) {
+            shapeBox = bm_boundingBox.getBoundingBox(shape.ks.k, matrix); 
+            bm_eventDispatcher.log('shapeBox: ' + JSON.stringify(shapeBox))
+            bm_eventDispatcher.log('containerBox: ' + JSON.stringify(containerBox))
+            return bm_boundingBox.isBoxInContainer(shapeBox, containerBox);
+        } else {
+            var i, len = shape.ks.k.length;
+            for(i = 0; i < len; i += 1) {
+                if(shape.ks.k[i].s) {
+                    shapeBox = bm_boundingBox.getBoundingBox(shape.ks.k[i].s[0], matrix); 
+                    if(!bm_boundingBox.isBoxInContainer(shapeBox, containerBox)) {
+                        return false;
+                    }
                 }
-                if (t2 >= 0 && t2 <= 1) {
-                    arr.push(getPoint(p1, p2, p3, p4, t2));
+                if(shape.ks.k[i].e) {
+                    shapeBox = bm_boundingBox.getBoundingBox(shape.ks.k[i].e[0], matrix); 
+                    if(!bm_boundingBox.isBoxInContainer(shapeBox, containerBox)) {
+                        return false;
+                    }
                 }
             }
+            return true;
         }
     }
 
-    function getBoundingBox(p1, p2, p3, p4, bounds) {
-        var pts = [p1,p4];
-        getTPos(p1, p2, p3, p4, pts);
-
-        var minX = bounds.l, minY = bounds.t, maxX = bounds.r, maxY = bounds.b, pt;
-        var i, len = pts.length;
-        for (i = 1; i < len; i += 1) {
-            pt = pts[i];
-            if (minX > pt[0]) {
-                minX = pt[0];
-            }
-            if (maxX < pt[0]) {
-                maxX = pt[0];
-            }
-            if (minY > pt[1]) {
-                minY = pt[1];
-            }
-            if (maxY < pt[1]) {
-                maxY = pt[1];
-            }
+    function compareGroupWithBox(items, matrix, containingBox) {
+        var groupMatrix = new $.__bodymovin.Matrix();
+        matrix.clone(groupMatrix);
+        var transform = items[items.length - 1];
+        var degToRads = Math.PI / 180;
+        if(transform.a.a !== 0 
+            || transform.p.a !== 0 
+            || transform.r.a !== 0 
+            || transform.s.a !== 0 
+            || transform.sa.a !== 0 
+            || transform.sk.a !== 0) {
+            return false;
         }
-        bounds.l = minX;
-        bounds.t = minY;
-        bounds.r = maxX;
-        bounds.b = maxY;
-    }
-
-    function setBounds(shapeData, bounds, matrices, strokes, data) {
-        var arr = [];
-        var i, len = matrices.length;
-        for (i = 0; i < len; i += 1) {
-            matrices[i].getKeys(arr);
-        }
-        var shapeProp;
-        if (shapeData.ty === 'sh') {
-            shapeProp = PropertyFactory.getShapeProp(data, shapeData, 4, [], []);
-        } else if (shapeData.ty === 'rc') {
-            shapeProp = PropertyFactory.getShapeProp(data, shapeData, 5, [], []);
-        } else if (shapeData.ty === 'el') {
-            shapeProp = PropertyFactory.getShapeProp(data, shapeData, 6, [], []);
-        } else if (shapeData.ty === 'sr') {
-            shapeProp = PropertyFactory.getShapeProp(data, shapeData, 7, [], []);
-        }
-        shapeProp.getKeys(arr);
-        var j, jLen = arr.length, matr = new Matrix();
-        for (j = 0; j < jLen; j += 1) {
-            data.globalData.frameId += 1;
-            data.comp.renderedFrame = arr[j];
-            matr.reset();
-            for (i = 0; i < len; i += 1) {
-                matrices[i].getValue();
-                matr.transform(matrices[i].v.props[0], matrices[i].v.props[1], matrices[i].v.props[2], matrices[i].v.props[3], matrices[i].v.props[4], matrices[i].v.props[5]);
-            }
-            if (shapeProp.k) {
-                shapeProp.getValue();
-            }
-            var points = shapeProp.v;
-            var k, kLen = points.v.length;
-            for (k = 0; k < kLen - 1; k += 1) {
-                getBoundingBox(matr.applyToPointArray(points.v[k][0], points.v[k][1]), matr.applyToPointArray(points.o[k][0]+points.v[k][0], points.o[k][1]+points.v[k][1]), matr.applyToPointArray(points.i[k + 1][0]+points.v[k + 1][0], points.i[k + 1][1]+points.v[k + 1][1]), matr.applyToPointArray(points.v[k + 1][0], points.v[k + 1][1]), bounds);
-            }
-            getBoundingBox(matr.applyToPointArray(points.v[k][0], points.v[k][1]), matr.applyToPointArray(points.o[k][0]+points.v[k][0], points.o[k][1]+points.v[k][1]), matr.applyToPointArray(points.i[0][0]+points.v[0][0], points.i[0][1]+points.v[0][1]), matr.applyToPointArray(points.v[0][0], points.v[0][1]), bounds);
-        }
-        len = strokes.length;
-        arr = [];
-        for (i = 0; i < len; i += 1) {
-            strokes[i].getKeys(arr);
-        }
-        jLen = arr.length;
-        var maxStroke = 0;
-        for (j = 0; j < jLen; j += 1) {
-            data.globalData.frameId += 1;
-            data.comp.renderedFrame = arr[j];
-            for (i = 0; i < len; i += 1) {
-                if (strokes[i].k) {
-                    strokes[i].getValue();
+        groupMatrix.translate(-transform.a.k[0], -transform.a.k[1], 0);
+        groupMatrix.scale(transform.s.k[0] / 100, transform.s.k[1] / 100, 1);
+        groupMatrix.skewFromAxis(-transform.sk.k * degToRads, transform.sa.k * degToRads);
+        groupMatrix.rotate(-transform.r.k * degToRads);
+        groupMatrix.translate(transform.p.k[0], transform.p.k[1], 0);
+        var i, len = items.length;
+        for(i = 0; i < len - 1; i += 1) {
+            if(items[i].ty === shapeItemTypes.shape) {
+                if(!compareShapeWithBox(items[i], groupMatrix, containingBox)) {
+                    return false;
                 }
-                maxStroke = strokes[i].v > maxStroke ? strokes[i].v :  maxStroke;
+            } else if(items[i].ty === shapeItemTypes.group) {
+                if(!compareGroupWithBox(items[i], groupMatrix, containingBox)) {
+                    return false;
+                }
             }
         }
-        if (maxStroke) {
-            bounds.t -= maxStroke / 2;
-            bounds.l -= maxStroke / 2;
-            bounds.b += maxStroke / 2;
-            bounds.r += maxStroke / 2;
-        }
-        bounds.t = Math.floor(bounds.t);
-        bounds.l = Math.floor(bounds.l);
-        bounds.b = Math.ceil(bounds.b);
-        bounds.r = Math.ceil(bounds.r);
+        return true;
     }
-    
 
-    function completeShapes(arr, bounds, matrices, strokes, data) {
-        var i, len = arr.length;
-        var j, jLen;
-        var matr = [];
-        var strk = [];
-        matr = matr.concat(matrices);
-        strk = strk.concat(strokes);
-        for (i = len - 1; i >= 0; i -= 1) {
-            if (arr[i].ty === 'sh' || arr[i].ty === 'el' || arr[i].ty === 'rc' || arr[i].ty === 'sr') {
-                setBounds(arr[i], bounds, matr, strk, data);
-            } else if (arr[i].ty === 'gr') {
-                completeShapes(arr[i].it, bounds, matr, strk, data);
-            } else if (arr[i].ty === 'tr') {
-                matr.push(PropertyFactory.getProp(data, arr[i], 2, 0, []));
-            } else if (arr[i].ty === 'st') {
-                strk.push(PropertyFactory.getProp(data, arr[i].w, 0, 0, []));
-            }
+    function isStraightAngle(pt1, pt2, pt3) {
+        var degToRads = Math.PI / 180;
+        var side_a = Math.sqrt(Math.pow(pt1[0] - pt2[0],2) + Math.pow(pt1[1] - pt2[1],2));
+        var side_b = Math.sqrt(Math.pow(pt2[0] - pt3[0],2) + Math.pow(pt2[1] - pt3[1],2));
+        var side_c = Math.sqrt(Math.pow(pt3[0] - pt1[0],2) + Math.pow(pt3[1] - pt1[1],2));
+        var angle = Math.acos((Math.pow(side_a,2) + Math.pow(side_b,2) - Math.pow(side_c,2)) / (2 * side_a *side_b))
+        return Math.abs((angle / degToRads) - 90) < 0.01;
+    }
+
+    function isShapeSquare(shapeData) {
+        if(shapeData.v.length !== 4) {
+            return false;
         }
+        var i = 0;
+        while(i < 4) {
+            if(shapeData.i[i][0] !== 0 
+                || shapeData.i[i][1] !== 0 
+                || shapeData.o[i][0] !== 0 
+                || shapeData.o[i][1] !== 0) {
+                return false;
+            }
+            i += 1;
+        }
+        var vertices = shapeData.v;
+        return isStraightAngle(vertices[0], vertices[1], vertices[2]) && isStraightAngle(vertices[1], vertices[2], vertices[3]) && isStraightAngle(vertices[2], vertices[3], vertices[0]);
     }
-    
-    function getShapeBounds(data) {
-        data.bounds = {
-            l: 999999,
-            t: 999999,
-            b: -999999,
-            r: -999999
-        };
-        completeShapes(data.shapes, data.bounds, [], [], {data: {st: 0}, globalData: {frameId: 0}, comp: {renderedFrame: -1}});
+
+    function removeUnwantedMergePaths(items) {
+        if(!items) {
+            return;
+        }
+        //var mat = new $.__bodymovin.Matrix();
+        var i, len = items.length;
+        var canRemoveContainerShape = false;
+        for(i = len - 1; i >= 0; i -= 1) {
+            if(items[i].ty === shapeItemTypes.merge && items[i].mm === 4 && i > 0 && items[i - 1].ty === shapeItemTypes.shape) {
+                
+                var containingShape = items[i - 1];
+                if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
+                    //containingBox = bm_boundingBox.getBoundingBox(containingShape.ks.k, mat);
+                    containingBoxIndex = i;
+                    canRemoveContainerShape = true;
+                }
+            }
+            if(items[i].ty === shapeItemTypes.group) {
+                removeUnwantedMergePaths(items[i].it);
+            }
+            /*if(items[i].ty === shapeItemTypes.shape && containingBox) {
+                canRemoveContainerShape = compareShapeWithBox(items[i], mat, containingBox);
+                if(!canRemoveContainerShape) {
+                    break;
+                }
+            }
+            if(items[i].ty === shapeItemTypes.group) {
+                if(!containingBox) {
+                    removeUnwantedMergePaths(items[i].it);
+                } else {
+                    canRemoveContainerShape = compareGroupWithBox(items[i].it, mat, containingBox);
+                    if(!canRemoveContainerShape) {
+                        break;
+                    }
+                }
+            }*/
+        }
+        if(canRemoveContainerShape) {
+            items.splice(containingBoxIndex - 1, 2);
+        }
+        //bm_eventDispatcher.log('canRemoveContainerShape: ' + canRemoveContainerShape)
     }
-    
     
     function exportShape(layerInfo, layerOb, frameRate, isText, params) {
         var stretch = layerOb.sr || 1;
@@ -675,10 +646,7 @@ var bm_shapeHelper = (function () {
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
         iterateProperties(contents, shapes, frameRate, stretch, isText);
-        /*if (!isText) {
-            getShapeBounds(layerOb);
-        }*/
-        //getShapeBounds(layerOb);
+        removeUnwantedMergePaths(shapes);
     }
     
     ob.exportShape = exportShape;

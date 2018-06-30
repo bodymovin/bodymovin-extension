@@ -1,6 +1,7 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $*/
 
+$.__bodymovin = {};
 var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
 $.evalFile(extensionPath + 'JSON.jsx');
 $.evalFile(extensionPath + 'eventManager.jsx');
@@ -32,3 +33,5 @@ $.evalFile(extensionPath + 'utils/markerHelper.jsx');
 $.evalFile(extensionPath + 'utils/bez.jsx');
 $.evalFile(extensionPath + 'utils/transformation-matrix.jsx');
 $.evalFile(extensionPath + 'utils/PropertyFactory.jsx');
+$.evalFile(extensionPath + 'helpers/boundingBox.jsx');
+
