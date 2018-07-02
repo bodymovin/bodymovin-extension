@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global app, $, PropertyValueType, bm_eventDispatcher*/
-var bm_generalUtils = (function () {
+$.__bodymovin.bm_generalUtils = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     ob.Gtlym = {};
     ob.Gtlym.CALL = {};
@@ -17,7 +18,7 @@ var bm_generalUtils = (function () {
     function setTimeout(func, millis) {
         var guid = random(10);
         ob.Gtlym.CALL["interval_" + guid] = func;
-        return app.scheduleTask('bm_generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
+        return app.scheduleTask('$.__bodymovin.bm_generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
     }
 
     function roundArray(arr, decimals) {

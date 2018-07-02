@@ -166,7 +166,7 @@ csInterface.addEventListener('app:version', function (ev) {
 function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
-			csInterface.evalScript('bm_compsManager.updateData()');
+			csInterface.evalScript('$.__bodymovin.bm_compsManager.updateData()');
 			resolve();
 		})
 	})
@@ -187,7 +187,7 @@ function getDestinationPath(comp, alternatePath) {
 		destinationPath = alternatePath
 	}
 	extensionLoader.then(function(){
-		var eScript = 'bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
+		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve, reject){
@@ -198,7 +198,7 @@ function getDestinationPath(comp, alternatePath) {
 
 function renderNextComposition(comp) {
 	extensionLoader.then(function(){
-		var eScript = 'bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
+		var eScript = '$.__bodymovin.bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve, reject){
@@ -209,7 +209,7 @@ function renderNextComposition(comp) {
 
 function stopRenderCompositions() {
 	extensionLoader.then(function(){
-		var eScript = 'bm_compsManager.cancel()'
+		var eScript = '$.__bodymovin.bm_compsManager.cancel()'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve){
@@ -225,7 +225,7 @@ function setFonts(fontsInfo) {
 	var fontsInfoString = JSON.stringify({list:fontsInfo})
 
 	extensionLoader.then(function(){
-	    var eScript = 'bm_renderManager.setFontData(' + fontsInfoString + ')'
+	    var eScript = '$.__bodymovin.bm_renderManager.setFontData(' + fontsInfoString + ')'
 	    csInterface.evalScript(eScript)
 	})
 	return prom
@@ -239,25 +239,25 @@ function openInBrowser(url) {
 function getPlayer(gzipped) {
 	let gzippedString = gzipped ? 'true' : 'false'
 	extensionLoader.then(function(){
-		var eScript = 'bm_downloadManager.getPlayer(' + gzippedString + ')';
+		var eScript = '$.__bodymovin.bm_downloadManager.getPlayer(' + gzippedString + ')';
 	    csInterface.evalScript(eScript);
 	})
 }
 
 function goToFolder(path) {
 	extensionLoader.then(function(){
-		var eScript = 'bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
+		var eScript = '$.__bodymovin.bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
 	    csInterface.evalScript(eScript);
 	})
 }
 
 function saveAVD(data) {
 	bodymovin2Avd(data).then(function(avdData){
-		var eScript = "bm_dataManager.saveAVDData('" + avdData + "')";
+		var eScript = "$.__bodymovin.bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);
 	}).catch(function(){
 		extensionLoader.then(function(){
-			var eScript = 'bm_dataManager.saveAVDFailed()';
+			var eScript = '$.__bodymovin.bm_dataManager.saveAVDFailed()';
 			csInterface.evalScript(eScript);
 		})
 		dispatcher({ 
@@ -271,7 +271,7 @@ function getVersionFromExtension() {
 		resolve()
 	})
 	extensionLoader.then(function(){
-		var eScript = 'bm_renderManager.getVersion()';
+		var eScript = '$.__bodymovin.bm_renderManager.getVersion()';
 	    csInterface.evalScript(eScript);
 	})
 	return prom
@@ -279,7 +279,7 @@ function getVersionFromExtension() {
 
 function imageProcessed(result) {
 	extensionLoader.then(function(){
-		var eScript = 'bm_sourceHelper.imageProcessed(';
+		var eScript = '$.__bodymovin.bm_sourceHelper.imageProcessed(';
 		eScript += result.compressed;
 		eScript += ',';
 		if(result.encoded) {

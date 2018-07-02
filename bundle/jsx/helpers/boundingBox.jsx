@@ -1,4 +1,4 @@
-var bm_boundingBox = (function () {
+$.__bodymovin.bm_boundingBox = (function () {
 	var ob = {
 		getBoundingBox: getBoundingBox,
 		isBoxInContainer: isBoxInContainer
@@ -73,7 +73,6 @@ var bm_boundingBox = (function () {
         bounds.t = minY;
         bounds.r = maxX;
         bounds.b = maxY;
-        //bm_eventDispatcher.log('bounds: ' + JSON.stringify(bounds))
         return bounds;
     }
 

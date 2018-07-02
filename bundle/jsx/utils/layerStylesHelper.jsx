@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_keyframeHelper*/
-var bm_layerStylesHelper = (function () {
+/*global bm_keyframeHelper*/
+$.__bodymovin.bm_layerStylesHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
     var layerStyleTypes = {
         stroke: 0

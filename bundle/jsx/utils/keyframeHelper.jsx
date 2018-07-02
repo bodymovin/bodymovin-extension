@@ -1,7 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global PropertyValueType, KeyframeInterpolationType, bm_generalUtils, bm_eventDispatcher, bm_expressionHelper*/
-var bm_keyframeHelper = (function () {
+$.__bodymovin.bm_keyframeHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -414,10 +417,6 @@ var bm_keyframeHelper = (function () {
     }
 
     function searchRovingKeyframes(property) {
-        /*var cmdID = bm_projectManager.getCommandID('RoveAcrossTime');
-        var cmdID2 = bm_projectManager.getCommandID('roveAcrossTime');
-        bm_eventDispatcher.log('cmdID: ' + cmdID)
-        bm_eventDispatcher.log('cmdID2: ' + cmdID2)*/
         hasRovingKeyframes = false;
         if(property.propertyValueType === PropertyValueType.ThreeD_SPATIAL ||  property.propertyValueType === PropertyValueType.TwoD_SPATIAL){
             var numKeys = property.numKeys;

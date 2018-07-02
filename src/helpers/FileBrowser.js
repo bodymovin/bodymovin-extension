@@ -19,7 +19,7 @@ function browseFile(path) {
     
     extensionLoader.then(function(){
         path = path ? path.replace(/\\/g,"\\\\") : ''
-        var eScript = 'bm_main.browseFile("' + path + '")';
+        var eScript = '$.__bodymovin.bm_main.browseFile("' + path + '")';
         csInterface.evalScript(eScript);
     })
     return promise

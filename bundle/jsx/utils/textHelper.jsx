@@ -1,7 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
-var bm_textHelper = (function () {
+/*global layerElement, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
+$.__bodymovin.bm_textHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
+    var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var ob = {};
     
     function getJustification(value) {
@@ -53,7 +56,7 @@ var bm_textHelper = (function () {
             var i, len;
             ob.s = textDocument.fontSize;
             ob.f = textDocument.font;
-            bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
+            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
             } else {
@@ -102,7 +105,7 @@ var bm_textHelper = (function () {
             arr.push({s:ob,t:time*frameRate});
         }
         duplicatedLayerInfo.remove();
-        bm_textShapeHelper.addTextLayer(layerInfo);
+        $.__bodymovin.bm_textShapeHelper.addTextLayer(layerInfo);
 
     }
 

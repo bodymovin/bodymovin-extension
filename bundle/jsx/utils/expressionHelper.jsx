@@ -1,8 +1,9 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $, bm_eventDispatcher, esprima, escodegen*/
+/*global $, esprima, escodegen*/
 
-var bm_expressionHelper = (function () {
+$.__bodymovin.bm_expressionHelper = (function () {
     'use strict';
+    var esprima = $.__bodymovin.esprima;
     var ob = {};
     var options = {
         tokens: true,
@@ -317,8 +318,6 @@ var bm_expressionHelper = (function () {
             } else if (body[i].type === 'SwitchStatement') {
                 handleSwitchStatement(body[i]);
             } else {
-                //bm_eventDispatcher.log(body[i].type);
-                //bm_eventDispatcher.log(body[i]);
             }
         }
     }
@@ -341,7 +340,6 @@ var bm_expressionHelper = (function () {
             case "UpdateExpression":
                 return element;
             default:
-                //bm_eventDispatcher.log('es: ', element);
                 return element;
         }
     }

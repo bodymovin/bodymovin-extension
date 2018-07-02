@@ -1,18 +1,23 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_downloadManager, bm_layerElement, File*/
+/*global bm_eventDispatcher, bm_generalUtils, bm_downloadManager, File*/
 
-var bm_dataManager = (function () {
+$.__bodymovin.bm_dataManager = (function () {
     'use strict';
     var ob = {};
     var animationSegments;
     var segmentCount = 0;
     var _endCallback;
     var _destinationPath;
+    var JSON = $.__bodymovin.JSON;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_downloadManager = $.__bodymovin.bm_downloadManager;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var layerTypes = $.__bodymovin.layerTypes;
     
     function addCompsToSegment(layers, comps, segmentComps) {
         var i, len = layers.length, j, jLen;
         for (i = 0; i < len; i += 1) {
-            if (layers[i].ty === bm_layerElement.layerTypes.precomp) {
+            if (layers[i].ty === layerTypes.precomp) {
                 j = 0;
                 jLen = comps.length;
                 while (j < jLen) {
@@ -39,7 +44,7 @@ var bm_dataManager = (function () {
         var currentPeriod, segments, segmentComps;
         for (i = 0; i < len; i += 1) {
             if (layers[i].ip < currentSegment) {
-                if (layers[i].ty === bm_layerElement.layerTypes.precomp) {
+                if (layers[i].ty === layerTypes.precomp) {
                     if (!segmentComps) {
                         segmentComps = [];
                     }
@@ -75,7 +80,7 @@ var bm_dataManager = (function () {
                     if (!segments) {
                         segments = [];
                     }
-                    if (layers[i].ty === bm_layerElement.layerTypes.precomp) {
+                    if (layers[i].ty === layerTypes.precomp) {
                         if (!segmentComps) {
                             segmentComps = [];
                         }
@@ -121,7 +126,7 @@ var bm_dataManager = (function () {
     function separateComps(layers, comps) {
         var i, len = layers.length;
         for (i = 0; i < len; i += 1) {
-            if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].compId) {
+            if (layers[i].ty === layerTypes.precomp && layers[i].compId) {
                 comps.push({
                     id: layers[i].compId,
                     layers: layers[i].layers
@@ -140,7 +145,7 @@ var bm_dataManager = (function () {
             delete layers[i].isGuide;
             delete layers[i].render;
             delete layers[i].enabled;
-            if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].layers) {
+            if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 deleteLayerParams(layers[i].layers);
             }
         }

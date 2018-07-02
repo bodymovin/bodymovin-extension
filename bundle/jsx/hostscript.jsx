@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global bm_eventDispatcher, File, Folder*/
-var bm_main = (function () {
+$.__bodymovin.bm_main = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function browseFile(path) {

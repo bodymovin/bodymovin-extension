@@ -1,7 +1,9 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_keyframeHelper*/
-var bm_effectsHelper = (function () {
+/*global bm_eventDispatcher, bm_keyframeHelper*/
+$.__bodymovin.bm_effectsHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,

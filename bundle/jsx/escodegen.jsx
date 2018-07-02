@@ -2982,8 +2982,8 @@
         (function () {
             'use strict';
             var escodegen;
-            escodegen = global.escodegen = require('../escodegen');
-            bm_expressionHelper.escodegen = escodegen;
+            escodegen = require('../escodegen');
+            $.__bodymovin.bm_expressionHelper.escodegen = escodegen;
             escodegen.browser = true;
         }());
 

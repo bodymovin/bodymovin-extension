@@ -1,7 +1,12 @@
 /*jslint vars: true , plusplus: true, continue:true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global bm_keyframeHelper, bm_eventDispatcher, bm_generalUtils, PropertyFactory, Matrix*/
-var bm_shapeHelper = (function () {
+$.__bodymovin.bm_shapeHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
+    var bm_boundingBox = $.__bodymovin.bm_boundingBox;
     var ob = {}, shapeItemTypes = {
         shape: 'sh',
         rect: 'rc',
@@ -509,9 +514,7 @@ var bm_shapeHelper = (function () {
     function compareShapeWithBox(shape, matrix, containerBox) {
         var shapeBox;
         if(shape.ks.a === 0) {
-            shapeBox = bm_boundingBox.getBoundingBox(shape.ks.k, matrix); 
-            bm_eventDispatcher.log('shapeBox: ' + JSON.stringify(shapeBox))
-            bm_eventDispatcher.log('containerBox: ' + JSON.stringify(containerBox))
+            shapeBox = bm_boundingBox.getBoundingBox(shape.ks.k, matrix);
             return bm_boundingBox.isBoxInContainer(shapeBox, containerBox);
         } else {
             var i, len = shape.ks.k.length;
