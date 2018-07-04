@@ -5,6 +5,7 @@ $.__bodymovin.bm_textHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function getJustification(value) {
@@ -32,6 +33,10 @@ $.__bodymovin.bm_textHelper = (function () {
         removeLayerAnimators(duplicatedLayerInfo);
         var sourceTextProp = duplicatedLayerInfo.property("Source Text");
         bm_expressionHelper.checkExpression(sourceTextProp, data);
+        var hasExpression = sourceTextProp.expressionEnabled
+        if(sourceTextProp.expressionEnabled) {
+            sourceTextProp.expressionEnabled = false;
+        }
         var arr = [];
         data.k = arr;
         var numKeys = sourceTextProp.numKeys;
@@ -103,6 +108,9 @@ $.__bodymovin.bm_textHelper = (function () {
             }
             //TODO check if it need to be multiplied by stretch
             arr.push({s:ob,t:time*frameRate});
+        }
+        if(hasExpression) {
+            sourceTextProp.expressionEnabled = true;
         }
         duplicatedLayerInfo.remove();
         $.__bodymovin.bm_textShapeHelper.addTextLayer(layerInfo);

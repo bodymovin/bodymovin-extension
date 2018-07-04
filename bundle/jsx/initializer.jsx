@@ -1,9 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $*/
 
-$.__bodymovin = {
-	esprima: {}
-};
+
+$.__bodymovin = $.__bodymovin || {esprima:{}}
 var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
 
 $.evalFile(extensionPath + 'JSON.jsx');

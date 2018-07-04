@@ -1,8 +1,9 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global bm_eventDispatcher, File, Folder*/
+
+$.__bodymovin = $.__bodymovin || {esprima:{}}
 $.__bodymovin.bm_main = (function () {
     'use strict';
-    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function browseFile(path) {
@@ -11,9 +12,9 @@ $.__bodymovin.bm_main = (function () {
         var f = new File(path);
         var openFileData = f.openDlg();
         if (openFileData !== null) {
-            bm_eventDispatcher.sendEvent('bm:file:uri', openFileData.fsName);
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:file:uri', openFileData.fsName);
         } else {
-            bm_eventDispatcher.sendEvent('bm:file:cancel');
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:file:cancel');
         }
 
     }

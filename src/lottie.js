@@ -1237,7 +1237,7 @@ function bezFunction(){
             lengths[i] = getBezierLength(pathV[i],pathV[i+1],pathO[i],pathI[i+1]);
             totalLength += lengths[i].addedLength;
         }
-        if(closed){
+        if(closed && len){
             lengths[i] = getBezierLength(pathV[i],pathV[0],pathO[i],pathI[0]);
             totalLength += lengths[i].addedLength;
         }
@@ -3567,7 +3567,7 @@ TrimModifier.prototype.addShapes = function(shapeData, shapeSegment, shapePath) 
                 segmentCount += 1;
             }
         }
-        if (shapePaths[i].c) {
+        if (shapePaths[i].c && lengths.length) {
             currentLengthData = lengths[j - 1];
             if (addedLength <= shapeSegment.e) {
                 var segmentLength = lengths[j - 1].addedLength;
@@ -4902,11 +4902,11 @@ function TextProperty(elem, data){
         finalSize:0,
         finalText:[],
         finalLineHeight: 0,
-        __test: true
+        __complete: false
 
 	};
     this.copyFromDocumentData(this.data.d.k[0].s);
-    
+
     if(!this.searchProperty()) {
         this.completeTextData(this.currentData);
         this.keysIndex = 0;
@@ -4932,38 +4932,10 @@ TextProperty.prototype.setCurrentData = function(data, currentTextValue){
             this.currentData.strokeColorAnim = data.strokeColorAnim || this.currentData.strokeColorAnim;
             this.currentData.strokeWidthAnim = data.strokeWidthAnim || this.currentData.strokeWidthAnim;
             this._mdf = true;
-        } else if(currentTextValue !== this.currentData.t) {
+        } else if(currentTextValue !== this.currentData.t || !data.__complete) {
             this._mdf = true;
             this.completeTextData(data);
         }
-		/*var currentData = this.currentData;
-        currentData.ascent = data.ascent;
-        currentData.boxWidth = data.boxWidth ? data.boxWidth : currentData.boxWidth;
-        currentData.f = data.f;
-        currentData.fStyle = data.fStyle;
-        currentData.fWeight = data.fWeight;
-        currentData.fc = data.fc;
-        currentData.j = data.j;
-        currentData.justifyOffset = data.justifyOffset;
-        currentData.l = data.l;
-        currentData.lh = data.lh;
-        currentData.lineWidths = data.lineWidths;
-        currentData.ls = data.ls;
-        currentData.of = data.of;
-        currentData.s = data.s;
-        currentData.sc = data.sc;
-        currentData.sw = data.sw;
-        currentData.sz = data.sz;
-        currentData.ps = data.ps;
-        currentData.t = data.t;
-        currentData.tr = data.tr;
-        currentData.fillColorAnim = data.fillColorAnim || currentData.fillColorAnim;
-        currentData.strokeColorAnim = data.strokeColorAnim || currentData.strokeColorAnim;
-        currentData.strokeWidthAnim = data.strokeWidthAnim || currentData.strokeWidthAnim;
-        currentData.yOffset = data.yOffset;
-        currentData.finalSize = data.finalSize;
-        currentData.finalLineHeight = data.finalLineHeight;
-        currentData.finalText = data.finalText;*/
 };
 
 TextProperty.prototype.searchProperty = function() {
@@ -5000,6 +4972,7 @@ TextProperty.prototype.getValue = function(_finalValue) {
     for(i = 0; i < len; i += 1) {
         finalValue = this.effectsSequence[i](finalValue);
     }
+    finalValue.t = finalValue.t.toString();
     this.setCurrentData(finalValue, currentTextValue);
     this.pv = this.v = this.currentData;
     this.lock = false;
@@ -8733,6 +8706,7 @@ var AnimationItem = function () {
     this.subframeEnabled = subframeEnabled;
     this.segments = [];
     this._idle = true;
+    this._completedLoop = false;
     this.projectInterface = ProjectInterface();
 };
 
@@ -9031,6 +9005,7 @@ AnimationItem.prototype.stop = function (name) {
     }
     this.pause();
     this.playCount = 0;
+    this._completedLoop = false;
     this.setCurrentRawFrameValue(0);
 };
 
@@ -9069,6 +9044,7 @@ AnimationItem.prototype.advanceTime = function (value) {
             this.playCount += 1;
             if (!this.checkSegments(nextValue % this.totalFrames)) {
                 this.setCurrentRawFrameValue(nextValue % this.totalFrames);
+                this._completedLoop = true;
                 this.trigger('loopComplete');
             }
         } else {
@@ -9078,8 +9054,14 @@ AnimationItem.prototype.advanceTime = function (value) {
         if (!this.checkSegments(nextValue % this.totalFrames)) {
             if (this.loop && !(this.playCount-- <= 0 && this.loop !== true)) {
                 this.setCurrentRawFrameValue(this.totalFrames + (nextValue % this.totalFrames));
-                this.trigger('loopComplete');
-            } else {
+                if(!this._completedLoop) {
+                    this._completedLoop = true;
+                } else {
+                    this.trigger('loopComplete');
+                }
+            } else if (!this.loop && this.playCount-- === 0) {
+                this.setCurrentRawFrameValue(this.totalFrames + (nextValue % this.totalFrames));
+            }else {
                 _isComplete = true;
                 nextValue = 0;
             }
@@ -11480,7 +11462,7 @@ HCameraElement.prototype.renderFrame = function(){
             _mdf = this.hierarchy[i].finalTransform.mProp._mdf || _mdf;
         }
     }
-    if(_mdf || (this.p && this.p._mdf) || (this.px && (this.px._mdf || this.py._mdf || this.pz._mdf)) || this.rx._mdf || this.ry._mdf || this.rz._mdf || this.or._mdf || (this.a && this.a._mdf)) {
+    if(_mdf || this.pe._mdf || (this.p && this.p._mdf) || (this.px && (this.px._mdf || this.py._mdf || this.pz._mdf)) || this.rx._mdf || this.ry._mdf || this.rz._mdf || this.or._mdf || (this.a && this.a._mdf)) {
         this.mat.reset();
 
         if(this.hierarchy){
@@ -11523,14 +11505,19 @@ HCameraElement.prototype.renderFrame = function(){
 
         
 
-
-        if(!this._prevMat.equals(this.mat) && this.comp.threeDElements) {
+        var hasMatrixChanged = !this._prevMat.equals(this.mat);
+        if((hasMatrixChanged || this.pe._mdf) && this.comp.threeDElements) {
             len = this.comp.threeDElements.length;
             var comp;
             for(i=0;i<len;i+=1){
                 comp = this.comp.threeDElements[i];
                 if(comp.type === '3d') {
-                    comp.container.style.transform = comp.container.style.webkitTransform = this.mat.toCSS();
+                    if(hasMatrixChanged) {
+                        comp.container.style.transform = comp.container.style.webkitTransform = this.mat.toCSS();
+                    }
+                    if(this.pe._mdf) {
+                        comp.perspectiveElem.style.perspective = comp.perspectiveElem.style.webkitPerspective = this.pe.v+'px';
+                    }
                 }
             }
             this.mat.clone(this._prevMat);
@@ -11844,7 +11831,15 @@ var ExpressionManager = (function(){
 
     function linear(t, tMin, tMax, value1, value2){
         if(value1 === undefined || value2 === undefined){
-            return linear(t,0,1,tMin,tMax);
+            value1 = tMin;
+            value2 = tMax;
+            tMin = 0;
+            tMax = 1;
+        }
+        if(tMax < tMin) {
+            var _tMin = tMax;
+            tMax = tMin;
+            tMin = _tMin;
         }
         if(t <= tMin) {
             return value1;
@@ -13403,6 +13398,8 @@ var LayerExpressionInterface = (function (){
         _thisLayerFunction.source = elem.data.refId;
         _thisLayerFunction.height = elem.data.ty === 0 ? elem.data.h : 100;
         _thisLayerFunction.width = elem.data.ty === 0 ? elem.data.w : 100;
+        _thisLayerFunction.inPoint = elem.data.ip/elem.comp.globalData.frameRate;
+        _thisLayerFunction.outPoint = elem.data.op/elem.comp.globalData.frameRate;
 
         _thisLayerFunction.registerMaskInterface = _registerMaskInterface;
         _thisLayerFunction.registerEffectsInterface = _registerEffectsInterface;
@@ -13956,7 +13953,7 @@ GroupEffect.prototype.init = function(data,element){
     lottiejs.unfreeze = animationManager.unfreeze;
     lottiejs.getRegisteredAnimations = animationManager.getRegisteredAnimations;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.1.18';
+    lottiejs.version = '5.1.19';
 
     function checkReady() {
         if (document.readyState === "complete") {
