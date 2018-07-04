@@ -104,7 +104,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 if (statement.consequent.type === 'BlockStatement') {
                     findUndeclaredVariables(statement.consequent.body, 0, null, declared, undeclared, true);
                 } else if (statement.consequent.type === 'ExpressionStatement') {
-                    expression = statement.consequent.expression;
+                    var expression = statement.consequent.expression;
                     if (expression.type === 'AssignmentExpression') {
                         addAssignment(expression);
                     } else if (expression.type === 'SequenceExpression') {
@@ -376,26 +376,39 @@ $.__bodymovin.bm_expressionHelper = (function () {
         if (expression.left.type === 'Literal' && expression.right.type === 'Literal') {
             return expression;
         }
-        if(!isOperatorTransformable(expression.operator)){
+        var callStatementOb;
+        if(expression.operator === 'instanceof' && expression.right.type === 'Identifier' && expression.right.name === 'Array') {
+            callStatementOb = {
+                'arguments': [
+                    getBinaryElement(expression.left)
+                ],
+                type: "CallExpression",
+                callee: {
+                    name: '$bm_isInstanceOfArray',
+                    type: 'Identifier'
+                }
+            };
+        } else if(!isOperatorTransformable(expression.operator)){
             if(expression.left.type === 'BinaryExpression') {
                 expression.left = getBinaryElement(expression.left);
             }
             if(expression.right.type === 'BinaryExpression') {
                 expression.right = getBinaryElement(expression.right);
             }
-            return expression;
+            callStatementOb = expression;
+        } else {
+            callStatementOb = {
+                'arguments': [
+                    getBinaryElement(expression.left),
+                    getBinaryElement(expression.right)
+                ],
+                type: "CallExpression",
+                callee: {
+                    name: getOperatorName(expression.operator),
+                    type: 'Identifier'
+                }
+            };
         }
-        var callStatementOb = {
-            'arguments': [
-                getBinaryElement(expression.left),
-                getBinaryElement(expression.right)
-            ],
-            type: "CallExpression",
-            callee: {
-                name: getOperatorName(expression.operator),
-                type: 'Identifier'
-            }
-        };
         return callStatementOb;
     }
 
@@ -488,6 +501,9 @@ $.__bodymovin.bm_expressionHelper = (function () {
     }
 
     function handleIfStatement(ifStatement) {
+        if(ifStatement.test.type === 'BinaryExpression') {
+            ifStatement.test = convertBinaryExpression(ifStatement.test);
+        }
         if (ifStatement.consequent) {
             if (ifStatement.consequent.type === 'BlockStatement') {
                 searchOperations(ifStatement.consequent.body);
@@ -607,11 +623,16 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 handleCallExpression(assignmentExpression.right);
             } else  if (assignmentExpression.right.type=== 'MemberExpression') {
                 handleMemberExpression(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type=== 'ConditionalExpression') {
+                handleConditionalExpression(assignmentExpression.right);
             }
         }
     }
 
     function handleConditionalExpression(conditionalExpression) {
+        if(conditionalExpression.test.type === 'BinaryExpression') {
+            conditionalExpression.test = convertBinaryExpression(conditionalExpression.test);
+        }
         if(conditionalExpression.consequent){
             if (conditionalExpression.consequent.type=== 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.consequent);
