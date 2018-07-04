@@ -76,8 +76,6 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 
 csInterface.addEventListener('bm:image:process', function (ev) {
 	if(ev.data) {
-		console.log('ev.data')
-		console.log(typeof ev.data === "string")
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		
 		//Fix for AE 2014
