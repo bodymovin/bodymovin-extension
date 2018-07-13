@@ -4,6 +4,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
     'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,
@@ -26,7 +27,9 @@ $.__bodymovin.bm_effectsHelper = (function () {
         radialWipe: 26,
         displacementMap: 27,
         matte3: 28,
-        gaussianBlur2: 29
+        gaussianBlur2: 29,
+        twirl: 30,
+        mesh_warp: 31
     };
     
     function getEffectType(name) {
@@ -51,7 +54,12 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.matte3;
         case 'ADBE Gaussian Blur 2':
             return effectTypes.gaussianBlur2;
+        case 'ADBE Twirl':
+            return effectTypes.twirl;
+        case 'ADBE MESH WARP':
+            return effectTypes.mesh_warp;
         default:
+            bm_eventDispatcher.log(name)
             return effectTypes.group;
         }
     }
@@ -61,11 +69,11 @@ $.__bodymovin.bm_effectsHelper = (function () {
                 //bm_eventDispatcher.log(prop.name);
                 //bm_eventDispatcher.log(prop.matchName);
         //customValue
-            /*bm_eventDispatcher.log('prop.propertyValueType: ' + prop.propertyValueType);
-            bm_eventDispatcher.log('Prop ertyValueType.LAYER_INDEX: ' + PropertyValueType.LAYER_INDEX);
-            bm_eventDispatcher.log('PropertyValueType.COLOR: ' + PropertyValueType.COLOR);
-            bm_eventDispatcher.log('PropertyValueType.OneD: ' + PropertyValueType.OneD);
-            bm_eventDispatcher.log('PropertyValueType.MASK_INDEX: ' + PropertyValueType.MASK_INDEX);*/
+            //bm_eventDispatcher.log('prop.propertyValueType: ' + prop.propertyValueType);
+            /*for (var s in PropertyValueType) {
+                bm_eventDispatcher.log('Name: ' + s);
+                bm_eventDispatcher.log('Value: ' + PropertyValueType[s]);
+            }*/
         //Prop ertyValueType.NO_VALUE
         if (propertyValueType === PropertyValueType.NO_VALUE) {
             return effectTypes.noValue;
