@@ -604,34 +604,29 @@ $.__bodymovin.bm_shapeHelper = (function () {
         var i, len = items.length;
         var canRemoveContainerShape = false;
         for(i = len - 1; i >= 0; i -= 1) {
-            if(items[i].ty === shapeItemTypes.merge && items[i].mm === 4 && i > 0 && items[i - 1].ty === shapeItemTypes.shape) {
-                
-                var containingShape = items[i - 1];
-                if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
-                    //containingBox = bm_boundingBox.getBoundingBox(containingShape.ks.k, mat);
-                    containingBoxIndex = i;
-                    canRemoveContainerShape = true;
+            if(items[i].ty === shapeItemTypes.merge && items[i].mm === 4 && i > 0) {
+                if(items[i - 1].ty === shapeItemTypes.shape) {
+                    var containingShape = items[i - 1];
+                    if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
+                        //containingBox = bm_boundingBox.getBoundingBox(containingShape.ks.k, mat);
+                        containingBoxIndex = i;
+                        canRemoveContainerShape = true;
+                    }
+                } else if(items[i - 1].ty === shapeItemTypes.group) {
+                    var containingGroup = items[i - 1];
+                    var groupItems = containingGroup.it;
+                    if(groupItems && groupItems.length > 1 && groupItems[groupItems.length - 2].ty  === shapeItemTypes.shape) {
+                        var containingShape = groupItems[groupItems.length - 2];
+                        if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
+                            containingBoxIndex = i;
+                            canRemoveContainerShape = true;
+                        }
+                    }
                 }
             }
             if(items[i].ty === shapeItemTypes.group) {
                 removeUnwantedMergePaths(items[i].it);
             }
-            /*if(items[i].ty === shapeItemTypes.shape && containingBox) {
-                canRemoveContainerShape = compareShapeWithBox(items[i], mat, containingBox);
-                if(!canRemoveContainerShape) {
-                    break;
-                }
-            }
-            if(items[i].ty === shapeItemTypes.group) {
-                if(!containingBox) {
-                    removeUnwantedMergePaths(items[i].it);
-                } else {
-                    canRemoveContainerShape = compareGroupWithBox(items[i].it, mat, containingBox);
-                    if(!canRemoveContainerShape) {
-                        break;
-                    }
-                }
-            }*/
         }
         if(canRemoveContainerShape) {
             items.splice(containingBoxIndex - 1, 2);
