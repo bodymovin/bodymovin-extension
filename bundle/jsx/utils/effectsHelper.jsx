@@ -29,7 +29,9 @@ $.__bodymovin.bm_effectsHelper = (function () {
         matte3: 28,
         gaussianBlur2: 29,
         twirl: 30,
-        mesh_warp: 31
+        mesh_warp: 31,
+        ripple: 32,
+        spherize: 33
     };
     
     function getEffectType(name) {
@@ -58,6 +60,10 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.twirl;
         case 'ADBE MESH WARP':
             return effectTypes.mesh_warp;
+        case 'ADBE Ripple':
+            return effectTypes.ripple;
+        case 'ADBE Spherize':
+            return effectTypes.spherize;
         default:
             bm_eventDispatcher.log(name)
             return effectTypes.group;
@@ -274,14 +280,16 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var effectsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            var effectType = getEffectType(effectElement.matchName);
-            /*
-            //If the effect is not a Slider Control and is not enabled, it won't be exported.
-            if(effectType !== effectTypes.group && !effectElement.enabled){
-                continue;
+            if(effectElement.enabled) {
+                var effectType = getEffectType(effectElement.matchName);
+                /*
+                //If the effect is not a Slider Control and is not enabled, it won't be exported.
+                if(effectType !== effectTypes.group && !effectElement.enabled){
+                    continue;
+                }
+                */
+                effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
             }
-            */
-            effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
         }
         if (effectsArray.length) {
             layerData.ef = effectsArray;

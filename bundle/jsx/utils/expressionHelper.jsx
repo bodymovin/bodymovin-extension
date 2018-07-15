@@ -4,6 +4,7 @@
 $.__bodymovin.bm_expressionHelper = (function () {
     'use strict';
     var esprima = $.__bodymovin.esprima;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     var options = {
         tokens: true,
@@ -962,7 +963,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
     }
 
     function renameNameProperty(str){
-        var regName = /([.'"])name([\s'";.\)\]])/g;
+        var regName = /([.'"])name([\s'";.\)\]]|$)/g;
         return str.replace(regName,'$1_name$2');
     }
 
