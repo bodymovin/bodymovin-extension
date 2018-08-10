@@ -277,9 +277,9 @@ $.__bodymovin.bm_renderManager = (function () {
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
             bm_layerElement.renderLayer(nextLayerData, renderLayerComplete);
-            if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
+            /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
                 removeHiddenContent(nextLayerData.data.shapes);
-            }
+            }*/
         } else {
             removeExtraData();
             $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);

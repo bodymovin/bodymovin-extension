@@ -281,12 +281,16 @@ $.__bodymovin.bm_shapeHelper = (function () {
         return false;
     }
     
-    function iterateProperties(iteratable, array, frameRate, stretch, isText) {
+    function iterateProperties(iteratable, array, frameRate, stretch, isText, isEnabled) {
         var i, len = iteratable.numProperties, ob, prop, itemType, enabled;
         for (i = 0; i < len; i += 1) {
             ob = null;
             prop = iteratable.property(i + 1);
-            enabled = prop.enabled || checkAdditionalCases(prop);
+            if(!isEnabled) {
+                enabled = false;
+            } else {
+                enabled = prop.enabled;
+            }
             itemType = getItemType(prop.matchName);
             if (isText && itemType !== shapeItemTypes.shape && itemType !== shapeItemTypes.group && itemType !== shapeItemTypes.merge) {
                 continue;
@@ -356,7 +360,8 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.lc = prop.property('Line Cap').value;
                 ob.lj = prop.property('Line Join').value;
                 if (ob.lj === 1) {
-                    ob.ml = prop.property('Miter Limit').value;
+                    ob.ml = Math.round(prop.property('Miter Limit').value * 100) / 100;
+                    ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 }
                 getDashData(ob,prop, frameRate, stretch);
 
@@ -369,7 +374,8 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.lc = prop.property('Line Cap').value;
                 ob.lj = prop.property('Line Join').value;
                 if (ob.lj === 1) {
-                    ob.ml = prop.property('Miter Limit').value;
+                    ob.ml = Math.round(prop.property('Miter Limit').value * 100) / 100;
+                    ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 }
                 getDashData(ob,prop, frameRate, stretch);
 
@@ -425,7 +431,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     ix: prop.propertyIndex
                 };
                 navigationShapeTree.push(prop.name);
-                iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText);
+                iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled);
                 if (!isText) {
                     var trOb = {};
                     var transformProperty = prop.property('Transform');
@@ -643,7 +649,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         navigationShapeTree.push(layerInfo.name);
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
-        iterateProperties(contents, shapes, frameRate, stretch, isText);
+        iterateProperties(contents, shapes, frameRate, stretch, isText, true);
         removeUnwantedMergePaths(shapes);
     }
     

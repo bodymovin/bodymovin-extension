@@ -31,7 +31,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
         twirl: 30,
         mesh_warp: 31,
         ripple: 32,
-        spherize: 33
+        spherize: 33,
+        freePin3: 34
     };
     
     function getEffectType(name) {
@@ -64,19 +65,26 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.ripple;
         case 'ADBE Spherize':
             return effectTypes.spherize;
+        case 'ADBE FreePin3':
+            return effectTypes.freePin3;
         default:
             bm_eventDispatcher.log(name)
             return effectTypes.group;
         }
     }
     
+
+
+
+
+
     function findEffectPropertyType(prop) {
         var propertyValueType = prop.propertyValueType;
-                //bm_eventDispatcher.log(prop.name);
-                //bm_eventDispatcher.log(prop.matchName);
+                // bm_eventDispatcher.log(prop.name);
+                // bm_eventDispatcher.log(prop.matchName);
         //customValue
-            //bm_eventDispatcher.log('prop.propertyValueType: ' + prop.propertyValueType);
-            /*for (var s in PropertyValueType) {
+            /*bm_eventDispatcher.log('prop.propertyValueType: ' + prop.propertyValueType);
+            for (var s in PropertyValueType) {
                 bm_eventDispatcher.log('Name: ' + s);
                 bm_eventDispatcher.log('Value: ' + PropertyValueType[s]);
             }*/
@@ -235,7 +243,15 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var i, len = elem.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = elem.property(i + 1);
-            if(prop.propertyType === PropertyType.PROPERTY){
+            if(prop.matchName === "ADBE FreePin3 ARAP Group" 
+                || prop.matchName === "ADBE FreePin3 Mesh Group" 
+                || prop.matchName === "ADBE FreePin3 Mesh Atom" 
+                || prop.matchName === "ADBE FreePin3 PosPins" 
+                || prop.matchName === "ADBE FreePin3 StarchPins" 
+                || prop.matchName === "ADBE FreePin3 HghtPins" 
+                || prop.matchName === "ADBE FreePin3 PosPin Atom") {
+                ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+            } else if(prop.propertyType === PropertyType.PROPERTY){
                 var type = findEffectPropertyType(prop);
                 //effectTypes.noValue;
                 if (type === effectTypes.noValue) {
@@ -260,6 +276,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
             } else {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
                     ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+                } else {
+                    bm_eventDispatcher.log(prop.matchName)
                 }
             }
         }
