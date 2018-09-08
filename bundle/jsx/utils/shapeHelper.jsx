@@ -21,7 +21,8 @@ $.__bodymovin.bm_shapeHelper = (function () {
         twist: 'tw',
         group: 'gr',
         repeater: 'rp',
-        roundedCorners: 'rd'
+        roundedCorners: 'rd',
+        offsetPath: 'op'
     };
     var navigationShapeTree = [];
     var extraParams = {};
@@ -59,8 +60,10 @@ $.__bodymovin.bm_shapeHelper = (function () {
             return shapeItemTypes.gStroke;
         case 'ADBE Vector Filter - Repeater':
             return shapeItemTypes.repeater;
+        case 'ADBE Vector Filter - Offset':
+            return shapeItemTypes.offsetPath;
         default:
-            //bm_eventDispatcher.log(matchName);
+            bm_eventDispatcher.log(matchName);
             return '';
         }
     }
@@ -455,6 +458,15 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     nm: prop.name
                 };
                 ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Radius'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.offsetPath) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Amount'), frameRate, stretch);
+                ob.lj = prop.property('Line Join').value;
+                ob.ml = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 ob.ix = prop.propertyIndex;
             }
             if (ob) {

@@ -92,14 +92,14 @@ $.__bodymovin.bm_textHelper = (function () {
                 len = textDocument.fillColor.length;
                 ob.fc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.fc[i] = Math.round(100*textDocument.fillColor[i])/100;
+                    ob.fc[i] = Math.round(1000 * textDocument.fillColor[i]) / 1000;
                 }
             }
             if (textDocument.applyStroke) {
                 len = textDocument.strokeColor.length;
                 ob.sc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.sc[i] = Math.round(100*textDocument.strokeColor[i])/100;
+                    ob.sc[i] = Math.round(1000 * textDocument.strokeColor[i]) / 1000;
                 }
                 ob.sw = textDocument.strokeWidth;
                 if (textDocument.applyFill) {

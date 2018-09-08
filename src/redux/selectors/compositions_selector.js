@@ -6,10 +6,11 @@ const getItems = (state) => state.compositions.items
 const getList = (state) => state.compositions.list
 
 function getVisibleItems(items, list, filter, showOnlySelected) {
+  filter = filter.toLowerCase();
 	let renderItemIds = list.filter((id, val) => {
       let item = items[id]
       //return true
-  		return item.name.indexOf(filter) !== -1 || filter === ''
+  		return item.name.toLowerCase().indexOf(filter) !== -1 || filter === ''
   	})
   	let renderItems = renderItemIds.map((id) => {
       let item = items[id]
