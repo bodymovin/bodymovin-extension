@@ -2,10 +2,10 @@
 /*global $, esprima, escodegen*/
 
 $.__bodymovin.bm_variableDeclarationHelper = (function () {
-    var esprima = $.__bodymovin.esprima;
     'use strict';
+    var esprima = $.__bodymovin.esprima;
     var ob = {
-    	searchUndeclaredVariables: searchUndeclaredVariables
+        searchUndeclaredVariables: searchUndeclaredVariables
     };
     var options = {
         tokens: true,
@@ -14,9 +14,9 @@ $.__bodymovin.bm_variableDeclarationHelper = (function () {
     var pendingBodies = [], doneBodies = [], expressionStr;
 
     function searchUndeclaredVariables(originalExpressionString) {
-    	expressionStr = originalExpressionString;
-	    pendingBodies.length = 0;
-	    doneBodies.length = 0;
+        expressionStr = originalExpressionString;
+        pendingBodies.length = 0;
+        doneBodies.length = 0;
         var parsed = esprima.parse(expressionStr, options);
         var body = parsed.body;
         pendingBodies.push({body: body, d: [], u: [], pre: [], pos: 0});
@@ -104,6 +104,10 @@ $.__bodymovin.bm_variableDeclarationHelper = (function () {
                     }
                 } else if (statement.consequent.type === 'ReturnStatement') {
                     //
+                } else if (statement.consequent.type === 'IfStatement') {
+                    addIfStatement(statement.consequent)
+                } else {
+                    // console.log(statement.consequent.type)
                 }
             }
             if (statement.alternate) {
