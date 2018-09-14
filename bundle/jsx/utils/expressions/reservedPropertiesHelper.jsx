@@ -136,11 +136,7 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
         }
 
         if (expression.property) {
-            if (expression.property.type === 'MemberExpression') {
-                processMemberExpression(expression.property, inner_closures, declared_variables)
-            } else if (expression.property.type === 'CallExpression') {
-                processCallExpression(expression.property, inner_closures, declared_variables);
-            }
+            expression.property = processGeneralExpression(expression.property, inner_closures, declared_variables)
         }
     }
 
@@ -183,17 +179,27 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
         if (element.consequent) {
             if (element.consequent.type === 'BlockStatement') {
                 inner_closures.push(new Closure(element.consequent.body, declared_variables));
+            } else if (element.consequent.type === 'IfStatement') {
+                processIfStatement(element.consequent, inner_closures, declared_variables)
+            } else if (element.consequent.type === 'ReturnStatement') {
+                processReturnStatement(element.consequent, inner_closures, declared_variables)
             } else if (element.consequent.type === 'ExpressionStatement') {
                 element.consequent = processGeneralExpression(element.consequent, inner_closures, declared_variables);
+            } else {
+                //console.log(element.consequent.type)
             }
         }
         if (element.alternate) {
-            if (element.alternate.type === 'IfStatement') {
-                processIfStatement(element.alternate, inner_closures, declared_variables);
-            } else if (element.alternate.type === 'BlockStatement') {
+            if (element.alternate.type === 'BlockStatement') {
                 inner_closures.push(new Closure(element.alternate.body, declared_variables));
+            } else if (element.alternate.type === 'IfStatement') {
+                processIfStatement(element.alternate, inner_closures, declared_variables);
+            } else if (element.alternate.type === 'ReturnStatement') {
+                processReturnStatement(element.alternate, inner_closures, declared_variables);
             } else if (element.alternate.type === 'ExpressionStatement') {
                 element.alternate = processGeneralExpression(element.alternate, inner_closures, declared_variables);
+            } else {
+                // console.log(element.consequent.type)
             }
         }
     }
@@ -261,6 +267,8 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
             expression = processIdentifier(expression, declared_variables);
         } else if (expression.type === 'Literal') {
             expression = processIdentifier(expression, declared_variables);
+        } else if (expression.type === 'ExpressionStatement') {
+            expression.expression = processGeneralExpression(expression.expression, inner_closures, declared_variables)
         } else {
             // console.log(expression.type)
         }

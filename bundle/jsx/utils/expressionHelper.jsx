@@ -314,16 +314,12 @@ $.__bodymovin.bm_expressionHelper = (function () {
     }
 
     function convertAssignmentToBinaryExpression(assignmentExpression) {
-        var current_right = assignmentExpression.right;
+        var function_arguments = [];
+        function_arguments.push(assignmentExpression.left);
+        function_arguments.push(assignmentExpression.right)
         assignmentExpression.right = {
             type: 'CallExpression',
-            arguments: [
-                {
-                    type: 'Identifier',
-                    name: assignmentExpression.left.name
-                },
-                current_right
-            ],
+            arguments: function_arguments,
             callee: {name:getOperatorName(assignmentExpression.operator.substr(0,1)), type:'Identifier'}
         }
         assignmentExpression.operator = '=';
@@ -492,10 +488,6 @@ $.__bodymovin.bm_expressionHelper = (function () {
         }
     }
 
-    function replaceReservedProperties(body) {
-        console.log('body: ', body)
-    }
-
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {
             if(expressionIsValue(prop.expression)) {
@@ -521,7 +513,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
             //separateBodyDeclaredFunctions(body);
             findExpressionStatementsWithAssignmentExpressions(body);
             findExpressionStatementsWithAssignmentExpressions(separate_functions.bodies);
-            if(expressionStr.indexOf("use javascript") !== 1){
+            if(expressionStr.indexOf("use javascript") === -1){
                 replaceOperations(body);
                 replaceOperations(separate_functions.bodies);
             }
