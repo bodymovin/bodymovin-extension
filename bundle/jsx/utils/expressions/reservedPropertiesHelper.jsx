@@ -217,6 +217,45 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
         }
     }
 
+    function processSwitchConsequents(consequents, inner_closures, declared_variables) {
+        var i, len = consequents.length;
+        for(i = 0; i < len; i += 1) {
+            if (consequents[i].type === 'BlockStatement') {
+                inner_closures.push(new Closure(consequents[i].body, declared_variables));
+            } else {
+                consequents[i] = processGeneralExpression(consequents[i], inner_closures, declared_variables);
+            }
+        }
+    }
+
+    function processSwitchStatement(element, inner_closures, declared_variables) {
+        if(element.discriminant) {
+            element.discriminant = processGeneralExpression(element.discriminant, inner_closures, declared_variables);
+        }
+        if(element.cases) {
+            var i, len = element.cases.length;
+            for (i = 0; i < len; i += 1) {
+                if(element.cases[i].test) {
+                    element.cases[i].test = processGeneralExpression(element.cases[i].test, inner_closures, declared_variables);
+                }
+                if(element.cases[i].consequent) {
+                    processSwitchConsequents(element.cases[i].consequent, inner_closures, declared_variables);
+                }
+            }
+        }
+    }
+
+    function processWhileStatement(element, inner_closures, declared_variables) {
+        if(element.test) {
+            element.test = processGeneralExpression(element.test, inner_closures, declared_variables);
+        }
+        if(element.body) {
+            if(element.body.type === 'BlockStatement') {
+                inner_closures.push(new Closure(element.body.body, declared_variables));
+            }
+        }
+    }
+
     function iterateArguments(expression_arguments, inner_closures, declared_variables) {
         var i, len = expression_arguments.length;
         for (i = 0; i < len; i += 1) {
@@ -303,8 +342,12 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
                 element.expression = processGeneralExpression(element.expression, inner_closures, declared_variables);
             } else if (element.type === 'IfStatement') {
                 processIfStatement(element, inner_closures, declared_variables);
-            }  else if (element.type === 'TryStatement') {
+            } else if (element.type === 'TryStatement') {
                 processTryStatement(element, inner_closures, declared_variables);
+            } else if (element.type === 'SwitchStatement') {
+                processSwitchStatement(element, inner_closures, declared_variables);
+            } else if (element.type === 'WhileStatement') {
+                processWhileStatement(element, inner_closures, declared_variables);
             } else {
                 // console.log(element.type)
             }
