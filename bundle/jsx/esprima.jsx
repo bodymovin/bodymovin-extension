@@ -1,4 +1,3 @@
-var esprima = {};
  (function (exports) {
     'use strict';
 
@@ -5406,4 +5405,4 @@ var esprima = {};
         return types;
     }());
 
-}(esprima));
+}($.__bodymovin.esprima));

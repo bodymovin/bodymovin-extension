@@ -1,7 +1,11 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app*/
-var bm_sourceHelper = (function () {
+$.__bodymovin.bm_sourceHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
     var temporaryFolder;

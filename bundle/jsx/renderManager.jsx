@@ -1,8 +1,15 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_generalUtils, bm_compsManager, bm_downloadManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager*/
+/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_compsManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager*/
 
-var bm_renderManager = (function () {
+$.__bodymovin.bm_renderManager = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_projectManager = $.__bodymovin.bm_projectManager;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_dataManager = $.__bodymovin.bm_dataManager;
+    var layerTypes = $.__bodymovin.layerTypes;
+    var bm_layerElement = $.__bodymovin.bm_layerElement;
+    var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
@@ -28,7 +35,7 @@ var bm_renderManager = (function () {
             if (layerData.parent !== undefined && layerData.render !== false) {
                 parentData = getParentData(layers, layerData.parent);
                 if (parentData.render === false) {
-                    parentData.ty = bm_layerElement.layerTypes.nullLayer;
+                    parentData.ty = layerTypes.nullLayer;
                     hasChangedState = true;
                     parentData.render = true;
                     if (parentData.isValid === false || parentData.isGuide === false) {
@@ -106,10 +113,10 @@ var bm_renderManager = (function () {
             layerData = layers[i];
             layerInfo = comp.layers[i + 1];
             bm_layerElement.checkLayerSource(layerInfo, layerData);
-            if (layerData.ty === bm_layerElement.layerTypes.text) {
-                bm_textShapeHelper.addComps();
+            if (layerData.ty === layerTypes.text) {
+                $.__bodymovin.bm_textShapeHelper.addComps();
             }
-            if (layerData.ty === bm_layerElement.layerTypes.precomp && layerData.render !== false && layerData.compId) {
+            if (layerData.ty === layerTypes.precomp && layerData.render !== false && layerData.compId) {
                 currentExportedComps.push(layerData.compId);
                 if(deepTraversing){
                     layerData.layers = [];
@@ -129,8 +136,8 @@ var bm_renderManager = (function () {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
         destinationPath = destination;
         fsDestinationPath = fsDestination;
-        bm_sourceHelper.reset();
-        bm_textShapeHelper.reset();
+        $.__bodymovin.bm_sourceHelper.reset();
+        $.__bodymovin.bm_textShapeHelper.reset();
         bm_layerElement.reset();
         pendingLayers.length = 0;
         pendingComps.length = 0;
@@ -158,7 +165,7 @@ var bm_renderManager = (function () {
         exportCompMarkers(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
-        app.scheduleTask('bm_renderManager.renderNextLayer();', 20, false);
+        app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
     }
 
     function exportCompMarkers(exportData, comp) {
@@ -216,7 +223,7 @@ var bm_renderManager = (function () {
     function dataSaved() {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
         reset();
-        bm_textShapeHelper.removeComps();
+        $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_compsManager.renderComplete();
         app.endUndoGroup();
     }
@@ -233,7 +240,7 @@ var bm_renderManager = (function () {
                 layers.splice(i, 1);
                 i -= 1;
                 len -= 1;
-            } else if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].layers) {
+            } else if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 clearUnrenderedLayers(layers[i].layers);
             }
         }
@@ -247,7 +254,7 @@ var bm_renderManager = (function () {
         for (i = 0; i < len; i += 1) {
             layers[i].nm = null;
             delete layers[i].nm;
-            if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].layers) {
+            if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 clearNames(layers[i].layers);
             }
         }
@@ -269,18 +276,18 @@ var bm_renderManager = (function () {
             var nextLayerData = pendingLayers.pop();
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
-            bm_layerElement.renderLayer(nextLayerData);
-            if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
+            bm_layerElement.renderLayer(nextLayerData, renderLayerComplete);
+            /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
                 removeHiddenContent(nextLayerData.data.shapes);
-            }
+            }*/
         } else {
             removeExtraData();
-            bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
+            $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
         }
     }
     
     function checkFonts() {
-        var fonts = bm_sourceHelper.getFonts();
+        var fonts = $.__bodymovin.bm_sourceHelper.getFonts();
         var exportData;
         if (fonts.length === 0) {
             saveData();
@@ -300,8 +307,8 @@ var bm_renderManager = (function () {
                 }
                 exportData = ob.renderData.exportData;
                 exportData.fonts = fontsInfo;
-                bm_textShapeHelper.exportFonts(fontsInfo);
-                bm_textShapeHelper.exportChars(fontsInfo);
+                $.__bodymovin.bm_textShapeHelper.exportFonts(fontsInfo);
+                $.__bodymovin.bm_textShapeHelper.exportChars(fontsInfo);
             } else {
                 exportData = ob.renderData.exportData;
                 bm_eventDispatcher.sendEvent('bm:render:fonts', {type: 'save', compId: currentCompID, fonts: fonts});
@@ -324,8 +331,8 @@ var bm_renderManager = (function () {
     function setFontData(fontData) {
         var exportData = ob.renderData.exportData;
         exportData.fonts = fontData;
-        bm_textShapeHelper.exportFonts(fontData);
-        //bm_textShapeHelper.exportChars(fontData);
+        $.__bodymovin.bm_textShapeHelper.exportFonts(fontData);
+        //$.__bodymovin.bm_textShapeHelper.exportChars(fontData);
         saveData();
     }
     
@@ -340,7 +347,7 @@ var bm_renderManager = (function () {
     }
     
     function renderLayerComplete() {
-        app.scheduleTask('bm_renderManager.renderNextLayer();', 20, false);
+        app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
     }
     
     function hasExpressions() {
@@ -374,7 +381,6 @@ var bm_renderManager = (function () {
         }
     };
     ob.render = render;
-    ob.renderLayerComplete = renderLayerComplete;
     ob.renderNextLayer = renderNextLayer;
     ob.setChars = setChars;
     ob.imagesReady = imagesReady;

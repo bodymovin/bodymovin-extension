@@ -1,9 +1,11 @@
 /****** INIT JSON PARSER ******/
-if (typeof JSON !== 'object') {
-    JSON = {};
+if (typeof $.__bodymovin.JSON !== 'object') {
+    $.__bodymovin.JSON = {};
 }
 (function () {
     'use strict';
+
+    var JSON = $.__bodymovin.JSON;
 
     function f(n) {
         return n < 10 ? '0' + n : n;

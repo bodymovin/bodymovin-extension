@@ -1,7 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global bez*/
 
-var PropertyFactory = (function () {
+$.__bodymovin.PropertyFactory = (function () {
+    
+    var bez = $.__bodymovin.bez;
+
     var initFrame = -999999;
     var degToRads = Math.PI / 180;
     var bm_min = Math.min;

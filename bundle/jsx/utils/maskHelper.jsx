@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, MaskMode, bm_generalUtils*/
-var bm_maskHelper = (function () {
+/*global bm_keyframeHelper, MaskMode*/
+$.__bodymovin.bm_maskHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
 
     function getMaskMode(num) {
@@ -40,8 +41,7 @@ var bm_maskHelper = (function () {
                 mode: getMaskMode(maskElement.maskMode)
             };
             shapeData.pt = bm_keyframeHelper.exportKeyframes(maskElement.property('maskShape'), frameRate, stretch);
-            bm_shapeHelper.checkVertexCount(shapeData.pt.k);
-            //bm_generalUtils.convertPathsToAbsoluteValues(shapeData.pt.k);
+            $.__bodymovin.bm_shapeHelper.checkVertexCount(shapeData.pt.k);
             shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
             shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
             shapeData.nm = maskElement.name;

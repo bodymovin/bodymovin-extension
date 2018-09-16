@@ -1,7 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, bm_eventDispatcher, bm_generalUtils, bm_expressionHelper*/
-var bm_textAnimatorHelper = (function () {
+/*global bm_keyframeHelper, bm_eventDispatcher, bm_expressionHelper*/
+$.__bodymovin.bm_textAnimatorHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var ob = {};
     
     function exportTextSelector(layerInfo, frameRate, stretch) {

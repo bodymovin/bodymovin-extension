@@ -1,5 +1,6 @@
-var bm_ProjectHelper = (function(){
+$.__bodymovin.bm_ProjectHelper = (function(){
 
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var fileString = '';
 
     var ob = {};

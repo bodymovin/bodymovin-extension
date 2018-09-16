@@ -1,7 +1,13 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global app, bm_eventDispatcher, bm_projectManager, bm_shapeHelper, bm_renderManager, ParagraphJustification, bm_generalUtils*/
-var bm_textShapeHelper = (function () {
+/*global app, bm_projectManager, bm_shapeHelper, bm_renderManager, ParagraphJustification*/
+$.__bodymovin.bm_textShapeHelper = (function () {
     'use strict';
+    var bm_projectManager = $.__bodymovin.bm_projectManager;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
+    var layerTypes = $.__bodymovin.layerTypes;
+    var getLayerType = $.__bodymovin.getLayerType;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var ob = {}, chars = [], comp, fontComp, dupl, boxText, layers = [], currentFont, compsAddedFlag = false;
     
     function reset() {
@@ -100,9 +106,8 @@ var bm_textShapeHelper = (function () {
         var i = 1, len = comp.layers.length;
         while(i <= len) {
             layer = comp.layers[i];
-            var layerType = bm_layerElement.getLayerType(layer);
-            //bm_eventDispatcher.log('layerType: ' + layerType)
-            if(layerType === bm_layerElement.layerTypes.shape) {
+            var layerType = getLayerType(layer);
+            if(layerType === layerTypes.shape) {
                 return layer;
             }
             i += 1;
@@ -159,7 +164,7 @@ var bm_textShapeHelper = (function () {
         shapeLayer = getOutlinesLayer(comp);
         charData.data = {};
         if (charCode !== 32 && charCode !== 9) {
-            bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
+            $.__bodymovin.bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
             while(charData.data.shapes.length > 1) {
                 charData.data.shapes.pop();
             }

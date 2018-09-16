@@ -1,7 +1,11 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
-var bm_textHelper = (function () {
+/*global layerElement, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
+$.__bodymovin.bm_textHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
+    var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function getJustification(value) {
@@ -29,6 +33,10 @@ var bm_textHelper = (function () {
         removeLayerAnimators(duplicatedLayerInfo);
         var sourceTextProp = duplicatedLayerInfo.property("Source Text");
         bm_expressionHelper.checkExpression(sourceTextProp, data);
+        var hasExpression = sourceTextProp.expressionEnabled
+        if(sourceTextProp.expressionEnabled) {
+            sourceTextProp.expressionEnabled = false;
+        }
         var arr = [];
         data.k = arr;
         var numKeys = sourceTextProp.numKeys;
@@ -53,7 +61,7 @@ var bm_textHelper = (function () {
             var i, len;
             ob.s = textDocument.fontSize;
             ob.f = textDocument.font;
-            bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
+            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
             } else {
@@ -84,14 +92,14 @@ var bm_textHelper = (function () {
                 len = textDocument.fillColor.length;
                 ob.fc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.fc[i] = Math.round(100*textDocument.fillColor[i])/100;
+                    ob.fc[i] = Math.round(1000 * textDocument.fillColor[i]) / 1000;
                 }
             }
             if (textDocument.applyStroke) {
                 len = textDocument.strokeColor.length;
                 ob.sc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.sc[i] = Math.round(100*textDocument.strokeColor[i])/100;
+                    ob.sc[i] = Math.round(1000 * textDocument.strokeColor[i]) / 1000;
                 }
                 ob.sw = textDocument.strokeWidth;
                 if (textDocument.applyFill) {
@@ -101,8 +109,11 @@ var bm_textHelper = (function () {
             //TODO check if it need to be multiplied by stretch
             arr.push({s:ob,t:time*frameRate});
         }
+        if(hasExpression) {
+            sourceTextProp.expressionEnabled = true;
+        }
         duplicatedLayerInfo.remove();
-        bm_textShapeHelper.addTextLayer(layerInfo);
+        $.__bodymovin.bm_textShapeHelper.addTextLayer(layerInfo);
 
     }
 

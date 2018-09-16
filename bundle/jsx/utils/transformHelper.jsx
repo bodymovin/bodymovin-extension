@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, bm_generalUtils, bm_eventDispatcher*/
-var bm_transformHelper = (function () {
+/*global bm_keyframeHelper*/
+$.__bodymovin.bm_transformHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
     
     function exportTransform(layerInfo, data, frameRate) {

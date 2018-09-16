@@ -1,26 +1,24 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_renderManager, bm_timeremapHelper, bm_shapeHelper, bm_generalUtils, CompItem, PlaceholderSource, AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer, TrackMatteType, bm_sourceHelper, bm_transformHelper, bm_maskHelper, bm_textHelper, bm_effectsHelper, bm_layerStylesHelper, bm_cameraHelper*/
+/*global  bm_timeremapHelper, bm_shapeHelper, bm_generalUtils, CompItem, PlaceholderSource, AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer, TrackMatteType, bm_sourceHelper, bm_transformHelper, bm_maskHelper, bm_textHelper, bm_effectsHelper, bm_layerStylesHelper, bm_cameraHelper*/
 
-var bm_layerElement = (function () {
+$.__bodymovin.bm_layerElement = (function () {
     'use strict';
+    var layerTypes = $.__bodymovin.layerTypes;
+    var getLayerType = $.__bodymovin.getLayerType;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_transformHelper = $.__bodymovin.bm_transformHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_maskHelper = $.__bodymovin.bm_maskHelper;
+    var bm_timeremapHelper = $.__bodymovin.bm_timeremapHelper;
+    var bm_effectsHelper = $.__bodymovin.bm_effectsHelper;
+    var bm_layerStylesHelper = $.__bodymovin.bm_layerStylesHelper;
+    var bm_cameraHelper = $.__bodymovin.bm_cameraHelper;
+    var bm_textHelper = $.__bodymovin.bm_textHelper;
+
+    var completeCallback;
+
     var ob = {};
-    ob.layerTypes = {
-        precomp : 0,
-        solid : 1,
-        still : 2,
-        nullLayer : 3,
-        shape : 4,
-        text : 5,
-        audio : 6,
-        pholderVideo : 7,
-        imageSeq : 8,
-        video : 9,
-        pholderStill : 10,
-        guide : 11,
-        adjustment : 12,
-        camera : 13,
-        light : 14
-    };
+
     ob.blendModes = {
         normal : 0,
         multiply : 1,
@@ -40,84 +38,14 @@ var bm_layerElement = (function () {
         luminosity :15
     };
     
-    var getLayerType = (function () {
-        function avLayerType(lObj) {
-            var lSource = lObj.source;
-            if (lSource instanceof CompItem) {
-                return ob.layerTypes.precomp;
-            }
-            var lMainSource = lSource.mainSource;
-            var lFile = lMainSource.file;
-            if (!lObj.hasVideo) {
-                return ob.layerTypes.audio;
-            } else if (lSource instanceof CompItem) {
-                return ob.layerTypes.precomp;
-            } else if (lSource.frameDuration < 1) {
-                if (lMainSource instanceof PlaceholderSource) {
-                    return ob.layerTypes.pholderVideo;
-                } else if (lSource.name.toString().indexOf("].") !== -1) {
-                    return ob.layerTypes.imageSeq;
-                } else {
-                    if(lMainSource.isStill) {
-                        return ob.layerTypes.still;
-                    } else {
-                        return ob.layerTypes.video;
-                    }
-                }
-            } else if (lSource.frameDuration === 1) {
-                if (lMainSource instanceof PlaceholderSource) {
-                    return ob.layerTypes.pholderStill;
-                } else if (lMainSource.color) {
-                    return ob.layerTypes.solid;
-                } else {
-                    return ob.layerTypes.still;
-                }
-            }
-        }
-        return function (layerOb) {
-            try {
-                var curLayer, instanceOfArray, instanceOfArrayLength, result;
-                curLayer = layerOb;
-                instanceOfArray = [AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer];
-                instanceOfArrayLength = instanceOfArray.length;
-                /*if (curLayer.guideLayer) {
-                    return ob.layerTypes.guide;
-                } else */if (curLayer.adjustmentLayer) {
-                    return ob.layerTypes.adjustment;
-                } else if (curLayer.nullLayer) {
-                    return ob.layerTypes.nullLayer;
-                }
-                var i;
-                for (i = 0; i < instanceOfArrayLength; i++) {
-                    if (curLayer instanceof instanceOfArray[i]) {
-                        result = instanceOfArray[i].name;
-                        break;
-                    }
-                }
-                if (result === "AVLayer") {
-                    result = avLayerType(curLayer);
-                } else if (result === "CameraLayer") {
-                    result = ob.layerTypes.camera;
-                } else if (result === "LightLayer") {
-                    result = ob.layerTypes.light;
-                } else if (result === "ShapeLayer") {
-                    result = ob.layerTypes.shape;
-                } else if (result === "TextLayer") {
-                    result = ob.layerTypes.text;
-                }
-                return result;
-            } catch (err) {alert(err.line.toString + " " + err.toString()); }
-        };
-    }());
-    
     function prepareLayer(layerInfo, ind) {
         var layerData = {};
         var layerType = getLayerType(layerInfo);
-        if (layerType === ob.layerTypes.audio || layerType === ob.layerTypes.light || layerType === ob.layerTypes.adjustment || layerType === ob.layerTypes.pholderStill || layerType === ob.layerTypes.pholderVideo) {
+        if (layerType === layerTypes.audio || layerType === layerTypes.light || layerType === layerTypes.adjustment || layerType === layerTypes.pholderStill || layerType === layerTypes.pholderVideo) {
             layerData.isValid = false;
             layerData.render = false;
         }
-        /*if (layerType === ob.layerTypes.guide) {
+        /*if (layerType === layerTypes.guide) {
             layerData.isGuide = true;
             layerData.render = false;
         }*/
@@ -183,9 +111,10 @@ var bm_layerElement = (function () {
         if (layerData.render === false) {
             return;
         }
+        var bm_sourceHelper = $.__bodymovin.bm_sourceHelper;
         var layerType = layerData.ty;
         var sourceId;
-        if (layerType === ob.layerTypes.precomp) {
+        if (layerType === layerTypes.precomp) {
             sourceId = bm_sourceHelper.checkCompSource(layerInfo, layerType);
             if (sourceId !== false) {
                 layerData.refId = sourceId;
@@ -196,7 +125,7 @@ var bm_layerElement = (function () {
                 layerData.refId = layerData.compId;
                 bm_sourceHelper.setCompSourceId(layerInfo.source, layerData.compId);
             }
-        } else if (layerType === ob.layerTypes.still) {
+        } else if (layerType === layerTypes.still) {
             layerData.refId = bm_sourceHelper.checkImageSource(layerInfo);
         }
     }
@@ -257,18 +186,19 @@ var bm_layerElement = (function () {
         return blendModeValue;
     }
     
-    function renderLayer(layerOb) {
+    function renderLayer(layerOb, callback) {
         var layerInfo = layerOb.layer;
         var layerData = layerOb.data;
         var frameRate = layerOb.framerate;
+        completeCallback = callback;
         if (layerData.render === false) {
-            bm_renderManager.renderLayerComplete();
+            completeCallback();
             return;
         }
         layerData.sr = layerInfo.stretch/100;
         
         var lType = layerData.ty;
-        if (lType !== ob.layerTypes.camera) {
+        if (lType !== layerTypes.camera) {
             bm_transformHelper.exportTransform(layerInfo, layerData, frameRate);
             bm_maskHelper.exportMasks(layerInfo, layerData, frameRate);
             bm_effectsHelper.exportEffects(layerInfo, layerData, frameRate);
@@ -276,22 +206,22 @@ var bm_layerElement = (function () {
             bm_timeremapHelper.exportTimeremap(layerInfo, layerData, frameRate);
         }
         
-        if (lType === ob.layerTypes.shape) {
+        if (lType === layerTypes.shape) {
             var extraParams = {is_rubberhose_autoflop:false};
             if(layerInfo.name.indexOf('::AutoFlop') !== -1){
                 extraParams.is_rubberhose_autoflop = true;
             }
-            bm_shapeHelper.exportShape(layerInfo, layerData, frameRate, false, extraParams);
-        } else if (lType === ob.layerTypes.solid) {
+            $.__bodymovin.bm_shapeHelper.exportShape(layerInfo, layerData, frameRate, false, extraParams);
+        } else if (lType === layerTypes.solid) {
             layerData.sw = layerInfo.source.width;
             layerData.sh = layerInfo.source.height;
             layerData.sc = bm_generalUtils.arrayRgbToHex(layerInfo.source.mainSource.color);
-        } else if (lType === ob.layerTypes.text) {
+        } else if (lType === layerTypes.text) {
             bm_textHelper.exportText(layerInfo, layerData, frameRate);
-        } else if (lType === ob.layerTypes.precomp) {
+        } else if (lType === layerTypes.precomp) {
             layerData.w = layerInfo.width;
             layerData.h = layerInfo.height;
-        } else if (lType === ob.layerTypes.camera) {
+        } else if (lType === layerTypes.camera) {
             bm_cameraHelper.exportCamera(layerInfo, layerData, frameRate);
         }
         layerData.ip = layerInfo.inPoint * frameRate;
@@ -299,7 +229,7 @@ var bm_layerElement = (function () {
         layerData.st = layerInfo.startTime * frameRate;
         layerData.bm = getBlendMode(layerInfo.blendingMode);
         
-        bm_renderManager.renderLayerComplete();
+        completeCallback();
     }
 
     function reset() {
@@ -309,7 +239,6 @@ var bm_layerElement = (function () {
     ob.prepareLayer = prepareLayer;
     ob.checkLayerSource = checkLayerSource;
     ob.renderLayer = renderLayer;
-    ob.getLayerType = getLayerType;
     ob.reset = reset;
     return ob;
 }());
