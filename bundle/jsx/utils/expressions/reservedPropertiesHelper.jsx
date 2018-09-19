@@ -135,7 +135,7 @@ $.__bodymovin.bm_reserverPropertiesHelper = (function () {
             expression.object = processIdentifier(expression.object, declared_variables);
         }
 
-        if (expression.property) {
+        if (expression.property && expression.computed) {
             expression.property = processGeneralExpression(expression.property, inner_closures, declared_variables)
         }
     }

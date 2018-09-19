@@ -168,9 +168,28 @@ $.__bodymovin.bm_shapeHelper = (function () {
         var i;
         var currentIteration = 0;
         var nodesPerSide = [];
+        var count = 0;
+        var newV = [];
+        var newI = [];
+        var newO = [];
+
         for(i=0;i<sides;i+=1){
             nodesPerSide[i] = 0;
         }
+
+        //If keyframe doesn't have any nodes
+        if(interpolatableSides === 0) {
+            for(i = 0; i < missingVertices; i += 1) {
+                newV[i] = [0,0];
+                newI[i] = [0,0];
+                newO[i] = [0,0];
+            }
+            shape.v = newV;
+            shape.o = newO;
+            shape.i = newI;
+            return;
+        }
+
         while(missingVertices>0){
             for(i=0;i<interpolatableSides;i+=1){
                 if(missingVertices>0){
@@ -181,10 +200,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
             currentIteration += 1;
         }
 
-        var count = 0;
-        var newV = [];
-        var newI = [];
-        var newO = [];
 
         var pt1, pt2, pt3, pt4, curves;
         var j;
