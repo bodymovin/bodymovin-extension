@@ -204,7 +204,9 @@ $.__bodymovin.bm_renderManager = (function () {
                         layers: [],
                         id: comp.id,
                         nm: comp.name,
-                        xt: 1
+                        xt: 1,
+                        w: comp.width,
+                        h: comp.height
                     };
                     createLayers(comp, compData.layers, exportData.fr, false);
                     exportData.comps.push(compData);
