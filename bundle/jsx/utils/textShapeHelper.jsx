@@ -120,7 +120,7 @@ $.__bodymovin.bm_textShapeHelper = (function () {
         }
         var charCode = ch.charCodeAt(0);
             //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
-        if (charCode === 13 || charCode === 160 || charCode === 65279) {
+        if (charCode === 13 || charCode === 3 || charCode === 160 || charCode === 65279) {
             charData.w = 0;
             return;
         }
