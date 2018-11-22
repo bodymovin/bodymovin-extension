@@ -278,7 +278,7 @@ $.__bodymovin.bm_renderManager = (function () {
             var nextLayerData = pendingLayers.pop();
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
-            bm_layerElement.renderLayer(nextLayerData, renderLayerComplete);
+            bm_layerElement.renderLayer(nextLayerData, currentCompSettings.hiddens, renderLayerComplete);
             /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
                 removeHiddenContent(nextLayerData.data.shapes);
             }*/

@@ -186,7 +186,7 @@ $.__bodymovin.bm_layerElement = (function () {
         return blendModeValue;
     }
     
-    function renderLayer(layerOb, callback) {
+    function renderLayer(layerOb, includeHiddenData, callback) {
         var layerInfo = layerOb.layer;
         var layerData = layerOb.data;
         var frameRate = layerOb.framerate;
@@ -211,7 +211,7 @@ $.__bodymovin.bm_layerElement = (function () {
             if(layerInfo.name.indexOf('::AutoFlop') !== -1){
                 extraParams.is_rubberhose_autoflop = true;
             }
-            $.__bodymovin.bm_shapeHelper.exportShape(layerInfo, layerData, frameRate, false, extraParams);
+            $.__bodymovin.bm_shapeHelper.exportShape(layerInfo, layerData, frameRate, false, extraParams, includeHiddenData);
         } else if (lType === layerTypes.solid) {
             layerData.sw = layerInfo.source.width;
             layerData.sh = layerInfo.source.height;

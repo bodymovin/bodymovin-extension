@@ -299,11 +299,14 @@ $.__bodymovin.bm_shapeHelper = (function () {
         return false;
     }
     
-    function iterateProperties(iteratable, array, frameRate, stretch, isText, isEnabled) {
+    function iterateProperties(iteratable, array, frameRate, stretch, isText, isEnabled, includeHiddenData) {
         var i, len = iteratable.numProperties, ob, prop, itemType, enabled;
         for (i = 0; i < len; i += 1) {
             ob = null;
             prop = iteratable.property(i + 1);
+            if(!includeHiddenData && !prop.enabled) {
+                continue;
+            }
             if(!isEnabled) {
                 enabled = false;
             } else {
@@ -449,7 +452,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     ix: prop.propertyIndex
                 };
                 navigationShapeTree.push(prop.name);
-                iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled);
+                iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled, includeHiddenData);
                 if (!isText) {
                     var trOb = {};
                     var transformProperty = prop.property('Transform');
@@ -667,7 +670,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         //bm_eventDispatcher.log('canRemoveContainerShape: ' + canRemoveContainerShape)
     }
     
-    function exportShape(layerInfo, layerOb, frameRate, isText, params) {
+    function exportShape(layerInfo, layerOb, frameRate, isText, params, includeHiddenData) {
         var stretch = layerOb.sr || 1;
         extraParams = params;
         var containingComp = layerInfo.containingComp;
@@ -676,7 +679,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         navigationShapeTree.push(layerInfo.name);
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
-        iterateProperties(contents, shapes, frameRate, stretch, isText, true);
+        iterateProperties(contents, shapes, frameRate, stretch, isText, true, includeHiddenData);
         removeUnwantedMergePaths(shapes);
     }
     
