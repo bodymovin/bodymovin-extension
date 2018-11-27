@@ -2011,13 +2011,16 @@ var FontManager = (function(){
             //fontData.cache[index] = tHelper.measureText(char).width / 100;
             //SVG version
             //console.log(tHelper.getBBox().width)
-            /*tHelper.textContent = '|' + char + '|';
-            var doubleSize = tHelper.getComputedTextLength();
-            tHelper.textContent = '||';
-            var singleSize = tHelper.getComputedTextLength();
-            fontData.cache[index + 1] = (doubleSize - singleSize)/100;*/
-            tHelper.textContent = char;
-            fontData.cache[index + 1] = (tHelper.getComputedTextLength())/100;
+            if (char === ' ') {
+                tHelper.textContent = '|' + char + '|';
+                var doubleSize = tHelper.getComputedTextLength();
+                tHelper.textContent = '||';
+                var singleSize = tHelper.getComputedTextLength();
+                fontData.cache[index + 1] = (doubleSize - singleSize)/100;
+            } else {
+                tHelper.textContent = char;
+                fontData.cache[index + 1] = (tHelper.getComputedTextLength())/100;
+            }
         }
         return fontData.cache[index + 1] * size;
     }
@@ -4314,7 +4317,7 @@ var assetLoader = (function(){
 		} else if(xhr.response && typeof xhr.response === 'string') {
 			return JSON.parse(xhr.response);
 		} else if(xhr.responseText) {
-			return JSON.parse(xhr.response);
+			return JSON.parse(xhr.responseText);
 		}
 	}
 
@@ -7942,6 +7945,9 @@ SVGShapeElement.prototype.createGroupElement = function(data) {
     if(data.ln){
         elementData.gr.setAttribute('id',data.ln);
     }
+    if(data.cl){
+        elementData.gr.setAttribute('class',data.cl);
+    }
     return elementData;
 };
 
@@ -8587,10 +8593,11 @@ SVGMatte3Effect.prototype.setElementAsMask = function(elem, mask) {
 
 SVGMatte3Effect.prototype.initialize = function() {
     var ind = this.filterManager.effectElements[0].p.v;
-    var i = 0, len = this.elem.comp.elements.length;
+    var elements = this.elem.comp.elements;
+    var i = 0, len = elements.length;
     while (i < len) {
-    	if (this.elem.comp.elements[i].data.ind === ind) {
-    		this.setElementAsMask(this.elem, this.elem.comp.elements[i]);
+    	if (elements[i] && elements[i].data.ind === ind) {
+    		this.setElementAsMask(this.elem, elements[i]);
     	}
     	i += 1;
     }
@@ -10453,6 +10460,15 @@ CVShapeElement.prototype.addTransformToStyleList = function(transform) {
     }
 }
 
+CVShapeElement.prototype.removeTransformFromStyleList = function() {
+    var i, len = this.stylesList.length;
+    for (i = 0; i < len; i += 1) {
+        if(!this.stylesList[i].closed) {
+            this.stylesList[i].transforms.pop();
+        }
+    }
+}
+
 CVShapeElement.prototype.closeStyles = function(styles) {
     var i, len = styles.length, j, jLen;
     for (i = 0; i < len; i += 1) {
@@ -10528,6 +10544,7 @@ CVShapeElement.prototype.searchShapes = function(arr,itemsData, prevViewData, sh
         }
         this.addProcessedElement(arr[i], i + 1);
     }
+    this.removeTransformFromStyleList();
     this.closeStyles(ownStyles);
     len = ownModifiers.length;
     for(i=0;i<len;i+=1){
@@ -10627,7 +10644,7 @@ CVShapeElement.prototype.renderShape = function(parentTransform,items,data,isMai
             groupTransform = data[i].transform;
             this.renderShapeTransform(parentTransform, groupTransform);
         }else if(items[i].ty == 'sh' || items[i].ty == 'el' || items[i].ty == 'rc' || items[i].ty == 'sr'){
-            this.renderPath(items[i],data[i],groupTransform);
+            this.renderPath(items[i],data[i]);
         }else if(items[i].ty == 'fl'){
             this.renderFill(items[i],data[i],groupTransform);
         }else if(items[i].ty == 'st'){
@@ -10690,7 +10707,7 @@ CVShapeElement.prototype.renderStyledShape = function(styledShape, shape){
     }
 }
 
-CVShapeElement.prototype.renderPath = function(pathData,itemData,groupTransform){
+CVShapeElement.prototype.renderPath = function(pathData,itemData){
     if(pathData.hd !== true && pathData._shouldRender) {
         var i, len = itemData.styledShapes.length;
         for (i = 0; i < len; i += 1) {
@@ -12145,6 +12162,7 @@ var ExpressionManager = (function(){
         var thisProperty = property;
         thisProperty.valueAtTime = thisProperty.getValueAtTime;
         elem.comp.frameDuration = 1/elem.comp.globalData.frameRate;
+        elem.comp.displayStartTime = 0;
         var inPoint = elem.data.ip/elem.comp.globalData.frameRate;
         var outPoint = elem.data.op/elem.comp.globalData.frameRate;
         var width = elem.data.sw ? elem.data.sw : 0;
@@ -12579,9 +12597,9 @@ var ExpressionManager = (function(){
     }
 
     function getValueAtTime(frameNum) {
+        frameNum *= this.elem.globalData.frameRate;
+        frameNum -= this.offsetTime;
         if(frameNum !== this._cachingAtTime.lastFrame) {
-            frameNum *= this.elem.globalData.frameRate;
-            frameNum -= this.offsetTime;
             this._cachingAtTime.lastIndex = this._cachingAtTime.lastFrame < frameNum ? this._cachingAtTime.lastIndex : 0;
             this._cachingAtTime.value = this.interpolateValue(frameNum, this._cachingAtTime);
             this._cachingAtTime.lastFrame = frameNum;
@@ -13580,6 +13598,8 @@ var LayerExpressionInterface = (function (){
                     return transformInterface;
                 case 4:
                 case "ADBE Effect Parade":
+                case "effects":
+                case "Effects":
                     return _thisLayerFunction.effect;
             }
         }
@@ -13656,6 +13676,7 @@ var CompExpressionInterface = (function (){
         _thisLayerFunction.width = comp.data.w || comp.globalData.compSize.w;
         _thisLayerFunction.pixelAspect = 1;
         _thisLayerFunction.frameDuration = 1/comp.globalData.frameRate;
+        _thisLayerFunction.displayStartTime = 0;
         _thisLayerFunction.numLayers = comp.layers.length;
         return _thisLayerFunction;
     };
@@ -13875,7 +13896,7 @@ var EffectsExpressionInterface = (function (){
                 return data.np;
             }
         });
-        groupInterface.active = data.en !== 0;
+        groupInterface.active = groupInterface.enabled = data.en !== 0;
         return groupInterface;
     }
 
@@ -14203,7 +14224,7 @@ GroupEffect.prototype.init = function(data,element){
     lottiejs.unfreeze = animationManager.unfreeze;
     lottiejs.getRegisteredAnimations = animationManager.getRegisteredAnimations;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.4.1';
+    lottiejs.version = '5.4.2';
 
     function checkReady() {
         if (document.readyState === "complete") {
