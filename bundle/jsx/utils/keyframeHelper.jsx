@@ -423,7 +423,10 @@ $.__bodymovin.bm_keyframeHelper = (function () {
             var keyIndex;
             for(keyIndex = 1; keyIndex <= numKeys; keyIndex += 1) {
                 if(property.keyRoving(keyIndex)) {
-                    hasRovingKeyframes = true;
+                    if(!hasRovingKeyframes) {
+                        app.beginUndoGroup("Roving Undo Group");
+                        hasRovingKeyframes = true;
+                    }
                     property.setSelectedAtKey(keyIndex, true);
                     bm_eventDispatcher.log('IT IS ROVING')
                     //This sets roving values at the actual easing value and then in turns it back on
@@ -432,7 +435,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 }
             }
             if(hasRovingKeyframes) {
-                app.executeCommand(3153);
+                app.executeCommand(3153); // Rove Across Time
             }
         }
     }
@@ -440,7 +443,8 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     function restoreRovingKeyframes(property) {
 
         if(hasRovingKeyframes) {
-            app.executeCommand(16);
+            app.endUndoGroup();
+            app.executeCommand(16); //Undo
             var keyIndex, numKeys = property.numKeys;
             for(keyIndex = 1; keyIndex <= numKeys; keyIndex += 1) {
                 property.setSelectedAtKey(keyIndex, false);
