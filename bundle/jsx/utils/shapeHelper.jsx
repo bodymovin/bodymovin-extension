@@ -7,6 +7,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_boundingBox = $.__bodymovin.bm_boundingBox;
+    var bm_blendModes = $.__bodymovin.bm_blendModes;
     var ob = {}, shapeItemTypes = {
         shape: 'sh',
         rect: 'rc',
@@ -361,11 +362,13 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.c = bm_keyframeHelper.exportKeyframes(prop.property('Color'), frameRate, stretch);
                 ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                 ob.r = prop.property('Fill Rule').value;
+                ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
             } else if (itemType === shapeItemTypes.gfill) {
                 ob = {};
                 ob.ty = itemType;
                 ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                 ob.r = prop.property('Fill Rule').value;
+                ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
                 navigationShapeTree.push(prop.name);
                 exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
                 navigationShapeTree.pop();
@@ -384,6 +387,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     ob.ml = Math.round(prop.property('Miter Limit').value * 100) / 100;
                     ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 }
+                ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
                 getDashData(ob,prop, frameRate, stretch);
 
             } else if (itemType === shapeItemTypes.stroke) {
@@ -398,6 +402,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     ob.ml = Math.round(prop.property('Miter Limit').value * 100) / 100;
                     ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 }
+                ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
                 getDashData(ob,prop, frameRate, stretch);
 
             } else if (itemType === shapeItemTypes.repeater) {
@@ -449,8 +454,10 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     nm: prop.name,
                     np: prop.property('Contents').numProperties,
                     cix: prop.property('Contents').propertyIndex,
+                    bm: bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value),
                     ix: prop.propertyIndex
                 };
+
                 navigationShapeTree.push(prop.name);
                 iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled, includeHiddenData);
                 if (!isText) {

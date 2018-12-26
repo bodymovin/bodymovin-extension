@@ -32,6 +32,7 @@ $.evalFile(extensionPath + 'utils/textAnimatorHelper.jsx');
 $.evalFile(extensionPath + 'utils/textHelper.jsx');
 $.evalFile(extensionPath + 'helpers/boundingBox.jsx');
 $.evalFile(extensionPath + 'helpers/layerResolver.jsx');
+$.evalFile(extensionPath + 'helpers/blendModes.jsx');
 $.evalFile(extensionPath + 'elements/layerElement.jsx');
 $.evalFile(extensionPath + 'projectManager.jsx');
 $.evalFile(extensionPath + 'compsManager.jsx');
