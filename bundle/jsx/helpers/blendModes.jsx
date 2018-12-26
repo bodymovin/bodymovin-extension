@@ -127,7 +127,6 @@ $.__bodymovin.bm_blendModes = (function () {
                 blendModeValue = blendModes.colorBurn;
                 break;
             case BlendingModeShape.LIGHTEN:
-                bm_eventDispatcher.log('LIGHTER:')
                 blendModeValue = blendModes.lighten;
                 break;
             case BlendingModeShape.COLOR_DODGE:
