@@ -72,11 +72,6 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.group;
         }
     }
-    
-
-
-
-
 
     function findEffectPropertyType(prop) {
         var propertyValueType = prop.propertyValueType;

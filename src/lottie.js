@@ -111,15 +111,12 @@ function BMDestroyEvent(n,t){
     this.target = t;
 }
 
-function randomString(length, chars){
-    if(chars === undefined){
-        chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+var createElementID = (function(){
+    var _count = 0;
+    return function createID() {
+        return '__lottie_element_' + ++_count
     }
-    var i;
-    var result = '';
-    for (i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
-    return result;
-}
+}())
 
 function HSVtoRGB(h, s, v) {
     var r, g, b, i, f, p, q, t;
@@ -329,6 +326,30 @@ DynamicPropertyContainer.prototype = {
 	    this._isAnimated = false;
 	}
 }
+var getBlendMode = (function() {
+
+	var blendModeEnums = {
+        1:'multiply',
+        2:'screen',
+        3:'overlay',
+        4:'darken',
+        5:'lighten',
+        6:'color-dodge',
+        7:'color-burn',
+        8:'hard-light',
+        9:'soft-light',
+        10:'difference',
+        11:'exclusion',
+        12:'hue',
+        13:'saturation',
+        14:'color',
+        15:'luminosity'
+    }
+
+	return function(mode) {
+		return blendModeEnums[mode] || '';
+	}
+}())
 /*!
  Transformation Matrix v2.0
  (c) Epistemex 2014-2015
@@ -1807,20 +1828,7 @@ var FontManager = (function(){
                 loadedCount -= 1;
                 continue;
             }
-            if(this.fonts[i].fOrigin === 't' || this.fonts[i].origin === 2){
-                if(window.Typekit && window.Typekit.load && this.typekitLoaded === 0){
-                    this.typekitLoaded = 1;
-                    try{window.Typekit.load({
-                        async: true,
-                        active: function() {
-                            this.typekitLoaded = 2;
-                        }.bind(this)
-                    });}catch(e){}
-                }
-                if(this.typekitLoaded === 2) {
-                    this.fonts[i].loaded = true;
-                }
-            } else if(this.fonts[i].fOrigin === 'n' || this.fonts[i].origin === 0){
+            if(this.fonts[i].fOrigin === 'n' || this.fonts[i].origin === 0){
                 this.fonts[i].loaded = true;
             } else{
                 node = this.fonts[i].monoCase.node;
@@ -1943,10 +1951,11 @@ var FontManager = (function(){
                 }
 
                 if (shouldLoadFont) {
-                    var sc = createTag('script');
+                    var sc = createTag('link');
                     sc.setAttribute('f-forigin', fontArr[i].fOrigin);
                     sc.setAttribute('f-origin', fontArr[i].origin);
-                    sc.setAttribute('src',fontArr[i].fPath);
+                    sc.setAttribute('rel','stylesheet');
+                    sc.setAttribute('href',fontArr[i].fPath);
                     defs.appendChild(sc);
                 }
             }
@@ -2191,10 +2200,11 @@ var PropertyFactory = (function(){
                                     keyData.__fnct = [];
                                 }
                                 if (!keyData.__fnct[i]) {
-                                    outX = keyData.o.x[i] || keyData.o.x[0];
-                                    outY = keyData.o.y[i] || keyData.o.y[0];
-                                    inX = keyData.i.x[i] || keyData.i.x[0];
-                                    inY = keyData.i.y[i] || keyData.i.y[0];
+                                    outX = (typeof keyData.o.x[i] === undefined) ? keyData.o.x[0] : keyData.o.x[i];
+                                    outY = (typeof keyData.o.y[i] === undefined) ? keyData.o.y[0] : keyData.o.y[i];
+                                    inX = (typeof keyData.i.x[i] === undefined) ? keyData.i.x[0] : keyData.i.x[i];
+                                    inY = (typeof keyData.i.y[i] === undefined) ? keyData.i.y[0] : keyData.i.y[i];
+ 
                                     fnc = BezierFactory.getBezierEasing(outX, outY, inX, inY).get;
                                     keyData.__fnct[i] = fnc;
                                 } else {
@@ -3876,7 +3886,7 @@ RepeaterModifier.prototype.cloneElements = function(elements){
 
 RepeaterModifier.prototype.changeGroupRender = function(elements, renderFlag) {
     var i, len = elements.length;
-    for(i = 0; i < len ; i += 1) {
+    for(i = 0; i < len; i += 1) {
         elements[i]._render = renderFlag;
         if(elements[i].ty === 'gr') {
             this.changeGroupRender(elements[i].it, renderFlag);
@@ -5093,10 +5103,11 @@ TextProperty.prototype.getValue = function(_finalValue) {
     if((this.elem.globalData.frameId === this.frameId || !this.effectsSequence.length) && !_finalValue) {
         return;
     }
+    this.currentData.t = this.data.d.k[this.keysIndex].s.t;
     var currentValue = this.currentData;
     var currentIndex = this.keysIndex;
     if(this.lock) {
-        this.setCurrentData(this.currentData, currentTextValue);
+        this.setCurrentData(this.currentData);
         return;
     }
     this.lock = true;
@@ -5954,7 +5965,7 @@ SVGRenderer.prototype.configAnimation = function(animData){
     rect.setAttribute('height',animData.h);
     rect.setAttribute('x',0);
     rect.setAttribute('y',0);
-    var maskId = 'animationMask_'+randomString(10);
+    var maskId = createElementID();
     maskElement.setAttribute('id', maskId);
     maskElement.appendChild(rect);
     this.layerElement.setAttribute("clip-path", "url(" + locationHref + "#"+maskId+")");
@@ -6087,3373 +6098,6 @@ SVGRenderer.prototype.show = function(){
     this.layerElement.style.display = 'block';
 };
 
-function MaskElement(data,element,globalData) {
-    this.data = data;
-    this.element = element;
-    this.globalData = globalData;
-    this.storedData = [];
-    this.masksProperties = this.data.masksProperties || [];
-    this.maskElement = null;
-    var defs = this.globalData.defs;
-    var i, len = this.masksProperties ? this.masksProperties.length : 0;
-    this.viewData = createSizedArray(len);
-    this.solidPath = '';
-
-
-    var path, properties = this.masksProperties;
-    var count = 0;
-    var currentMasks = [];
-    var j, jLen;
-    var layerId = randomString(10);
-    var rect, expansor, feMorph,x;
-    var maskType = 'clipPath', maskRef = 'clip-path';
-    for (i = 0; i < len; i++) {
-
-        if((properties[i].mode !== 'a' && properties[i].mode !== 'n')|| properties[i].inv || properties[i].o.k !== 100){
-            maskType = 'mask';
-            maskRef = 'mask';
-        }
-
-        if((properties[i].mode == 's' || properties[i].mode == 'i') && count === 0){
-            rect = createNS( 'rect');
-            rect.setAttribute('fill', '#ffffff');
-            rect.setAttribute('width', this.element.comp.data.w || 0);
-            rect.setAttribute('height', this.element.comp.data.h || 0);
-            currentMasks.push(rect);
-        } else {
-            rect = null;
-        }
-
-        path = createNS( 'path');
-        if(properties[i].mode == 'n') {
-            // TODO move this to a factory or to a constructor
-            this.viewData[i] = {
-                op: PropertyFactory.getProp(this.element,properties[i].o,0,0.01,this.element),
-                prop: ShapePropertyFactory.getShapeProp(this.element,properties[i],3),
-                elem: path,
-                lastPath: ''
-            };
-            defs.appendChild(path);
-            continue;
-        }
-        count += 1;
-
-        path.setAttribute('fill', properties[i].mode === 's' ? '#000000':'#ffffff');
-        path.setAttribute('clip-rule','nonzero');
-        var filterID;
-
-        if (properties[i].x.k !== 0) {
-            maskType = 'mask';
-            maskRef = 'mask';
-            x = PropertyFactory.getProp(this.element,properties[i].x,0,null,this.element);
-            filterID = 'fi_'+randomString(10);
-            expansor = createNS('filter');
-            expansor.setAttribute('id',filterID);
-            feMorph = createNS('feMorphology');
-            feMorph.setAttribute('operator','dilate');
-            feMorph.setAttribute('in','SourceGraphic');
-            feMorph.setAttribute('radius','0');
-            expansor.appendChild(feMorph);
-            defs.appendChild(expansor);
-            path.setAttribute('stroke', properties[i].mode === 's' ? '#000000':'#ffffff');
-        } else {
-            feMorph = null;
-            x = null;
-        }
-
-        // TODO move this to a factory or to a constructor
-        this.storedData[i] = {
-             elem: path,
-             x: x,
-             expan: feMorph,
-            lastPath: '',
-            lastOperator:'',
-            filterId:filterID,
-            lastRadius:0
-        };
-        if(properties[i].mode == 'i'){
-            jLen = currentMasks.length;
-            var g = createNS('g');
-            for(j=0;j<jLen;j+=1){
-                g.appendChild(currentMasks[j]);
-            }
-            var mask = createNS('mask');
-            mask.setAttribute('mask-type','alpha');
-            mask.setAttribute('id',layerId+'_'+count);
-            mask.appendChild(path);
-            defs.appendChild(mask);
-            g.setAttribute('mask','url(' + locationHref + '#'+layerId+'_'+count+')');
-
-            currentMasks.length = 0;
-            currentMasks.push(g);
-        }else{
-            currentMasks.push(path);
-        }
-        if(properties[i].inv && !this.solidPath){
-            this.solidPath = this.createLayerSolidPath();
-        }
-        // TODO move this to a factory or to a constructor
-        this.viewData[i] = {
-            elem: path,
-            lastPath: '',
-            op: PropertyFactory.getProp(this.element,properties[i].o,0,0.01,this.element),
-            prop:ShapePropertyFactory.getShapeProp(this.element,properties[i],3),
-            invRect: rect
-        };
-        if(!this.viewData[i].prop.k){
-            this.drawPath(properties[i],this.viewData[i].prop.v,this.viewData[i]);
-        }
-    }
-
-    this.maskElement = createNS( maskType);
-
-    len = currentMasks.length;
-    for(i=0;i<len;i+=1){
-        this.maskElement.appendChild(currentMasks[i]);
-    }
-
-    if(count > 0){
-        this.maskElement.setAttribute('id', layerId);
-        this.element.maskedElement.setAttribute(maskRef, "url(" + locationHref + "#" + layerId + ")");
-        defs.appendChild(this.maskElement);
-    }
-    if (this.viewData.length) {
-        this.element.addRenderableComponent(this);
-    }
-
-}
-
-MaskElement.prototype.getMaskProperty = function(pos){
-    return this.viewData[pos].prop;
-};
-
-MaskElement.prototype.renderFrame = function (isFirstFrame) {
-    var finalMat = this.element.finalTransform.mat;
-    var i, len = this.masksProperties.length;
-    for (i = 0; i < len; i++) {
-        if(this.viewData[i].prop._mdf || isFirstFrame){
-            this.drawPath(this.masksProperties[i],this.viewData[i].prop.v,this.viewData[i]);
-        }
-        if(this.viewData[i].op._mdf || isFirstFrame){
-            this.viewData[i].elem.setAttribute('fill-opacity',this.viewData[i].op.v);
-        }
-        if(this.masksProperties[i].mode !== 'n'){
-            if(this.viewData[i].invRect && (this.element.finalTransform.mProp._mdf || isFirstFrame)){
-                this.viewData[i].invRect.setAttribute('x', -finalMat.props[12]);
-                this.viewData[i].invRect.setAttribute('y', -finalMat.props[13]);
-            }
-            if(this.storedData[i].x && (this.storedData[i].x._mdf || isFirstFrame)){
-                var feMorph = this.storedData[i].expan;
-                if(this.storedData[i].x.v < 0){
-                    if(this.storedData[i].lastOperator !== 'erode'){
-                        this.storedData[i].lastOperator = 'erode';
-                        this.storedData[i].elem.setAttribute('filter','url(' + locationHref + '#'+this.storedData[i].filterId+')');
-                    }
-                    feMorph.setAttribute('radius',-this.storedData[i].x.v);
-                }else{
-                    if(this.storedData[i].lastOperator !== 'dilate'){
-                        this.storedData[i].lastOperator = 'dilate';
-                        this.storedData[i].elem.setAttribute('filter',null);
-                    }
-                    this.storedData[i].elem.setAttribute('stroke-width', this.storedData[i].x.v*2);
-
-                }
-            }
-        }
-    }
-};
-
-MaskElement.prototype.getMaskelement = function () {
-    return this.maskElement;
-};
-
-MaskElement.prototype.createLayerSolidPath = function(){
-    var path = 'M0,0 ';
-    path += ' h' + this.globalData.compSize.w ;
-    path += ' v' + this.globalData.compSize.h ;
-    path += ' h-' + this.globalData.compSize.w ;
-    path += ' v-' + this.globalData.compSize.h + ' ';
-    return path;
-};
-
-MaskElement.prototype.drawPath = function(pathData,pathNodes,viewData){
-    var pathString = " M"+pathNodes.v[0][0]+','+pathNodes.v[0][1];
-    var i, len;
-    len = pathNodes._length;
-    for(i=1;i<len;i+=1){
-        //pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[i][0]+','+pathNodes.i[i][1] + " "+pathNodes.v[i][0]+','+pathNodes.v[i][1];
-        pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[i][0]+','+pathNodes.i[i][1] + " "+pathNodes.v[i][0]+','+pathNodes.v[i][1];
-    }
-        //pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[0][0]+','+pathNodes.i[0][1] + " "+pathNodes.v[0][0]+','+pathNodes.v[0][1];
-    if(pathNodes.c && len > 1){
-        pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[0][0]+','+pathNodes.i[0][1] + " "+pathNodes.v[0][0]+','+pathNodes.v[0][1];
-    }
-    //pathNodes.__renderedString = pathString;
-
-    if(viewData.lastPath !== pathString){
-        var pathShapeValue = '';
-        if(viewData.elem){
-            if(pathNodes.c){
-                pathShapeValue = pathData.inv ? this.solidPath + pathString : pathString;
-            }
-            viewData.elem.setAttribute('d',pathShapeValue);
-        }
-        viewData.lastPath = pathString;
-    }
-};
-
-MaskElement.prototype.destroy = function(){
-    this.element = null;
-    this.globalData = null;
-    this.maskElement = null;
-    this.data = null;
-    this.masksProperties = null;
-};
-
-/**
- * @file 
- * Handles AE's layer parenting property.
- *
- */
-
-function HierarchyElement(){}
-
-HierarchyElement.prototype = {
-	/**
-     * @function 
-     * Initializes hierarchy properties
-     *
-     */
-	initHierarchy: function() {
-		//element's parent list
-	    this.hierarchy = [];
-	    //if element is parent of another layer _isParent will be true
-	    this._isParent = false;
-	    this.checkParenting();
-	},
-	/**
-     * @function 
-     * Sets layer's hierarchy.
-     * @param {array} hierarch
-     * layer's parent list
-     *
-     */ 
-	setHierarchy: function(hierarchy){
-	    this.hierarchy = hierarchy;
-	},
-	/**
-     * @function 
-     * Sets layer as parent.
-     *
-     */ 
-	setAsParent: function() {
-	    this._isParent = true;
-	},
-	/**
-     * @function 
-     * Searches layer's parenting chain
-     *
-     */ 
-	checkParenting: function(){
-	    if (this.data.parent !== undefined){
-	        this.comp.buildElementParenting(this, this.data.parent, []);
-	    }
-	}
-};
-/**
- * @file 
- * Handles element's layer frame update.
- * Checks layer in point and out point
- *
- */
-
-function FrameElement(){}
-
-FrameElement.prototype = {
-    /**
-     * @function 
-     * Initializes frame related properties.
-     *
-     */
-    initFrame: function(){
-        //set to true when inpoint is rendered
-        this._isFirstFrame = false;
-        //list of animated properties
-        this.dynamicProperties = [];
-        // If layer has been modified in current tick this will be true
-        this._mdf = false;
-    },
-    /**
-     * @function 
-     * Calculates all dynamic values
-     *
-     * @param {number} num
-     * current frame number in Layer's time
-     * @param {boolean} isVisible
-     * if layers is currently in range
-     * 
-     */
-    prepareProperties: function(num, isVisible) {
-        var i, len = this.dynamicProperties.length;
-        for (i = 0;i < len; i += 1) {
-            if (isVisible || (this._isParent && this.dynamicProperties[i].propType === 'transform')) {
-                this.dynamicProperties[i].getValue();
-                if (this.dynamicProperties[i]._mdf) {
-                    this.globalData._mdf = true;
-                    this._mdf = true;
-                }
-            }
-        }
-    },
-    addDynamicProperty: function(prop) {
-        if(this.dynamicProperties.indexOf(prop) === -1) {
-            this.dynamicProperties.push(prop);
-        }
-    }
-};
-function TransformElement(){}
-
-TransformElement.prototype = {
-    initTransform: function() {
-        this.finalTransform = {
-            mProp: this.data.ks ? TransformPropertyFactory.getTransformProperty(this, this.data.ks, this) : {o:0},
-            _matMdf: false,
-            _opMdf: false,
-            mat: new Matrix()
-        };
-        if (this.data.ao) {
-            this.finalTransform.mProp.autoOriented = true;
-        }
-
-        //TODO: check TYPE 11: Guided elements
-        if (this.data.ty !== 11) {
-            //this.createElements();
-        }
-    },
-    renderTransform: function() {
-
-        this.finalTransform._opMdf = this.finalTransform.mProp.o._mdf || this._isFirstFrame;
-        this.finalTransform._matMdf = this.finalTransform.mProp._mdf || this._isFirstFrame;
-
-        if (this.hierarchy) {
-            var mat;
-            var finalMat = this.finalTransform.mat;
-            var i = 0, len = this.hierarchy.length;
-            //Checking if any of the transformation matrices in the hierarchy chain has changed.
-            if (!this.finalTransform._matMdf) {
-                while (i < len) {
-                    if (this.hierarchy[i].finalTransform.mProp._mdf) {
-                        this.finalTransform._matMdf = true;
-                        break;
-                    }
-                    i += 1;
-                }
-            }
-            
-            if (this.finalTransform._matMdf) {
-                mat = this.finalTransform.mProp.v.props;
-                finalMat.cloneFromProps(mat);
-                for (i = 0; i < len; i += 1) {
-                    mat = this.hierarchy[i].finalTransform.mProp.v.props;
-                    finalMat.transform(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
-                }
-            }
-        }
-    },
-    globalToLocal: function(pt) {
-        var transforms = [];
-        transforms.push(this.finalTransform);
-        var flag = true;
-        var comp = this.comp;
-        while (flag) {
-            if (comp.finalTransform) {
-                if (comp.data.hasMask) {
-                    transforms.splice(0, 0, comp.finalTransform);
-                }
-                comp = comp.comp;
-            } else {
-                flag = false;
-            }
-        }
-        var i, len = transforms.length,ptNew;
-        for (i = 0; i < len; i += 1) {
-            ptNew = transforms[i].mat.applyToPointArray(0, 0, 0);
-            //ptNew = transforms[i].mat.applyToPointArray(pt[0],pt[1],pt[2]);
-            pt = [pt[0] - ptNew[0], pt[1] - ptNew[1], 0];
-        }
-        return pt;
-    },
-    mHelper: new Matrix()
-};
-function RenderableElement(){
-
-}
-
-RenderableElement.prototype = {
-    initRenderable: function() {
-        //layer's visibility related to inpoint and outpoint. Rename isVisible to isInRange
-        this.isInRange = false;
-        //layer's display state
-        this.hidden = false;
-        // If layer's transparency equals 0, it can be hidden
-        this.isTransparent = false;
-        //list of animated components
-        this.renderableComponents = [];
-    },
-    addRenderableComponent: function(component) {
-        if(this.renderableComponents.indexOf(component) === -1) {
-            this.renderableComponents.push(component);
-        }
-    },
-    removeRenderableComponent: function(component) {
-        if(this.renderableComponents.indexOf(component) !== -1) {
-            this.renderableComponents.splice(this.renderableComponents.indexOf(component), 1);
-        }
-    },
-    prepareRenderableFrame: function(num) {
-        this.checkLayerLimits(num);
-    },
-    checkTransparency: function(){
-        if(this.finalTransform.mProp.o.v <= 0) {
-            if(!this.isTransparent && this.globalData.renderConfig.hideOnTransparent){
-                this.isTransparent = true;
-                this.hide();
-            }
-        } else if(this.isTransparent) {
-            this.isTransparent = false;
-            this.show();
-        }
-    },
-    /**
-     * @function 
-     * Initializes frame related properties.
-     *
-     * @param {number} num
-     * current frame number in Layer's time
-     * 
-     */
-    checkLayerLimits: function(num) {
-        if(this.data.ip - this.data.st <= num && this.data.op - this.data.st > num)
-        {
-            if(this.isInRange !== true){
-                this.globalData._mdf = true;
-                this._mdf = true;
-                this.isInRange = true;
-                this.show();
-            }
-        } else {
-            if(this.isInRange !== false){
-                this.globalData._mdf = true;
-                this.isInRange = false;
-                this.hide();
-            }
-        }
-    },
-    renderRenderable: function() {
-        var i, len = this.renderableComponents.length;
-        for(i = 0; i < len; i += 1) {
-            this.renderableComponents[i].renderFrame(this._isFirstFrame);
-        }
-        /*this.maskManager.renderFrame(this.finalTransform.mat);
-        this.renderableEffectsManager.renderFrame(this._isFirstFrame);*/
-    },
-    sourceRectAtTime: function(){
-        return {
-            top:0,
-            left:0,
-            width:100,
-            height:100
-        };
-    },
-    getLayerSize: function(){
-        if(this.data.ty === 5){
-            return {w:this.data.textData.width,h:this.data.textData.height};
-        }else{
-            return {w:this.data.width,h:this.data.height};
-        }
-    }
-};
-function RenderableDOMElement() {}
-
-(function(){
-    var _prototype = {
-        initElement: function(data,globalData,comp) {
-            this.initFrame();
-            this.initBaseData(data, globalData, comp);
-            this.initTransform(data, globalData, comp);
-            this.initHierarchy();
-            this.initRenderable();
-            this.initRendererElement();
-            this.createContainerElements();
-            this.createRenderableComponents();
-            this.createContent();
-            this.hide();
-        },
-        hide: function(){
-            if (!this.hidden && (!this.isInRange || this.isTransparent)) {
-                var elem = this.baseElement || this.layerElement;
-                elem.style.display = 'none';
-                this.hidden = true;
-            }
-        },
-        show: function(){
-            if (this.isInRange && !this.isTransparent){
-                if (!this.data.hd) {
-                    var elem = this.baseElement || this.layerElement;
-                    elem.style.display = 'block';
-                }
-                this.hidden = false;
-                this._isFirstFrame = true;
-            }
-        },
-        renderFrame: function() {
-            //If it is exported as hidden (data.hd === true) no need to render
-            //If it is not visible no need to render
-            if (this.data.hd || this.hidden) {
-                return;
-            }
-            this.renderTransform();
-            this.renderRenderable();
-            this.renderElement();
-            this.renderInnerContent();
-            if (this._isFirstFrame) {
-                this._isFirstFrame = false;
-            }
-        },
-        renderInnerContent: function() {},
-        prepareFrame: function(num) {
-            this._mdf = false;
-            this.prepareRenderableFrame(num);
-            this.prepareProperties(num, this.isInRange);
-            this.checkTransparency();
-        },
-        destroy: function(){
-            this.innerElem =  null;
-            this.destroyBaseElement();
-        }
-    };
-    extendPrototype([RenderableElement, createProxyFunction(_prototype)], RenderableDOMElement);
-}());
-function ProcessedElement(element, position) {
-	this.elem = element;
-	this.pos = position;
-}
-function SVGStyleData(data, level) {
-	this.data = data;
-	this.type = data.ty;
-	this.d = '';
-	this.lvl = level;
-	this._mdf = false;
-	this.closed = data.hd === true;
-	this.pElem = createNS('path');
-	this.msElem = null;
-}
-
-SVGStyleData.prototype.reset = function() {
-	this.d = '';
-	this._mdf = false;
-};
-function SVGShapeData(transformers, level, shape) {
-    this.caches = [];
-    this.styles = [];
-    this.transformers = transformers;
-    this.lStr = '';
-    this.sh = shape;
-    this.lvl = level;
-    //TODO find if there are some cases where _isAnimated can be false. 
-    // For now, since shapes add up with other shapes. They have to be calculated every time.
-    // One way of finding out is checking if all styles associated to this shape depend only of this shape
-    this._isAnimated = !!shape.k;
-    // TODO: commenting this for now since all shapes are animated
-    var i = 0, len = transformers.length;
-    while(i < len) {
-    	if(transformers[i].mProps.dynamicProperties.length) {
-    		this._isAnimated = true;
-    		break;
-    	}
-    	i += 1;
-    }
-}
-
-SVGShapeData.prototype.setAsAnimated = function() {
-    this._isAnimated = true;
-}
-function SVGTransformData(mProps, op, container) {
-	this.transform = {
-		mProps: mProps,
-		op: op,
-		container: container
-	};
-	this.elements = [];
-    this._isAnimated = this.transform.mProps.dynamicProperties.length || this.transform.op.effectsSequence.length;
-}
-function SVGStrokeStyleData(elem, data, styleOb){
-	this.initDynamicPropertyContainer(elem);
-	this.getValue = this.iterateDynamicProperties;
-	this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
-	this.w = PropertyFactory.getProp(elem,data.w,0,null,this);
-	this.d = new DashProperty(elem,data.d||{},'svg',this);
-	this.c = PropertyFactory.getProp(elem,data.c,1,255,this);
-	this.style = styleOb;
-    this._isAnimated = !!this._isAnimated;
-}
-
-extendPrototype([DynamicPropertyContainer], SVGStrokeStyleData);
-function SVGFillStyleData(elem, data, styleOb){
-	this.initDynamicPropertyContainer(elem);
-	this.getValue = this.iterateDynamicProperties;
-	this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
-	this.c = PropertyFactory.getProp(elem,data.c,1,255,this);
-	this.style = styleOb;
-}
-
-extendPrototype([DynamicPropertyContainer], SVGFillStyleData);
-function SVGGradientFillStyleData(elem, data, styleOb){
-    this.initDynamicPropertyContainer(elem);
-    this.getValue = this.iterateDynamicProperties;
-    this.initGradientData(elem, data, styleOb);
-}
-
-SVGGradientFillStyleData.prototype.initGradientData = function(elem, data, styleOb){
-    this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
-    this.s = PropertyFactory.getProp(elem,data.s,1,null,this);
-    this.e = PropertyFactory.getProp(elem,data.e,1,null,this);
-    this.h = PropertyFactory.getProp(elem,data.h||{k:0},0,0.01,this);
-    this.a = PropertyFactory.getProp(elem,data.a||{k:0},0,degToRads,this);
-    this.g = new GradientProperty(elem,data.g,this);
-    this.style = styleOb;
-    this.stops = [];
-    this.setGradientData(styleOb.pElem, data);
-    this.setGradientOpacity(data, styleOb);
-    this._isAnimated = !!this._isAnimated;
-
-};
-
-SVGGradientFillStyleData.prototype.setGradientData = function(pathElement,data){
-
-    var gradientId = 'gr_'+randomString(10);
-    var gfill = createNS(data.t === 1 ? 'linearGradient' : 'radialGradient');
-    gfill.setAttribute('id',gradientId);
-    gfill.setAttribute('spreadMethod','pad');
-    gfill.setAttribute('gradientUnits','userSpaceOnUse');
-    var stops = [];
-    var stop, j, jLen;
-    jLen = data.g.p*4;
-    for(j=0;j<jLen;j+=4){
-        stop = createNS('stop');
-        gfill.appendChild(stop);
-        stops.push(stop);
-    }
-    pathElement.setAttribute( data.ty === 'gf' ? 'fill':'stroke','url(' + locationHref + '#'+gradientId+')');
-    
-    this.gf = gfill;
-    this.cst = stops;
-};
-
-SVGGradientFillStyleData.prototype.setGradientOpacity = function(data, styleOb){
-    if(this.g._hasOpacity && !this.g._collapsable){
-        var stop, j, jLen;
-        var mask = createNS("mask");
-        var maskElement = createNS( 'path');
-        mask.appendChild(maskElement);
-        var opacityId = 'op_'+randomString(10);
-        var maskId = 'mk_'+randomString(10);
-        mask.setAttribute('id',maskId);
-        var opFill = createNS(data.t === 1 ? 'linearGradient' : 'radialGradient');
-        opFill.setAttribute('id',opacityId);
-        opFill.setAttribute('spreadMethod','pad');
-        opFill.setAttribute('gradientUnits','userSpaceOnUse');
-        jLen = data.g.k.k[0].s ? data.g.k.k[0].s.length : data.g.k.k.length;
-        var stops = this.stops;
-        for(j=data.g.p*4;j<jLen;j+=2){
-            stop = createNS('stop');
-            stop.setAttribute('stop-color','rgb(255,255,255)');
-            opFill.appendChild(stop);
-            stops.push(stop);
-        }
-        maskElement.setAttribute( data.ty === 'gf' ? 'fill':'stroke','url(' + locationHref + '#'+opacityId+')');
-        this.of = opFill;
-        this.ms = mask;
-        this.ost = stops;
-        this.maskId = maskId;
-        styleOb.msElem = maskElement;
-    }
-};
-
-extendPrototype([DynamicPropertyContainer], SVGGradientFillStyleData);
-function SVGGradientStrokeStyleData(elem, data, styleOb){
-	this.initDynamicPropertyContainer(elem);
-	this.getValue = this.iterateDynamicProperties;
-	this.w = PropertyFactory.getProp(elem,data.w,0,null,this);
-	this.d = new DashProperty(elem,data.d||{},'svg',this);
-    this.initGradientData(elem, data, styleOb);
-    this._isAnimated = !!this._isAnimated;
-}
-
-extendPrototype([SVGGradientFillStyleData, DynamicPropertyContainer], SVGGradientStrokeStyleData);
-function ShapeGroupData() {
-	this.it = [];
-    this.prevViewData = [];
-    this.gr = createNS('g');
-}
-var SVGElementsRenderer = (function() {
-	var _identityMatrix = new Matrix();
-	var _matrixHelper = new Matrix();
-
-	var ob = {
-		createRenderFunction: createRenderFunction
-	}
-
-	function createRenderFunction(data) {
-	    var ty = data.ty;
-	    switch(data.ty) {
-	        case 'fl':
-	        return renderFill;
-	        case 'gf':
-	        return renderGradient;
-	        case 'gs':
-	        return renderGradientStroke;
-	        case 'st':
-	        return renderStroke;
-	        case 'sh':
-	        case 'el':
-	        case 'rc':
-	        case 'sr':
-	        return renderPath;
-	        case 'tr':
-	        return renderContentTransform;
-	    }
-	}
-
-	function renderContentTransform(styleData, itemData, isFirstFrame) {
-	    if(isFirstFrame || itemData.transform.op._mdf){
-	        itemData.transform.container.setAttribute('opacity',itemData.transform.op.v);
-	    }
-	    if(isFirstFrame || itemData.transform.mProps._mdf){
-	        itemData.transform.container.setAttribute('transform',itemData.transform.mProps.v.to2dCSS());
-	    }
-	}
-
-	function renderPath(styleData, itemData, isFirstFrame) {
-	    var j, jLen,pathStringTransformed,redraw,pathNodes,l, lLen = itemData.styles.length;
-	    var lvl = itemData.lvl;
-	    var paths, mat, props, iterations, k;
-	    for(l=0;l<lLen;l+=1){
-	        redraw = itemData.sh._mdf || isFirstFrame;
-	        if(itemData.styles[l].lvl < lvl){
-	            mat = _matrixHelper.reset();
-	            iterations = lvl - itemData.styles[l].lvl;
-	            k = itemData.transformers.length-1;
-	            while(!redraw && iterations > 0) {
-	                redraw = itemData.transformers[k].mProps._mdf || redraw;
-	                iterations --;
-	                k --;
-	            }
-	            if(redraw) {
-	                iterations = lvl - itemData.styles[l].lvl;
-	                k = itemData.transformers.length-1;
-	                while(iterations > 0) {
-	                    props = itemData.transformers[k].mProps.v.props;
-	                    mat.transform(props[0],props[1],props[2],props[3],props[4],props[5],props[6],props[7],props[8],props[9],props[10],props[11],props[12],props[13],props[14],props[15]);
-	                    iterations --;
-	                    k --;
-	                }
-	            }
-	        } else {
-	            mat = _identityMatrix;
-	        }
-	        paths = itemData.sh.paths;
-	        jLen = paths._length;
-	        if(redraw){
-	            pathStringTransformed = '';
-	            for(j=0;j<jLen;j+=1){
-	                pathNodes = paths.shapes[j];
-	                if(pathNodes && pathNodes._length){
-	                    pathStringTransformed += buildShapeString(pathNodes, pathNodes._length, pathNodes.c, mat);
-	                }
-	            }
-	            itemData.caches[l] = pathStringTransformed;
-	        } else {
-	            pathStringTransformed = itemData.caches[l];
-	        }
-	        itemData.styles[l].d += styleData.hd === true ? '' : pathStringTransformed;
-	        itemData.styles[l]._mdf = redraw || itemData.styles[l]._mdf;
-	    }
-	}
-
-	function renderFill (styleData,itemData, isFirstFrame){
-	    var styleElem = itemData.style;
-
-	    if(itemData.c._mdf || isFirstFrame){
-	        styleElem.pElem.setAttribute('fill','rgb('+bm_floor(itemData.c.v[0])+','+bm_floor(itemData.c.v[1])+','+bm_floor(itemData.c.v[2])+')');
-	    }
-	    if(itemData.o._mdf || isFirstFrame){
-	        styleElem.pElem.setAttribute('fill-opacity',itemData.o.v);
-	    }
-	};
-
-	function renderGradientStroke (styleData, itemData, isFirstFrame) {
-	    renderGradient(styleData, itemData, isFirstFrame);
-	    renderStroke(styleData, itemData, isFirstFrame);
-	}
-
-	function renderGradient(styleData, itemData, isFirstFrame) {
-	    var gfill = itemData.gf;
-	    var hasOpacity = itemData.g._hasOpacity;
-	    var pt1 = itemData.s.v, pt2 = itemData.e.v;
-
-	    if (itemData.o._mdf || isFirstFrame) {
-	        var attr = styleData.ty === 'gf' ? 'fill-opacity' : 'stroke-opacity';
-	        itemData.style.pElem.setAttribute(attr, itemData.o.v);
-	    }
-	    if (itemData.s._mdf || isFirstFrame) {
-	        var attr1 = styleData.t === 1 ? 'x1' : 'cx';
-	        var attr2 = attr1 === 'x1' ? 'y1' : 'cy';
-	        gfill.setAttribute(attr1, pt1[0]);
-	        gfill.setAttribute(attr2, pt1[1]);
-	        if (hasOpacity && !itemData.g._collapsable) {
-	            itemData.of.setAttribute(attr1, pt1[0]);
-	            itemData.of.setAttribute(attr2, pt1[1]);
-	        }
-	    }
-	    var stops, i, len, stop;
-	    if (itemData.g._cmdf || isFirstFrame) {
-	        stops = itemData.cst;
-	        var cValues = itemData.g.c;
-	        len = stops.length;
-	        for (i = 0; i < len; i += 1){
-	            stop = stops[i];
-	            stop.setAttribute('offset', cValues[i * 4] + '%');
-	            stop.setAttribute('stop-color','rgb('+ cValues[i * 4 + 1] + ',' + cValues[i * 4 + 2] + ','+cValues[i * 4 + 3] + ')');
-	        }
-	    }
-	    if (hasOpacity && (itemData.g._omdf || isFirstFrame)) {
-	        var oValues = itemData.g.o;
-	        if(itemData.g._collapsable) {
-	            stops = itemData.cst;
-	        } else {
-	            stops = itemData.ost;
-	        }
-	        len = stops.length;
-	        for (i = 0; i < len; i += 1) {
-	            stop = stops[i];
-	            if(!itemData.g._collapsable) {
-	                stop.setAttribute('offset', oValues[i * 2] + '%');
-	            }
-	            stop.setAttribute('stop-opacity', oValues[i * 2 + 1]);
-	        }
-	    }
-	    if (styleData.t === 1) {
-	        if (itemData.e._mdf  || isFirstFrame) {
-	            gfill.setAttribute('x2', pt2[0]);
-	            gfill.setAttribute('y2', pt2[1]);
-	            if (hasOpacity && !itemData.g._collapsable) {
-	                itemData.of.setAttribute('x2', pt2[0]);
-	                itemData.of.setAttribute('y2', pt2[1]);
-	            }
-	        }
-	    } else {
-	        var rad;
-	        if (itemData.s._mdf || itemData.e._mdf || isFirstFrame) {
-	            rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
-	            gfill.setAttribute('r', rad);
-	            if(hasOpacity && !itemData.g._collapsable){
-	                itemData.of.setAttribute('r', rad);
-	            }
-	        }
-	        if (itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
-	            if (!rad) {
-	                rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
-	            }
-	            var ang = Math.atan2(pt2[1] - pt1[1], pt2[0] - pt1[0]);
-
-	            var percent = itemData.h.v >= 1 ? 0.99 : itemData.h.v <= -1 ? -0.99: itemData.h.v;
-	            var dist = rad * percent;
-	            var x = Math.cos(ang + itemData.a.v) * dist + pt1[0];
-	            var y = Math.sin(ang + itemData.a.v) * dist + pt1[1];
-	            gfill.setAttribute('fx', x);
-	            gfill.setAttribute('fy', y);
-	            if (hasOpacity && !itemData.g._collapsable) {
-	                itemData.of.setAttribute('fx', x);
-	                itemData.of.setAttribute('fy', y);
-	            }
-	        }
-	        //gfill.setAttribute('fy','200');
-	    }
-	};
-
-	function renderStroke(styleData, itemData, isFirstFrame) {
-	    var styleElem = itemData.style;
-	    var d = itemData.d;
-	    if (d && (d._mdf || isFirstFrame) && d.dashStr) {
-	        styleElem.pElem.setAttribute('stroke-dasharray', d.dashStr);
-	        styleElem.pElem.setAttribute('stroke-dashoffset', d.dashoffset[0]);
-	    }
-	    if(itemData.c && (itemData.c._mdf || isFirstFrame)){
-	        styleElem.pElem.setAttribute('stroke','rgb(' + bm_floor(itemData.c.v[0]) + ',' + bm_floor(itemData.c.v[1]) + ',' + bm_floor(itemData.c.v[2]) + ')');
-	    }
-	    if(itemData.o._mdf || isFirstFrame){
-	        styleElem.pElem.setAttribute('stroke-opacity', itemData.o.v);
-	    }
-	    if(itemData.w._mdf || isFirstFrame){
-	        styleElem.pElem.setAttribute('stroke-width', itemData.w.v);
-	        if(styleElem.msElem){
-	            styleElem.msElem.setAttribute('stroke-width', itemData.w.v);
-	        }
-	    }
-	};
-
-	return ob;
-}())
-function ShapeTransformManager() {
-	this.sequences = {};
-	this.sequenceList = [];
-    this.transform_key_count = 0;
-}
-
-ShapeTransformManager.prototype = {
-	addTransformSequence: function(transforms) {
-		var i, len = transforms.length;
-		var key = '_';
-		for(i = 0; i < len; i += 1) {
-			key += transforms[i].transform.key + '_';
-		}
-		var sequence = this.sequences[key];
-		if(!sequence) {
-			sequence = {
-				transforms: [].concat(transforms),
-				finalTransform: new Matrix(),
-				_mdf: false
-			};
-			this.sequences[key] = sequence;
-			this.sequenceList.push(sequence);
-		}
-		return sequence;
-	},
-	processSequence: function(sequence, isFirstFrame) {
-		var i = 0, len = sequence.transforms.length, _mdf = isFirstFrame;
-		while (i < len && !isFirstFrame) {
-			if (sequence.transforms[i].transform.mProps._mdf) {
-				_mdf = true;
-				break;
-			}
-			i += 1
-		}
-		if (_mdf) {
-			var props;
-			sequence.finalTransform.reset();
-			for (i = len - 1; i >= 0; i -= 1) {
-		        props = sequence.transforms[i].transform.mProps.v.props;
-		        sequence.finalTransform.transform(props[0],props[1],props[2],props[3],props[4],props[5],props[6],props[7],props[8],props[9],props[10],props[11],props[12],props[13],props[14],props[15]);
-			}
-		}
-		sequence._mdf = _mdf;
-		
-	},
-	processSequences: function(isFirstFrame) {
-		var i, len = this.sequenceList.length;
-		for (i = 0; i < len; i += 1) {
-			this.processSequence(this.sequenceList[i], isFirstFrame);
-		}
-
-	},
-	getNewKey: function() {
-		return '_' + this.transform_key_count++;
-	}
-}
-function BaseElement(){
-}
-
-BaseElement.prototype = {
-    checkMasks: function(){
-        if(!this.data.hasMask){
-            return false;
-        }
-        var i = 0, len = this.data.masksProperties.length;
-        while(i<len) {
-            if((this.data.masksProperties[i].mode !== 'n' && this.data.masksProperties[i].cl !== false)) {
-                return true;
-            }
-            i += 1;
-        }
-        return false;
-    },
-    initExpressions: function(){
-        this.layerInterface = LayerExpressionInterface(this);
-        if(this.data.hasMask && this.maskManager) {
-            this.layerInterface.registerMaskInterface(this.maskManager);
-        }
-        var effectsInterface = EffectsExpressionInterface.createEffectsInterface(this,this.layerInterface);
-        this.layerInterface.registerEffectsInterface(effectsInterface);
-
-        if(this.data.ty === 0 || this.data.xt){
-            this.compInterface = CompExpressionInterface(this);
-        } else if(this.data.ty === 4){
-            this.layerInterface.shapeInterface = ShapeExpressionInterface(this.shapesData,this.itemsData,this.layerInterface);
-            this.layerInterface.content = this.layerInterface.shapeInterface;
-        } else if(this.data.ty === 5){
-            this.layerInterface.textInterface = TextExpressionInterface(this);
-            this.layerInterface.text = this.layerInterface.textInterface;
-        }
-    },
-    blendModeEnums: {
-        1:'multiply',
-        2:'screen',
-        3:'overlay',
-        4:'darken',
-        5:'lighten',
-        6:'color-dodge',
-        7:'color-burn',
-        8:'hard-light',
-        9:'soft-light',
-        10:'difference',
-        11:'exclusion',
-        12:'hue',
-        13:'saturation',
-        14:'color',
-        15:'luminosity'
-    },
-    getBlendMode: function(){
-        return this.blendModeEnums[this.data.bm] || '';
-    },
-    setBlendMode: function(){
-        var blendModeValue = this.getBlendMode();
-        var elem = this.baseElement || this.layerElement;
-
-        elem.style['mix-blend-mode'] = blendModeValue;
-    },
-    initBaseData: function(data, globalData, comp){
-        this.globalData = globalData;
-        this.comp = comp;
-        this.data = data;
-        this.layerId = 'ly_'+randomString(10);
-        
-        //Stretch factor for old animations missing this property.
-        if(!this.data.sr){
-            this.data.sr = 1;
-        }
-        // effects manager
-        this.effectsManager = new EffectsManager(this.data,this,this.dynamicProperties);
-        
-    },
-    getType: function(){
-        return this.type;
-    }
-}
-function NullElement(data,globalData,comp){
-    this.initFrame();
-	this.initBaseData(data, globalData, comp);
-    this.initFrame();
-    this.initTransform(data, globalData, comp);
-    this.initHierarchy();
-}
-
-NullElement.prototype.prepareFrame = function(num) {
-    this.prepareProperties(num, true);
-};
-
-NullElement.prototype.renderFrame = function() {
-};
-
-NullElement.prototype.getBaseElement = function() {
-	return null;
-};
-
-NullElement.prototype.destroy = function() {
-};
-
-NullElement.prototype.sourceRectAtTime = function() {
-};
-
-NullElement.prototype.hide = function() {
-};
-
-extendPrototype([BaseElement,TransformElement,HierarchyElement,FrameElement], NullElement);
-
-function SVGBaseElement(){
-}
-
-SVGBaseElement.prototype = {
-    initRendererElement: function() {
-        this.layerElement = createNS('g');
-    },
-    createContainerElements: function(){
-        this.matteElement = createNS('g');
-        this.transformedElement = this.layerElement;
-        this.maskedElement = this.layerElement;
-        this._sizeChanged = false;
-        var layerElementParent = null;
-        //If this layer acts as a mask for the following layer
-        var filId, fil, gg;
-        if (this.data.td) {
-            if (this.data.td == 3 || this.data.td == 1) {
-                var masker = createNS('mask');
-                masker.setAttribute('id', this.layerId);
-                masker.setAttribute('mask-type', this.data.td == 3 ? 'luminance' : 'alpha');
-                masker.appendChild(this.layerElement);
-                layerElementParent = masker;
-                this.globalData.defs.appendChild(masker);
-                // This is only for IE and Edge when mask if of type alpha
-                if (!featureSupport.maskType && this.data.td == 1) {
-                    masker.setAttribute('mask-type', 'luminance');
-                    filId = randomString(10);
-                    fil = filtersFactory.createFilter(filId);
-                    this.globalData.defs.appendChild(fil);
-                    fil.appendChild(filtersFactory.createAlphaToLuminanceFilter());
-                    gg = createNS('g');
-                    gg.appendChild(this.layerElement);
-                    layerElementParent = gg;
-                    masker.appendChild(gg);
-                    gg.setAttribute('filter','url(' + locationHref + '#' + filId + ')');
-                }
-            } else if(this.data.td == 2) {
-                var maskGroup = createNS('mask');
-                maskGroup.setAttribute('id', this.layerId);
-                maskGroup.setAttribute('mask-type','alpha');
-                var maskGrouper = createNS('g');
-                maskGroup.appendChild(maskGrouper);
-                filId = randomString(10);
-                fil = filtersFactory.createFilter(filId);
-                ////
-
-                var feColorMatrix = createNS('feColorMatrix');
-                feColorMatrix.setAttribute('type', 'matrix');
-                feColorMatrix.setAttribute('color-interpolation-filters', 'sRGB');
-                feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 -1 1');
-                fil.appendChild(feColorMatrix);
-
-                ////
-                /*var feCTr = createNS('feComponentTransfer');
-                feCTr.setAttribute('in','SourceGraphic');
-                fil.appendChild(feCTr);
-                var feFunc = createNS('feFuncA');
-                feFunc.setAttribute('type','table');
-                feFunc.setAttribute('tableValues','1.0 0.0');
-                feCTr.appendChild(feFunc);*/
-                this.globalData.defs.appendChild(fil);
-                var alphaRect = createNS('rect');
-                alphaRect.setAttribute('width',  this.comp.data.w);
-                alphaRect.setAttribute('height', this.comp.data.h);
-                alphaRect.setAttribute('x','0');
-                alphaRect.setAttribute('y','0');
-                alphaRect.setAttribute('fill','#ffffff');
-                alphaRect.setAttribute('opacity','0');
-                maskGrouper.setAttribute('filter', 'url(' + locationHref + '#'+filId+')');
-                maskGrouper.appendChild(alphaRect);
-                maskGrouper.appendChild(this.layerElement);
-                layerElementParent = maskGrouper;
-                if (!featureSupport.maskType) {
-                    maskGroup.setAttribute('mask-type', 'luminance');
-                    fil.appendChild(filtersFactory.createAlphaToLuminanceFilter());
-                    gg = createNS('g');
-                    maskGrouper.appendChild(alphaRect);
-                    gg.appendChild(this.layerElement);
-                    layerElementParent = gg;
-                    maskGrouper.appendChild(gg);
-                }
-                this.globalData.defs.appendChild(maskGroup);
-            }
-        } else if (this.data.tt) {
-            this.matteElement.appendChild(this.layerElement);
-            layerElementParent = this.matteElement;
-            this.baseElement = this.matteElement;
-        } else {
-            this.baseElement = this.layerElement;
-        }
-        if (this.data.ln) {
-            this.layerElement.setAttribute('id', this.data.ln);
-        }
-        if (this.data.cl) {
-            this.layerElement.setAttribute('class', this.data.cl);
-        }
-        //Clipping compositions to hide content that exceeds boundaries. If collapsed transformations is on, component should not be clipped
-        if (this.data.ty === 0 && !this.data.hd) {
-            var cp = createNS( 'clipPath');
-            var pt = createNS('path');
-            pt.setAttribute('d','M0,0 L' + this.data.w + ',0' + ' L' + this.data.w + ',' + this.data.h + ' L0,' + this.data.h + 'z');
-            var clipId = 'cp_'+randomString(8);
-            cp.setAttribute('id',clipId);
-            cp.appendChild(pt);
-            this.globalData.defs.appendChild(cp);
-
-            if (this.checkMasks()) {
-                var cpGroup = createNS('g');
-                cpGroup.setAttribute('clip-path','url(' + locationHref + '#'+clipId + ')');
-                cpGroup.appendChild(this.layerElement);
-                this.transformedElement = cpGroup;
-                if (layerElementParent) {
-                    layerElementParent.appendChild(this.transformedElement);
-                } else {
-                    this.baseElement = this.transformedElement;
-                }
-            } else {
-                this.layerElement.setAttribute('clip-path','url(' + locationHref + '#'+clipId+')');
-            }
-            
-        }
-        if (this.data.bm !== 0) {
-            this.setBlendMode();
-        }
-
-    },
-    renderElement: function() {
-        if (this.finalTransform._matMdf) {
-            this.transformedElement.setAttribute('transform', this.finalTransform.mat.to2dCSS());
-        }
-        if (this.finalTransform._opMdf) {
-            this.transformedElement.setAttribute('opacity', this.finalTransform.mProp.o.v);
-        }
-    },
-    destroyBaseElement: function() {
-        this.layerElement = null;
-        this.matteElement = null;
-        this.maskManager.destroy();
-    },
-    getBaseElement: function() {
-        if (this.data.hd) {
-            return null;
-        }
-        return this.baseElement;
-    },
-    createRenderableComponents: function() {
-        this.maskManager = new MaskElement(this.data, this, this.globalData);
-        this.renderableEffectsManager = new SVGEffects(this);
-    },
-    setMatte: function(id) {
-        if (!this.matteElement) {
-            return;
-        }
-        this.matteElement.setAttribute("mask", "url(" + locationHref + "#" + id + ")");
-    }
-};
-function IShapeElement(){
-}
-
-IShapeElement.prototype = {
-    addShapeToModifiers: function(data) {
-        var i, len = this.shapeModifiers.length;
-        for(i=0;i<len;i+=1){
-            this.shapeModifiers[i].addShape(data);
-        }
-    },
-    isShapeInAnimatedModifiers: function(data) {
-        var i = 0, len = this.shapeModifiers.length;
-        while(i < len) {
-            if(this.shapeModifiers[i].isAnimatedWithShape(data)) {
-                return true;
-            }
-        }
-        return false;
-    },
-    renderModifiers: function() {
-        if(!this.shapeModifiers.length){
-            return;
-        }
-        var i, len = this.shapes.length;
-        for(i=0;i<len;i+=1){
-            this.shapes[i].sh.reset();
-        }
-
-        len = this.shapeModifiers.length;
-        for(i=len-1;i>=0;i-=1){
-            this.shapeModifiers[i].processShapes(this._isFirstFrame);
-        }
-    },
-    lcEnum: {
-        '1': 'butt',
-        '2': 'round',
-        '3': 'square'
-    },
-    ljEnum: {
-        '1': 'miter',
-        '2': 'round',
-        '3': 'bevel'
-    },
-    searchProcessedElement: function(elem){
-        var elements = this.processedElements;
-        var i = 0, len = elements.length;
-        while(i < len){
-            if(elements[i].elem === elem){
-                return elements[i].pos;
-            }
-            i += 1;
-        }
-        return 0;
-    },
-    addProcessedElement: function(elem, pos){
-        var elements = this.processedElements;
-        var i = elements.length;
-        while(i){
-            i -= 1;
-            if(elements[i].elem === elem){
-                elements[i].pos = pos;
-                return;
-            }
-        }
-        elements.push(new ProcessedElement(elem, pos));
-    },
-    prepareFrame: function(num) {
-        this.prepareRenderableFrame(num);
-        this.prepareProperties(num, this.isInRange);
-    }
-};
-function ITextElement(){
-}
-
-ITextElement.prototype.initElement = function(data,globalData,comp){
-    this.lettersChangedFlag = true;
-    this.initFrame();
-    this.initBaseData(data, globalData, comp);
-    this.textProperty = new TextProperty(this, data.t, this.dynamicProperties);
-    this.textAnimator = new TextAnimatorProperty(data.t, this.renderType, this);
-    this.initTransform(data, globalData, comp);
-    this.initHierarchy();
-    this.initRenderable();
-    this.initRendererElement();
-    this.createContainerElements();
-    this.createRenderableComponents();
-    this.createContent();
-    this.hide();
-    this.textAnimator.searchProperties(this.dynamicProperties);
-};
-
-ITextElement.prototype.prepareFrame = function(num) {
-    this._mdf = false;
-    this.prepareRenderableFrame(num);
-    this.prepareProperties(num, this.isInRange);
-    if(this.textProperty._mdf || this.textProperty._isFirstFrame) {
-        this.buildNewText();
-        this.textProperty._isFirstFrame = false;
-        this.textProperty._mdf = false;
-    }
-};
-
-ITextElement.prototype.createPathShape = function(matrixHelper, shapes) {
-    var j,jLen = shapes.length;
-    var k, kLen, pathNodes;
-    var shapeStr = '';
-    for(j=0;j<jLen;j+=1){
-        pathNodes = shapes[j].ks.k;
-        shapeStr += buildShapeString(pathNodes, pathNodes.i.length, true, matrixHelper);
-    }
-    return shapeStr;
-};
-
-ITextElement.prototype.updateDocumentData = function(newData, index) {
-    this.textProperty.updateDocumentData(newData, index);
-};
-
-ITextElement.prototype.canResizeFont = function(_canResize) {
-    this.textProperty.canResizeFont(_canResize);
-};
-
-ITextElement.prototype.setMinimumFontSize = function(_fontSize) {
-    this.textProperty.setMinimumFontSize(_fontSize);
-};
-
-ITextElement.prototype.applyTextPropertiesToMatrix = function(documentData, matrixHelper, lineNumber, xPos, yPos) {
-    if(documentData.ps){
-        matrixHelper.translate(documentData.ps[0],documentData.ps[1] + documentData.ascent,0);
-    }
-    matrixHelper.translate(0,-documentData.ls,0);
-    switch(documentData.j){
-        case 1:
-            matrixHelper.translate(documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[lineNumber]),0,0);
-            break;
-        case 2:
-            matrixHelper.translate(documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[lineNumber] )/2,0,0);
-            break;
-    }
-    matrixHelper.translate(xPos, yPos, 0);
-};
-
-
-ITextElement.prototype.buildColor = function(colorData) {
-    return 'rgb(' + Math.round(colorData[0]*255) + ',' + Math.round(colorData[1]*255) + ',' + Math.round(colorData[2]*255) + ')';
-};
-
-ITextElement.prototype.emptyProp = new LetterProps();
-
-ITextElement.prototype.destroy = function(){
-    
-};
-function ICompElement(){}
-
-extendPrototype([BaseElement, TransformElement, HierarchyElement, FrameElement, RenderableDOMElement], ICompElement);
-
-ICompElement.prototype.initElement = function(data,globalData,comp) {
-    this.initFrame();
-    this.initBaseData(data, globalData, comp);
-    this.initTransform(data, globalData, comp);
-    this.initRenderable();
-    this.initHierarchy();
-    this.initRendererElement();
-    this.createContainerElements();
-    this.createRenderableComponents();
-    if(this.data.xt || !globalData.progressiveLoad){
-        this.buildAllItems();
-    }
-    this.hide();
-};
-
-/*ICompElement.prototype.hide = function(){
-    if(!this.hidden){
-        this.hideElement();
-        var i,len = this.elements.length;
-        for( i = 0; i < len; i+=1 ){
-            if(this.elements[i]){
-                this.elements[i].hide();
-            }
-        }
-    }
-};*/
-
-ICompElement.prototype.prepareFrame = function(num){
-    this._mdf = false;
-    this.prepareRenderableFrame(num);
-    this.prepareProperties(num, this.isInRange);
-    if(!this.isInRange && !this.data.xt){
-        return;
-    }
-
-    if (!this.tm._placeholder) {
-        var timeRemapped = this.tm.v;
-        if(timeRemapped === this.data.op){
-            timeRemapped = this.data.op - 1;
-        }
-        this.renderedFrame = timeRemapped;
-    } else {
-        this.renderedFrame = num/this.data.sr;
-    }
-    var i,len = this.elements.length;
-    if(!this.completeLayers){
-        this.checkLayers(this.renderedFrame);
-    }
-    //This iteration needs to be backwards because of how expressions connect between each other
-    for( i = len - 1; i >= 0; i -= 1 ){
-        if(this.completeLayers || this.elements[i]){
-            this.elements[i].prepareFrame(this.renderedFrame - this.layers[i].st);
-            if(this.elements[i]._mdf) {
-                this._mdf = true;
-            }
-        }
-    }
-};
-
-ICompElement.prototype.renderInnerContent = function() {
-    var i,len = this.layers.length;
-    for( i = 0; i < len; i += 1 ){
-        if(this.completeLayers || this.elements[i]){
-            this.elements[i].renderFrame();
-        }
-    }
-};
-
-ICompElement.prototype.setElements = function(elems){
-    this.elements = elems;
-};
-
-ICompElement.prototype.getElements = function(){
-    return this.elements;
-};
-
-ICompElement.prototype.destroyElements = function(){
-    var i,len = this.layers.length;
-    for( i = 0; i < len; i+=1 ){
-        if(this.elements[i]){
-            this.elements[i].destroy();
-        }
-    }
-};
-
-ICompElement.prototype.destroy = function(){
-    this.destroyElements();
-    this.destroyBaseElement();
-};
-
-function IImageElement(data,globalData,comp){
-    this.assetData = globalData.getAssetData(data.refId);
-    this.initElement(data,globalData,comp);
-}
-
-extendPrototype([BaseElement,TransformElement,SVGBaseElement,HierarchyElement,FrameElement,RenderableDOMElement], IImageElement);
-
-IImageElement.prototype.createContent = function(){
-
-    var assetPath = this.globalData.getAssetsPath(this.assetData);
-
-    this.innerElem = createNS('image');
-    this.innerElem.setAttribute('width',this.assetData.w+"px");
-    this.innerElem.setAttribute('height',this.assetData.h+"px");
-    this.innerElem.setAttribute('preserveAspectRatio',this.assetData.pr || this.globalData.renderConfig.imagePreserveAspectRatio);
-    this.innerElem.setAttributeNS('http://www.w3.org/1999/xlink','href',assetPath);
-    
-    this.layerElement.appendChild(this.innerElem);
-};
-
-function ISolidElement(data,globalData,comp){
-    this.initElement(data,globalData,comp);
-}
-extendPrototype([IImageElement], ISolidElement);
-
-ISolidElement.prototype.createContent = function(){
-
-    var rect = createNS('rect');
-    ////rect.style.width = this.data.sw;
-    ////rect.style.height = this.data.sh;
-    ////rect.style.fill = this.data.sc;
-    rect.setAttribute('width',this.data.sw);
-    rect.setAttribute('height',this.data.sh);
-    rect.setAttribute('fill',this.data.sc);
-    this.layerElement.appendChild(rect);
-};
-function SVGCompElement(data,globalData,comp){
-    this.layers = data.layers;
-    this.supports3d = true;
-    this.completeLayers = false;
-    this.pendingElements = [];
-    this.elements = this.layers ? createSizedArray(this.layers.length) : [];
-    //this.layerElement = createNS('g');
-    this.initElement(data,globalData,comp);
-    this.tm = data.tm ? PropertyFactory.getProp(this,data.tm,0,globalData.frameRate,this) : {_placeholder:true};
-}
-
-extendPrototype([SVGRenderer, ICompElement, SVGBaseElement], SVGCompElement);
-function SVGTextElement(data,globalData,comp){
-    this.textSpans = [];
-    this.renderType = 'svg';
-    this.initElement(data,globalData,comp);
-}
-
-extendPrototype([BaseElement,TransformElement,SVGBaseElement,HierarchyElement,FrameElement,RenderableDOMElement,ITextElement], SVGTextElement);
-
-SVGTextElement.prototype.createContent = function(){
-
-    if (this.data.singleShape && !this.globalData.fontManager.chars) {
-        this.textContainer = createNS('text');
-    }
-};
-
-SVGTextElement.prototype.buildTextContents = function(textArray) {
-    var i = 0, len = textArray.length;
-    var textContents = [], currentTextContent = '';
-    while (i < len) {
-        if(textArray[i] === String.fromCharCode(13) || textArray[i] === String.fromCharCode(3)) {
-            textContents.push(currentTextContent);
-            currentTextContent = '';
-        } else {
-            currentTextContent += textArray[i];
-        }
-        i += 1;
-    }
-    textContents.push(currentTextContent);
-    return textContents;
-}
-
-SVGTextElement.prototype.buildNewText = function(){
-    var i, len;
-
-    var documentData = this.textProperty.currentData;
-    this.renderedLetters = createSizedArray(documentData ? documentData.l.length : 0);
-    if(documentData.fc) {
-        this.layerElement.setAttribute('fill', this.buildColor(documentData.fc));
-    }else{
-        this.layerElement.setAttribute('fill', 'rgba(0,0,0,0)');
-    }
-    if(documentData.sc){
-        this.layerElement.setAttribute('stroke', this.buildColor(documentData.sc));
-        this.layerElement.setAttribute('stroke-width', documentData.sw);
-    }
-    this.layerElement.setAttribute('font-size', documentData.finalSize);
-    var fontData = this.globalData.fontManager.getFontByName(documentData.f);
-    if(fontData.fClass){
-        this.layerElement.setAttribute('class',fontData.fClass);
-    } else {
-        this.layerElement.setAttribute('font-family', fontData.fFamily);
-        var fWeight = documentData.fWeight, fStyle = documentData.fStyle;
-        this.layerElement.setAttribute('font-style', fStyle);
-        this.layerElement.setAttribute('font-weight', fWeight);
-    }
-
-    var letters = documentData.l || [];
-    var usesGlyphs = !!this.globalData.fontManager.chars;
-    len = letters.length;
-
-    var tSpan;
-    var matrixHelper = this.mHelper;
-    var shapes, shapeStr = '', singleShape = this.data.singleShape;
-    var xPos = 0, yPos = 0, firstLine = true;
-    var trackingOffset = documentData.tr/1000*documentData.finalSize;
-    if(singleShape && !usesGlyphs && !documentData.sz) {
-        var tElement = this.textContainer;
-        var justify = 'start';
-        switch(documentData.j) {
-            case 1:
-                justify = 'end';
-                break;
-            case 2:
-                justify = 'middle';
-                break;
-        }
-        tElement.setAttribute('text-anchor',justify);
-        tElement.setAttribute('letter-spacing',trackingOffset);
-        var textContent = this.buildTextContents(documentData.finalText);
-        len = textContent.length;
-        yPos = documentData.ps ? documentData.ps[1] + documentData.ascent : 0;
-        for ( i = 0; i < len; i += 1) {
-            tSpan = this.textSpans[i] || createNS('tspan');
-            tSpan.textContent = textContent[i];
-            tSpan.setAttribute('x', 0);
-            tSpan.setAttribute('y', yPos);
-            tSpan.style.display = 'inherit';
-            tElement.appendChild(tSpan);
-            this.textSpans[i] = tSpan;
-            yPos += documentData.finalLineHeight;
-        }
-        
-        this.layerElement.appendChild(tElement);
-    } else {
-        var cachedSpansLength = this.textSpans.length;
-        var shapeData, charData;
-        for (i = 0; i < len; i += 1) {
-            if(!usesGlyphs || !singleShape || i === 0){
-                tSpan = cachedSpansLength > i ? this.textSpans[i] : createNS(usesGlyphs?'path':'text');
-                if (cachedSpansLength <= i) {
-                    tSpan.setAttribute('stroke-linecap', 'butt');
-                    tSpan.setAttribute('stroke-linejoin','round');
-                    tSpan.setAttribute('stroke-miterlimit','4');
-                    this.textSpans[i] = tSpan;
-                    this.layerElement.appendChild(tSpan);
-                }
-                tSpan.style.display = 'inherit';
-            }
-            
-            matrixHelper.reset();
-            matrixHelper.scale(documentData.finalSize / 100, documentData.finalSize / 100);
-            if (singleShape) {
-                if(letters[i].n) {
-                    xPos = -trackingOffset;
-                    yPos += documentData.yOffset;
-                    yPos += firstLine ? 1 : 0;
-                    firstLine = false;
-                }
-                this.applyTextPropertiesToMatrix(documentData, matrixHelper, letters[i].line, xPos, yPos);
-                xPos += letters[i].l || 0;
-                //xPos += letters[i].val === ' ' ? 0 : trackingOffset;
-                xPos += trackingOffset;
-            }
-            if(usesGlyphs) {
-                charData = this.globalData.fontManager.getCharData(documentData.finalText[i], fontData.fStyle, this.globalData.fontManager.getFontByName(documentData.f).fFamily);
-                shapeData = charData && charData.data || {};
-                shapes = shapeData.shapes ? shapeData.shapes[0].it : [];
-                if(!singleShape){
-                    tSpan.setAttribute('d',this.createPathShape(matrixHelper,shapes));
-                } else {
-                    shapeStr += this.createPathShape(matrixHelper,shapes);
-                }
-            } else {
-                if(singleShape) {
-                    tSpan.setAttribute("transform", "translate(" + matrixHelper.props[12] + "," + matrixHelper.props[13] + ")");
-                }
-                tSpan.textContent = letters[i].val;
-                tSpan.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
-            }
-            //
-        }
-        if (singleShape && tSpan) {
-            tSpan.setAttribute('d',shapeStr);
-        }
-    }
-    while (i < this.textSpans.length){
-        this.textSpans[i].style.display = 'none';
-        i += 1;
-    }
-    
-    this._sizeChanged = true;
-};
-
-SVGTextElement.prototype.sourceRectAtTime = function(time){
-    this.prepareFrame(this.comp.renderedFrame - this.data.st);
-    this.renderInnerContent();
-    if(this._sizeChanged){
-        this._sizeChanged = false;
-        var textBox = this.layerElement.getBBox();
-        this.bbox = {
-            top: textBox.y,
-            left: textBox.x,
-            width: textBox.width,
-            height: textBox.height
-        };
-    }
-    return this.bbox;
-};
-
-SVGTextElement.prototype.renderInnerContent = function(){
-
-    if(!this.data.singleShape){
-        this.textAnimator.getMeasures(this.textProperty.currentData, this.lettersChangedFlag);
-        if(this.lettersChangedFlag || this.textAnimator.lettersChangedFlag){
-            this._sizeChanged = true;
-            var  i,len;
-            var renderedLetters = this.textAnimator.renderedLetters;
-
-            var letters = this.textProperty.currentData.l;
-
-            len = letters.length;
-            var renderedLetter, textSpan;
-            for(i=0;i<len;i+=1){
-                if(letters[i].n){
-                    continue;
-                }
-                renderedLetter = renderedLetters[i];
-                textSpan = this.textSpans[i];
-                if(renderedLetter._mdf.m) {
-                    textSpan.setAttribute('transform',renderedLetter.m);
-                }
-                if(renderedLetter._mdf.o) {
-                    textSpan.setAttribute('opacity',renderedLetter.o);
-                }
-                if(renderedLetter._mdf.sw){
-                    textSpan.setAttribute('stroke-width',renderedLetter.sw);
-                }
-                if(renderedLetter._mdf.sc){
-                    textSpan.setAttribute('stroke',renderedLetter.sc);
-                }
-                if(renderedLetter._mdf.fc){
-                    textSpan.setAttribute('fill',renderedLetter.fc);
-                }
-            }
-        }
-    }
-};
-function SVGShapeElement(data,globalData,comp){
-    //List of drawable elements
-    this.shapes = [];
-    // Full shape data
-    this.shapesData = data.shapes;
-    //List of styles that will be applied to shapes
-    this.stylesList = [];
-    //List of modifiers that will be applied to shapes
-    this.shapeModifiers = [];
-    //List of items in shape tree
-    this.itemsData = [];
-    //List of items in previous shape tree
-    this.processedElements = [];
-    // List of animated components
-    this.animatedContents = [];
-    this.initElement(data,globalData,comp);
-    //Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
-    // List of elements that have been created
-    this.prevViewData = [];
-    //Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
-}
-
-extendPrototype([BaseElement,TransformElement,SVGBaseElement,IShapeElement,HierarchyElement,FrameElement,RenderableDOMElement], SVGShapeElement);
-
-SVGShapeElement.prototype.initSecondaryElement = function() {
-};
-
-SVGShapeElement.prototype.identityMatrix = new Matrix();
-
-SVGShapeElement.prototype.buildExpressionInterface = function(){};
-
-SVGShapeElement.prototype.createContent = function(){
-    this.searchShapes(this.shapesData,this.itemsData,this.prevViewData,this.layerElement, 0, [], true);
-    this.filterUniqueShapes();
-};
-
-/*
-This method searches for multiple shapes that affect a single element and one of them is animated
-*/
-SVGShapeElement.prototype.filterUniqueShapes = function(){
-    var i, len = this.shapes.length, shape;
-    var j, jLen = this.stylesList.length;
-    var style, count = 0;
-    var tempShapes = [];
-    var areAnimated = false;
-    for(j = 0; j < jLen; j += 1) {
-        style = this.stylesList[j];
-        areAnimated = false;
-        tempShapes.length = 0;
-        for(i = 0; i < len; i += 1) {
-            shape = this.shapes[i];
-            if(shape.styles.indexOf(style) !== -1) {
-                tempShapes.push(shape);
-                areAnimated = shape._isAnimated || areAnimated;
-            }
-        }
-        if(tempShapes.length > 1 && areAnimated) {
-            this.setShapesAsAnimated(tempShapes);
-        }
-    }
-}
-
-SVGShapeElement.prototype.setShapesAsAnimated = function(shapes){
-    var i, len = shapes.length;
-    for(i = 0; i < len; i += 1) {
-        shapes[i].setAsAnimated();
-    }
-}
-
-SVGShapeElement.prototype.createStyleElement = function(data, level){
-    //TODO: prevent drawing of hidden styles
-    var elementData;
-    var styleOb = new SVGStyleData(data, level);
-
-    var pathElement = styleOb.pElem;
-    if(data.ty === 'st') {
-        elementData = new SVGStrokeStyleData(this, data, styleOb);
-    } else if(data.ty === 'fl') {
-        elementData = new SVGFillStyleData(this, data, styleOb);
-    } else if(data.ty === 'gf' || data.ty === 'gs') {
-        var gradientConstructor = data.ty === 'gf' ? SVGGradientFillStyleData : SVGGradientStrokeStyleData;
-        elementData = new gradientConstructor(this, data, styleOb);
-        this.globalData.defs.appendChild(elementData.gf);
-        if (elementData.maskId) {
-            this.globalData.defs.appendChild(elementData.ms);
-            this.globalData.defs.appendChild(elementData.of);
-            pathElement.setAttribute('mask','url(' + locationHref + '#' + elementData.maskId + ')');
-        }
-    }
-    
-    if(data.ty === 'st' || data.ty === 'gs') {
-        pathElement.setAttribute('stroke-linecap', this.lcEnum[data.lc] || 'round');
-        pathElement.setAttribute('stroke-linejoin',this.ljEnum[data.lj] || 'round');
-        pathElement.setAttribute('fill-opacity','0');
-        if(data.lj === 1) {
-            pathElement.setAttribute('stroke-miterlimit',data.ml);
-        }
-    }
-
-    if(data.r === 2) {
-        pathElement.setAttribute('fill-rule', 'evenodd');
-    }
-
-    if(data.ln){
-        pathElement.setAttribute('id',data.ln);
-    }
-    if(data.cl){
-        pathElement.setAttribute('class',data.cl);
-    }
-    this.stylesList.push(styleOb);
-    this.addToAnimatedContents(data, elementData);
-    return elementData;
-};
-
-SVGShapeElement.prototype.createGroupElement = function(data) {
-    var elementData = new ShapeGroupData();
-    if(data.ln){
-        elementData.gr.setAttribute('id',data.ln);
-    }
-    if(data.cl){
-        elementData.gr.setAttribute('class',data.cl);
-    }
-    return elementData;
-};
-
-SVGShapeElement.prototype.createTransformElement = function(data, container) {
-    var transformProperty = TransformPropertyFactory.getTransformProperty(this,data,this);
-    var elementData = new SVGTransformData(transformProperty, transformProperty.o, container);
-    this.addToAnimatedContents(data, elementData);
-    return elementData;
-};
-
-SVGShapeElement.prototype.createShapeElement = function(data, ownTransformers, level) {
-    var ty = 4;
-    if(data.ty === 'rc'){
-        ty = 5;
-    }else if(data.ty === 'el'){
-        ty = 6;
-    }else if(data.ty === 'sr'){
-        ty = 7;
-    }
-    var shapeProperty = ShapePropertyFactory.getShapeProp(this,data,ty,this);
-    var elementData = new SVGShapeData(ownTransformers, level, shapeProperty);
-    this.shapes.push(elementData);
-    this.addShapeToModifiers(elementData);
-    this.addToAnimatedContents(data, elementData);
-    return elementData;
-};
-
-SVGShapeElement.prototype.addToAnimatedContents = function(data, element) {
-    var i = 0, len = this.animatedContents.length;
-    while(i < len) {
-        if(this.animatedContents[i].element === element) {
-            return;
-        }
-        i += 1;
-    }
-    this.animatedContents.push({
-        fn: SVGElementsRenderer.createRenderFunction(data),
-        element: element,
-        data: data
-    });
-};
-
-SVGShapeElement.prototype.setElementStyles = function(elementData){
-    var arr = elementData.styles;
-    var j, jLen = this.stylesList.length;
-    for (j = 0; j < jLen; j += 1) {
-        if (!this.stylesList[j].closed) {
-            arr.push(this.stylesList[j]);
-        }
-    }
-};
-
-SVGShapeElement.prototype.reloadShapes = function(){
-    this._isFirstFrame = true;
-    var i, len = this.itemsData.length;
-    for( i = 0; i < len; i += 1) {
-        this.prevViewData[i] = this.itemsData[i];
-    }
-    this.searchShapes(this.shapesData,this.itemsData,this.prevViewData,this.layerElement, 0, [], true);
-    this.filterUniqueShapes();
-    len = this.dynamicProperties.length;
-    for(i = 0; i < len; i += 1) {
-        this.dynamicProperties[i].getValue();
-    }
-    this.renderModifiers();
-};
-
-SVGShapeElement.prototype.searchShapes = function(arr,itemsData,prevViewData,container, level, transformers, render){
-    var ownTransformers = [].concat(transformers);
-    var i, len = arr.length - 1;
-    var j, jLen;
-    var ownStyles = [], ownModifiers = [], styleOb, currentTransform, modifier, processedPos;
-    for(i=len;i>=0;i-=1){
-        processedPos = this.searchProcessedElement(arr[i]);
-        if(!processedPos){
-            arr[i]._render = render;
-        } else {
-            itemsData[i] = prevViewData[processedPos - 1];
-        }
-        if(arr[i].ty == 'fl' || arr[i].ty == 'st' || arr[i].ty == 'gf' || arr[i].ty == 'gs'){
-            if(!processedPos){
-                itemsData[i] = this.createStyleElement(arr[i], level);
-            } else {
-                itemsData[i].style.closed = false;
-            }
-            if(arr[i]._render){
-                container.appendChild(itemsData[i].style.pElem);
-            }
-            ownStyles.push(itemsData[i].style);
-        }else if(arr[i].ty == 'gr'){
-            if(!processedPos){
-                itemsData[i] = this.createGroupElement(arr[i]);
-            } else {
-                jLen = itemsData[i].it.length;
-                for(j=0;j<jLen;j+=1){
-                    itemsData[i].prevViewData[j] = itemsData[i].it[j];
-                }
-            }
-            this.searchShapes(arr[i].it,itemsData[i].it,itemsData[i].prevViewData,itemsData[i].gr, level + 1, ownTransformers, render);
-            if(arr[i]._render){
-                container.appendChild(itemsData[i].gr);
-            }
-        }else if(arr[i].ty == 'tr'){
-            if(!processedPos){
-                itemsData[i] = this.createTransformElement(arr[i], container);
-            }
-            currentTransform = itemsData[i].transform;
-            ownTransformers.push(currentTransform);
-        }else if(arr[i].ty == 'sh' || arr[i].ty == 'rc' || arr[i].ty == 'el' || arr[i].ty == 'sr'){
-            if(!processedPos){
-                itemsData[i] = this.createShapeElement(arr[i], ownTransformers, level);
-            }
-            this.setElementStyles(itemsData[i]);
-
-        }else if(arr[i].ty == 'tm' || arr[i].ty == 'rd' || arr[i].ty == 'ms'){
-            if(!processedPos){
-                modifier = ShapeModifiers.getModifier(arr[i].ty);
-                modifier.init(this,arr[i]);
-                itemsData[i] = modifier;
-                this.shapeModifiers.push(modifier);
-            } else {
-                modifier = itemsData[i];
-                modifier.closed = false;
-            }
-            ownModifiers.push(modifier);
-        }else if(arr[i].ty == 'rp'){
-            if(!processedPos){
-                modifier = ShapeModifiers.getModifier(arr[i].ty);
-                itemsData[i] = modifier;
-                modifier.init(this,arr,i,itemsData);
-                this.shapeModifiers.push(modifier);
-                render = false;
-            }else{
-                modifier = itemsData[i];
-                modifier.closed = true;
-            }
-            ownModifiers.push(modifier);
-        }
-        this.addProcessedElement(arr[i], i + 1);
-    }
-    len = ownStyles.length;
-    for(i=0;i<len;i+=1){
-        ownStyles[i].closed = true;
-    }
-    len = ownModifiers.length;
-    for(i=0;i<len;i+=1){
-        ownModifiers[i].closed = true;
-    }
-};
-
-SVGShapeElement.prototype.renderInnerContent = function() {
-    this.renderModifiers();
-    var i, len = this.stylesList.length;
-    for(i=0;i<len;i+=1){
-        this.stylesList[i].reset();
-    }
-    this.renderShape();
-
-    for (i = 0; i < len; i += 1) {
-        if (this.stylesList[i]._mdf || this._isFirstFrame) {
-            if(this.stylesList[i].msElem){
-                this.stylesList[i].msElem.setAttribute('d', this.stylesList[i].d);
-                //Adding M0 0 fixes same mask bug on all browsers
-                this.stylesList[i].d = 'M0 0' + this.stylesList[i].d;
-            }
-            this.stylesList[i].pElem.setAttribute('d', this.stylesList[i].d || 'M0 0');
-        }
-    }
-};
-
-SVGShapeElement.prototype.renderShape = function() {
-    var i, len = this.animatedContents.length;
-    var animatedContent;
-    for(i = 0; i < len; i += 1) {
-        animatedContent = this.animatedContents[i];
-        if((this._isFirstFrame || animatedContent.element._isAnimated) && animatedContent.data !== true) {
-            animatedContent.fn(animatedContent.data, animatedContent.element, this._isFirstFrame);
-        }
-    }
-}
-
-SVGShapeElement.prototype.destroy = function(){
-    this.destroyBaseElement();
-    this.shapesData = null;
-    this.itemsData = null;
-};
-
-function SVGTintFilter(filter, filterManager){
-    this.filterManager = filterManager;
-    var feColorMatrix = createNS('feColorMatrix');
-    feColorMatrix.setAttribute('type','matrix');
-    feColorMatrix.setAttribute('color-interpolation-filters','linearRGB');
-    feColorMatrix.setAttribute('values','0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0');
-    feColorMatrix.setAttribute('result','f1');
-    filter.appendChild(feColorMatrix);
-    feColorMatrix = createNS('feColorMatrix');
-    feColorMatrix.setAttribute('type','matrix');
-    feColorMatrix.setAttribute('color-interpolation-filters','sRGB');
-    feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0');
-    feColorMatrix.setAttribute('result','f2');
-    filter.appendChild(feColorMatrix);
-    this.matrixFilter = feColorMatrix;
-    if(filterManager.effectElements[2].p.v !== 100 || filterManager.effectElements[2].p.k){
-        var feMerge = createNS('feMerge');
-        filter.appendChild(feMerge);
-        var feMergeNode;
-        feMergeNode = createNS('feMergeNode');
-        feMergeNode.setAttribute('in','SourceGraphic');
-        feMerge.appendChild(feMergeNode);
-        feMergeNode = createNS('feMergeNode');
-        feMergeNode.setAttribute('in','f2');
-        feMerge.appendChild(feMergeNode);
-    }
-}
-
-SVGTintFilter.prototype.renderFrame = function(forceRender){
-    if(forceRender || this.filterManager._mdf){
-        var colorBlack = this.filterManager.effectElements[0].p.v;
-        var colorWhite = this.filterManager.effectElements[1].p.v;
-        var opacity = this.filterManager.effectElements[2].p.v/100;
-        this.matrixFilter.setAttribute('values',(colorWhite[0]- colorBlack[0])+' 0 0 0 '+ colorBlack[0] +' '+ (colorWhite[1]- colorBlack[1]) +' 0 0 0 '+ colorBlack[1] +' '+ (colorWhite[2]- colorBlack[2]) +' 0 0 0 '+ colorBlack[2] +' 0 0 0 ' + opacity + ' 0');
-    }
-};
-function SVGFillFilter(filter, filterManager){
-    this.filterManager = filterManager;
-    var feColorMatrix = createNS('feColorMatrix');
-    feColorMatrix.setAttribute('type','matrix');
-    feColorMatrix.setAttribute('color-interpolation-filters','sRGB');
-    feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0');
-    filter.appendChild(feColorMatrix);
-    this.matrixFilter = feColorMatrix;
-}
-SVGFillFilter.prototype.renderFrame = function(forceRender){
-    if(forceRender || this.filterManager._mdf){
-        var color = this.filterManager.effectElements[2].p.v;
-        var opacity = this.filterManager.effectElements[6].p.v;
-        this.matrixFilter.setAttribute('values','0 0 0 0 '+color[0]+' 0 0 0 0 '+color[1]+' 0 0 0 0 '+color[2]+' 0 0 0 '+opacity+' 0');
-    }
-};
-function SVGStrokeEffect(elem, filterManager){
-    this.initialized = false;
-    this.filterManager = filterManager;
-    this.elem = elem;
-    this.paths = [];
-}
-
-SVGStrokeEffect.prototype.initialize = function(){
-
-    var elemChildren = this.elem.layerElement.children || this.elem.layerElement.childNodes;
-    var path,groupPath, i, len;
-    if(this.filterManager.effectElements[1].p.v === 1){
-        len = this.elem.maskManager.masksProperties.length;
-        i = 0;
-    } else {
-        i = this.filterManager.effectElements[0].p.v - 1;
-        len = i + 1;
-    }
-    groupPath = createNS('g'); 
-    groupPath.setAttribute('fill','none');
-    groupPath.setAttribute('stroke-linecap','round');
-    groupPath.setAttribute('stroke-dashoffset',1);
-    for(i;i<len;i+=1){
-        path = createNS('path');
-        groupPath.appendChild(path);
-        this.paths.push({p:path,m:i});
-    }
-    if(this.filterManager.effectElements[10].p.v === 3){
-        var mask = createNS('mask');
-        var id = 'stms_' + randomString(10);
-        mask.setAttribute('id',id);
-        mask.setAttribute('mask-type','alpha');
-        mask.appendChild(groupPath);
-        this.elem.globalData.defs.appendChild(mask);
-        var g = createNS('g');
-        g.setAttribute('mask','url(' + locationHref + '#'+id+')');
-        while (elemChildren[0]) {
-            g.appendChild(elemChildren[0]);
-        }
-        this.elem.layerElement.appendChild(g);
-        this.masker = mask;
-        groupPath.setAttribute('stroke','#fff');
-    } else if(this.filterManager.effectElements[10].p.v === 1 || this.filterManager.effectElements[10].p.v === 2){
-        if(this.filterManager.effectElements[10].p.v === 2){
-            elemChildren = this.elem.layerElement.children || this.elem.layerElement.childNodes;
-            while(elemChildren.length){
-                this.elem.layerElement.removeChild(elemChildren[0]);
-            }
-        }
-        this.elem.layerElement.appendChild(groupPath);
-        this.elem.layerElement.removeAttribute('mask');
-        groupPath.setAttribute('stroke','#fff');
-    }
-    this.initialized = true;
-    this.pathMasker = groupPath;
-};
-
-SVGStrokeEffect.prototype.renderFrame = function(forceRender){
-    if(!this.initialized){
-        this.initialize();
-    }
-    var i, len = this.paths.length;
-    var mask, path;
-    for(i=0;i<len;i+=1){
-        if(this.paths[i].m === -1) {
-            continue;
-        }
-        mask = this.elem.maskManager.viewData[this.paths[i].m];
-        path = this.paths[i].p;
-        if(forceRender || this.filterManager._mdf || mask.prop._mdf){
-            path.setAttribute('d',mask.lastPath);
-        }
-        if(forceRender || this.filterManager.effectElements[9].p._mdf || this.filterManager.effectElements[4].p._mdf || this.filterManager.effectElements[7].p._mdf || this.filterManager.effectElements[8].p._mdf || mask.prop._mdf){
-            var dasharrayValue;
-            if(this.filterManager.effectElements[7].p.v !== 0 || this.filterManager.effectElements[8].p.v !== 100){
-                var s = Math.min(this.filterManager.effectElements[7].p.v,this.filterManager.effectElements[8].p.v)/100;
-                var e = Math.max(this.filterManager.effectElements[7].p.v,this.filterManager.effectElements[8].p.v)/100;
-                var l = path.getTotalLength();
-                dasharrayValue = '0 0 0 ' + l*s + ' ';
-                var lineLength = l*(e-s);
-                var segment = 1+this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100;
-                var units = Math.floor(lineLength/segment);
-                var j;
-                for(j=0;j<units;j+=1){
-                    dasharrayValue += '1 ' + this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100 + ' ';
-                }
-                dasharrayValue += '0 ' + l*10 + ' 0 0';
-            } else {
-                dasharrayValue = '1 ' + this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100;
-            }
-            path.setAttribute('stroke-dasharray',dasharrayValue);
-        }
-    }
-    if(forceRender || this.filterManager.effectElements[4].p._mdf){
-        this.pathMasker.setAttribute('stroke-width',this.filterManager.effectElements[4].p.v*2);
-    }
-    
-    if(forceRender || this.filterManager.effectElements[6].p._mdf){
-        this.pathMasker.setAttribute('opacity',this.filterManager.effectElements[6].p.v);
-    }
-    if(this.filterManager.effectElements[10].p.v === 1 || this.filterManager.effectElements[10].p.v === 2){
-        if(forceRender || this.filterManager.effectElements[3].p._mdf){
-            var color = this.filterManager.effectElements[3].p.v;
-            this.pathMasker.setAttribute('stroke','rgb('+bm_floor(color[0]*255)+','+bm_floor(color[1]*255)+','+bm_floor(color[2]*255)+')');
-        }
-    }
-};
-function SVGTritoneFilter(filter, filterManager){
-    this.filterManager = filterManager;
-    var feColorMatrix = createNS('feColorMatrix');
-    feColorMatrix.setAttribute('type','matrix');
-    feColorMatrix.setAttribute('color-interpolation-filters','linearRGB');
-    feColorMatrix.setAttribute('values','0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0');
-    feColorMatrix.setAttribute('result','f1');
-    filter.appendChild(feColorMatrix);
-    var feComponentTransfer = createNS('feComponentTransfer');
-    feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
-    filter.appendChild(feComponentTransfer);
-    this.matrixFilter = feComponentTransfer;
-    var feFuncR = createNS('feFuncR');
-    feFuncR.setAttribute('type','table');
-    feComponentTransfer.appendChild(feFuncR);
-    this.feFuncR = feFuncR;
-    var feFuncG = createNS('feFuncG');
-    feFuncG.setAttribute('type','table');
-    feComponentTransfer.appendChild(feFuncG);
-    this.feFuncG = feFuncG;
-    var feFuncB = createNS('feFuncB');
-    feFuncB.setAttribute('type','table');
-    feComponentTransfer.appendChild(feFuncB);
-    this.feFuncB = feFuncB;
-}
-
-SVGTritoneFilter.prototype.renderFrame = function(forceRender){
-    if(forceRender || this.filterManager._mdf){
-        var color1 = this.filterManager.effectElements[0].p.v;
-        var color2 = this.filterManager.effectElements[1].p.v;
-        var color3 = this.filterManager.effectElements[2].p.v;
-        var tableR = color3[0] + ' ' + color2[0] + ' ' + color1[0];
-        var tableG = color3[1] + ' ' + color2[1] + ' ' + color1[1];
-        var tableB = color3[2] + ' ' + color2[2] + ' ' + color1[2];
-        this.feFuncR.setAttribute('tableValues', tableR);
-        this.feFuncG.setAttribute('tableValues', tableG);
-        this.feFuncB.setAttribute('tableValues', tableB);
-        //var opacity = this.filterManager.effectElements[2].p.v/100;
-        //this.matrixFilter.setAttribute('values',(colorWhite[0]- colorBlack[0])+' 0 0 0 '+ colorBlack[0] +' '+ (colorWhite[1]- colorBlack[1]) +' 0 0 0 '+ colorBlack[1] +' '+ (colorWhite[2]- colorBlack[2]) +' 0 0 0 '+ colorBlack[2] +' 0 0 0 ' + opacity + ' 0');
-    }
-};
-function SVGProLevelsFilter(filter, filterManager){
-    this.filterManager = filterManager;
-    var effectElements = this.filterManager.effectElements;
-    var feComponentTransfer = createNS('feComponentTransfer');
-    var feFuncR, feFuncG, feFuncB;
-    
-    if(effectElements[10].p.k || effectElements[10].p.v !== 0 || effectElements[11].p.k || effectElements[11].p.v !== 1 || effectElements[12].p.k || effectElements[12].p.v !== 1 || effectElements[13].p.k || effectElements[13].p.v !== 0 || effectElements[14].p.k || effectElements[14].p.v !== 1){
-        this.feFuncR = this.createFeFunc('feFuncR', feComponentTransfer);
-    }
-    if(effectElements[17].p.k || effectElements[17].p.v !== 0 || effectElements[18].p.k || effectElements[18].p.v !== 1 || effectElements[19].p.k || effectElements[19].p.v !== 1 || effectElements[20].p.k || effectElements[20].p.v !== 0 || effectElements[21].p.k || effectElements[21].p.v !== 1){
-        this.feFuncG = this.createFeFunc('feFuncG', feComponentTransfer);
-    }
-    if(effectElements[24].p.k || effectElements[24].p.v !== 0 || effectElements[25].p.k || effectElements[25].p.v !== 1 || effectElements[26].p.k || effectElements[26].p.v !== 1 || effectElements[27].p.k || effectElements[27].p.v !== 0 || effectElements[28].p.k || effectElements[28].p.v !== 1){
-        this.feFuncB = this.createFeFunc('feFuncB', feComponentTransfer);
-    }
-    if(effectElements[31].p.k || effectElements[31].p.v !== 0 || effectElements[32].p.k || effectElements[32].p.v !== 1 || effectElements[33].p.k || effectElements[33].p.v !== 1 || effectElements[34].p.k || effectElements[34].p.v !== 0 || effectElements[35].p.k || effectElements[35].p.v !== 1){
-        this.feFuncA = this.createFeFunc('feFuncA', feComponentTransfer);
-    }
-    
-    if(this.feFuncR || this.feFuncG || this.feFuncB || this.feFuncA){
-        feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
-        filter.appendChild(feComponentTransfer);
-        feComponentTransfer = createNS('feComponentTransfer');
-    }
-
-    if(effectElements[3].p.k || effectElements[3].p.v !== 0 || effectElements[4].p.k || effectElements[4].p.v !== 1 || effectElements[5].p.k || effectElements[5].p.v !== 1 || effectElements[6].p.k || effectElements[6].p.v !== 0 || effectElements[7].p.k || effectElements[7].p.v !== 1){
-
-        feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
-        filter.appendChild(feComponentTransfer);
-        this.feFuncRComposed = this.createFeFunc('feFuncR', feComponentTransfer);
-        this.feFuncGComposed = this.createFeFunc('feFuncG', feComponentTransfer);
-        this.feFuncBComposed = this.createFeFunc('feFuncB', feComponentTransfer);
-    }
-}
-
-SVGProLevelsFilter.prototype.createFeFunc = function(type, feComponentTransfer) {
-    var feFunc = createNS(type);
-    feFunc.setAttribute('type','table');
-    feComponentTransfer.appendChild(feFunc);
-    return feFunc;
-};
-
-SVGProLevelsFilter.prototype.getTableValue = function(inputBlack, inputWhite, gamma, outputBlack, outputWhite) {
-    var cnt = 0;
-    var segments = 256;
-    var perc;
-    var min = Math.min(inputBlack, inputWhite);
-    var max = Math.max(inputBlack, inputWhite);
-    var table = Array.call(null,{length:segments});
-    var colorValue;
-    var pos = 0;
-    var outputDelta = outputWhite - outputBlack; 
-    var inputDelta = inputWhite - inputBlack; 
-    while(cnt <= 256) {
-        perc = cnt/256;
-        if(perc <= min){
-            colorValue = inputDelta < 0 ? outputWhite : outputBlack;
-        } else if(perc >= max){
-            colorValue = inputDelta < 0 ? outputBlack : outputWhite;
-        } else {
-            colorValue = (outputBlack + outputDelta * Math.pow((perc - inputBlack) / inputDelta, 1 / gamma));
-        }
-        table[pos++] = colorValue;
-        cnt += 256/(segments-1);
-    }
-    return table.join(' ');
-};
-
-SVGProLevelsFilter.prototype.renderFrame = function(forceRender){
-    if(forceRender || this.filterManager._mdf){
-        var val, cnt, perc, bezier;
-        var effectElements = this.filterManager.effectElements;
-        if(this.feFuncRComposed && (forceRender || effectElements[3].p._mdf || effectElements[4].p._mdf || effectElements[5].p._mdf || effectElements[6].p._mdf || effectElements[7].p._mdf)){
-            val = this.getTableValue(effectElements[3].p.v,effectElements[4].p.v,effectElements[5].p.v,effectElements[6].p.v,effectElements[7].p.v);
-            this.feFuncRComposed.setAttribute('tableValues',val);
-            this.feFuncGComposed.setAttribute('tableValues',val);
-            this.feFuncBComposed.setAttribute('tableValues',val);
-        }
-
-
-        if(this.feFuncR && (forceRender || effectElements[10].p._mdf || effectElements[11].p._mdf || effectElements[12].p._mdf || effectElements[13].p._mdf || effectElements[14].p._mdf)){
-            val = this.getTableValue(effectElements[10].p.v,effectElements[11].p.v,effectElements[12].p.v,effectElements[13].p.v,effectElements[14].p.v);
-            this.feFuncR.setAttribute('tableValues',val);
-        }
-
-        if(this.feFuncG && (forceRender || effectElements[17].p._mdf || effectElements[18].p._mdf || effectElements[19].p._mdf || effectElements[20].p._mdf || effectElements[21].p._mdf)){
-            val = this.getTableValue(effectElements[17].p.v,effectElements[18].p.v,effectElements[19].p.v,effectElements[20].p.v,effectElements[21].p.v);
-            this.feFuncG.setAttribute('tableValues',val);
-        }
-
-        if(this.feFuncB && (forceRender || effectElements[24].p._mdf || effectElements[25].p._mdf || effectElements[26].p._mdf || effectElements[27].p._mdf || effectElements[28].p._mdf)){
-            val = this.getTableValue(effectElements[24].p.v,effectElements[25].p.v,effectElements[26].p.v,effectElements[27].p.v,effectElements[28].p.v);
-            this.feFuncB.setAttribute('tableValues',val);
-        }
-
-        if(this.feFuncA && (forceRender || effectElements[31].p._mdf || effectElements[32].p._mdf || effectElements[33].p._mdf || effectElements[34].p._mdf || effectElements[35].p._mdf)){
-            val = this.getTableValue(effectElements[31].p.v,effectElements[32].p.v,effectElements[33].p.v,effectElements[34].p.v,effectElements[35].p.v);
-            this.feFuncA.setAttribute('tableValues',val);
-        }
-        
-    }
-};
-function SVGDropShadowEffect(filter, filterManager){
-    filter.setAttribute('x','-100%');
-    filter.setAttribute('y','-100%');
-    filter.setAttribute('width','400%');
-    filter.setAttribute('height','400%');
-    this.filterManager = filterManager;
-
-    var feGaussianBlur = createNS('feGaussianBlur');
-    feGaussianBlur.setAttribute('in','SourceAlpha');
-    feGaussianBlur.setAttribute('result','drop_shadow_1');
-    feGaussianBlur.setAttribute('stdDeviation','0');
-    this.feGaussianBlur = feGaussianBlur;
-    filter.appendChild(feGaussianBlur);
-
-    var feOffset = createNS('feOffset');
-    feOffset.setAttribute('dx','25');
-    feOffset.setAttribute('dy','0');
-    feOffset.setAttribute('in','drop_shadow_1');
-    feOffset.setAttribute('result','drop_shadow_2');
-    this.feOffset = feOffset;
-    filter.appendChild(feOffset);
-    var feFlood = createNS('feFlood');
-    feFlood.setAttribute('flood-color','#00ff00');
-    feFlood.setAttribute('flood-opacity','1');
-    feFlood.setAttribute('result','drop_shadow_3');
-    this.feFlood = feFlood;
-    filter.appendChild(feFlood);
-
-    var feComposite = createNS('feComposite');
-    feComposite.setAttribute('in','drop_shadow_3');
-    feComposite.setAttribute('in2','drop_shadow_2');
-    feComposite.setAttribute('operator','in');
-    feComposite.setAttribute('result','drop_shadow_4');
-    filter.appendChild(feComposite);
-
-
-    var feMerge = createNS('feMerge');
-    filter.appendChild(feMerge);
-    var feMergeNode;
-    feMergeNode = createNS('feMergeNode');
-    feMerge.appendChild(feMergeNode);
-    feMergeNode = createNS('feMergeNode');
-    feMergeNode.setAttribute('in','SourceGraphic');
-    this.feMergeNode = feMergeNode;
-    this.feMerge = feMerge;
-    this.originalNodeAdded = false;
-    feMerge.appendChild(feMergeNode);
-}
-
-SVGDropShadowEffect.prototype.renderFrame = function(forceRender){
-    if(forceRender || this.filterManager._mdf){
-        if(forceRender || this.filterManager.effectElements[4].p._mdf){
-            this.feGaussianBlur.setAttribute('stdDeviation', this.filterManager.effectElements[4].p.v / 4);
-        }
-        if(forceRender || this.filterManager.effectElements[0].p._mdf){
-            var col = this.filterManager.effectElements[0].p.v;
-            this.feFlood.setAttribute('flood-color',rgbToHex(Math.round(col[0]*255),Math.round(col[1]*255),Math.round(col[2]*255)));
-        }
-        if(forceRender || this.filterManager.effectElements[1].p._mdf){
-            this.feFlood.setAttribute('flood-opacity',this.filterManager.effectElements[1].p.v/255);
-        }
-        if(forceRender || this.filterManager.effectElements[2].p._mdf || this.filterManager.effectElements[3].p._mdf){
-            var distance = this.filterManager.effectElements[3].p.v;
-            var angle = (this.filterManager.effectElements[2].p.v - 90) * degToRads;
-            var x = distance * Math.cos(angle);
-            var y = distance * Math.sin(angle);
-            this.feOffset.setAttribute('dx', x);
-            this.feOffset.setAttribute('dy', y);
-        }
-        /*if(forceRender || this.filterManager.effectElements[5].p._mdf){
-            if(this.filterManager.effectElements[5].p.v === 1 && this.originalNodeAdded) {
-                this.feMerge.removeChild(this.feMergeNode);
-                this.originalNodeAdded = false;
-            } else if(this.filterManager.effectElements[5].p.v === 0 && !this.originalNodeAdded) {
-                this.feMerge.appendChild(this.feMergeNode);
-                this.originalNodeAdded = true;
-            }
-        }*/
-    }
-};
-var _svgMatteSymbols = [];
-var _svgMatteMaskCounter = 0;
-
-function SVGMatte3Effect(filterElem, filterManager, elem){
-    this.initialized = false;
-    this.filterManager = filterManager;
-    this.filterElem = filterElem;
-    this.elem = elem;
-    elem.matteElement = createNS('g');
-    elem.matteElement.appendChild(elem.layerElement);
-    elem.matteElement.appendChild(elem.transformedElement);
-    elem.baseElement = elem.matteElement;
-}
-
-SVGMatte3Effect.prototype.findSymbol = function(mask) {
-    var i = 0, len = _svgMatteSymbols.length;
-    while(i < len) {
-        if(_svgMatteSymbols[i] === mask) {
-            return _svgMatteSymbols[i];
-        }
-        i += 1;
-    }
-    return null;
-};
-
-SVGMatte3Effect.prototype.replaceInParent = function(mask, symbolId) {
-    var parentNode = mask.layerElement.parentNode;
-    if(!parentNode) {
-        return;
-    }
-    var children = parentNode.children;
-    var i = 0, len = children.length;
-    while (i < len) {
-        if (children[i] === mask.layerElement) {
-            break;
-        }
-        i += 1;
-    }
-    var nextChild;
-    if (i <= len - 2) {
-        nextChild = children[i + 1];
-    }
-    var useElem = createNS('use');
-    useElem.setAttribute('href', '#' + symbolId);
-    if(nextChild) {
-        parentNode.insertBefore(useElem, nextChild);
-    } else {
-        parentNode.appendChild(useElem);
-    }
-};
-
-SVGMatte3Effect.prototype.setElementAsMask = function(elem, mask) {
-    if(!this.findSymbol(mask)) {
-        var symbolId = 'matte_' + randomString(5) + '_' + _svgMatteMaskCounter++;
-        var masker = createNS('mask');
-        masker.setAttribute('id', mask.layerId);
-        masker.setAttribute('mask-type', 'alpha');
-        _svgMatteSymbols.push(mask);
-        var defs = elem.globalData.defs;
-        defs.appendChild(masker);
-        var symbol = createNS('symbol');
-        symbol.setAttribute('id', symbolId);
-        this.replaceInParent(mask, symbolId);
-        symbol.appendChild(mask.layerElement);
-        defs.appendChild(symbol);
-        var useElem = createNS('use');
-        useElem.setAttribute('href', '#' + symbolId);
-        masker.appendChild(useElem);
-        mask.data.hd = false;
-        mask.show();
-    }
-    elem.setMatte(mask.layerId);
-};
-
-SVGMatte3Effect.prototype.initialize = function() {
-    var ind = this.filterManager.effectElements[0].p.v;
-    var elements = this.elem.comp.elements;
-    var i = 0, len = elements.length;
-    while (i < len) {
-    	if (elements[i] && elements[i].data.ind === ind) {
-    		this.setElementAsMask(this.elem, elements[i]);
-    	}
-    	i += 1;
-    }
-    this.initialized = true;
-};
-
-SVGMatte3Effect.prototype.renderFrame = function() {
-	if(!this.initialized) {
-		this.initialize();
-	}
-};
-function SVGEffects(elem){
-    var i, len = elem.data.ef ? elem.data.ef.length : 0;
-    var filId = randomString(10);
-    var fil = filtersFactory.createFilter(filId);
-    var count = 0;
-    this.filters = [];
-    var filterManager;
-    for(i=0;i<len;i+=1){
-        filterManager = null;
-        if(elem.data.ef[i].ty === 20){
-            count += 1;
-            filterManager = new SVGTintFilter(fil, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 21){
-            count += 1;
-            filterManager = new SVGFillFilter(fil, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 22){
-            filterManager = new SVGStrokeEffect(elem, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 23){
-            count += 1;
-            filterManager = new SVGTritoneFilter(fil, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 24){
-            count += 1;
-            filterManager = new SVGProLevelsFilter(fil, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 25){
-            count += 1;
-            filterManager = new SVGDropShadowEffect(fil, elem.effectsManager.effectElements[i]);
-        }else if(elem.data.ef[i].ty === 28){
-            //count += 1;
-            filterManager = new SVGMatte3Effect(fil, elem.effectsManager.effectElements[i], elem);
-        }
-        if(filterManager) {
-            this.filters.push(filterManager);
-        }
-    }
-    if(count){
-        elem.globalData.defs.appendChild(fil);
-        elem.layerElement.setAttribute('filter','url(' + locationHref + '#'+filId+')');
-    }
-    if (this.filters.length) {
-        elem.addRenderableComponent(this);
-    }
-}
-
-SVGEffects.prototype.renderFrame = function(_isFirstFrame){
-    var i, len = this.filters.length;
-    for(i=0;i<len;i+=1){
-        this.filters[i].renderFrame(_isFirstFrame);
-    }
-};
-var animationManager = (function(){
-    var moduleOb = {};
-    var registeredAnimations = [];
-    var initTime = 0;
-    var len = 0;
-    var playingAnimationsNum = 0;
-    var _stopped = true;
-    var _isFrozen = false;
-
-    function removeElement(ev){
-        var i = 0;
-        var animItem = ev.target;
-        while(i<len) {
-            if (registeredAnimations[i].animation === animItem) {
-                registeredAnimations.splice(i, 1);
-                i -= 1;
-                len -= 1;
-                if(!animItem.isPaused){
-                    subtractPlayingCount();
-                }
-            }
-            i += 1;
-        }
-    }
-
-    function registerAnimation(element, animationData){
-        if(!element){
-            return null;
-        }
-        var i=0;
-        while(i<len){
-            if(registeredAnimations[i].elem == element && registeredAnimations[i].elem !== null ){
-                return registeredAnimations[i].animation;
-            }
-            i+=1;
-        }
-        var animItem = new AnimationItem();
-        setupAnimation(animItem, element);
-        animItem.setData(element, animationData);
-        return animItem;
-    }
-
-    function getRegisteredAnimations() {
-        var i, len = registeredAnimations.length;
-        var animations = [];
-        for(i = 0; i < len; i += 1) {
-            animations.push(registeredAnimations[i].animation);
-        }
-        return animations;
-    }
-
-    function addPlayingCount(){
-        playingAnimationsNum += 1;
-        activate();
-    }
-
-    function subtractPlayingCount(){
-        playingAnimationsNum -= 1;
-    }
-
-    function setupAnimation(animItem, element){
-        animItem.addEventListener('destroy',removeElement);
-        animItem.addEventListener('_active',addPlayingCount);
-        animItem.addEventListener('_idle',subtractPlayingCount);
-        registeredAnimations.push({elem: element,animation:animItem});
-        len += 1;
-    }
-
-    function loadAnimation(params){
-        var animItem = new AnimationItem();
-        setupAnimation(animItem, null);
-        animItem.setParams(params);
-        return animItem;
-    }
-
-
-    function setSpeed(val,animation){
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.setSpeed(val, animation);
-        }
-    }
-
-    function setDirection(val, animation){
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.setDirection(val, animation);
-        }
-    }
-
-    function play(animation){
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.play(animation);
-        }
-    }
-    function resume(nowTime) {
-        var elapsedTime = nowTime - initTime;
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.advanceTime(elapsedTime);
-        }
-        initTime = nowTime;
-        if(playingAnimationsNum && !_isFrozen) {
-            window.requestAnimationFrame(resume);
-        } else {
-            _stopped = true;
-        }
-    }
-
-    function first(nowTime){
-        initTime = nowTime;
-        window.requestAnimationFrame(resume);
-    }
-
-    function pause(animation) {
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.pause(animation);
-        }
-    }
-
-    function goToAndStop(value,isFrame,animation) {
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.goToAndStop(value,isFrame,animation);
-        }
-    }
-
-    function stop(animation) {
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.stop(animation);
-        }
-    }
-
-    function togglePause(animation) {
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.togglePause(animation);
-        }
-    }
-
-    function destroy(animation) {
-        var i;
-        for(i=(len-1);i>=0;i-=1){
-            registeredAnimations[i].animation.destroy(animation);
-        }
-    }
-
-    function searchAnimations(animationData, standalone, renderer){
-        var animElements = [].concat([].slice.call(document.getElementsByClassName('lottie')),
-                  [].slice.call(document.getElementsByClassName('bodymovin')));
-        var i, len = animElements.length;
-        for(i=0;i<len;i+=1){
-            if(renderer){
-                animElements[i].setAttribute('data-bm-type',renderer);
-            }
-            registerAnimation(animElements[i], animationData);
-        }
-        if(standalone && len === 0){
-            if(!renderer){
-                renderer = 'svg';
-            }
-            var body = document.getElementsByTagName('body')[0];
-            body.innerHTML = '';
-            var div = createTag('div');
-            div.style.width = '100%';
-            div.style.height = '100%';
-            div.setAttribute('data-bm-type',renderer);
-            body.appendChild(div);
-            registerAnimation(div, animationData);
-        }
-    }
-
-    function resize(){
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.resize();
-        }
-    }
-
-    function activate(){
-        if(!_isFrozen && playingAnimationsNum){
-            if(_stopped) {
-                window.requestAnimationFrame(first);
-                _stopped = false;
-            }
-        }
-    }
-
-    function freeze() {
-        _isFrozen = true;
-    }
-
-    function unfreeze() {
-        _isFrozen = false;
-        activate();
-    }
-
-    moduleOb.registerAnimation = registerAnimation;
-    moduleOb.loadAnimation = loadAnimation;
-    moduleOb.setSpeed = setSpeed;
-    moduleOb.setDirection = setDirection;
-    moduleOb.play = play;
-    moduleOb.pause = pause;
-    moduleOb.stop = stop;
-    moduleOb.togglePause = togglePause;
-    moduleOb.searchAnimations = searchAnimations;
-    moduleOb.resize = resize;
-    //moduleOb.start = start;
-    moduleOb.goToAndStop = goToAndStop;
-    moduleOb.destroy = destroy;
-    moduleOb.freeze = freeze;
-    moduleOb.unfreeze = unfreeze;
-    moduleOb.getRegisteredAnimations = getRegisteredAnimations;
-    return moduleOb;
-}());
-
-var AnimationItem = function () {
-    this._cbs = [];
-    this.name = '';
-    this.path = '';
-    this.isLoaded = false;
-    this.currentFrame = 0;
-    this.currentRawFrame = 0;
-    this.totalFrames = 0;
-    this.frameRate = 0;
-    this.frameMult = 0;
-    this.playSpeed = 1;
-    this.playDirection = 1;
-    this.playCount = 0;
-    this.animationData = {};
-    this.assets = [];
-    this.isPaused = true;
-    this.autoplay = false;
-    this.loop = true;
-    this.renderer = null;
-    this.animationID = randomString(10);
-    this.assetsPath = '';
-    this.timeCompleted = 0;
-    this.segmentPos = 0;
-    this.subframeEnabled = subframeEnabled;
-    this.segments = [];
-    this._idle = true;
-    this._completedLoop = false;
-    this.projectInterface = ProjectInterface();
-    this.imagePreloader = new ImagePreloader();
-};
-
-extendPrototype([BaseEvent], AnimationItem);
-
-AnimationItem.prototype.setParams = function(params) {
-    if(params.context){
-        this.context = params.context;
-    }
-    if(params.wrapper || params.container){
-        this.wrapper = params.wrapper || params.container;
-    }
-    var animType = params.animType ? params.animType : params.renderer ? params.renderer : 'svg';
-    switch(animType){
-        case 'canvas':
-            this.renderer = new CanvasRenderer(this, params.rendererSettings);
-            break;
-        case 'svg':
-            this.renderer = new SVGRenderer(this, params.rendererSettings);
-            break;
-        default:
-            this.renderer = new HybridRenderer(this, params.rendererSettings);
-            break;
-    }
-    this.renderer.setProjectInterface(this.projectInterface);
-    this.animType = animType;
-
-    if(params.loop === '' || params.loop === null){
-    }else if(params.loop === false){
-        this.loop = false;
-    }else if(params.loop === true){
-        this.loop = true;
-    }else{
-        this.loop = parseInt(params.loop);
-    }
-    this.autoplay = 'autoplay' in params ? params.autoplay : true;
-    this.name = params.name ? params.name :  '';
-    this.autoloadSegments = params.hasOwnProperty('autoloadSegments') ? params.autoloadSegments :  true;
-    this.assetsPath = params.assetsPath;
-    if(params.animationData){
-        this.configAnimation(params.animationData);
-    }else if(params.path){
-        if(params.path.substr(-4) != 'json'){
-            if (params.path.substr(-1, 1) != '/') {
-                params.path += '/';
-            }
-            params.path += 'data.json';
-        }
-
-        if(params.path.lastIndexOf('\\') != -1){
-            this.path = params.path.substr(0,params.path.lastIndexOf('\\')+1);
-        }else{
-            this.path = params.path.substr(0,params.path.lastIndexOf('/')+1);
-        }
-        this.fileName = params.path.substr(params.path.lastIndexOf('/')+1);
-        this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.json'));
-
-        assetLoader.load(params.path, this.configAnimation.bind(this), function() {
-            this.trigger('data_failed');
-        }.bind(this));
-    }
-};
-
-AnimationItem.prototype.setData = function (wrapper, animationData) {
-    var params = {
-        wrapper: wrapper,
-        animationData: animationData ? (typeof animationData  === "object") ? animationData : JSON.parse(animationData) : null
-    };
-    var wrapperAttributes = wrapper.attributes;
-
-    params.path = wrapperAttributes.getNamedItem('data-animation-path') ? wrapperAttributes.getNamedItem('data-animation-path').value : wrapperAttributes.getNamedItem('data-bm-path') ? wrapperAttributes.getNamedItem('data-bm-path').value :  wrapperAttributes.getNamedItem('bm-path') ? wrapperAttributes.getNamedItem('bm-path').value : '';
-    params.animType = wrapperAttributes.getNamedItem('data-anim-type') ? wrapperAttributes.getNamedItem('data-anim-type').value : wrapperAttributes.getNamedItem('data-bm-type') ? wrapperAttributes.getNamedItem('data-bm-type').value : wrapperAttributes.getNamedItem('bm-type') ? wrapperAttributes.getNamedItem('bm-type').value :  wrapperAttributes.getNamedItem('data-bm-renderer') ? wrapperAttributes.getNamedItem('data-bm-renderer').value : wrapperAttributes.getNamedItem('bm-renderer') ? wrapperAttributes.getNamedItem('bm-renderer').value : 'canvas';
-
-    var loop = wrapperAttributes.getNamedItem('data-anim-loop') ? wrapperAttributes.getNamedItem('data-anim-loop').value :  wrapperAttributes.getNamedItem('data-bm-loop') ? wrapperAttributes.getNamedItem('data-bm-loop').value :  wrapperAttributes.getNamedItem('bm-loop') ? wrapperAttributes.getNamedItem('bm-loop').value : '';
-    if(loop === ''){
-    }else if(loop === 'false'){
-        params.loop = false;
-    }else if(loop === 'true'){
-        params.loop = true;
-    }else{
-        params.loop = parseInt(loop);
-    }
-    var autoplay = wrapperAttributes.getNamedItem('data-anim-autoplay') ? wrapperAttributes.getNamedItem('data-anim-autoplay').value :  wrapperAttributes.getNamedItem('data-bm-autoplay') ? wrapperAttributes.getNamedItem('data-bm-autoplay').value :  wrapperAttributes.getNamedItem('bm-autoplay') ? wrapperAttributes.getNamedItem('bm-autoplay').value : true;
-    params.autoplay = autoplay !== "false";
-
-    params.name = wrapperAttributes.getNamedItem('data-name') ? wrapperAttributes.getNamedItem('data-name').value :  wrapperAttributes.getNamedItem('data-bm-name') ? wrapperAttributes.getNamedItem('data-bm-name').value : wrapperAttributes.getNamedItem('bm-name') ? wrapperAttributes.getNamedItem('bm-name').value :  '';
-    var prerender = wrapperAttributes.getNamedItem('data-anim-prerender') ? wrapperAttributes.getNamedItem('data-anim-prerender').value :  wrapperAttributes.getNamedItem('data-bm-prerender') ? wrapperAttributes.getNamedItem('data-bm-prerender').value :  wrapperAttributes.getNamedItem('bm-prerender') ? wrapperAttributes.getNamedItem('bm-prerender').value : '';
-
-    if(prerender === 'false'){
-        params.prerender = false;
-    }
-    this.setParams(params);
-};
-
-AnimationItem.prototype.includeLayers = function(data) {
-    if(data.op > this.animationData.op){
-        this.animationData.op = data.op;
-        this.totalFrames = Math.floor(data.op - this.animationData.ip);
-    }
-    var layers = this.animationData.layers;
-    var i, len = layers.length;
-    var newLayers = data.layers;
-    var j, jLen = newLayers.length;
-    for(j=0;j<jLen;j+=1){
-        i = 0;
-        while(i<len){
-            if(layers[i].id == newLayers[j].id){
-                layers[i] = newLayers[j];
-                break;
-            }
-            i += 1;
-        }
-    }
-    if(data.chars || data.fonts){
-        this.renderer.globalData.fontManager.addChars(data.chars);
-        this.renderer.globalData.fontManager.addFonts(data.fonts, this.renderer.globalData.defs);
-    }
-    if(data.assets){
-        len = data.assets.length;
-        for(i = 0; i < len; i += 1){
-            this.animationData.assets.push(data.assets[i]);
-        }
-    }
-    this.animationData.__complete = false;
-    dataManager.completeData(this.animationData,this.renderer.globalData.fontManager);
-    this.renderer.includeLayers(data.layers);
-    if(expressionsPlugin){
-        expressionsPlugin.initExpressions(this);
-    }
-    this.loadNextSegment();
-};
-
-AnimationItem.prototype.loadNextSegment = function() {
-    var segments = this.animationData.segments;
-    if(!segments || segments.length === 0 || !this.autoloadSegments){
-        this.trigger('data_ready');
-        this.timeCompleted = this.totalFrames;
-        return;
-    }
-    var segment = segments.shift();
-    this.timeCompleted = segment.time * this.frameRate;
-    var segmentPath = this.path+this.fileName+'_' + this.segmentPos + '.json';
-    this.segmentPos += 1;
-    assetLoader.load(segmentPath, this.includeLayers.bind(this), function() {
-        this.trigger('data_failed');
-    }.bind(this));
-};
-
-AnimationItem.prototype.loadSegments = function() {
-    var segments = this.animationData.segments;
-    if(!segments) {
-        this.timeCompleted = this.totalFrames;
-    }
-    this.loadNextSegment();
-};
-
-AnimationItem.prototype.imagesLoaded = function() {
-    this.trigger('loaded_images');
-    this.checkLoaded()
-}
-
-AnimationItem.prototype.preloadImages = function() {
-    this.imagePreloader.setAssetsPath(this.assetsPath);
-    this.imagePreloader.setPath(this.path);
-    this.imagePreloader.loadAssets(this.animationData.assets, this.imagesLoaded.bind(this));
-}
-
-AnimationItem.prototype.configAnimation = function (animData) {
-    if(!this.renderer){
-        return;
-    }
-    this.animationData = animData;
-    this.totalFrames = Math.floor(this.animationData.op - this.animationData.ip);
-    this.renderer.configAnimation(animData);
-    if(!animData.assets){
-        animData.assets = [];
-    }
-    this.renderer.searchExtraCompositions(animData.assets);
-
-    this.assets = this.animationData.assets;
-    this.frameRate = this.animationData.fr;
-    this.firstFrame = Math.round(this.animationData.ip);
-    this.frameMult = this.animationData.fr / 1000;
-    this.trigger('config_ready');
-    this.preloadImages();
-    this.loadSegments();
-    this.updaFrameModifier();
-    this.waitForFontsLoaded();
-};
-
-AnimationItem.prototype.waitForFontsLoaded = function(){
-    if(!this.renderer) {
-        return;
-    }
-    if(this.renderer.globalData.fontManager.loaded()){
-        this.checkLoaded();
-    }else{
-        setTimeout(this.waitForFontsLoaded.bind(this),20);
-    }
-}
-
-AnimationItem.prototype.checkLoaded = function () {
-    if (!this.isLoaded && this.renderer.globalData.fontManager.loaded() && (this.imagePreloader.loaded() || this.renderer.rendererType !== 'canvas')) {
-        this.isLoaded = true;
-        dataManager.completeData(this.animationData, this.renderer.globalData.fontManager);
-        if(expressionsPlugin){
-            expressionsPlugin.initExpressions(this);
-        }
-        this.renderer.initItems();
-        setTimeout(function() {
-            this.trigger('DOMLoaded');
-        }.bind(this), 0);
-        this.gotoFrame();
-        if(this.autoplay){
-            this.play();
-        }
-    }
-};
-
-AnimationItem.prototype.resize = function () {
-    this.renderer.updateContainerSize();
-};
-
-AnimationItem.prototype.setSubframe = function(flag){
-    this.subframeEnabled = flag ? true : false;
-};
-
-AnimationItem.prototype.gotoFrame = function () {
-    this.currentFrame = this.subframeEnabled ? this.currentRawFrame : ~~this.currentRawFrame;
-
-    if(this.timeCompleted !== this.totalFrames && this.currentFrame > this.timeCompleted){
-        this.currentFrame = this.timeCompleted;
-    }
-    this.trigger('enterFrame');
-    this.renderFrame();
-};
-
-AnimationItem.prototype.renderFrame = function () {
-    if(this.isLoaded === false){
-        return;
-    }
-    this.renderer.renderFrame(this.currentFrame + this.firstFrame);
-};
-
-AnimationItem.prototype.play = function (name) {
-    if(name && this.name != name){
-        return;
-    }
-    if(this.isPaused === true){
-        this.isPaused = false;
-        if(this._idle){
-            this._idle = false;
-            this.trigger('_active');
-        }
-    }
-};
-
-AnimationItem.prototype.pause = function (name) {
-    if(name && this.name != name){
-        return;
-    }
-    if(this.isPaused === false){
-        this.isPaused = true;
-        this._idle = true;
-        this.trigger('_idle');
-    }
-};
-
-AnimationItem.prototype.togglePause = function (name) {
-    if(name && this.name != name){
-        return;
-    }
-    if(this.isPaused === true){
-        this.play();
-    }else{
-        this.pause();
-    }
-};
-
-AnimationItem.prototype.stop = function (name) {
-    if(name && this.name != name){
-        return;
-    }
-    this.pause();
-    this.playCount = 0;
-    this._completedLoop = false;
-    this.setCurrentRawFrameValue(0);
-};
-
-AnimationItem.prototype.goToAndStop = function (value, isFrame, name) {
-    if(name && this.name != name){
-        return;
-    }
-    if(isFrame){
-        this.setCurrentRawFrameValue(value);
-    }else{
-        this.setCurrentRawFrameValue(value * this.frameModifier);
-    }
-    this.pause();
-};
-
-AnimationItem.prototype.goToAndPlay = function (value, isFrame, name) {
-    this.goToAndStop(value, isFrame, name);
-    this.play();
-};
-
-AnimationItem.prototype.advanceTime = function (value) {
-    if (this.isPaused === true || this.isLoaded === false) {
-        return;
-    }
-    var nextValue = this.currentRawFrame + value * this.frameModifier;
-    var _isComplete = false;
-    // Checking if nextValue > totalFrames - 1 for addressing non looping and looping animations.
-    // If animation won't loop, it should stop at totalFrames - 1. If it will loop it should complete the last frame and then loop.
-    if (nextValue >= this.totalFrames - 1 && this.frameModifier > 0) {
-        if (!this.loop || this.playCount === this.loop) {
-            if (!this.checkSegments(nextValue >  this.totalFrames ? nextValue % this.totalFrames : 0)) {
-                _isComplete = true;
-                nextValue = this.totalFrames - 1;
-            }
-        } else if (nextValue >= this.totalFrames) {
-            this.playCount += 1;
-            if (!this.checkSegments(nextValue % this.totalFrames)) {
-                this.setCurrentRawFrameValue(nextValue % this.totalFrames);
-                this._completedLoop = true;
-                this.trigger('loopComplete');
-            }
-        } else {
-            this.setCurrentRawFrameValue(nextValue);
-        }
-    } else if(nextValue < 0) {
-        if (!this.checkSegments(nextValue % this.totalFrames)) {
-            if (this.loop && !(this.playCount-- <= 0 && this.loop !== true)) {
-                this.setCurrentRawFrameValue(this.totalFrames + (nextValue % this.totalFrames));
-                if(!this._completedLoop) {
-                    this._completedLoop = true;
-                } else {
-                    this.trigger('loopComplete');
-                }
-            } else {
-                _isComplete = true;
-                nextValue = 0;
-            }
-        }
-    } else {
-        this.setCurrentRawFrameValue(nextValue);
-    }
-    if (_isComplete) {
-        this.setCurrentRawFrameValue(nextValue);
-        this.pause();
-        this.trigger('complete');
-    }
-};
-
-AnimationItem.prototype.adjustSegment = function(arr, offset){
-    this.playCount = 0;
-    if(arr[1] < arr[0]){
-        if(this.frameModifier > 0){
-            if(this.playSpeed < 0){
-                this.setSpeed(-this.playSpeed);
-            } else {
-                this.setDirection(-1);
-            }
-        }
-        this.timeCompleted = this.totalFrames = arr[0] - arr[1];
-        this.firstFrame = arr[1];
-        this.setCurrentRawFrameValue(this.totalFrames - 0.001 - offset);
-    } else if(arr[1] > arr[0]){
-        if(this.frameModifier < 0){
-            if(this.playSpeed < 0){
-                this.setSpeed(-this.playSpeed);
-            } else {
-                this.setDirection(1);
-            }
-        }
-        this.timeCompleted = this.totalFrames = arr[1] - arr[0];
-        this.firstFrame = arr[0];
-        this.setCurrentRawFrameValue(0.001 + offset);
-    }
-    this.trigger('segmentStart');
-};
-AnimationItem.prototype.setSegment = function (init,end) {
-    var pendingFrame = -1;
-    if(this.isPaused) {
-        if (this.currentRawFrame + this.firstFrame < init) {
-            pendingFrame = init;
-        } else if (this.currentRawFrame + this.firstFrame > end) {
-            pendingFrame = end - init;
-        }
-    }
-
-    this.firstFrame = init;
-    this.timeCompleted = this.totalFrames = end - init;
-    if(pendingFrame !== -1) {
-        this.goToAndStop(pendingFrame,true);
-    }
-};
-
-AnimationItem.prototype.playSegments = function (arr, forceFlag) {
-    if (forceFlag) {
-        this.segments.length = 0;
-    }
-    if (typeof arr[0] === 'object') {
-        var i, len = arr.length;
-        for (i = 0; i < len; i += 1) {
-            this.segments.push(arr[i]);
-        }
-    } else {
-        this.segments.push(arr);
-    }
-    if (this.segments.length) {
-        this.adjustSegment(this.segments.shift(), 0);
-    }
-    if (this.isPaused) {
-        this.play();
-    }
-};
-
-AnimationItem.prototype.resetSegments = function (forceFlag) {
-    this.segments.length = 0;
-    this.segments.push([this.animationData.ip,this.animationData.op]);
-    //this.segments.push([this.animationData.ip*this.frameRate,Math.floor(this.animationData.op - this.animationData.ip+this.animationData.ip*this.frameRate)]);
-    if (forceFlag) {
-        this.checkSegments(0);
-    }
-};
-AnimationItem.prototype.checkSegments = function(offset) {
-    if (this.segments.length) {
-        this.adjustSegment(this.segments.shift(), offset);
-        return true;
-    }
-    return false;
-};
-
-AnimationItem.prototype.destroy = function (name) {
-    if ((name && this.name != name) || !this.renderer) {
-        return;
-    }
-    this.renderer.destroy();
-    this.imagePreloader.destroy();
-    this.trigger('destroy');
-    this._cbs = null;
-    this.onEnterFrame = this.onLoopComplete = this.onComplete = this.onSegmentStart = this.onDestroy = null;
-    this.renderer = null;
-};
-
-AnimationItem.prototype.setCurrentRawFrameValue = function(value){
-    this.currentRawFrame = value;
-    this.gotoFrame();
-};
-
-AnimationItem.prototype.setSpeed = function (val) {
-    this.playSpeed = val;
-    this.updaFrameModifier();
-};
-
-AnimationItem.prototype.setDirection = function (val) {
-    this.playDirection = val < 0 ? -1 : 1;
-    this.updaFrameModifier();
-};
-
-AnimationItem.prototype.updaFrameModifier = function () {
-    this.frameModifier = this.frameMult * this.playSpeed * this.playDirection;
-};
-
-AnimationItem.prototype.getPath = function () {
-    return this.path;
-};
-
-AnimationItem.prototype.getAssetsPath = function (assetData) {
-    var path = '';
-    if(assetData.e) {
-        path = assetData.p;
-    } else if(this.assetsPath){
-        var imagePath = assetData.p;
-        if(imagePath.indexOf('images/') !== -1){
-            imagePath = imagePath.split('/')[1];
-        }
-        path = this.assetsPath + imagePath;
-    } else {
-        path = this.path;
-        path += assetData.u ? assetData.u : '';
-        path += assetData.p;
-    }
-    return path;
-};
-
-AnimationItem.prototype.getAssetData = function (id) {
-    var i = 0, len = this.assets.length;
-    while (i < len) {
-        if(id == this.assets[i].id){
-            return this.assets[i];
-        }
-        i += 1;
-    }
-};
-
-AnimationItem.prototype.hide = function () {
-    this.renderer.hide();
-};
-
-AnimationItem.prototype.show = function () {
-    this.renderer.show();
-};
-
-AnimationItem.prototype.getDuration = function (isFrame) {
-    return isFrame ? this.totalFrames : this.totalFrames / this.frameRate;
-};
-
-AnimationItem.prototype.trigger = function(name){
-    if(this._cbs && this._cbs[name]){
-        switch(name){
-            case 'enterFrame':
-                this.triggerEvent(name,new BMEnterFrameEvent(name,this.currentFrame,this.totalFrames,this.frameMult));
-                break;
-            case 'loopComplete':
-                this.triggerEvent(name,new BMCompleteLoopEvent(name,this.loop,this.playCount,this.frameMult));
-                break;
-            case 'complete':
-                this.triggerEvent(name,new BMCompleteEvent(name,this.frameMult));
-                break;
-            case 'segmentStart':
-                this.triggerEvent(name,new BMSegmentStartEvent(name,this.firstFrame,this.totalFrames));
-                break;
-            case 'destroy':
-                this.triggerEvent(name,new BMDestroyEvent(name,this));
-                break;
-            default:
-                this.triggerEvent(name);
-        }
-    }
-    if(name === 'enterFrame' && this.onEnterFrame){
-        this.onEnterFrame.call(this,new BMEnterFrameEvent(name,this.currentFrame,this.totalFrames,this.frameMult));
-    }
-    if(name === 'loopComplete' && this.onLoopComplete){
-        this.onLoopComplete.call(this,new BMCompleteLoopEvent(name,this.loop,this.playCount,this.frameMult));
-    }
-    if(name === 'complete' && this.onComplete){
-        this.onComplete.call(this,new BMCompleteEvent(name,this.frameMult));
-    }
-    if(name === 'segmentStart' && this.onSegmentStart){
-        this.onSegmentStart.call(this,new BMSegmentStartEvent(name,this.firstFrame,this.totalFrames));
-    }
-    if(name === 'destroy' && this.onDestroy){
-        this.onDestroy.call(this,new BMDestroyEvent(name,this));
-    }
-};
-
-function EffectsManager(){}
 function CanvasRenderer(animationItem, config){
     this.animationItem = animationItem;
     this.renderConfig = {
@@ -10077,6 +6721,980 @@ HybridRenderer.prototype.searchExtraCompositions = function(assets){
     }
 };
 
+function MaskElement(data,element,globalData) {
+    this.data = data;
+    this.element = element;
+    this.globalData = globalData;
+    this.storedData = [];
+    this.masksProperties = this.data.masksProperties || [];
+    this.maskElement = null;
+    var defs = this.globalData.defs;
+    var i, len = this.masksProperties ? this.masksProperties.length : 0;
+    this.viewData = createSizedArray(len);
+    this.solidPath = '';
+
+
+    var path, properties = this.masksProperties;
+    var count = 0;
+    var currentMasks = [];
+    var j, jLen;
+    var layerId = createElementID();
+    var rect, expansor, feMorph,x;
+    var maskType = 'clipPath', maskRef = 'clip-path';
+    for (i = 0; i < len; i++) {
+
+        if((properties[i].mode !== 'a' && properties[i].mode !== 'n')|| properties[i].inv || properties[i].o.k !== 100){
+            maskType = 'mask';
+            maskRef = 'mask';
+        }
+
+        if((properties[i].mode == 's' || properties[i].mode == 'i') && count === 0){
+            rect = createNS( 'rect');
+            rect.setAttribute('fill', '#ffffff');
+            rect.setAttribute('width', this.element.comp.data.w || 0);
+            rect.setAttribute('height', this.element.comp.data.h || 0);
+            currentMasks.push(rect);
+        } else {
+            rect = null;
+        }
+
+        path = createNS( 'path');
+        if(properties[i].mode == 'n') {
+            // TODO move this to a factory or to a constructor
+            this.viewData[i] = {
+                op: PropertyFactory.getProp(this.element,properties[i].o,0,0.01,this.element),
+                prop: ShapePropertyFactory.getShapeProp(this.element,properties[i],3),
+                elem: path,
+                lastPath: ''
+            };
+            defs.appendChild(path);
+            continue;
+        }
+        count += 1;
+
+        path.setAttribute('fill', properties[i].mode === 's' ? '#000000':'#ffffff');
+        path.setAttribute('clip-rule','nonzero');
+        var filterID;
+
+        if (properties[i].x.k !== 0) {
+            maskType = 'mask';
+            maskRef = 'mask';
+            x = PropertyFactory.getProp(this.element,properties[i].x,0,null,this.element);
+            filterID = createElementID();
+            expansor = createNS('filter');
+            expansor.setAttribute('id',filterID);
+            feMorph = createNS('feMorphology');
+            feMorph.setAttribute('operator','dilate');
+            feMorph.setAttribute('in','SourceGraphic');
+            feMorph.setAttribute('radius','0');
+            expansor.appendChild(feMorph);
+            defs.appendChild(expansor);
+            path.setAttribute('stroke', properties[i].mode === 's' ? '#000000':'#ffffff');
+        } else {
+            feMorph = null;
+            x = null;
+        }
+
+        // TODO move this to a factory or to a constructor
+        this.storedData[i] = {
+             elem: path,
+             x: x,
+             expan: feMorph,
+            lastPath: '',
+            lastOperator:'',
+            filterId:filterID,
+            lastRadius:0
+        };
+        if(properties[i].mode == 'i'){
+            jLen = currentMasks.length;
+            var g = createNS('g');
+            for(j=0;j<jLen;j+=1){
+                g.appendChild(currentMasks[j]);
+            }
+            var mask = createNS('mask');
+            mask.setAttribute('mask-type','alpha');
+            mask.setAttribute('id',layerId+'_'+count);
+            mask.appendChild(path);
+            defs.appendChild(mask);
+            g.setAttribute('mask','url(' + locationHref + '#'+layerId+'_'+count+')');
+
+            currentMasks.length = 0;
+            currentMasks.push(g);
+        }else{
+            currentMasks.push(path);
+        }
+        if(properties[i].inv && !this.solidPath){
+            this.solidPath = this.createLayerSolidPath();
+        }
+        // TODO move this to a factory or to a constructor
+        this.viewData[i] = {
+            elem: path,
+            lastPath: '',
+            op: PropertyFactory.getProp(this.element,properties[i].o,0,0.01,this.element),
+            prop:ShapePropertyFactory.getShapeProp(this.element,properties[i],3),
+            invRect: rect
+        };
+        if(!this.viewData[i].prop.k){
+            this.drawPath(properties[i],this.viewData[i].prop.v,this.viewData[i]);
+        }
+    }
+
+    this.maskElement = createNS( maskType);
+
+    len = currentMasks.length;
+    for(i=0;i<len;i+=1){
+        this.maskElement.appendChild(currentMasks[i]);
+    }
+
+    if(count > 0){
+        this.maskElement.setAttribute('id', layerId);
+        this.element.maskedElement.setAttribute(maskRef, "url(" + locationHref + "#" + layerId + ")");
+        defs.appendChild(this.maskElement);
+    }
+    if (this.viewData.length) {
+        this.element.addRenderableComponent(this);
+    }
+
+}
+
+MaskElement.prototype.getMaskProperty = function(pos){
+    return this.viewData[pos].prop;
+};
+
+MaskElement.prototype.renderFrame = function (isFirstFrame) {
+    var finalMat = this.element.finalTransform.mat;
+    var i, len = this.masksProperties.length;
+    for (i = 0; i < len; i++) {
+        if(this.viewData[i].prop._mdf || isFirstFrame){
+            this.drawPath(this.masksProperties[i],this.viewData[i].prop.v,this.viewData[i]);
+        }
+        if(this.viewData[i].op._mdf || isFirstFrame){
+            this.viewData[i].elem.setAttribute('fill-opacity',this.viewData[i].op.v);
+        }
+        if(this.masksProperties[i].mode !== 'n'){
+            if(this.viewData[i].invRect && (this.element.finalTransform.mProp._mdf || isFirstFrame)){
+                this.viewData[i].invRect.setAttribute('x', -finalMat.props[12]);
+                this.viewData[i].invRect.setAttribute('y', -finalMat.props[13]);
+            }
+            if(this.storedData[i].x && (this.storedData[i].x._mdf || isFirstFrame)){
+                var feMorph = this.storedData[i].expan;
+                if(this.storedData[i].x.v < 0){
+                    if(this.storedData[i].lastOperator !== 'erode'){
+                        this.storedData[i].lastOperator = 'erode';
+                        this.storedData[i].elem.setAttribute('filter','url(' + locationHref + '#'+this.storedData[i].filterId+')');
+                    }
+                    feMorph.setAttribute('radius',-this.storedData[i].x.v);
+                }else{
+                    if(this.storedData[i].lastOperator !== 'dilate'){
+                        this.storedData[i].lastOperator = 'dilate';
+                        this.storedData[i].elem.setAttribute('filter',null);
+                    }
+                    this.storedData[i].elem.setAttribute('stroke-width', this.storedData[i].x.v*2);
+
+                }
+            }
+        }
+    }
+};
+
+MaskElement.prototype.getMaskelement = function () {
+    return this.maskElement;
+};
+
+MaskElement.prototype.createLayerSolidPath = function(){
+    var path = 'M0,0 ';
+    path += ' h' + this.globalData.compSize.w ;
+    path += ' v' + this.globalData.compSize.h ;
+    path += ' h-' + this.globalData.compSize.w ;
+    path += ' v-' + this.globalData.compSize.h + ' ';
+    return path;
+};
+
+MaskElement.prototype.drawPath = function(pathData,pathNodes,viewData){
+    var pathString = " M"+pathNodes.v[0][0]+','+pathNodes.v[0][1];
+    var i, len;
+    len = pathNodes._length;
+    for(i=1;i<len;i+=1){
+        //pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[i][0]+','+pathNodes.i[i][1] + " "+pathNodes.v[i][0]+','+pathNodes.v[i][1];
+        pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[i][0]+','+pathNodes.i[i][1] + " "+pathNodes.v[i][0]+','+pathNodes.v[i][1];
+    }
+        //pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[0][0]+','+pathNodes.i[0][1] + " "+pathNodes.v[0][0]+','+pathNodes.v[0][1];
+    if(pathNodes.c && len > 1){
+        pathString += " C"+pathNodes.o[i-1][0]+','+pathNodes.o[i-1][1] + " "+pathNodes.i[0][0]+','+pathNodes.i[0][1] + " "+pathNodes.v[0][0]+','+pathNodes.v[0][1];
+    }
+    //pathNodes.__renderedString = pathString;
+
+    if(viewData.lastPath !== pathString){
+        var pathShapeValue = '';
+        if(viewData.elem){
+            if(pathNodes.c){
+                pathShapeValue = pathData.inv ? this.solidPath + pathString : pathString;
+            }
+            viewData.elem.setAttribute('d',pathShapeValue);
+        }
+        viewData.lastPath = pathString;
+    }
+};
+
+MaskElement.prototype.destroy = function(){
+    this.element = null;
+    this.globalData = null;
+    this.maskElement = null;
+    this.data = null;
+    this.masksProperties = null;
+};
+
+/**
+ * @file 
+ * Handles AE's layer parenting property.
+ *
+ */
+
+function HierarchyElement(){}
+
+HierarchyElement.prototype = {
+	/**
+     * @function 
+     * Initializes hierarchy properties
+     *
+     */
+	initHierarchy: function() {
+		//element's parent list
+	    this.hierarchy = [];
+	    //if element is parent of another layer _isParent will be true
+	    this._isParent = false;
+	    this.checkParenting();
+	},
+	/**
+     * @function 
+     * Sets layer's hierarchy.
+     * @param {array} hierarch
+     * layer's parent list
+     *
+     */ 
+	setHierarchy: function(hierarchy){
+	    this.hierarchy = hierarchy;
+	},
+	/**
+     * @function 
+     * Sets layer as parent.
+     *
+     */ 
+	setAsParent: function() {
+	    this._isParent = true;
+	},
+	/**
+     * @function 
+     * Searches layer's parenting chain
+     *
+     */ 
+	checkParenting: function(){
+	    if (this.data.parent !== undefined){
+	        this.comp.buildElementParenting(this, this.data.parent, []);
+	    }
+	}
+};
+/**
+ * @file 
+ * Handles element's layer frame update.
+ * Checks layer in point and out point
+ *
+ */
+
+function FrameElement(){}
+
+FrameElement.prototype = {
+    /**
+     * @function 
+     * Initializes frame related properties.
+     *
+     */
+    initFrame: function(){
+        //set to true when inpoint is rendered
+        this._isFirstFrame = false;
+        //list of animated properties
+        this.dynamicProperties = [];
+        // If layer has been modified in current tick this will be true
+        this._mdf = false;
+    },
+    /**
+     * @function 
+     * Calculates all dynamic values
+     *
+     * @param {number} num
+     * current frame number in Layer's time
+     * @param {boolean} isVisible
+     * if layers is currently in range
+     * 
+     */
+    prepareProperties: function(num, isVisible) {
+        var i, len = this.dynamicProperties.length;
+        for (i = 0;i < len; i += 1) {
+            if (isVisible || (this._isParent && this.dynamicProperties[i].propType === 'transform')) {
+                this.dynamicProperties[i].getValue();
+                if (this.dynamicProperties[i]._mdf) {
+                    this.globalData._mdf = true;
+                    this._mdf = true;
+                }
+            }
+        }
+    },
+    addDynamicProperty: function(prop) {
+        if(this.dynamicProperties.indexOf(prop) === -1) {
+            this.dynamicProperties.push(prop);
+        }
+    }
+};
+function TransformElement(){}
+
+TransformElement.prototype = {
+    initTransform: function() {
+        this.finalTransform = {
+            mProp: this.data.ks ? TransformPropertyFactory.getTransformProperty(this, this.data.ks, this) : {o:0},
+            _matMdf: false,
+            _opMdf: false,
+            mat: new Matrix()
+        };
+        if (this.data.ao) {
+            this.finalTransform.mProp.autoOriented = true;
+        }
+
+        //TODO: check TYPE 11: Guided elements
+        if (this.data.ty !== 11) {
+            //this.createElements();
+        }
+    },
+    renderTransform: function() {
+
+        this.finalTransform._opMdf = this.finalTransform.mProp.o._mdf || this._isFirstFrame;
+        this.finalTransform._matMdf = this.finalTransform.mProp._mdf || this._isFirstFrame;
+
+        if (this.hierarchy) {
+            var mat;
+            var finalMat = this.finalTransform.mat;
+            var i = 0, len = this.hierarchy.length;
+            //Checking if any of the transformation matrices in the hierarchy chain has changed.
+            if (!this.finalTransform._matMdf) {
+                while (i < len) {
+                    if (this.hierarchy[i].finalTransform.mProp._mdf) {
+                        this.finalTransform._matMdf = true;
+                        break;
+                    }
+                    i += 1;
+                }
+            }
+            
+            if (this.finalTransform._matMdf) {
+                mat = this.finalTransform.mProp.v.props;
+                finalMat.cloneFromProps(mat);
+                for (i = 0; i < len; i += 1) {
+                    mat = this.hierarchy[i].finalTransform.mProp.v.props;
+                    finalMat.transform(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
+                }
+            }
+        }
+    },
+    globalToLocal: function(pt) {
+        var transforms = [];
+        transforms.push(this.finalTransform);
+        var flag = true;
+        var comp = this.comp;
+        while (flag) {
+            if (comp.finalTransform) {
+                if (comp.data.hasMask) {
+                    transforms.splice(0, 0, comp.finalTransform);
+                }
+                comp = comp.comp;
+            } else {
+                flag = false;
+            }
+        }
+        var i, len = transforms.length,ptNew;
+        for (i = 0; i < len; i += 1) {
+            ptNew = transforms[i].mat.applyToPointArray(0, 0, 0);
+            //ptNew = transforms[i].mat.applyToPointArray(pt[0],pt[1],pt[2]);
+            pt = [pt[0] - ptNew[0], pt[1] - ptNew[1], 0];
+        }
+        return pt;
+    },
+    mHelper: new Matrix()
+};
+function RenderableElement(){
+
+}
+
+RenderableElement.prototype = {
+    initRenderable: function() {
+        //layer's visibility related to inpoint and outpoint. Rename isVisible to isInRange
+        this.isInRange = false;
+        //layer's display state
+        this.hidden = false;
+        // If layer's transparency equals 0, it can be hidden
+        this.isTransparent = false;
+        //list of animated components
+        this.renderableComponents = [];
+    },
+    addRenderableComponent: function(component) {
+        if(this.renderableComponents.indexOf(component) === -1) {
+            this.renderableComponents.push(component);
+        }
+    },
+    removeRenderableComponent: function(component) {
+        if(this.renderableComponents.indexOf(component) !== -1) {
+            this.renderableComponents.splice(this.renderableComponents.indexOf(component), 1);
+        }
+    },
+    prepareRenderableFrame: function(num) {
+        this.checkLayerLimits(num);
+    },
+    checkTransparency: function(){
+        if(this.finalTransform.mProp.o.v <= 0) {
+            if(!this.isTransparent && this.globalData.renderConfig.hideOnTransparent){
+                this.isTransparent = true;
+                this.hide();
+            }
+        } else if(this.isTransparent) {
+            this.isTransparent = false;
+            this.show();
+        }
+    },
+    /**
+     * @function 
+     * Initializes frame related properties.
+     *
+     * @param {number} num
+     * current frame number in Layer's time
+     * 
+     */
+    checkLayerLimits: function(num) {
+        if(this.data.ip - this.data.st <= num && this.data.op - this.data.st > num)
+        {
+            if(this.isInRange !== true){
+                this.globalData._mdf = true;
+                this._mdf = true;
+                this.isInRange = true;
+                this.show();
+            }
+        } else {
+            if(this.isInRange !== false){
+                this.globalData._mdf = true;
+                this.isInRange = false;
+                this.hide();
+            }
+        }
+    },
+    renderRenderable: function() {
+        var i, len = this.renderableComponents.length;
+        for(i = 0; i < len; i += 1) {
+            this.renderableComponents[i].renderFrame(this._isFirstFrame);
+        }
+        /*this.maskManager.renderFrame(this.finalTransform.mat);
+        this.renderableEffectsManager.renderFrame(this._isFirstFrame);*/
+    },
+    sourceRectAtTime: function(){
+        return {
+            top:0,
+            left:0,
+            width:100,
+            height:100
+        };
+    },
+    getLayerSize: function(){
+        if(this.data.ty === 5){
+            return {w:this.data.textData.width,h:this.data.textData.height};
+        }else{
+            return {w:this.data.width,h:this.data.height};
+        }
+    }
+};
+function RenderableDOMElement() {}
+
+(function(){
+    var _prototype = {
+        initElement: function(data,globalData,comp) {
+            this.initFrame();
+            this.initBaseData(data, globalData, comp);
+            this.initTransform(data, globalData, comp);
+            this.initHierarchy();
+            this.initRenderable();
+            this.initRendererElement();
+            this.createContainerElements();
+            this.createRenderableComponents();
+            this.createContent();
+            this.hide();
+        },
+        hide: function(){
+            if (!this.hidden && (!this.isInRange || this.isTransparent)) {
+                var elem = this.baseElement || this.layerElement;
+                elem.style.display = 'none';
+                this.hidden = true;
+            }
+        },
+        show: function(){
+            if (this.isInRange && !this.isTransparent){
+                if (!this.data.hd) {
+                    var elem = this.baseElement || this.layerElement;
+                    elem.style.display = 'block';
+                }
+                this.hidden = false;
+                this._isFirstFrame = true;
+            }
+        },
+        renderFrame: function() {
+            //If it is exported as hidden (data.hd === true) no need to render
+            //If it is not visible no need to render
+            if (this.data.hd || this.hidden) {
+                return;
+            }
+            this.renderTransform();
+            this.renderRenderable();
+            this.renderElement();
+            this.renderInnerContent();
+            if (this._isFirstFrame) {
+                this._isFirstFrame = false;
+            }
+        },
+        renderInnerContent: function() {},
+        prepareFrame: function(num) {
+            this._mdf = false;
+            this.prepareRenderableFrame(num);
+            this.prepareProperties(num, this.isInRange);
+            this.checkTransparency();
+        },
+        destroy: function(){
+            this.innerElem =  null;
+            this.destroyBaseElement();
+        }
+    };
+    extendPrototype([RenderableElement, createProxyFunction(_prototype)], RenderableDOMElement);
+}());
+function ProcessedElement(element, position) {
+	this.elem = element;
+	this.pos = position;
+}
+function SVGStyleData(data, level) {
+	this.data = data;
+	this.type = data.ty;
+	this.d = '';
+	this.lvl = level;
+	this._mdf = false;
+	this.closed = data.hd === true;
+	this.pElem = createNS('path');
+	this.msElem = null;
+}
+
+SVGStyleData.prototype.reset = function() {
+	this.d = '';
+	this._mdf = false;
+};
+function SVGShapeData(transformers, level, shape) {
+    this.caches = [];
+    this.styles = [];
+    this.transformers = transformers;
+    this.lStr = '';
+    this.sh = shape;
+    this.lvl = level;
+    //TODO find if there are some cases where _isAnimated can be false. 
+    // For now, since shapes add up with other shapes. They have to be calculated every time.
+    // One way of finding out is checking if all styles associated to this shape depend only of this shape
+    this._isAnimated = !!shape.k;
+    // TODO: commenting this for now since all shapes are animated
+    var i = 0, len = transformers.length;
+    while(i < len) {
+    	if(transformers[i].mProps.dynamicProperties.length) {
+    		this._isAnimated = true;
+    		break;
+    	}
+    	i += 1;
+    }
+}
+
+SVGShapeData.prototype.setAsAnimated = function() {
+    this._isAnimated = true;
+}
+function SVGTransformData(mProps, op, container) {
+	this.transform = {
+		mProps: mProps,
+		op: op,
+		container: container
+	};
+	this.elements = [];
+    this._isAnimated = this.transform.mProps.dynamicProperties.length || this.transform.op.effectsSequence.length;
+}
+function SVGStrokeStyleData(elem, data, styleOb){
+	this.initDynamicPropertyContainer(elem);
+	this.getValue = this.iterateDynamicProperties;
+	this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
+	this.w = PropertyFactory.getProp(elem,data.w,0,null,this);
+	this.d = new DashProperty(elem,data.d||{},'svg',this);
+	this.c = PropertyFactory.getProp(elem,data.c,1,255,this);
+	this.style = styleOb;
+    this._isAnimated = !!this._isAnimated;
+}
+
+extendPrototype([DynamicPropertyContainer], SVGStrokeStyleData);
+function SVGFillStyleData(elem, data, styleOb){
+	this.initDynamicPropertyContainer(elem);
+	this.getValue = this.iterateDynamicProperties;
+	this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
+	this.c = PropertyFactory.getProp(elem,data.c,1,255,this);
+	this.style = styleOb;
+}
+
+extendPrototype([DynamicPropertyContainer], SVGFillStyleData);
+function SVGGradientFillStyleData(elem, data, styleOb){
+    this.initDynamicPropertyContainer(elem);
+    this.getValue = this.iterateDynamicProperties;
+    this.initGradientData(elem, data, styleOb);
+}
+
+SVGGradientFillStyleData.prototype.initGradientData = function(elem, data, styleOb){
+    this.o = PropertyFactory.getProp(elem,data.o,0,0.01,this);
+    this.s = PropertyFactory.getProp(elem,data.s,1,null,this);
+    this.e = PropertyFactory.getProp(elem,data.e,1,null,this);
+    this.h = PropertyFactory.getProp(elem,data.h||{k:0},0,0.01,this);
+    this.a = PropertyFactory.getProp(elem,data.a||{k:0},0,degToRads,this);
+    this.g = new GradientProperty(elem,data.g,this);
+    this.style = styleOb;
+    this.stops = [];
+    this.setGradientData(styleOb.pElem, data);
+    this.setGradientOpacity(data, styleOb);
+    this._isAnimated = !!this._isAnimated;
+
+};
+
+SVGGradientFillStyleData.prototype.setGradientData = function(pathElement,data){
+
+    var gradientId = createElementID();
+    var gfill = createNS(data.t === 1 ? 'linearGradient' : 'radialGradient');
+    gfill.setAttribute('id',gradientId);
+    gfill.setAttribute('spreadMethod','pad');
+    gfill.setAttribute('gradientUnits','userSpaceOnUse');
+    var stops = [];
+    var stop, j, jLen;
+    jLen = data.g.p*4;
+    for(j=0;j<jLen;j+=4){
+        stop = createNS('stop');
+        gfill.appendChild(stop);
+        stops.push(stop);
+    }
+    pathElement.setAttribute( data.ty === 'gf' ? 'fill':'stroke','url(' + locationHref + '#'+gradientId+')');
+    
+    this.gf = gfill;
+    this.cst = stops;
+};
+
+SVGGradientFillStyleData.prototype.setGradientOpacity = function(data, styleOb){
+    if(this.g._hasOpacity && !this.g._collapsable){
+        var stop, j, jLen;
+        var mask = createNS("mask");
+        var maskElement = createNS( 'path');
+        mask.appendChild(maskElement);
+        var opacityId = createElementID();
+        var maskId = createElementID();
+        mask.setAttribute('id',maskId);
+        var opFill = createNS(data.t === 1 ? 'linearGradient' : 'radialGradient');
+        opFill.setAttribute('id',opacityId);
+        opFill.setAttribute('spreadMethod','pad');
+        opFill.setAttribute('gradientUnits','userSpaceOnUse');
+        jLen = data.g.k.k[0].s ? data.g.k.k[0].s.length : data.g.k.k.length;
+        var stops = this.stops;
+        for(j=data.g.p*4;j<jLen;j+=2){
+            stop = createNS('stop');
+            stop.setAttribute('stop-color','rgb(255,255,255)');
+            opFill.appendChild(stop);
+            stops.push(stop);
+        }
+        maskElement.setAttribute( data.ty === 'gf' ? 'fill':'stroke','url(' + locationHref + '#'+opacityId+')');
+        this.of = opFill;
+        this.ms = mask;
+        this.ost = stops;
+        this.maskId = maskId;
+        styleOb.msElem = maskElement;
+    }
+};
+
+extendPrototype([DynamicPropertyContainer], SVGGradientFillStyleData);
+function SVGGradientStrokeStyleData(elem, data, styleOb){
+	this.initDynamicPropertyContainer(elem);
+	this.getValue = this.iterateDynamicProperties;
+	this.w = PropertyFactory.getProp(elem,data.w,0,null,this);
+	this.d = new DashProperty(elem,data.d||{},'svg',this);
+    this.initGradientData(elem, data, styleOb);
+    this._isAnimated = !!this._isAnimated;
+}
+
+extendPrototype([SVGGradientFillStyleData, DynamicPropertyContainer], SVGGradientStrokeStyleData);
+function ShapeGroupData() {
+	this.it = [];
+    this.prevViewData = [];
+    this.gr = createNS('g');
+}
+var SVGElementsRenderer = (function() {
+	var _identityMatrix = new Matrix();
+	var _matrixHelper = new Matrix();
+
+	var ob = {
+		createRenderFunction: createRenderFunction
+	}
+
+	function createRenderFunction(data) {
+	    var ty = data.ty;
+	    switch(data.ty) {
+	        case 'fl':
+	        return renderFill;
+	        case 'gf':
+	        return renderGradient;
+	        case 'gs':
+	        return renderGradientStroke;
+	        case 'st':
+	        return renderStroke;
+	        case 'sh':
+	        case 'el':
+	        case 'rc':
+	        case 'sr':
+	        return renderPath;
+	        case 'tr':
+	        return renderContentTransform;
+	    }
+	}
+
+	function renderContentTransform(styleData, itemData, isFirstFrame) {
+	    if(isFirstFrame || itemData.transform.op._mdf){
+	        itemData.transform.container.setAttribute('opacity',itemData.transform.op.v);
+	    }
+	    if(isFirstFrame || itemData.transform.mProps._mdf){
+	        itemData.transform.container.setAttribute('transform',itemData.transform.mProps.v.to2dCSS());
+	    }
+	}
+
+	function renderPath(styleData, itemData, isFirstFrame) {
+	    var j, jLen,pathStringTransformed,redraw,pathNodes,l, lLen = itemData.styles.length;
+	    var lvl = itemData.lvl;
+	    var paths, mat, props, iterations, k;
+	    for(l=0;l<lLen;l+=1){
+	        redraw = itemData.sh._mdf || isFirstFrame;
+	        if(itemData.styles[l].lvl < lvl){
+	            mat = _matrixHelper.reset();
+	            iterations = lvl - itemData.styles[l].lvl;
+	            k = itemData.transformers.length-1;
+	            while(!redraw && iterations > 0) {
+	                redraw = itemData.transformers[k].mProps._mdf || redraw;
+	                iterations --;
+	                k --;
+	            }
+	            if(redraw) {
+	                iterations = lvl - itemData.styles[l].lvl;
+	                k = itemData.transformers.length-1;
+	                while(iterations > 0) {
+	                    props = itemData.transformers[k].mProps.v.props;
+	                    mat.transform(props[0],props[1],props[2],props[3],props[4],props[5],props[6],props[7],props[8],props[9],props[10],props[11],props[12],props[13],props[14],props[15]);
+	                    iterations --;
+	                    k --;
+	                }
+	            }
+	        } else {
+	            mat = _identityMatrix;
+	        }
+	        paths = itemData.sh.paths;
+	        jLen = paths._length;
+	        if(redraw){
+	            pathStringTransformed = '';
+	            for(j=0;j<jLen;j+=1){
+	                pathNodes = paths.shapes[j];
+	                if(pathNodes && pathNodes._length){
+	                    pathStringTransformed += buildShapeString(pathNodes, pathNodes._length, pathNodes.c, mat);
+	                }
+	            }
+	            itemData.caches[l] = pathStringTransformed;
+	        } else {
+	            pathStringTransformed = itemData.caches[l];
+	        }
+	        itemData.styles[l].d += styleData.hd === true ? '' : pathStringTransformed;
+	        itemData.styles[l]._mdf = redraw || itemData.styles[l]._mdf;
+	    }
+	}
+
+	function renderFill (styleData,itemData, isFirstFrame){
+	    var styleElem = itemData.style;
+
+	    if(itemData.c._mdf || isFirstFrame){
+	        styleElem.pElem.setAttribute('fill','rgb('+bm_floor(itemData.c.v[0])+','+bm_floor(itemData.c.v[1])+','+bm_floor(itemData.c.v[2])+')');
+	    }
+	    if(itemData.o._mdf || isFirstFrame){
+	        styleElem.pElem.setAttribute('fill-opacity',itemData.o.v);
+	    }
+	};
+
+	function renderGradientStroke (styleData, itemData, isFirstFrame) {
+	    renderGradient(styleData, itemData, isFirstFrame);
+	    renderStroke(styleData, itemData, isFirstFrame);
+	}
+
+	function renderGradient(styleData, itemData, isFirstFrame) {
+	    var gfill = itemData.gf;
+	    var hasOpacity = itemData.g._hasOpacity;
+	    var pt1 = itemData.s.v, pt2 = itemData.e.v;
+
+	    if (itemData.o._mdf || isFirstFrame) {
+	        var attr = styleData.ty === 'gf' ? 'fill-opacity' : 'stroke-opacity';
+	        itemData.style.pElem.setAttribute(attr, itemData.o.v);
+	    }
+	    if (itemData.s._mdf || isFirstFrame) {
+	        var attr1 = styleData.t === 1 ? 'x1' : 'cx';
+	        var attr2 = attr1 === 'x1' ? 'y1' : 'cy';
+	        gfill.setAttribute(attr1, pt1[0]);
+	        gfill.setAttribute(attr2, pt1[1]);
+	        if (hasOpacity && !itemData.g._collapsable) {
+	            itemData.of.setAttribute(attr1, pt1[0]);
+	            itemData.of.setAttribute(attr2, pt1[1]);
+	        }
+	    }
+	    var stops, i, len, stop;
+	    if (itemData.g._cmdf || isFirstFrame) {
+	        stops = itemData.cst;
+	        var cValues = itemData.g.c;
+	        len = stops.length;
+	        for (i = 0; i < len; i += 1){
+	            stop = stops[i];
+	            stop.setAttribute('offset', cValues[i * 4] + '%');
+	            stop.setAttribute('stop-color','rgb('+ cValues[i * 4 + 1] + ',' + cValues[i * 4 + 2] + ','+cValues[i * 4 + 3] + ')');
+	        }
+	    }
+	    if (hasOpacity && (itemData.g._omdf || isFirstFrame)) {
+	        var oValues = itemData.g.o;
+	        if(itemData.g._collapsable) {
+	            stops = itemData.cst;
+	        } else {
+	            stops = itemData.ost;
+	        }
+	        len = stops.length;
+	        for (i = 0; i < len; i += 1) {
+	            stop = stops[i];
+	            if(!itemData.g._collapsable) {
+	                stop.setAttribute('offset', oValues[i * 2] + '%');
+	            }
+	            stop.setAttribute('stop-opacity', oValues[i * 2 + 1]);
+	        }
+	    }
+	    if (styleData.t === 1) {
+	        if (itemData.e._mdf  || isFirstFrame) {
+	            gfill.setAttribute('x2', pt2[0]);
+	            gfill.setAttribute('y2', pt2[1]);
+	            if (hasOpacity && !itemData.g._collapsable) {
+	                itemData.of.setAttribute('x2', pt2[0]);
+	                itemData.of.setAttribute('y2', pt2[1]);
+	            }
+	        }
+	    } else {
+	        var rad;
+	        if (itemData.s._mdf || itemData.e._mdf || isFirstFrame) {
+	            rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
+	            gfill.setAttribute('r', rad);
+	            if(hasOpacity && !itemData.g._collapsable){
+	                itemData.of.setAttribute('r', rad);
+	            }
+	        }
+	        if (itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
+	            if (!rad) {
+	                rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
+	            }
+	            var ang = Math.atan2(pt2[1] - pt1[1], pt2[0] - pt1[0]);
+
+	            var percent = itemData.h.v >= 1 ? 0.99 : itemData.h.v <= -1 ? -0.99: itemData.h.v;
+	            var dist = rad * percent;
+	            var x = Math.cos(ang + itemData.a.v) * dist + pt1[0];
+	            var y = Math.sin(ang + itemData.a.v) * dist + pt1[1];
+	            gfill.setAttribute('fx', x);
+	            gfill.setAttribute('fy', y);
+	            if (hasOpacity && !itemData.g._collapsable) {
+	                itemData.of.setAttribute('fx', x);
+	                itemData.of.setAttribute('fy', y);
+	            }
+	        }
+	        //gfill.setAttribute('fy','200');
+	    }
+	};
+
+	function renderStroke(styleData, itemData, isFirstFrame) {
+	    var styleElem = itemData.style;
+	    var d = itemData.d;
+	    if (d && (d._mdf || isFirstFrame) && d.dashStr) {
+	        styleElem.pElem.setAttribute('stroke-dasharray', d.dashStr);
+	        styleElem.pElem.setAttribute('stroke-dashoffset', d.dashoffset[0]);
+	    }
+	    if(itemData.c && (itemData.c._mdf || isFirstFrame)){
+	        styleElem.pElem.setAttribute('stroke','rgb(' + bm_floor(itemData.c.v[0]) + ',' + bm_floor(itemData.c.v[1]) + ',' + bm_floor(itemData.c.v[2]) + ')');
+	    }
+	    if(itemData.o._mdf || isFirstFrame){
+	        styleElem.pElem.setAttribute('stroke-opacity', itemData.o.v);
+	    }
+	    if(itemData.w._mdf || isFirstFrame){
+	        styleElem.pElem.setAttribute('stroke-width', itemData.w.v);
+	        if(styleElem.msElem){
+	            styleElem.msElem.setAttribute('stroke-width', itemData.w.v);
+	        }
+	    }
+	};
+
+	return ob;
+}())
+function ShapeTransformManager() {
+	this.sequences = {};
+	this.sequenceList = [];
+    this.transform_key_count = 0;
+}
+
+ShapeTransformManager.prototype = {
+	addTransformSequence: function(transforms) {
+		var i, len = transforms.length;
+		var key = '_';
+		for(i = 0; i < len; i += 1) {
+			key += transforms[i].transform.key + '_';
+		}
+		var sequence = this.sequences[key];
+		if(!sequence) {
+			sequence = {
+				transforms: [].concat(transforms),
+				finalTransform: new Matrix(),
+				_mdf: false
+			};
+			this.sequences[key] = sequence;
+			this.sequenceList.push(sequence);
+		}
+		return sequence;
+	},
+	processSequence: function(sequence, isFirstFrame) {
+		var i = 0, len = sequence.transforms.length, _mdf = isFirstFrame;
+		while (i < len && !isFirstFrame) {
+			if (sequence.transforms[i].transform.mProps._mdf) {
+				_mdf = true;
+				break;
+			}
+			i += 1
+		}
+		if (_mdf) {
+			var props;
+			sequence.finalTransform.reset();
+			for (i = len - 1; i >= 0; i -= 1) {
+		        props = sequence.transforms[i].transform.mProps.v.props;
+		        sequence.finalTransform.transform(props[0],props[1],props[2],props[3],props[4],props[5],props[6],props[7],props[8],props[9],props[10],props[11],props[12],props[13],props[14],props[15]);
+			}
+		}
+		sequence._mdf = _mdf;
+		
+	},
+	processSequences: function(isFirstFrame) {
+		var i, len = this.sequenceList.length;
+		for (i = 0; i < len; i += 1) {
+			this.processSequence(this.sequenceList[i], isFirstFrame);
+		}
+
+	},
+	getNewKey: function() {
+		return '_' + this.transform_key_count++;
+	}
+}
 function CVShapeData(element, data, styles, transformsManager) {
     this.styledShapes = [];
     this.tr = [0,0,0,0,0,0];
@@ -10103,6 +7721,1588 @@ function CVShapeData(element, data, styles, transformsManager) {
 }
 
 CVShapeData.prototype.setAsAnimated = SVGShapeData.prototype.setAsAnimated;
+function BaseElement(){
+}
+
+BaseElement.prototype = {
+    checkMasks: function(){
+        if(!this.data.hasMask){
+            return false;
+        }
+        var i = 0, len = this.data.masksProperties.length;
+        while(i<len) {
+            if((this.data.masksProperties[i].mode !== 'n' && this.data.masksProperties[i].cl !== false)) {
+                return true;
+            }
+            i += 1;
+        }
+        return false;
+    },
+    initExpressions: function(){
+        this.layerInterface = LayerExpressionInterface(this);
+        if(this.data.hasMask && this.maskManager) {
+            this.layerInterface.registerMaskInterface(this.maskManager);
+        }
+        var effectsInterface = EffectsExpressionInterface.createEffectsInterface(this,this.layerInterface);
+        this.layerInterface.registerEffectsInterface(effectsInterface);
+
+        if(this.data.ty === 0 || this.data.xt){
+            this.compInterface = CompExpressionInterface(this);
+        } else if(this.data.ty === 4){
+            this.layerInterface.shapeInterface = ShapeExpressionInterface(this.shapesData,this.itemsData,this.layerInterface);
+            this.layerInterface.content = this.layerInterface.shapeInterface;
+        } else if(this.data.ty === 5){
+            this.layerInterface.textInterface = TextExpressionInterface(this);
+            this.layerInterface.text = this.layerInterface.textInterface;
+        }
+    },
+    setBlendMode: function(){
+        var blendModeValue = getBlendMode(this.data.bm);
+        var elem = this.baseElement || this.layerElement;
+
+        elem.style['mix-blend-mode'] = blendModeValue;
+    },
+    initBaseData: function(data, globalData, comp){
+        this.globalData = globalData;
+        this.comp = comp;
+        this.data = data;
+        this.layerId = createElementID();
+        
+        //Stretch factor for old animations missing this property.
+        if(!this.data.sr){
+            this.data.sr = 1;
+        }
+        // effects manager
+        this.effectsManager = new EffectsManager(this.data,this,this.dynamicProperties);
+        
+    },
+    getType: function(){
+        return this.type;
+    }
+}
+function NullElement(data,globalData,comp){
+    this.initFrame();
+	this.initBaseData(data, globalData, comp);
+    this.initFrame();
+    this.initTransform(data, globalData, comp);
+    this.initHierarchy();
+}
+
+NullElement.prototype.prepareFrame = function(num) {
+    this.prepareProperties(num, true);
+};
+
+NullElement.prototype.renderFrame = function() {
+};
+
+NullElement.prototype.getBaseElement = function() {
+	return null;
+};
+
+NullElement.prototype.destroy = function() {
+};
+
+NullElement.prototype.sourceRectAtTime = function() {
+};
+
+NullElement.prototype.hide = function() {
+};
+
+extendPrototype([BaseElement,TransformElement,HierarchyElement,FrameElement], NullElement);
+
+function SVGBaseElement(){
+}
+
+SVGBaseElement.prototype = {
+    initRendererElement: function() {
+        this.layerElement = createNS('g');
+    },
+    createContainerElements: function(){
+        this.matteElement = createNS('g');
+        this.transformedElement = this.layerElement;
+        this.maskedElement = this.layerElement;
+        this._sizeChanged = false;
+        var layerElementParent = null;
+        //If this layer acts as a mask for the following layer
+        var filId, fil, gg;
+        if (this.data.td) {
+            if (this.data.td == 3 || this.data.td == 1) {
+                var masker = createNS('mask');
+                masker.setAttribute('id', this.layerId);
+                masker.setAttribute('mask-type', this.data.td == 3 ? 'luminance' : 'alpha');
+                masker.appendChild(this.layerElement);
+                layerElementParent = masker;
+                this.globalData.defs.appendChild(masker);
+                // This is only for IE and Edge when mask if of type alpha
+                if (!featureSupport.maskType && this.data.td == 1) {
+                    masker.setAttribute('mask-type', 'luminance');
+                    filId = createElementID();
+                    fil = filtersFactory.createFilter(filId);
+                    this.globalData.defs.appendChild(fil);
+                    fil.appendChild(filtersFactory.createAlphaToLuminanceFilter());
+                    gg = createNS('g');
+                    gg.appendChild(this.layerElement);
+                    layerElementParent = gg;
+                    masker.appendChild(gg);
+                    gg.setAttribute('filter','url(' + locationHref + '#' + filId + ')');
+                }
+            } else if(this.data.td == 2) {
+                var maskGroup = createNS('mask');
+                maskGroup.setAttribute('id', this.layerId);
+                maskGroup.setAttribute('mask-type','alpha');
+                var maskGrouper = createNS('g');
+                maskGroup.appendChild(maskGrouper);
+                filId = createElementID();
+                fil = filtersFactory.createFilter(filId);
+                ////
+
+                var feColorMatrix = createNS('feColorMatrix');
+                feColorMatrix.setAttribute('type', 'matrix');
+                feColorMatrix.setAttribute('color-interpolation-filters', 'sRGB');
+                feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 -1 1');
+                fil.appendChild(feColorMatrix);
+
+                ////
+                /*var feCTr = createNS('feComponentTransfer');
+                feCTr.setAttribute('in','SourceGraphic');
+                fil.appendChild(feCTr);
+                var feFunc = createNS('feFuncA');
+                feFunc.setAttribute('type','table');
+                feFunc.setAttribute('tableValues','1.0 0.0');
+                feCTr.appendChild(feFunc);*/
+                this.globalData.defs.appendChild(fil);
+                var alphaRect = createNS('rect');
+                alphaRect.setAttribute('width',  this.comp.data.w);
+                alphaRect.setAttribute('height', this.comp.data.h);
+                alphaRect.setAttribute('x','0');
+                alphaRect.setAttribute('y','0');
+                alphaRect.setAttribute('fill','#ffffff');
+                alphaRect.setAttribute('opacity','0');
+                maskGrouper.setAttribute('filter', 'url(' + locationHref + '#'+filId+')');
+                maskGrouper.appendChild(alphaRect);
+                maskGrouper.appendChild(this.layerElement);
+                layerElementParent = maskGrouper;
+                if (!featureSupport.maskType) {
+                    maskGroup.setAttribute('mask-type', 'luminance');
+                    fil.appendChild(filtersFactory.createAlphaToLuminanceFilter());
+                    gg = createNS('g');
+                    maskGrouper.appendChild(alphaRect);
+                    gg.appendChild(this.layerElement);
+                    layerElementParent = gg;
+                    maskGrouper.appendChild(gg);
+                }
+                this.globalData.defs.appendChild(maskGroup);
+            }
+        } else if (this.data.tt) {
+            this.matteElement.appendChild(this.layerElement);
+            layerElementParent = this.matteElement;
+            this.baseElement = this.matteElement;
+        } else {
+            this.baseElement = this.layerElement;
+        }
+        if (this.data.ln) {
+            this.layerElement.setAttribute('id', this.data.ln);
+        }
+        if (this.data.cl) {
+            this.layerElement.setAttribute('class', this.data.cl);
+        }
+        //Clipping compositions to hide content that exceeds boundaries. If collapsed transformations is on, component should not be clipped
+        if (this.data.ty === 0 && !this.data.hd) {
+            var cp = createNS( 'clipPath');
+            var pt = createNS('path');
+            pt.setAttribute('d','M0,0 L' + this.data.w + ',0' + ' L' + this.data.w + ',' + this.data.h + ' L0,' + this.data.h + 'z');
+            var clipId = createElementID();
+            cp.setAttribute('id',clipId);
+            cp.appendChild(pt);
+            this.globalData.defs.appendChild(cp);
+
+            if (this.checkMasks()) {
+                var cpGroup = createNS('g');
+                cpGroup.setAttribute('clip-path','url(' + locationHref + '#'+clipId + ')');
+                cpGroup.appendChild(this.layerElement);
+                this.transformedElement = cpGroup;
+                if (layerElementParent) {
+                    layerElementParent.appendChild(this.transformedElement);
+                } else {
+                    this.baseElement = this.transformedElement;
+                }
+            } else {
+                this.layerElement.setAttribute('clip-path','url(' + locationHref + '#'+clipId+')');
+            }
+            
+        }
+        if (this.data.bm !== 0) {
+            this.setBlendMode();
+        }
+
+    },
+    renderElement: function() {
+        if (this.finalTransform._matMdf) {
+            this.transformedElement.setAttribute('transform', this.finalTransform.mat.to2dCSS());
+        }
+        if (this.finalTransform._opMdf) {
+            this.transformedElement.setAttribute('opacity', this.finalTransform.mProp.o.v);
+        }
+    },
+    destroyBaseElement: function() {
+        this.layerElement = null;
+        this.matteElement = null;
+        this.maskManager.destroy();
+    },
+    getBaseElement: function() {
+        if (this.data.hd) {
+            return null;
+        }
+        return this.baseElement;
+    },
+    createRenderableComponents: function() {
+        this.maskManager = new MaskElement(this.data, this, this.globalData);
+        this.renderableEffectsManager = new SVGEffects(this);
+    },
+    setMatte: function(id) {
+        if (!this.matteElement) {
+            return;
+        }
+        this.matteElement.setAttribute("mask", "url(" + locationHref + "#" + id + ")");
+    }
+};
+function IShapeElement(){
+}
+
+IShapeElement.prototype = {
+    addShapeToModifiers: function(data) {
+        var i, len = this.shapeModifiers.length;
+        for(i=0;i<len;i+=1){
+            this.shapeModifiers[i].addShape(data);
+        }
+    },
+    isShapeInAnimatedModifiers: function(data) {
+        var i = 0, len = this.shapeModifiers.length;
+        while(i < len) {
+            if(this.shapeModifiers[i].isAnimatedWithShape(data)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    renderModifiers: function() {
+        if(!this.shapeModifiers.length){
+            return;
+        }
+        var i, len = this.shapes.length;
+        for(i=0;i<len;i+=1){
+            this.shapes[i].sh.reset();
+        }
+
+        len = this.shapeModifiers.length;
+        for(i=len-1;i>=0;i-=1){
+            this.shapeModifiers[i].processShapes(this._isFirstFrame);
+        }
+    },
+    lcEnum: {
+        '1': 'butt',
+        '2': 'round',
+        '3': 'square'
+    },
+    ljEnum: {
+        '1': 'miter',
+        '2': 'round',
+        '3': 'bevel'
+    },
+    searchProcessedElement: function(elem){
+        var elements = this.processedElements;
+        var i = 0, len = elements.length;
+        while (i < len) {
+            if (elements[i].elem === elem) {
+                return elements[i].pos;
+            }
+            i += 1;
+        }
+        return 0;
+    },
+    addProcessedElement: function(elem, pos){
+        var elements = this.processedElements;
+        var i = elements.length;
+        while(i) {
+            i -= 1;
+            if (elements[i].elem === elem) {
+                elements[i].pos = pos;
+                return;
+            }
+        }
+        elements.push(new ProcessedElement(elem, pos));
+    },
+    prepareFrame: function(num) {
+        this.prepareRenderableFrame(num);
+        this.prepareProperties(num, this.isInRange);
+    }
+};
+function ITextElement(){
+}
+
+ITextElement.prototype.initElement = function(data,globalData,comp){
+    this.lettersChangedFlag = true;
+    this.initFrame();
+    this.initBaseData(data, globalData, comp);
+    this.textProperty = new TextProperty(this, data.t, this.dynamicProperties);
+    this.textAnimator = new TextAnimatorProperty(data.t, this.renderType, this);
+    this.initTransform(data, globalData, comp);
+    this.initHierarchy();
+    this.initRenderable();
+    this.initRendererElement();
+    this.createContainerElements();
+    this.createRenderableComponents();
+    this.createContent();
+    this.hide();
+    this.textAnimator.searchProperties(this.dynamicProperties);
+};
+
+ITextElement.prototype.prepareFrame = function(num) {
+    this._mdf = false;
+    this.prepareRenderableFrame(num);
+    this.prepareProperties(num, this.isInRange);
+    if(this.textProperty._mdf || this.textProperty._isFirstFrame) {
+        this.buildNewText();
+        this.textProperty._isFirstFrame = false;
+        this.textProperty._mdf = false;
+    }
+};
+
+ITextElement.prototype.createPathShape = function(matrixHelper, shapes) {
+    var j,jLen = shapes.length;
+    var k, kLen, pathNodes;
+    var shapeStr = '';
+    for(j=0;j<jLen;j+=1){
+        pathNodes = shapes[j].ks.k;
+        shapeStr += buildShapeString(pathNodes, pathNodes.i.length, true, matrixHelper);
+    }
+    return shapeStr;
+};
+
+ITextElement.prototype.updateDocumentData = function(newData, index) {
+    this.textProperty.updateDocumentData(newData, index);
+};
+
+ITextElement.prototype.canResizeFont = function(_canResize) {
+    this.textProperty.canResizeFont(_canResize);
+};
+
+ITextElement.prototype.setMinimumFontSize = function(_fontSize) {
+    this.textProperty.setMinimumFontSize(_fontSize);
+};
+
+ITextElement.prototype.applyTextPropertiesToMatrix = function(documentData, matrixHelper, lineNumber, xPos, yPos) {
+    if(documentData.ps){
+        matrixHelper.translate(documentData.ps[0],documentData.ps[1] + documentData.ascent,0);
+    }
+    matrixHelper.translate(0,-documentData.ls,0);
+    switch(documentData.j){
+        case 1:
+            matrixHelper.translate(documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[lineNumber]),0,0);
+            break;
+        case 2:
+            matrixHelper.translate(documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[lineNumber] )/2,0,0);
+            break;
+    }
+    matrixHelper.translate(xPos, yPos, 0);
+};
+
+
+ITextElement.prototype.buildColor = function(colorData) {
+    return 'rgb(' + Math.round(colorData[0]*255) + ',' + Math.round(colorData[1]*255) + ',' + Math.round(colorData[2]*255) + ')';
+};
+
+ITextElement.prototype.emptyProp = new LetterProps();
+
+ITextElement.prototype.destroy = function(){
+    
+};
+function ICompElement(){}
+
+extendPrototype([BaseElement, TransformElement, HierarchyElement, FrameElement, RenderableDOMElement], ICompElement);
+
+ICompElement.prototype.initElement = function(data,globalData,comp) {
+    this.initFrame();
+    this.initBaseData(data, globalData, comp);
+    this.initTransform(data, globalData, comp);
+    this.initRenderable();
+    this.initHierarchy();
+    this.initRendererElement();
+    this.createContainerElements();
+    this.createRenderableComponents();
+    if(this.data.xt || !globalData.progressiveLoad){
+        this.buildAllItems();
+    }
+    this.hide();
+};
+
+/*ICompElement.prototype.hide = function(){
+    if(!this.hidden){
+        this.hideElement();
+        var i,len = this.elements.length;
+        for( i = 0; i < len; i+=1 ){
+            if(this.elements[i]){
+                this.elements[i].hide();
+            }
+        }
+    }
+};*/
+
+ICompElement.prototype.prepareFrame = function(num){
+    this._mdf = false;
+    this.prepareRenderableFrame(num);
+    this.prepareProperties(num, this.isInRange);
+    if(!this.isInRange && !this.data.xt){
+        return;
+    }
+
+    if (!this.tm._placeholder) {
+        var timeRemapped = this.tm.v;
+        if(timeRemapped === this.data.op){
+            timeRemapped = this.data.op - 1;
+        }
+        this.renderedFrame = timeRemapped;
+    } else {
+        this.renderedFrame = num/this.data.sr;
+    }
+    var i,len = this.elements.length;
+    if(!this.completeLayers){
+        this.checkLayers(this.renderedFrame);
+    }
+    //This iteration needs to be backwards because of how expressions connect between each other
+    for( i = len - 1; i >= 0; i -= 1 ){
+        if(this.completeLayers || this.elements[i]){
+            this.elements[i].prepareFrame(this.renderedFrame - this.layers[i].st);
+            if(this.elements[i]._mdf) {
+                this._mdf = true;
+            }
+        }
+    }
+};
+
+ICompElement.prototype.renderInnerContent = function() {
+    var i,len = this.layers.length;
+    for( i = 0; i < len; i += 1 ){
+        if(this.completeLayers || this.elements[i]){
+            this.elements[i].renderFrame();
+        }
+    }
+};
+
+ICompElement.prototype.setElements = function(elems){
+    this.elements = elems;
+};
+
+ICompElement.prototype.getElements = function(){
+    return this.elements;
+};
+
+ICompElement.prototype.destroyElements = function(){
+    var i,len = this.layers.length;
+    for( i = 0; i < len; i+=1 ){
+        if(this.elements[i]){
+            this.elements[i].destroy();
+        }
+    }
+};
+
+ICompElement.prototype.destroy = function(){
+    this.destroyElements();
+    this.destroyBaseElement();
+};
+
+function IImageElement(data,globalData,comp){
+    this.assetData = globalData.getAssetData(data.refId);
+    this.initElement(data,globalData,comp);
+}
+
+extendPrototype([BaseElement,TransformElement,SVGBaseElement,HierarchyElement,FrameElement,RenderableDOMElement], IImageElement);
+
+IImageElement.prototype.createContent = function(){
+
+    var assetPath = this.globalData.getAssetsPath(this.assetData);
+
+    this.innerElem = createNS('image');
+    this.innerElem.setAttribute('width',this.assetData.w+"px");
+    this.innerElem.setAttribute('height',this.assetData.h+"px");
+    this.innerElem.setAttribute('preserveAspectRatio',this.assetData.pr || this.globalData.renderConfig.imagePreserveAspectRatio);
+    this.innerElem.setAttributeNS('http://www.w3.org/1999/xlink','href',assetPath);
+    
+    this.layerElement.appendChild(this.innerElem);
+};
+
+function ISolidElement(data,globalData,comp){
+    this.initElement(data,globalData,comp);
+}
+extendPrototype([IImageElement], ISolidElement);
+
+ISolidElement.prototype.createContent = function(){
+
+    var rect = createNS('rect');
+    ////rect.style.width = this.data.sw;
+    ////rect.style.height = this.data.sh;
+    ////rect.style.fill = this.data.sc;
+    rect.setAttribute('width',this.data.sw);
+    rect.setAttribute('height',this.data.sh);
+    rect.setAttribute('fill',this.data.sc);
+    this.layerElement.appendChild(rect);
+};
+function SVGCompElement(data,globalData,comp){
+    this.layers = data.layers;
+    this.supports3d = true;
+    this.completeLayers = false;
+    this.pendingElements = [];
+    this.elements = this.layers ? createSizedArray(this.layers.length) : [];
+    //this.layerElement = createNS('g');
+    this.initElement(data,globalData,comp);
+    this.tm = data.tm ? PropertyFactory.getProp(this,data.tm,0,globalData.frameRate,this) : {_placeholder:true};
+}
+
+extendPrototype([SVGRenderer, ICompElement, SVGBaseElement], SVGCompElement);
+function SVGTextElement(data,globalData,comp){
+    this.textSpans = [];
+    this.renderType = 'svg';
+    this.initElement(data,globalData,comp);
+}
+
+extendPrototype([BaseElement,TransformElement,SVGBaseElement,HierarchyElement,FrameElement,RenderableDOMElement,ITextElement], SVGTextElement);
+
+SVGTextElement.prototype.createContent = function(){
+
+    if (this.data.singleShape && !this.globalData.fontManager.chars) {
+        this.textContainer = createNS('text');
+    }
+};
+
+SVGTextElement.prototype.buildTextContents = function(textArray) {
+    var i = 0, len = textArray.length;
+    var textContents = [], currentTextContent = '';
+    while (i < len) {
+        if(textArray[i] === String.fromCharCode(13) || textArray[i] === String.fromCharCode(3)) {
+            textContents.push(currentTextContent);
+            currentTextContent = '';
+        } else {
+            currentTextContent += textArray[i];
+        }
+        i += 1;
+    }
+    textContents.push(currentTextContent);
+    return textContents;
+}
+
+SVGTextElement.prototype.buildNewText = function(){
+    var i, len;
+
+    var documentData = this.textProperty.currentData;
+    this.renderedLetters = createSizedArray(documentData ? documentData.l.length : 0);
+    if(documentData.fc) {
+        this.layerElement.setAttribute('fill', this.buildColor(documentData.fc));
+    }else{
+        this.layerElement.setAttribute('fill', 'rgba(0,0,0,0)');
+    }
+    if(documentData.sc){
+        this.layerElement.setAttribute('stroke', this.buildColor(documentData.sc));
+        this.layerElement.setAttribute('stroke-width', documentData.sw);
+    }
+    this.layerElement.setAttribute('font-size', documentData.finalSize);
+    var fontData = this.globalData.fontManager.getFontByName(documentData.f);
+    if(fontData.fClass){
+        this.layerElement.setAttribute('class',fontData.fClass);
+    } else {
+        this.layerElement.setAttribute('font-family', fontData.fFamily);
+        var fWeight = documentData.fWeight, fStyle = documentData.fStyle;
+        this.layerElement.setAttribute('font-style', fStyle);
+        this.layerElement.setAttribute('font-weight', fWeight);
+    }
+
+    var letters = documentData.l || [];
+    var usesGlyphs = !!this.globalData.fontManager.chars;
+    len = letters.length;
+
+    var tSpan;
+    var matrixHelper = this.mHelper;
+    var shapes, shapeStr = '', singleShape = this.data.singleShape;
+    var xPos = 0, yPos = 0, firstLine = true;
+    var trackingOffset = documentData.tr/1000*documentData.finalSize;
+    if(singleShape && !usesGlyphs && !documentData.sz) {
+        var tElement = this.textContainer;
+        var justify = 'start';
+        switch(documentData.j) {
+            case 1:
+                justify = 'end';
+                break;
+            case 2:
+                justify = 'middle';
+                break;
+        }
+        tElement.setAttribute('text-anchor',justify);
+        tElement.setAttribute('letter-spacing',trackingOffset);
+        var textContent = this.buildTextContents(documentData.finalText);
+        len = textContent.length;
+        yPos = documentData.ps ? documentData.ps[1] + documentData.ascent : 0;
+        for ( i = 0; i < len; i += 1) {
+            tSpan = this.textSpans[i] || createNS('tspan');
+            tSpan.textContent = textContent[i];
+            tSpan.setAttribute('x', 0);
+            tSpan.setAttribute('y', yPos);
+            tSpan.style.display = 'inherit';
+            tElement.appendChild(tSpan);
+            this.textSpans[i] = tSpan;
+            yPos += documentData.finalLineHeight;
+        }
+        
+        this.layerElement.appendChild(tElement);
+    } else {
+        var cachedSpansLength = this.textSpans.length;
+        var shapeData, charData;
+        for (i = 0; i < len; i += 1) {
+            if(!usesGlyphs || !singleShape || i === 0){
+                tSpan = cachedSpansLength > i ? this.textSpans[i] : createNS(usesGlyphs?'path':'text');
+                if (cachedSpansLength <= i) {
+                    tSpan.setAttribute('stroke-linecap', 'butt');
+                    tSpan.setAttribute('stroke-linejoin','round');
+                    tSpan.setAttribute('stroke-miterlimit','4');
+                    this.textSpans[i] = tSpan;
+                    this.layerElement.appendChild(tSpan);
+                }
+                tSpan.style.display = 'inherit';
+            }
+            
+            matrixHelper.reset();
+            matrixHelper.scale(documentData.finalSize / 100, documentData.finalSize / 100);
+            if (singleShape) {
+                if(letters[i].n) {
+                    xPos = -trackingOffset;
+                    yPos += documentData.yOffset;
+                    yPos += firstLine ? 1 : 0;
+                    firstLine = false;
+                }
+                this.applyTextPropertiesToMatrix(documentData, matrixHelper, letters[i].line, xPos, yPos);
+                xPos += letters[i].l || 0;
+                //xPos += letters[i].val === ' ' ? 0 : trackingOffset;
+                xPos += trackingOffset;
+            }
+            if(usesGlyphs) {
+                charData = this.globalData.fontManager.getCharData(documentData.finalText[i], fontData.fStyle, this.globalData.fontManager.getFontByName(documentData.f).fFamily);
+                shapeData = charData && charData.data || {};
+                shapes = shapeData.shapes ? shapeData.shapes[0].it : [];
+                if(!singleShape){
+                    tSpan.setAttribute('d',this.createPathShape(matrixHelper,shapes));
+                } else {
+                    shapeStr += this.createPathShape(matrixHelper,shapes);
+                }
+            } else {
+                if(singleShape) {
+                    tSpan.setAttribute("transform", "translate(" + matrixHelper.props[12] + "," + matrixHelper.props[13] + ")");
+                }
+                tSpan.textContent = letters[i].val;
+                tSpan.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space","preserve");
+            }
+            //
+        }
+        if (singleShape && tSpan) {
+            tSpan.setAttribute('d',shapeStr);
+        }
+    }
+    while (i < this.textSpans.length){
+        this.textSpans[i].style.display = 'none';
+        i += 1;
+    }
+    
+    this._sizeChanged = true;
+};
+
+SVGTextElement.prototype.sourceRectAtTime = function(time){
+    this.prepareFrame(this.comp.renderedFrame - this.data.st);
+    this.renderInnerContent();
+    if(this._sizeChanged){
+        this._sizeChanged = false;
+        var textBox = this.layerElement.getBBox();
+        this.bbox = {
+            top: textBox.y,
+            left: textBox.x,
+            width: textBox.width,
+            height: textBox.height
+        };
+    }
+    return this.bbox;
+};
+
+SVGTextElement.prototype.renderInnerContent = function(){
+
+    if(!this.data.singleShape){
+        this.textAnimator.getMeasures(this.textProperty.currentData, this.lettersChangedFlag);
+        if(this.lettersChangedFlag || this.textAnimator.lettersChangedFlag){
+            this._sizeChanged = true;
+            var  i,len;
+            var renderedLetters = this.textAnimator.renderedLetters;
+
+            var letters = this.textProperty.currentData.l;
+
+            len = letters.length;
+            var renderedLetter, textSpan;
+            for(i=0;i<len;i+=1){
+                if(letters[i].n){
+                    continue;
+                }
+                renderedLetter = renderedLetters[i];
+                textSpan = this.textSpans[i];
+                if(renderedLetter._mdf.m) {
+                    textSpan.setAttribute('transform',renderedLetter.m);
+                }
+                if(renderedLetter._mdf.o) {
+                    textSpan.setAttribute('opacity',renderedLetter.o);
+                }
+                if(renderedLetter._mdf.sw){
+                    textSpan.setAttribute('stroke-width',renderedLetter.sw);
+                }
+                if(renderedLetter._mdf.sc){
+                    textSpan.setAttribute('stroke',renderedLetter.sc);
+                }
+                if(renderedLetter._mdf.fc){
+                    textSpan.setAttribute('fill',renderedLetter.fc);
+                }
+            }
+        }
+    }
+};
+function SVGShapeElement(data,globalData,comp){
+    //List of drawable elements
+    this.shapes = [];
+    // Full shape data
+    this.shapesData = data.shapes;
+    //List of styles that will be applied to shapes
+    this.stylesList = [];
+    //List of modifiers that will be applied to shapes
+    this.shapeModifiers = [];
+    //List of items in shape tree
+    this.itemsData = [];
+    //List of items in previous shape tree
+    this.processedElements = [];
+    // List of animated components
+    this.animatedContents = [];
+    this.initElement(data,globalData,comp);
+    //Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
+    // List of elements that have been created
+    this.prevViewData = [];
+    //Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
+}
+
+extendPrototype([BaseElement,TransformElement,SVGBaseElement,IShapeElement,HierarchyElement,FrameElement,RenderableDOMElement], SVGShapeElement);
+
+SVGShapeElement.prototype.initSecondaryElement = function() {
+};
+
+SVGShapeElement.prototype.identityMatrix = new Matrix();
+
+SVGShapeElement.prototype.buildExpressionInterface = function(){};
+
+SVGShapeElement.prototype.createContent = function(){
+    this.searchShapes(this.shapesData,this.itemsData,this.prevViewData,this.layerElement, 0, [], true);
+    this.filterUniqueShapes();
+};
+
+/*
+This method searches for multiple shapes that affect a single element and one of them is animated
+*/
+SVGShapeElement.prototype.filterUniqueShapes = function(){
+    var i, len = this.shapes.length, shape;
+    var j, jLen = this.stylesList.length;
+    var style, count = 0;
+    var tempShapes = [];
+    var areAnimated = false;
+    for(j = 0; j < jLen; j += 1) {
+        style = this.stylesList[j];
+        areAnimated = false;
+        tempShapes.length = 0;
+        for(i = 0; i < len; i += 1) {
+            shape = this.shapes[i];
+            if(shape.styles.indexOf(style) !== -1) {
+                tempShapes.push(shape);
+                areAnimated = shape._isAnimated || areAnimated;
+            }
+        }
+        if(tempShapes.length > 1 && areAnimated) {
+            this.setShapesAsAnimated(tempShapes);
+        }
+    }
+}
+
+SVGShapeElement.prototype.setShapesAsAnimated = function(shapes){
+    var i, len = shapes.length;
+    for(i = 0; i < len; i += 1) {
+        shapes[i].setAsAnimated();
+    }
+}
+
+SVGShapeElement.prototype.createStyleElement = function(data, level){
+    //TODO: prevent drawing of hidden styles
+    var elementData;
+    var styleOb = new SVGStyleData(data, level);
+
+    var pathElement = styleOb.pElem;
+    if(data.ty === 'st') {
+        elementData = new SVGStrokeStyleData(this, data, styleOb);
+    } else if(data.ty === 'fl') {
+        elementData = new SVGFillStyleData(this, data, styleOb);
+    } else if(data.ty === 'gf' || data.ty === 'gs') {
+        var gradientConstructor = data.ty === 'gf' ? SVGGradientFillStyleData : SVGGradientStrokeStyleData;
+        elementData = new gradientConstructor(this, data, styleOb);
+        this.globalData.defs.appendChild(elementData.gf);
+        if (elementData.maskId) {
+            this.globalData.defs.appendChild(elementData.ms);
+            this.globalData.defs.appendChild(elementData.of);
+            pathElement.setAttribute('mask','url(' + locationHref + '#' + elementData.maskId + ')');
+        }
+    }
+    
+    if(data.ty === 'st' || data.ty === 'gs') {
+        pathElement.setAttribute('stroke-linecap', this.lcEnum[data.lc] || 'round');
+        pathElement.setAttribute('stroke-linejoin',this.ljEnum[data.lj] || 'round');
+        pathElement.setAttribute('fill-opacity','0');
+        if(data.lj === 1) {
+            pathElement.setAttribute('stroke-miterlimit',data.ml);
+        }
+    }
+
+    if(data.r === 2) {
+        pathElement.setAttribute('fill-rule', 'evenodd');
+    }
+
+    if(data.ln){
+        pathElement.setAttribute('id',data.ln);
+    }
+    if(data.cl){
+        pathElement.setAttribute('class',data.cl);
+    }
+    if(data.bm){
+        pathElement.style['mix-blend-mode'] = getBlendMode(data.bm);
+    }
+    this.stylesList.push(styleOb);
+    this.addToAnimatedContents(data, elementData);
+    return elementData;
+};
+
+SVGShapeElement.prototype.createGroupElement = function(data) {
+    var elementData = new ShapeGroupData();
+    if(data.ln){
+        elementData.gr.setAttribute('id',data.ln);
+    }
+    if(data.cl){
+        elementData.gr.setAttribute('class',data.cl);
+    }
+    if(data.bm){
+        elementData.gr.style['mix-blend-mode'] = getBlendMode(data.bm);
+    }
+    return elementData;
+};
+
+SVGShapeElement.prototype.createTransformElement = function(data, container) {
+    var transformProperty = TransformPropertyFactory.getTransformProperty(this,data,this);
+    var elementData = new SVGTransformData(transformProperty, transformProperty.o, container);
+    this.addToAnimatedContents(data, elementData);
+    return elementData;
+};
+
+SVGShapeElement.prototype.createShapeElement = function(data, ownTransformers, level) {
+    var ty = 4;
+    if(data.ty === 'rc'){
+        ty = 5;
+    }else if(data.ty === 'el'){
+        ty = 6;
+    }else if(data.ty === 'sr'){
+        ty = 7;
+    }
+    var shapeProperty = ShapePropertyFactory.getShapeProp(this,data,ty,this);
+    var elementData = new SVGShapeData(ownTransformers, level, shapeProperty);
+    this.shapes.push(elementData);
+    this.addShapeToModifiers(elementData);
+    this.addToAnimatedContents(data, elementData);
+    return elementData;
+};
+
+SVGShapeElement.prototype.addToAnimatedContents = function(data, element) {
+    var i = 0, len = this.animatedContents.length;
+    while(i < len) {
+        if(this.animatedContents[i].element === element) {
+            return;
+        }
+        i += 1;
+    }
+    this.animatedContents.push({
+        fn: SVGElementsRenderer.createRenderFunction(data),
+        element: element,
+        data: data
+    });
+};
+
+SVGShapeElement.prototype.setElementStyles = function(elementData){
+    var arr = elementData.styles;
+    var j, jLen = this.stylesList.length;
+    for (j = 0; j < jLen; j += 1) {
+        if (!this.stylesList[j].closed) {
+            arr.push(this.stylesList[j]);
+        }
+    }
+};
+
+SVGShapeElement.prototype.reloadShapes = function(){
+    this._isFirstFrame = true;
+    var i, len = this.itemsData.length;
+    for( i = 0; i < len; i += 1) {
+        this.prevViewData[i] = this.itemsData[i];
+    }
+    this.searchShapes(this.shapesData,this.itemsData,this.prevViewData,this.layerElement, 0, [], true);
+    this.filterUniqueShapes();
+    len = this.dynamicProperties.length;
+    for(i = 0; i < len; i += 1) {
+        this.dynamicProperties[i].getValue();
+    }
+    this.renderModifiers();
+};
+
+SVGShapeElement.prototype.searchShapes = function(arr,itemsData,prevViewData,container, level, transformers, render){
+    var ownTransformers = [].concat(transformers);
+    var i, len = arr.length - 1;
+    var j, jLen;
+    var ownStyles = [], ownModifiers = [], styleOb, currentTransform, modifier, processedPos;
+    for(i=len;i>=0;i-=1){
+        processedPos = this.searchProcessedElement(arr[i]);
+        if(!processedPos){
+            arr[i]._render = render;
+        } else {
+            itemsData[i] = prevViewData[processedPos - 1];
+        }
+        if(arr[i].ty == 'fl' || arr[i].ty == 'st' || arr[i].ty == 'gf' || arr[i].ty == 'gs'){
+            if(!processedPos){
+                itemsData[i] = this.createStyleElement(arr[i], level);
+            } else {
+                itemsData[i].style.closed = false;
+            }
+            if(arr[i]._render){
+                container.appendChild(itemsData[i].style.pElem);
+            }
+            ownStyles.push(itemsData[i].style);
+        }else if(arr[i].ty == 'gr'){
+            if(!processedPos){
+                itemsData[i] = this.createGroupElement(arr[i]);
+            } else {
+                jLen = itemsData[i].it.length;
+                for(j=0;j<jLen;j+=1){
+                    itemsData[i].prevViewData[j] = itemsData[i].it[j];
+                }
+            }
+            this.searchShapes(arr[i].it,itemsData[i].it,itemsData[i].prevViewData,itemsData[i].gr, level + 1, ownTransformers, render);
+            if(arr[i]._render){
+                container.appendChild(itemsData[i].gr);
+            }
+        }else if(arr[i].ty == 'tr'){
+            if(!processedPos){
+                itemsData[i] = this.createTransformElement(arr[i], container);
+            }
+            currentTransform = itemsData[i].transform;
+            ownTransformers.push(currentTransform);
+        }else if(arr[i].ty == 'sh' || arr[i].ty == 'rc' || arr[i].ty == 'el' || arr[i].ty == 'sr'){
+            if(!processedPos){
+                itemsData[i] = this.createShapeElement(arr[i], ownTransformers, level);
+            }
+            this.setElementStyles(itemsData[i]);
+
+        }else if(arr[i].ty == 'tm' || arr[i].ty == 'rd' || arr[i].ty == 'ms'){
+            if(!processedPos){
+                modifier = ShapeModifiers.getModifier(arr[i].ty);
+                modifier.init(this,arr[i]);
+                itemsData[i] = modifier;
+                this.shapeModifiers.push(modifier);
+            } else {
+                modifier = itemsData[i];
+                modifier.closed = false;
+            }
+            ownModifiers.push(modifier);
+        }else if(arr[i].ty == 'rp'){
+            if(!processedPos){
+                modifier = ShapeModifiers.getModifier(arr[i].ty);
+                itemsData[i] = modifier;
+                modifier.init(this,arr,i,itemsData);
+                this.shapeModifiers.push(modifier);
+                render = false;
+            }else{
+                modifier = itemsData[i];
+                modifier.closed = true;
+            }
+            ownModifiers.push(modifier);
+        }
+        this.addProcessedElement(arr[i], i + 1);
+    }
+    len = ownStyles.length;
+    for(i=0;i<len;i+=1){
+        ownStyles[i].closed = true;
+    }
+    len = ownModifiers.length;
+    for(i=0;i<len;i+=1){
+        ownModifiers[i].closed = true;
+    }
+};
+
+SVGShapeElement.prototype.renderInnerContent = function() {
+    this.renderModifiers();
+    var i, len = this.stylesList.length;
+    for(i=0;i<len;i+=1){
+        this.stylesList[i].reset();
+    }
+    this.renderShape();
+
+    for (i = 0; i < len; i += 1) {
+        if (this.stylesList[i]._mdf || this._isFirstFrame) {
+            if(this.stylesList[i].msElem){
+                this.stylesList[i].msElem.setAttribute('d', this.stylesList[i].d);
+                //Adding M0 0 fixes same mask bug on all browsers
+                this.stylesList[i].d = 'M0 0' + this.stylesList[i].d;
+            }
+            this.stylesList[i].pElem.setAttribute('d', this.stylesList[i].d || 'M0 0');
+        }
+    }
+};
+
+SVGShapeElement.prototype.renderShape = function() {
+    var i, len = this.animatedContents.length;
+    var animatedContent;
+    for(i = 0; i < len; i += 1) {
+        animatedContent = this.animatedContents[i];
+        if((this._isFirstFrame || animatedContent.element._isAnimated) && animatedContent.data !== true) {
+            animatedContent.fn(animatedContent.data, animatedContent.element, this._isFirstFrame);
+        }
+    }
+}
+
+SVGShapeElement.prototype.destroy = function(){
+    this.destroyBaseElement();
+    this.shapesData = null;
+    this.itemsData = null;
+};
+
+function SVGTintFilter(filter, filterManager){
+    this.filterManager = filterManager;
+    var feColorMatrix = createNS('feColorMatrix');
+    feColorMatrix.setAttribute('type','matrix');
+    feColorMatrix.setAttribute('color-interpolation-filters','linearRGB');
+    feColorMatrix.setAttribute('values','0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0');
+    feColorMatrix.setAttribute('result','f1');
+    filter.appendChild(feColorMatrix);
+    feColorMatrix = createNS('feColorMatrix');
+    feColorMatrix.setAttribute('type','matrix');
+    feColorMatrix.setAttribute('color-interpolation-filters','sRGB');
+    feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0');
+    feColorMatrix.setAttribute('result','f2');
+    filter.appendChild(feColorMatrix);
+    this.matrixFilter = feColorMatrix;
+    if(filterManager.effectElements[2].p.v !== 100 || filterManager.effectElements[2].p.k){
+        var feMerge = createNS('feMerge');
+        filter.appendChild(feMerge);
+        var feMergeNode;
+        feMergeNode = createNS('feMergeNode');
+        feMergeNode.setAttribute('in','SourceGraphic');
+        feMerge.appendChild(feMergeNode);
+        feMergeNode = createNS('feMergeNode');
+        feMergeNode.setAttribute('in','f2');
+        feMerge.appendChild(feMergeNode);
+    }
+}
+
+SVGTintFilter.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager._mdf){
+        var colorBlack = this.filterManager.effectElements[0].p.v;
+        var colorWhite = this.filterManager.effectElements[1].p.v;
+        var opacity = this.filterManager.effectElements[2].p.v/100;
+        this.matrixFilter.setAttribute('values',(colorWhite[0]- colorBlack[0])+' 0 0 0 '+ colorBlack[0] +' '+ (colorWhite[1]- colorBlack[1]) +' 0 0 0 '+ colorBlack[1] +' '+ (colorWhite[2]- colorBlack[2]) +' 0 0 0 '+ colorBlack[2] +' 0 0 0 ' + opacity + ' 0');
+    }
+};
+function SVGFillFilter(filter, filterManager){
+    this.filterManager = filterManager;
+    var feColorMatrix = createNS('feColorMatrix');
+    feColorMatrix.setAttribute('type','matrix');
+    feColorMatrix.setAttribute('color-interpolation-filters','sRGB');
+    feColorMatrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0');
+    filter.appendChild(feColorMatrix);
+    this.matrixFilter = feColorMatrix;
+}
+SVGFillFilter.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager._mdf){
+        var color = this.filterManager.effectElements[2].p.v;
+        var opacity = this.filterManager.effectElements[6].p.v;
+        this.matrixFilter.setAttribute('values','0 0 0 0 '+color[0]+' 0 0 0 0 '+color[1]+' 0 0 0 0 '+color[2]+' 0 0 0 '+opacity+' 0');
+    }
+};
+function SVGStrokeEffect(elem, filterManager){
+    this.initialized = false;
+    this.filterManager = filterManager;
+    this.elem = elem;
+    this.paths = [];
+}
+
+SVGStrokeEffect.prototype.initialize = function(){
+
+    var elemChildren = this.elem.layerElement.children || this.elem.layerElement.childNodes;
+    var path,groupPath, i, len;
+    if(this.filterManager.effectElements[1].p.v === 1){
+        len = this.elem.maskManager.masksProperties.length;
+        i = 0;
+    } else {
+        i = this.filterManager.effectElements[0].p.v - 1;
+        len = i + 1;
+    }
+    groupPath = createNS('g'); 
+    groupPath.setAttribute('fill','none');
+    groupPath.setAttribute('stroke-linecap','round');
+    groupPath.setAttribute('stroke-dashoffset',1);
+    for(i;i<len;i+=1){
+        path = createNS('path');
+        groupPath.appendChild(path);
+        this.paths.push({p:path,m:i});
+    }
+    if(this.filterManager.effectElements[10].p.v === 3){
+        var mask = createNS('mask');
+        var id = createElementID();
+        mask.setAttribute('id',id);
+        mask.setAttribute('mask-type','alpha');
+        mask.appendChild(groupPath);
+        this.elem.globalData.defs.appendChild(mask);
+        var g = createNS('g');
+        g.setAttribute('mask','url(' + locationHref + '#'+id+')');
+        while (elemChildren[0]) {
+            g.appendChild(elemChildren[0]);
+        }
+        this.elem.layerElement.appendChild(g);
+        this.masker = mask;
+        groupPath.setAttribute('stroke','#fff');
+    } else if(this.filterManager.effectElements[10].p.v === 1 || this.filterManager.effectElements[10].p.v === 2){
+        if(this.filterManager.effectElements[10].p.v === 2){
+            elemChildren = this.elem.layerElement.children || this.elem.layerElement.childNodes;
+            while(elemChildren.length){
+                this.elem.layerElement.removeChild(elemChildren[0]);
+            }
+        }
+        this.elem.layerElement.appendChild(groupPath);
+        this.elem.layerElement.removeAttribute('mask');
+        groupPath.setAttribute('stroke','#fff');
+    }
+    this.initialized = true;
+    this.pathMasker = groupPath;
+};
+
+SVGStrokeEffect.prototype.renderFrame = function(forceRender){
+    if(!this.initialized){
+        this.initialize();
+    }
+    var i, len = this.paths.length;
+    var mask, path;
+    for(i=0;i<len;i+=1){
+        if(this.paths[i].m === -1) {
+            continue;
+        }
+        mask = this.elem.maskManager.viewData[this.paths[i].m];
+        path = this.paths[i].p;
+        if(forceRender || this.filterManager._mdf || mask.prop._mdf){
+            path.setAttribute('d',mask.lastPath);
+        }
+        if(forceRender || this.filterManager.effectElements[9].p._mdf || this.filterManager.effectElements[4].p._mdf || this.filterManager.effectElements[7].p._mdf || this.filterManager.effectElements[8].p._mdf || mask.prop._mdf){
+            var dasharrayValue;
+            if(this.filterManager.effectElements[7].p.v !== 0 || this.filterManager.effectElements[8].p.v !== 100){
+                var s = Math.min(this.filterManager.effectElements[7].p.v,this.filterManager.effectElements[8].p.v)/100;
+                var e = Math.max(this.filterManager.effectElements[7].p.v,this.filterManager.effectElements[8].p.v)/100;
+                var l = path.getTotalLength();
+                dasharrayValue = '0 0 0 ' + l*s + ' ';
+                var lineLength = l*(e-s);
+                var segment = 1+this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100;
+                var units = Math.floor(lineLength/segment);
+                var j;
+                for(j=0;j<units;j+=1){
+                    dasharrayValue += '1 ' + this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100 + ' ';
+                }
+                dasharrayValue += '0 ' + l*10 + ' 0 0';
+            } else {
+                dasharrayValue = '1 ' + this.filterManager.effectElements[4].p.v*2*this.filterManager.effectElements[9].p.v/100;
+            }
+            path.setAttribute('stroke-dasharray',dasharrayValue);
+        }
+    }
+    if(forceRender || this.filterManager.effectElements[4].p._mdf){
+        this.pathMasker.setAttribute('stroke-width',this.filterManager.effectElements[4].p.v*2);
+    }
+    
+    if(forceRender || this.filterManager.effectElements[6].p._mdf){
+        this.pathMasker.setAttribute('opacity',this.filterManager.effectElements[6].p.v);
+    }
+    if(this.filterManager.effectElements[10].p.v === 1 || this.filterManager.effectElements[10].p.v === 2){
+        if(forceRender || this.filterManager.effectElements[3].p._mdf){
+            var color = this.filterManager.effectElements[3].p.v;
+            this.pathMasker.setAttribute('stroke','rgb('+bm_floor(color[0]*255)+','+bm_floor(color[1]*255)+','+bm_floor(color[2]*255)+')');
+        }
+    }
+};
+function SVGTritoneFilter(filter, filterManager){
+    this.filterManager = filterManager;
+    var feColorMatrix = createNS('feColorMatrix');
+    feColorMatrix.setAttribute('type','matrix');
+    feColorMatrix.setAttribute('color-interpolation-filters','linearRGB');
+    feColorMatrix.setAttribute('values','0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0');
+    feColorMatrix.setAttribute('result','f1');
+    filter.appendChild(feColorMatrix);
+    var feComponentTransfer = createNS('feComponentTransfer');
+    feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
+    filter.appendChild(feComponentTransfer);
+    this.matrixFilter = feComponentTransfer;
+    var feFuncR = createNS('feFuncR');
+    feFuncR.setAttribute('type','table');
+    feComponentTransfer.appendChild(feFuncR);
+    this.feFuncR = feFuncR;
+    var feFuncG = createNS('feFuncG');
+    feFuncG.setAttribute('type','table');
+    feComponentTransfer.appendChild(feFuncG);
+    this.feFuncG = feFuncG;
+    var feFuncB = createNS('feFuncB');
+    feFuncB.setAttribute('type','table');
+    feComponentTransfer.appendChild(feFuncB);
+    this.feFuncB = feFuncB;
+}
+
+SVGTritoneFilter.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager._mdf){
+        var color1 = this.filterManager.effectElements[0].p.v;
+        var color2 = this.filterManager.effectElements[1].p.v;
+        var color3 = this.filterManager.effectElements[2].p.v;
+        var tableR = color3[0] + ' ' + color2[0] + ' ' + color1[0];
+        var tableG = color3[1] + ' ' + color2[1] + ' ' + color1[1];
+        var tableB = color3[2] + ' ' + color2[2] + ' ' + color1[2];
+        this.feFuncR.setAttribute('tableValues', tableR);
+        this.feFuncG.setAttribute('tableValues', tableG);
+        this.feFuncB.setAttribute('tableValues', tableB);
+        //var opacity = this.filterManager.effectElements[2].p.v/100;
+        //this.matrixFilter.setAttribute('values',(colorWhite[0]- colorBlack[0])+' 0 0 0 '+ colorBlack[0] +' '+ (colorWhite[1]- colorBlack[1]) +' 0 0 0 '+ colorBlack[1] +' '+ (colorWhite[2]- colorBlack[2]) +' 0 0 0 '+ colorBlack[2] +' 0 0 0 ' + opacity + ' 0');
+    }
+};
+function SVGProLevelsFilter(filter, filterManager){
+    this.filterManager = filterManager;
+    var effectElements = this.filterManager.effectElements;
+    var feComponentTransfer = createNS('feComponentTransfer');
+    var feFuncR, feFuncG, feFuncB;
+    
+    if(effectElements[10].p.k || effectElements[10].p.v !== 0 || effectElements[11].p.k || effectElements[11].p.v !== 1 || effectElements[12].p.k || effectElements[12].p.v !== 1 || effectElements[13].p.k || effectElements[13].p.v !== 0 || effectElements[14].p.k || effectElements[14].p.v !== 1){
+        this.feFuncR = this.createFeFunc('feFuncR', feComponentTransfer);
+    }
+    if(effectElements[17].p.k || effectElements[17].p.v !== 0 || effectElements[18].p.k || effectElements[18].p.v !== 1 || effectElements[19].p.k || effectElements[19].p.v !== 1 || effectElements[20].p.k || effectElements[20].p.v !== 0 || effectElements[21].p.k || effectElements[21].p.v !== 1){
+        this.feFuncG = this.createFeFunc('feFuncG', feComponentTransfer);
+    }
+    if(effectElements[24].p.k || effectElements[24].p.v !== 0 || effectElements[25].p.k || effectElements[25].p.v !== 1 || effectElements[26].p.k || effectElements[26].p.v !== 1 || effectElements[27].p.k || effectElements[27].p.v !== 0 || effectElements[28].p.k || effectElements[28].p.v !== 1){
+        this.feFuncB = this.createFeFunc('feFuncB', feComponentTransfer);
+    }
+    if(effectElements[31].p.k || effectElements[31].p.v !== 0 || effectElements[32].p.k || effectElements[32].p.v !== 1 || effectElements[33].p.k || effectElements[33].p.v !== 1 || effectElements[34].p.k || effectElements[34].p.v !== 0 || effectElements[35].p.k || effectElements[35].p.v !== 1){
+        this.feFuncA = this.createFeFunc('feFuncA', feComponentTransfer);
+    }
+    
+    if(this.feFuncR || this.feFuncG || this.feFuncB || this.feFuncA){
+        feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
+        filter.appendChild(feComponentTransfer);
+        feComponentTransfer = createNS('feComponentTransfer');
+    }
+
+    if(effectElements[3].p.k || effectElements[3].p.v !== 0 || effectElements[4].p.k || effectElements[4].p.v !== 1 || effectElements[5].p.k || effectElements[5].p.v !== 1 || effectElements[6].p.k || effectElements[6].p.v !== 0 || effectElements[7].p.k || effectElements[7].p.v !== 1){
+
+        feComponentTransfer.setAttribute('color-interpolation-filters','sRGB');
+        filter.appendChild(feComponentTransfer);
+        this.feFuncRComposed = this.createFeFunc('feFuncR', feComponentTransfer);
+        this.feFuncGComposed = this.createFeFunc('feFuncG', feComponentTransfer);
+        this.feFuncBComposed = this.createFeFunc('feFuncB', feComponentTransfer);
+    }
+}
+
+SVGProLevelsFilter.prototype.createFeFunc = function(type, feComponentTransfer) {
+    var feFunc = createNS(type);
+    feFunc.setAttribute('type','table');
+    feComponentTransfer.appendChild(feFunc);
+    return feFunc;
+};
+
+SVGProLevelsFilter.prototype.getTableValue = function(inputBlack, inputWhite, gamma, outputBlack, outputWhite) {
+    var cnt = 0;
+    var segments = 256;
+    var perc;
+    var min = Math.min(inputBlack, inputWhite);
+    var max = Math.max(inputBlack, inputWhite);
+    var table = Array.call(null,{length:segments});
+    var colorValue;
+    var pos = 0;
+    var outputDelta = outputWhite - outputBlack; 
+    var inputDelta = inputWhite - inputBlack; 
+    while(cnt <= 256) {
+        perc = cnt/256;
+        if(perc <= min){
+            colorValue = inputDelta < 0 ? outputWhite : outputBlack;
+        } else if(perc >= max){
+            colorValue = inputDelta < 0 ? outputBlack : outputWhite;
+        } else {
+            colorValue = (outputBlack + outputDelta * Math.pow((perc - inputBlack) / inputDelta, 1 / gamma));
+        }
+        table[pos++] = colorValue;
+        cnt += 256/(segments-1);
+    }
+    return table.join(' ');
+};
+
+SVGProLevelsFilter.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager._mdf){
+        var val, cnt, perc, bezier;
+        var effectElements = this.filterManager.effectElements;
+        if(this.feFuncRComposed && (forceRender || effectElements[3].p._mdf || effectElements[4].p._mdf || effectElements[5].p._mdf || effectElements[6].p._mdf || effectElements[7].p._mdf)){
+            val = this.getTableValue(effectElements[3].p.v,effectElements[4].p.v,effectElements[5].p.v,effectElements[6].p.v,effectElements[7].p.v);
+            this.feFuncRComposed.setAttribute('tableValues',val);
+            this.feFuncGComposed.setAttribute('tableValues',val);
+            this.feFuncBComposed.setAttribute('tableValues',val);
+        }
+
+
+        if(this.feFuncR && (forceRender || effectElements[10].p._mdf || effectElements[11].p._mdf || effectElements[12].p._mdf || effectElements[13].p._mdf || effectElements[14].p._mdf)){
+            val = this.getTableValue(effectElements[10].p.v,effectElements[11].p.v,effectElements[12].p.v,effectElements[13].p.v,effectElements[14].p.v);
+            this.feFuncR.setAttribute('tableValues',val);
+        }
+
+        if(this.feFuncG && (forceRender || effectElements[17].p._mdf || effectElements[18].p._mdf || effectElements[19].p._mdf || effectElements[20].p._mdf || effectElements[21].p._mdf)){
+            val = this.getTableValue(effectElements[17].p.v,effectElements[18].p.v,effectElements[19].p.v,effectElements[20].p.v,effectElements[21].p.v);
+            this.feFuncG.setAttribute('tableValues',val);
+        }
+
+        if(this.feFuncB && (forceRender || effectElements[24].p._mdf || effectElements[25].p._mdf || effectElements[26].p._mdf || effectElements[27].p._mdf || effectElements[28].p._mdf)){
+            val = this.getTableValue(effectElements[24].p.v,effectElements[25].p.v,effectElements[26].p.v,effectElements[27].p.v,effectElements[28].p.v);
+            this.feFuncB.setAttribute('tableValues',val);
+        }
+
+        if(this.feFuncA && (forceRender || effectElements[31].p._mdf || effectElements[32].p._mdf || effectElements[33].p._mdf || effectElements[34].p._mdf || effectElements[35].p._mdf)){
+            val = this.getTableValue(effectElements[31].p.v,effectElements[32].p.v,effectElements[33].p.v,effectElements[34].p.v,effectElements[35].p.v);
+            this.feFuncA.setAttribute('tableValues',val);
+        }
+        
+    }
+};
+function SVGDropShadowEffect(filter, filterManager){
+    filter.setAttribute('x','-100%');
+    filter.setAttribute('y','-100%');
+    filter.setAttribute('width','400%');
+    filter.setAttribute('height','400%');
+    this.filterManager = filterManager;
+
+    var feGaussianBlur = createNS('feGaussianBlur');
+    feGaussianBlur.setAttribute('in','SourceAlpha');
+    feGaussianBlur.setAttribute('result','drop_shadow_1');
+    feGaussianBlur.setAttribute('stdDeviation','0');
+    this.feGaussianBlur = feGaussianBlur;
+    filter.appendChild(feGaussianBlur);
+
+    var feOffset = createNS('feOffset');
+    feOffset.setAttribute('dx','25');
+    feOffset.setAttribute('dy','0');
+    feOffset.setAttribute('in','drop_shadow_1');
+    feOffset.setAttribute('result','drop_shadow_2');
+    this.feOffset = feOffset;
+    filter.appendChild(feOffset);
+    var feFlood = createNS('feFlood');
+    feFlood.setAttribute('flood-color','#00ff00');
+    feFlood.setAttribute('flood-opacity','1');
+    feFlood.setAttribute('result','drop_shadow_3');
+    this.feFlood = feFlood;
+    filter.appendChild(feFlood);
+
+    var feComposite = createNS('feComposite');
+    feComposite.setAttribute('in','drop_shadow_3');
+    feComposite.setAttribute('in2','drop_shadow_2');
+    feComposite.setAttribute('operator','in');
+    feComposite.setAttribute('result','drop_shadow_4');
+    filter.appendChild(feComposite);
+
+
+    var feMerge = createNS('feMerge');
+    filter.appendChild(feMerge);
+    var feMergeNode;
+    feMergeNode = createNS('feMergeNode');
+    feMerge.appendChild(feMergeNode);
+    feMergeNode = createNS('feMergeNode');
+    feMergeNode.setAttribute('in','SourceGraphic');
+    this.feMergeNode = feMergeNode;
+    this.feMerge = feMerge;
+    this.originalNodeAdded = false;
+    feMerge.appendChild(feMergeNode);
+}
+
+SVGDropShadowEffect.prototype.renderFrame = function(forceRender){
+    if(forceRender || this.filterManager._mdf){
+        if(forceRender || this.filterManager.effectElements[4].p._mdf){
+            this.feGaussianBlur.setAttribute('stdDeviation', this.filterManager.effectElements[4].p.v / 4);
+        }
+        if(forceRender || this.filterManager.effectElements[0].p._mdf){
+            var col = this.filterManager.effectElements[0].p.v;
+            this.feFlood.setAttribute('flood-color',rgbToHex(Math.round(col[0]*255),Math.round(col[1]*255),Math.round(col[2]*255)));
+        }
+        if(forceRender || this.filterManager.effectElements[1].p._mdf){
+            this.feFlood.setAttribute('flood-opacity',this.filterManager.effectElements[1].p.v/255);
+        }
+        if(forceRender || this.filterManager.effectElements[2].p._mdf || this.filterManager.effectElements[3].p._mdf){
+            var distance = this.filterManager.effectElements[3].p.v;
+            var angle = (this.filterManager.effectElements[2].p.v - 90) * degToRads;
+            var x = distance * Math.cos(angle);
+            var y = distance * Math.sin(angle);
+            this.feOffset.setAttribute('dx', x);
+            this.feOffset.setAttribute('dy', y);
+        }
+        /*if(forceRender || this.filterManager.effectElements[5].p._mdf){
+            if(this.filterManager.effectElements[5].p.v === 1 && this.originalNodeAdded) {
+                this.feMerge.removeChild(this.feMergeNode);
+                this.originalNodeAdded = false;
+            } else if(this.filterManager.effectElements[5].p.v === 0 && !this.originalNodeAdded) {
+                this.feMerge.appendChild(this.feMergeNode);
+                this.originalNodeAdded = true;
+            }
+        }*/
+    }
+};
+var _svgMatteSymbols = [];
+
+function SVGMatte3Effect(filterElem, filterManager, elem){
+    this.initialized = false;
+    this.filterManager = filterManager;
+    this.filterElem = filterElem;
+    this.elem = elem;
+    elem.matteElement = createNS('g');
+    elem.matteElement.appendChild(elem.layerElement);
+    elem.matteElement.appendChild(elem.transformedElement);
+    elem.baseElement = elem.matteElement;
+}
+
+SVGMatte3Effect.prototype.findSymbol = function(mask) {
+    var i = 0, len = _svgMatteSymbols.length;
+    while(i < len) {
+        if(_svgMatteSymbols[i] === mask) {
+            return _svgMatteSymbols[i];
+        }
+        i += 1;
+    }
+    return null;
+};
+
+SVGMatte3Effect.prototype.replaceInParent = function(mask, symbolId) {
+    var parentNode = mask.layerElement.parentNode;
+    if(!parentNode) {
+        return;
+    }
+    var children = parentNode.children;
+    var i = 0, len = children.length;
+    while (i < len) {
+        if (children[i] === mask.layerElement) {
+            break;
+        }
+        i += 1;
+    }
+    var nextChild;
+    if (i <= len - 2) {
+        nextChild = children[i + 1];
+    }
+    var useElem = createNS('use');
+    useElem.setAttribute('href', '#' + symbolId);
+    if(nextChild) {
+        parentNode.insertBefore(useElem, nextChild);
+    } else {
+        parentNode.appendChild(useElem);
+    }
+};
+
+SVGMatte3Effect.prototype.setElementAsMask = function(elem, mask) {
+    if(!this.findSymbol(mask)) {
+        var symbolId = createElementID();
+        var masker = createNS('mask');
+        masker.setAttribute('id', mask.layerId);
+        masker.setAttribute('mask-type', 'alpha');
+        _svgMatteSymbols.push(mask);
+        var defs = elem.globalData.defs;
+        defs.appendChild(masker);
+        var symbol = createNS('symbol');
+        symbol.setAttribute('id', symbolId);
+        this.replaceInParent(mask, symbolId);
+        symbol.appendChild(mask.layerElement);
+        defs.appendChild(symbol);
+        var useElem = createNS('use');
+        useElem.setAttribute('href', '#' + symbolId);
+        masker.appendChild(useElem);
+        mask.data.hd = false;
+        mask.show();
+    }
+    elem.setMatte(mask.layerId);
+};
+
+SVGMatte3Effect.prototype.initialize = function() {
+    var ind = this.filterManager.effectElements[0].p.v;
+    var elements = this.elem.comp.elements;
+    var i = 0, len = elements.length;
+    while (i < len) {
+    	if (elements[i] && elements[i].data.ind === ind) {
+    		this.setElementAsMask(this.elem, elements[i]);
+    	}
+    	i += 1;
+    }
+    this.initialized = true;
+};
+
+SVGMatte3Effect.prototype.renderFrame = function() {
+	if(!this.initialized) {
+		this.initialize();
+	}
+};
+function SVGEffects(elem){
+    var i, len = elem.data.ef ? elem.data.ef.length : 0;
+    var filId = createElementID();
+    var fil = filtersFactory.createFilter(filId);
+    var count = 0;
+    this.filters = [];
+    var filterManager;
+    for(i=0;i<len;i+=1){
+        filterManager = null;
+        if(elem.data.ef[i].ty === 20){
+            count += 1;
+            filterManager = new SVGTintFilter(fil, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 21){
+            count += 1;
+            filterManager = new SVGFillFilter(fil, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 22){
+            filterManager = new SVGStrokeEffect(elem, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 23){
+            count += 1;
+            filterManager = new SVGTritoneFilter(fil, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 24){
+            count += 1;
+            filterManager = new SVGProLevelsFilter(fil, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 25){
+            count += 1;
+            filterManager = new SVGDropShadowEffect(fil, elem.effectsManager.effectElements[i]);
+        }else if(elem.data.ef[i].ty === 28){
+            //count += 1;
+            filterManager = new SVGMatte3Effect(fil, elem.effectsManager.effectElements[i], elem);
+        }
+        if(filterManager) {
+            this.filters.push(filterManager);
+        }
+    }
+    if(count){
+        elem.globalData.defs.appendChild(fil);
+        elem.layerElement.setAttribute('filter','url(' + locationHref + '#'+filId+')');
+    }
+    if (this.filters.length) {
+        elem.addRenderableComponent(this);
+    }
+}
+
+SVGEffects.prototype.renderFrame = function(_isFirstFrame){
+    var i, len = this.filters.length;
+    for(i=0;i<len;i+=1){
+        this.filters[i].renderFrame(_isFirstFrame);
+    }
+};
 function CVContextData() {
 	this.saved = [];
     this.cArrPos = 0;
@@ -10148,7 +9348,7 @@ CVBaseElement.prototype = {
         var globalData = this.globalData;
         if(globalData.blendMode !== this.data.bm) {
             globalData.blendMode = this.data.bm;
-            var blendModeValue = this.getBlendMode();
+            var blendModeValue = getBlendMode(this.data.bm);
             globalData.canvasContext.globalCompositeOperation = blendModeValue;
         }
     },
@@ -10358,11 +9558,10 @@ CVShapeElement.prototype.createContent = function(){
 };
 
 CVShapeElement.prototype.createStyleElement = function(data, transforms) {
-    var transformsSequence = this.transformsManager.addTransformSequence(transforms);
     var styleElem = {
         data: data,
         type: data.ty,
-        preTransforms: transformsSequence,
+        preTransforms: this.transformsManager.addTransformSequence(transforms),
         transforms: [],
         elements: [],
         closed: data.hd === true
@@ -10439,12 +9638,12 @@ CVShapeElement.prototype.createShapeElement = function(data) {
 CVShapeElement.prototype.reloadShapes = function() {
     this._isFirstFrame = true;
     var i, len = this.itemsData.length;
-    for(i=0;i<len;i+=1){
+    for (i = 0; i < len; i += 1) {
         this.prevViewData[i] = this.itemsData[i];
     }
     this.searchShapes(this.shapesData,this.itemsData,this.prevViewData, true, []);
     len = this.dynamicProperties.length;
-    for(i=0;i<len;i+=1){
+    for (i = 0; i < len; i += 1) {
         this.dynamicProperties[i].getValue();
     }
     this.renderModifiers();
@@ -10510,9 +9709,9 @@ CVShapeElement.prototype.searchShapes = function(arr,itemsData, prevViewData, sh
             if(!processedPos){
                 currentTransform = this.createTransformElement(arr[i]);
                 itemsData[i] = currentTransform;
-                ownTransforms.push(currentTransform);
-                this.addTransformToStyleList(currentTransform);
             }
+            ownTransforms.push(itemsData[i]);
+            this.addTransformToStyleList(itemsData[i]);
         }else if(arr[i].ty == 'sh' || arr[i].ty == 'rc' || arr[i].ty == 'el' || arr[i].ty == 'sr'){
             if(!processedPos){
                 itemsData[i] = this.createShapeElement(arr[i]);
@@ -11772,6 +10971,801 @@ HCameraElement.prototype.getBaseElement = function(){return null;};
 function HEffects() {
 }
 HEffects.prototype.renderFrame = function(){};
+var animationManager = (function(){
+    var moduleOb = {};
+    var registeredAnimations = [];
+    var initTime = 0;
+    var len = 0;
+    var playingAnimationsNum = 0;
+    var _stopped = true;
+    var _isFrozen = false;
+
+    function removeElement(ev){
+        var i = 0;
+        var animItem = ev.target;
+        while(i<len) {
+            if (registeredAnimations[i].animation === animItem) {
+                registeredAnimations.splice(i, 1);
+                i -= 1;
+                len -= 1;
+                if(!animItem.isPaused){
+                    subtractPlayingCount();
+                }
+            }
+            i += 1;
+        }
+    }
+
+    function registerAnimation(element, animationData){
+        if(!element){
+            return null;
+        }
+        var i=0;
+        while(i<len){
+            if(registeredAnimations[i].elem == element && registeredAnimations[i].elem !== null ){
+                return registeredAnimations[i].animation;
+            }
+            i+=1;
+        }
+        var animItem = new AnimationItem();
+        setupAnimation(animItem, element);
+        animItem.setData(element, animationData);
+        return animItem;
+    }
+
+    function getRegisteredAnimations() {
+        var i, len = registeredAnimations.length;
+        var animations = [];
+        for(i = 0; i < len; i += 1) {
+            animations.push(registeredAnimations[i].animation);
+        }
+        return animations;
+    }
+
+    function addPlayingCount(){
+        playingAnimationsNum += 1;
+        activate();
+    }
+
+    function subtractPlayingCount(){
+        playingAnimationsNum -= 1;
+    }
+
+    function setupAnimation(animItem, element){
+        animItem.addEventListener('destroy',removeElement);
+        animItem.addEventListener('_active',addPlayingCount);
+        animItem.addEventListener('_idle',subtractPlayingCount);
+        registeredAnimations.push({elem: element,animation:animItem});
+        len += 1;
+    }
+
+    function loadAnimation(params){
+        var animItem = new AnimationItem();
+        setupAnimation(animItem, null);
+        animItem.setParams(params);
+        return animItem;
+    }
+
+
+    function setSpeed(val,animation){
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.setSpeed(val, animation);
+        }
+    }
+
+    function setDirection(val, animation){
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.setDirection(val, animation);
+        }
+    }
+
+    function play(animation){
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.play(animation);
+        }
+    }
+    function resume(nowTime) {
+        var elapsedTime = nowTime - initTime;
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.advanceTime(elapsedTime);
+        }
+        initTime = nowTime;
+        if(playingAnimationsNum && !_isFrozen) {
+            window.requestAnimationFrame(resume);
+        } else {
+            _stopped = true;
+        }
+    }
+
+    function first(nowTime){
+        initTime = nowTime;
+        window.requestAnimationFrame(resume);
+    }
+
+    function pause(animation) {
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.pause(animation);
+        }
+    }
+
+    function goToAndStop(value,isFrame,animation) {
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.goToAndStop(value,isFrame,animation);
+        }
+    }
+
+    function stop(animation) {
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.stop(animation);
+        }
+    }
+
+    function togglePause(animation) {
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.togglePause(animation);
+        }
+    }
+
+    function destroy(animation) {
+        var i;
+        for(i=(len-1);i>=0;i-=1){
+            registeredAnimations[i].animation.destroy(animation);
+        }
+    }
+
+    function searchAnimations(animationData, standalone, renderer){
+        var animElements = [].concat([].slice.call(document.getElementsByClassName('lottie')),
+                  [].slice.call(document.getElementsByClassName('bodymovin')));
+        var i, len = animElements.length;
+        for(i=0;i<len;i+=1){
+            if(renderer){
+                animElements[i].setAttribute('data-bm-type',renderer);
+            }
+            registerAnimation(animElements[i], animationData);
+        }
+        if(standalone && len === 0){
+            if(!renderer){
+                renderer = 'svg';
+            }
+            var body = document.getElementsByTagName('body')[0];
+            body.innerHTML = '';
+            var div = createTag('div');
+            div.style.width = '100%';
+            div.style.height = '100%';
+            div.setAttribute('data-bm-type',renderer);
+            body.appendChild(div);
+            registerAnimation(div, animationData);
+        }
+    }
+
+    function resize(){
+        var i;
+        for(i=0;i<len;i+=1){
+            registeredAnimations[i].animation.resize();
+        }
+    }
+
+    function activate(){
+        if(!_isFrozen && playingAnimationsNum){
+            if(_stopped) {
+                window.requestAnimationFrame(first);
+                _stopped = false;
+            }
+        }
+    }
+
+    function freeze() {
+        _isFrozen = true;
+    }
+
+    function unfreeze() {
+        _isFrozen = false;
+        activate();
+    }
+
+    moduleOb.registerAnimation = registerAnimation;
+    moduleOb.loadAnimation = loadAnimation;
+    moduleOb.setSpeed = setSpeed;
+    moduleOb.setDirection = setDirection;
+    moduleOb.play = play;
+    moduleOb.pause = pause;
+    moduleOb.stop = stop;
+    moduleOb.togglePause = togglePause;
+    moduleOb.searchAnimations = searchAnimations;
+    moduleOb.resize = resize;
+    //moduleOb.start = start;
+    moduleOb.goToAndStop = goToAndStop;
+    moduleOb.destroy = destroy;
+    moduleOb.freeze = freeze;
+    moduleOb.unfreeze = unfreeze;
+    moduleOb.getRegisteredAnimations = getRegisteredAnimations;
+    return moduleOb;
+}());
+
+var AnimationItem = function () {
+    this._cbs = [];
+    this.name = '';
+    this.path = '';
+    this.isLoaded = false;
+    this.currentFrame = 0;
+    this.currentRawFrame = 0;
+    this.totalFrames = 0;
+    this.frameRate = 0;
+    this.frameMult = 0;
+    this.playSpeed = 1;
+    this.playDirection = 1;
+    this.playCount = 0;
+    this.animationData = {};
+    this.assets = [];
+    this.isPaused = true;
+    this.autoplay = false;
+    this.loop = true;
+    this.renderer = null;
+    this.animationID = createElementID();
+    this.assetsPath = '';
+    this.timeCompleted = 0;
+    this.segmentPos = 0;
+    this.subframeEnabled = subframeEnabled;
+    this.segments = [];
+    this._idle = true;
+    this._completedLoop = false;
+    this.projectInterface = ProjectInterface();
+    this.imagePreloader = new ImagePreloader();
+};
+
+extendPrototype([BaseEvent], AnimationItem);
+
+AnimationItem.prototype.setParams = function(params) {
+    if(params.context){
+        this.context = params.context;
+    }
+    if(params.wrapper || params.container){
+        this.wrapper = params.wrapper || params.container;
+    }
+    var animType = params.animType ? params.animType : params.renderer ? params.renderer : 'svg';
+    switch(animType){
+        case 'canvas':
+            this.renderer = new CanvasRenderer(this, params.rendererSettings);
+            break;
+        case 'svg':
+            this.renderer = new SVGRenderer(this, params.rendererSettings);
+            break;
+        default:
+            this.renderer = new HybridRenderer(this, params.rendererSettings);
+            break;
+    }
+    this.renderer.setProjectInterface(this.projectInterface);
+    this.animType = animType;
+
+    if(params.loop === '' || params.loop === null){
+    }else if(params.loop === false){
+        this.loop = false;
+    }else if(params.loop === true){
+        this.loop = true;
+    }else{
+        this.loop = parseInt(params.loop);
+    }
+    this.autoplay = 'autoplay' in params ? params.autoplay : true;
+    this.name = params.name ? params.name :  '';
+    this.autoloadSegments = params.hasOwnProperty('autoloadSegments') ? params.autoloadSegments :  true;
+    this.assetsPath = params.assetsPath;
+    if(params.animationData){
+        this.configAnimation(params.animationData);
+    }else if(params.path){
+        if(params.path.substr(-4) != 'json'){
+            if (params.path.substr(-1, 1) != '/') {
+                params.path += '/';
+            }
+            params.path += 'data.json';
+        }
+
+        if(params.path.lastIndexOf('\\') != -1){
+            this.path = params.path.substr(0,params.path.lastIndexOf('\\')+1);
+        }else{
+            this.path = params.path.substr(0,params.path.lastIndexOf('/')+1);
+        }
+        this.fileName = params.path.substr(params.path.lastIndexOf('/')+1);
+        this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.json'));
+
+        assetLoader.load(params.path, this.configAnimation.bind(this), function() {
+            this.trigger('data_failed');
+        }.bind(this));
+    }
+};
+
+AnimationItem.prototype.setData = function (wrapper, animationData) {
+    var params = {
+        wrapper: wrapper,
+        animationData: animationData ? (typeof animationData  === "object") ? animationData : JSON.parse(animationData) : null
+    };
+    var wrapperAttributes = wrapper.attributes;
+
+    params.path = wrapperAttributes.getNamedItem('data-animation-path') ? wrapperAttributes.getNamedItem('data-animation-path').value : wrapperAttributes.getNamedItem('data-bm-path') ? wrapperAttributes.getNamedItem('data-bm-path').value :  wrapperAttributes.getNamedItem('bm-path') ? wrapperAttributes.getNamedItem('bm-path').value : '';
+    params.animType = wrapperAttributes.getNamedItem('data-anim-type') ? wrapperAttributes.getNamedItem('data-anim-type').value : wrapperAttributes.getNamedItem('data-bm-type') ? wrapperAttributes.getNamedItem('data-bm-type').value : wrapperAttributes.getNamedItem('bm-type') ? wrapperAttributes.getNamedItem('bm-type').value :  wrapperAttributes.getNamedItem('data-bm-renderer') ? wrapperAttributes.getNamedItem('data-bm-renderer').value : wrapperAttributes.getNamedItem('bm-renderer') ? wrapperAttributes.getNamedItem('bm-renderer').value : 'canvas';
+
+    var loop = wrapperAttributes.getNamedItem('data-anim-loop') ? wrapperAttributes.getNamedItem('data-anim-loop').value :  wrapperAttributes.getNamedItem('data-bm-loop') ? wrapperAttributes.getNamedItem('data-bm-loop').value :  wrapperAttributes.getNamedItem('bm-loop') ? wrapperAttributes.getNamedItem('bm-loop').value : '';
+    if(loop === ''){
+    }else if(loop === 'false'){
+        params.loop = false;
+    }else if(loop === 'true'){
+        params.loop = true;
+    }else{
+        params.loop = parseInt(loop);
+    }
+    var autoplay = wrapperAttributes.getNamedItem('data-anim-autoplay') ? wrapperAttributes.getNamedItem('data-anim-autoplay').value :  wrapperAttributes.getNamedItem('data-bm-autoplay') ? wrapperAttributes.getNamedItem('data-bm-autoplay').value :  wrapperAttributes.getNamedItem('bm-autoplay') ? wrapperAttributes.getNamedItem('bm-autoplay').value : true;
+    params.autoplay = autoplay !== "false";
+
+    params.name = wrapperAttributes.getNamedItem('data-name') ? wrapperAttributes.getNamedItem('data-name').value :  wrapperAttributes.getNamedItem('data-bm-name') ? wrapperAttributes.getNamedItem('data-bm-name').value : wrapperAttributes.getNamedItem('bm-name') ? wrapperAttributes.getNamedItem('bm-name').value :  '';
+    var prerender = wrapperAttributes.getNamedItem('data-anim-prerender') ? wrapperAttributes.getNamedItem('data-anim-prerender').value :  wrapperAttributes.getNamedItem('data-bm-prerender') ? wrapperAttributes.getNamedItem('data-bm-prerender').value :  wrapperAttributes.getNamedItem('bm-prerender') ? wrapperAttributes.getNamedItem('bm-prerender').value : '';
+
+    if(prerender === 'false'){
+        params.prerender = false;
+    }
+    this.setParams(params);
+};
+
+AnimationItem.prototype.includeLayers = function(data) {
+    if(data.op > this.animationData.op){
+        this.animationData.op = data.op;
+        this.totalFrames = Math.floor(data.op - this.animationData.ip);
+    }
+    var layers = this.animationData.layers;
+    var i, len = layers.length;
+    var newLayers = data.layers;
+    var j, jLen = newLayers.length;
+    for(j=0;j<jLen;j+=1){
+        i = 0;
+        while(i<len){
+            if(layers[i].id == newLayers[j].id){
+                layers[i] = newLayers[j];
+                break;
+            }
+            i += 1;
+        }
+    }
+    if(data.chars || data.fonts){
+        this.renderer.globalData.fontManager.addChars(data.chars);
+        this.renderer.globalData.fontManager.addFonts(data.fonts, this.renderer.globalData.defs);
+    }
+    if(data.assets){
+        len = data.assets.length;
+        for(i = 0; i < len; i += 1){
+            this.animationData.assets.push(data.assets[i]);
+        }
+    }
+    this.animationData.__complete = false;
+    dataManager.completeData(this.animationData,this.renderer.globalData.fontManager);
+    this.renderer.includeLayers(data.layers);
+    if(expressionsPlugin){
+        expressionsPlugin.initExpressions(this);
+    }
+    this.loadNextSegment();
+};
+
+AnimationItem.prototype.loadNextSegment = function() {
+    var segments = this.animationData.segments;
+    if(!segments || segments.length === 0 || !this.autoloadSegments){
+        this.trigger('data_ready');
+        this.timeCompleted = this.totalFrames;
+        return;
+    }
+    var segment = segments.shift();
+    this.timeCompleted = segment.time * this.frameRate;
+    var segmentPath = this.path+this.fileName+'_' + this.segmentPos + '.json';
+    this.segmentPos += 1;
+    assetLoader.load(segmentPath, this.includeLayers.bind(this), function() {
+        this.trigger('data_failed');
+    }.bind(this));
+};
+
+AnimationItem.prototype.loadSegments = function() {
+    var segments = this.animationData.segments;
+    if(!segments) {
+        this.timeCompleted = this.totalFrames;
+    }
+    this.loadNextSegment();
+};
+
+AnimationItem.prototype.imagesLoaded = function() {
+    this.trigger('loaded_images');
+    this.checkLoaded()
+}
+
+AnimationItem.prototype.preloadImages = function() {
+    this.imagePreloader.setAssetsPath(this.assetsPath);
+    this.imagePreloader.setPath(this.path);
+    this.imagePreloader.loadAssets(this.animationData.assets, this.imagesLoaded.bind(this));
+}
+
+AnimationItem.prototype.configAnimation = function (animData) {
+    if(!this.renderer){
+        return;
+    }
+    this.animationData = animData;
+    this.totalFrames = Math.floor(this.animationData.op - this.animationData.ip);
+    this.renderer.configAnimation(animData);
+    if(!animData.assets){
+        animData.assets = [];
+    }
+    this.renderer.searchExtraCompositions(animData.assets);
+
+    this.assets = this.animationData.assets;
+    this.frameRate = this.animationData.fr;
+    this.firstFrame = Math.round(this.animationData.ip);
+    this.frameMult = this.animationData.fr / 1000;
+    this.trigger('config_ready');
+    this.preloadImages();
+    this.loadSegments();
+    this.updaFrameModifier();
+    this.waitForFontsLoaded();
+};
+
+AnimationItem.prototype.waitForFontsLoaded = function(){
+    if(!this.renderer) {
+        return;
+    }
+    if(this.renderer.globalData.fontManager.loaded()){
+        this.checkLoaded();
+    }else{
+        setTimeout(this.waitForFontsLoaded.bind(this),20);
+    }
+}
+
+AnimationItem.prototype.checkLoaded = function () {
+    if (!this.isLoaded && this.renderer.globalData.fontManager.loaded() && (this.imagePreloader.loaded() || this.renderer.rendererType !== 'canvas')) {
+        this.isLoaded = true;
+        dataManager.completeData(this.animationData, this.renderer.globalData.fontManager);
+        if(expressionsPlugin){
+            expressionsPlugin.initExpressions(this);
+        }
+        this.renderer.initItems();
+        setTimeout(function() {
+            this.trigger('DOMLoaded');
+        }.bind(this), 0);
+        this.gotoFrame();
+        if(this.autoplay){
+            this.play();
+        }
+    }
+};
+
+AnimationItem.prototype.resize = function () {
+    this.renderer.updateContainerSize();
+};
+
+AnimationItem.prototype.setSubframe = function(flag){
+    this.subframeEnabled = flag ? true : false;
+};
+
+AnimationItem.prototype.gotoFrame = function () {
+    this.currentFrame = this.subframeEnabled ? this.currentRawFrame : ~~this.currentRawFrame;
+
+    if(this.timeCompleted !== this.totalFrames && this.currentFrame > this.timeCompleted){
+        this.currentFrame = this.timeCompleted;
+    }
+    this.trigger('enterFrame');
+    this.renderFrame();
+};
+
+AnimationItem.prototype.renderFrame = function () {
+    if(this.isLoaded === false){
+        return;
+    }
+    this.renderer.renderFrame(this.currentFrame + this.firstFrame);
+};
+
+AnimationItem.prototype.play = function (name) {
+    if(name && this.name != name){
+        return;
+    }
+    if(this.isPaused === true){
+        this.isPaused = false;
+        if(this._idle){
+            this._idle = false;
+            this.trigger('_active');
+        }
+    }
+};
+
+AnimationItem.prototype.pause = function (name) {
+    if(name && this.name != name){
+        return;
+    }
+    if(this.isPaused === false){
+        this.isPaused = true;
+        this._idle = true;
+        this.trigger('_idle');
+    }
+};
+
+AnimationItem.prototype.togglePause = function (name) {
+    if(name && this.name != name){
+        return;
+    }
+    if(this.isPaused === true){
+        this.play();
+    }else{
+        this.pause();
+    }
+};
+
+AnimationItem.prototype.stop = function (name) {
+    if(name && this.name != name){
+        return;
+    }
+    this.pause();
+    this.playCount = 0;
+    this._completedLoop = false;
+    this.setCurrentRawFrameValue(0);
+};
+
+AnimationItem.prototype.goToAndStop = function (value, isFrame, name) {
+    if(name && this.name != name){
+        return;
+    }
+    if(isFrame){
+        this.setCurrentRawFrameValue(value);
+    }else{
+        this.setCurrentRawFrameValue(value * this.frameModifier);
+    }
+    this.pause();
+};
+
+AnimationItem.prototype.goToAndPlay = function (value, isFrame, name) {
+    this.goToAndStop(value, isFrame, name);
+    this.play();
+};
+
+AnimationItem.prototype.advanceTime = function (value) {
+    if (this.isPaused === true || this.isLoaded === false) {
+        return;
+    }
+    var nextValue = this.currentRawFrame + value * this.frameModifier;
+    var _isComplete = false;
+    // Checking if nextValue > totalFrames - 1 for addressing non looping and looping animations.
+    // If animation won't loop, it should stop at totalFrames - 1. If it will loop it should complete the last frame and then loop.
+    if (nextValue >= this.totalFrames - 1 && this.frameModifier > 0) {
+        if (!this.loop || this.playCount === this.loop) {
+            if (!this.checkSegments(nextValue >  this.totalFrames ? nextValue % this.totalFrames : 0)) {
+                _isComplete = true;
+                nextValue = this.totalFrames - 1;
+            }
+        } else if (nextValue >= this.totalFrames) {
+            this.playCount += 1;
+            if (!this.checkSegments(nextValue % this.totalFrames)) {
+                this.setCurrentRawFrameValue(nextValue % this.totalFrames);
+                this._completedLoop = true;
+                this.trigger('loopComplete');
+            }
+        } else {
+            this.setCurrentRawFrameValue(nextValue);
+        }
+    } else if(nextValue < 0) {
+        if (!this.checkSegments(nextValue % this.totalFrames)) {
+            if (this.loop && !(this.playCount-- <= 0 && this.loop !== true)) {
+                this.setCurrentRawFrameValue(this.totalFrames + (nextValue % this.totalFrames));
+                if(!this._completedLoop) {
+                    this._completedLoop = true;
+                } else {
+                    this.trigger('loopComplete');
+                }
+            } else {
+                _isComplete = true;
+                nextValue = 0;
+            }
+        }
+    } else {
+        this.setCurrentRawFrameValue(nextValue);
+    }
+    if (_isComplete) {
+        this.setCurrentRawFrameValue(nextValue);
+        this.pause();
+        this.trigger('complete');
+    }
+};
+
+AnimationItem.prototype.adjustSegment = function(arr, offset){
+    this.playCount = 0;
+    if(arr[1] < arr[0]){
+        if(this.frameModifier > 0){
+            if(this.playSpeed < 0){
+                this.setSpeed(-this.playSpeed);
+            } else {
+                this.setDirection(-1);
+            }
+        }
+        this.timeCompleted = this.totalFrames = arr[0] - arr[1];
+        this.firstFrame = arr[1];
+        this.setCurrentRawFrameValue(this.totalFrames - 0.001 - offset);
+    } else if(arr[1] > arr[0]){
+        if(this.frameModifier < 0){
+            if(this.playSpeed < 0){
+                this.setSpeed(-this.playSpeed);
+            } else {
+                this.setDirection(1);
+            }
+        }
+        this.timeCompleted = this.totalFrames = arr[1] - arr[0];
+        this.firstFrame = arr[0];
+        this.setCurrentRawFrameValue(0.001 + offset);
+    }
+    this.trigger('segmentStart');
+};
+AnimationItem.prototype.setSegment = function (init,end) {
+    var pendingFrame = -1;
+    if(this.isPaused) {
+        if (this.currentRawFrame + this.firstFrame < init) {
+            pendingFrame = init;
+        } else if (this.currentRawFrame + this.firstFrame > end) {
+            pendingFrame = end - init;
+        }
+    }
+
+    this.firstFrame = init;
+    this.timeCompleted = this.totalFrames = end - init;
+    if(pendingFrame !== -1) {
+        this.goToAndStop(pendingFrame,true);
+    }
+};
+
+AnimationItem.prototype.playSegments = function (arr, forceFlag) {
+    if (forceFlag) {
+        this.segments.length = 0;
+    }
+    if (typeof arr[0] === 'object') {
+        var i, len = arr.length;
+        for (i = 0; i < len; i += 1) {
+            this.segments.push(arr[i]);
+        }
+    } else {
+        this.segments.push(arr);
+    }
+    if (this.segments.length) {
+        this.adjustSegment(this.segments.shift(), 0);
+    }
+    if (this.isPaused) {
+        this.play();
+    }
+};
+
+AnimationItem.prototype.resetSegments = function (forceFlag) {
+    this.segments.length = 0;
+    this.segments.push([this.animationData.ip,this.animationData.op]);
+    //this.segments.push([this.animationData.ip*this.frameRate,Math.floor(this.animationData.op - this.animationData.ip+this.animationData.ip*this.frameRate)]);
+    if (forceFlag) {
+        this.checkSegments(0);
+    }
+};
+AnimationItem.prototype.checkSegments = function(offset) {
+    if (this.segments.length) {
+        this.adjustSegment(this.segments.shift(), offset);
+        return true;
+    }
+    return false;
+};
+
+AnimationItem.prototype.destroy = function (name) {
+    if ((name && this.name != name) || !this.renderer) {
+        return;
+    }
+    this.renderer.destroy();
+    this.imagePreloader.destroy();
+    this.trigger('destroy');
+    this._cbs = null;
+    this.onEnterFrame = this.onLoopComplete = this.onComplete = this.onSegmentStart = this.onDestroy = null;
+    this.renderer = null;
+};
+
+AnimationItem.prototype.setCurrentRawFrameValue = function(value){
+    this.currentRawFrame = value;
+    this.gotoFrame();
+};
+
+AnimationItem.prototype.setSpeed = function (val) {
+    this.playSpeed = val;
+    this.updaFrameModifier();
+};
+
+AnimationItem.prototype.setDirection = function (val) {
+    this.playDirection = val < 0 ? -1 : 1;
+    this.updaFrameModifier();
+};
+
+AnimationItem.prototype.updaFrameModifier = function () {
+    this.frameModifier = this.frameMult * this.playSpeed * this.playDirection;
+};
+
+AnimationItem.prototype.getPath = function () {
+    return this.path;
+};
+
+AnimationItem.prototype.getAssetsPath = function (assetData) {
+    var path = '';
+    if(assetData.e) {
+        path = assetData.p;
+    } else if(this.assetsPath){
+        var imagePath = assetData.p;
+        if(imagePath.indexOf('images/') !== -1){
+            imagePath = imagePath.split('/')[1];
+        }
+        path = this.assetsPath + imagePath;
+    } else {
+        path = this.path;
+        path += assetData.u ? assetData.u : '';
+        path += assetData.p;
+    }
+    return path;
+};
+
+AnimationItem.prototype.getAssetData = function (id) {
+    var i = 0, len = this.assets.length;
+    while (i < len) {
+        if(id == this.assets[i].id){
+            return this.assets[i];
+        }
+        i += 1;
+    }
+};
+
+AnimationItem.prototype.hide = function () {
+    this.renderer.hide();
+};
+
+AnimationItem.prototype.show = function () {
+    this.renderer.show();
+};
+
+AnimationItem.prototype.getDuration = function (isFrame) {
+    return isFrame ? this.totalFrames : this.totalFrames / this.frameRate;
+};
+
+AnimationItem.prototype.trigger = function(name){
+    if(this._cbs && this._cbs[name]){
+        switch(name){
+            case 'enterFrame':
+                this.triggerEvent(name,new BMEnterFrameEvent(name,this.currentFrame,this.totalFrames,this.frameMult));
+                break;
+            case 'loopComplete':
+                this.triggerEvent(name,new BMCompleteLoopEvent(name,this.loop,this.playCount,this.frameMult));
+                break;
+            case 'complete':
+                this.triggerEvent(name,new BMCompleteEvent(name,this.frameMult));
+                break;
+            case 'segmentStart':
+                this.triggerEvent(name,new BMSegmentStartEvent(name,this.firstFrame,this.totalFrames));
+                break;
+            case 'destroy':
+                this.triggerEvent(name,new BMDestroyEvent(name,this));
+                break;
+            default:
+                this.triggerEvent(name);
+        }
+    }
+    if(name === 'enterFrame' && this.onEnterFrame){
+        this.onEnterFrame.call(this,new BMEnterFrameEvent(name,this.currentFrame,this.totalFrames,this.frameMult));
+    }
+    if(name === 'loopComplete' && this.onLoopComplete){
+        this.onLoopComplete.call(this,new BMCompleteLoopEvent(name,this.loop,this.playCount,this.frameMult));
+    }
+    if(name === 'complete' && this.onComplete){
+        this.onComplete.call(this,new BMCompleteEvent(name,this.frameMult));
+    }
+    if(name === 'segmentStart' && this.onSegmentStart){
+        this.onSegmentStart.call(this,new BMSegmentStartEvent(name,this.firstFrame,this.totalFrames));
+    }
+    if(name === 'destroy' && this.onDestroy){
+        this.onDestroy.call(this,new BMDestroyEvent(name,this));
+    }
+};
+
 var Expressions = (function(){
     var ob = {};
     ob.initExpressions = initExpressions;
@@ -12756,10 +12750,12 @@ var ExpressionManager = (function(){
                 lastTime: initialDefaultFrame
             };
         }
+        
+        frameNum *= this.elem.globalData.frameRate;
+        frameNum -= this.offsetTime;
         if(frameNum !== this._cachingAtTime.lastTime) {
             this._cachingAtTime.lastIndex = this._cachingAtTime.lastTime < frameNum ? this._caching.lastIndex : 0;
             this._cachingAtTime.lastTime = frameNum;
-            frameNum *= this.elem.globalData.frameRate;
             this.interpolateShape(frameNum, this._cachingAtTime.shapeValue, this._cachingAtTime);
         }
         return this._cachingAtTime.shapeValue;
@@ -13498,6 +13494,7 @@ var TextExpressionInterface = (function(){
         }
         Object.defineProperty(_thisLayerFunction, "sourceText", {
             get: function(){
+                elem.textProperty.getValue()
                 var stringValue = elem.textProperty.currentData.t;
                 if(stringValue !== _prevValue) {
                     elem.textProperty.currentData.t = _prevValue;
@@ -13962,7 +13959,7 @@ var ExpressionPropertyInterface = (function() {
     var defaultUnidimensionalValue = {pv:0, v:0, mult: 1}
     var defaultMultidimensionalValue = {pv:[0,0,0], v:[0,0,0], mult: 1}
 
-    function completeProperty(expressionValue, property) {
+    function completeProperty(expressionValue, property, type) {
         Object.defineProperty(expressionValue, 'velocity', {
             get: function(){
                 return property.getVelocityAtTime(property.comp.currentFrame);
@@ -13973,7 +13970,17 @@ var ExpressionPropertyInterface = (function() {
             if (!expressionValue.numKeys) {
                 return 0;
             } else {
-                return property.keyframes[pos-1].t;
+                var value = '';
+                if ('s' in property.keyframes[pos-1]) {
+                    value = property.keyframes[pos-1].s;
+                } else if ('e' in property.keyframes[pos-2]) {
+                    value = property.keyframes[pos-2].e;
+                } else {
+                    value = property.keyframes[pos-2].s;
+                }
+                var valueProp = type === 'unidimensional' ? new Number(value) : Object.assign({}, value);
+                valueProp.time = property.keyframes[pos-1].t / property.elem.comp.globalData.frameRate;
+                return valueProp;
             }
         };
         expressionValue.valueAtTime = property.getValueAtTime;
@@ -13990,7 +13997,7 @@ var ExpressionPropertyInterface = (function() {
         var val = property.pv * mult;
         var expressionValue = new Number(val);
         expressionValue.value = val;
-        completeProperty(expressionValue, property);
+        completeProperty(expressionValue, property, 'unidimensional');
 
         return function() {
             if (property.k) {
@@ -14000,7 +14007,7 @@ var ExpressionPropertyInterface = (function() {
             if(expressionValue.value !== val) {
                 expressionValue = new Number(val);
                 expressionValue.value = val;
-                completeProperty(expressionValue, property);
+                completeProperty(expressionValue, property, 'unidimensional');
             }
             return expressionValue;
         }
@@ -14015,7 +14022,7 @@ var ExpressionPropertyInterface = (function() {
         var expressionValue = createTypedArray('float32', len);
         var arrValue = createTypedArray('float32', len);
         expressionValue.value = arrValue;
-        completeProperty(expressionValue, property);
+        completeProperty(expressionValue, property, 'multidimensional');
 
         return function() {
             if (property.k) {
@@ -14068,6 +14075,7 @@ function CheckboxEffect(data,elem, container){
 function NoValueEffect(){
     this.p = {};
 }
+function EffectsManager(){}
 function EffectsManager(data,element){
     var effects = data.ef || [];
     this.effectElements = [];
@@ -14131,6 +14139,7 @@ GroupEffect.prototype.init = function(data,element){
         }
     }
 };
+
     var lottiejs = {};
 
     var _isFrozen = false;
@@ -14224,7 +14233,7 @@ GroupEffect.prototype.init = function(data,element){
     lottiejs.unfreeze = animationManager.unfreeze;
     lottiejs.getRegisteredAnimations = animationManager.getRegisteredAnimations;
     lottiejs.__getFactory = getFactory;
-    lottiejs.version = '5.4.2';
+    lottiejs.version = '5.4.3';
 
     function checkReady() {
         if (document.readyState === "complete") {
@@ -14256,4 +14265,4 @@ GroupEffect.prototype.init = function(data,element){
     }
     var readyStateCheckInterval = setInterval(checkReady, 100);
     return lottiejs;
-}));
+}));
