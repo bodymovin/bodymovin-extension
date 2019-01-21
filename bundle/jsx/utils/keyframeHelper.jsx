@@ -378,14 +378,14 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 segmentOb.t = bm_generalUtils.roundNumber(lastKey.time * frameRate, 3);
                 if(propertyValueType !== PropertyValueType.NO_VALUE) {
                     segmentOb.s = getPropertyValue(property.keyValue(j), true);
-                    segmentOb.e = getPropertyValue(property.keyValue(j + 1), true);
+                    // segmentOb.e = getPropertyValue(property.keyValue(j + 1), true);
                     if (!(segmentOb.s instanceof Array)) {
                         segmentOb.s = [segmentOb.s];
-                        segmentOb.e = [segmentOb.e];
+                        // segmentOb.e = [segmentOb.e];
                     }
                 } else {
                     segmentOb.s = keyframeValues[j-1];
-                    segmentOb.e = keyframeValues[j];
+                    // segmentOb.e = keyframeValues[j];
 
                 }
                 if (property.propertyValueType === PropertyValueType.ThreeD_SPATIAL || property.propertyValueType === PropertyValueType.TwoD_SPATIAL) {
@@ -397,9 +397,21 @@ $.__bodymovin.bm_keyframeHelper = (function () {
             ///////
             beziersArray.push(segmentOb);
         }
-        beziersArray.push({t: property.keyTime(j) * frameRate});
+        //
+        var finalValue;
+        if(propertyValueType !== PropertyValueType.NO_VALUE) {
+            finalValue = getPropertyValue(property.keyValue(j), true);
+            if (!(finalValue instanceof Array)) {
+                finalValue = [finalValue];
+            }
+        } else {
+            finalValue = keyframeValues[j-1];
+
+        }
+        //
+        beziersArray.push({t: property.keyTime(j) * frameRate, s: finalValue});
         if (property.keyOutInterpolationType(j) === KeyframeInterpolationType.HOLD || isPrevHoldInterpolated) {
-            if(propertyValueType !== PropertyValueType.NO_VALUE) {
+            /*if(propertyValueType !== PropertyValueType.NO_VALUE) {
                 var value = getPropertyValue(property.keyValue(j), true);
                 if (!(value instanceof Array)) {
                     value = [value];
@@ -407,7 +419,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
             } else {
                 value = keyframeValues[j-1];
             }
-            beziersArray[beziersArray.length - 1].s = value;
+            beziersArray[beziersArray.length - 1].s = value;*/
             beziersArray[beziersArray.length - 1].h = 1;
         }
         if(currentExpression !== ''){
