@@ -274,7 +274,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
             return;
         }
         if (renderQueueIsBusy()) {
-            bm_eventDispatcher.sendEvent('alert', 'render queue is currently busy');
+            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Render queue is currently busy. \n\rCan\'t continue with render.\n\rCheck for elements in AE\'s render queue in a Rendering status, remove them and try again.'});
             return;
         }
         currentCompID = compId;
