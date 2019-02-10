@@ -242,8 +242,8 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 switch (property.propertyValueType) {
                 case PropertyValueType.ThreeD_SPATIAL:
                 case PropertyValueType.TwoD_SPATIAL:
-                    lastKey.to = property.keyOutSpatialTangent(indexTime);
-                    key.ti = property.keyInSpatialTangent(indexTime + 1);
+                    lastKey.to = bm_generalUtils.roundNumber(property.keyOutSpatialTangent(indexTime), 3);
+                    key.ti = bm_generalUtils.roundNumber(property.keyInSpatialTangent(indexTime + 1), 3);
                     break;
                 }
             }
@@ -462,7 +462,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
         searchRovingKeyframes(prop);
         returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
-        if(prop.propertyIndex && !bm_renderManager.shouldIgnoreExpressionProperties()) {
+        if(prop.propertyIndex && !$.__bodymovin.bm_renderManager.shouldIgnoreExpressionProperties()) {
             returnOb.ix = prop.propertyIndex;
         }
         bm_expressionHelper.checkExpression(prop, returnOb);
