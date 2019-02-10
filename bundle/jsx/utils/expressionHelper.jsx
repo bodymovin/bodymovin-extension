@@ -66,15 +66,15 @@ $.__bodymovin.bm_expressionHelper = (function () {
     function getOperatorName(operator) {
         switch (operator) {
             case '+':
-                return 'sum';
+                return '$bm_sum';
             case '-':
-                return 'sub';
+                return '$bm_sub';
             case '*':
-                return 'mul';
+                return '$bm_mul';
             case '/':
-                return 'div';
+                return '$bm_div';
             case '%':
-                return 'mod';
+                return '$bm_mod';
 
         }
     }
