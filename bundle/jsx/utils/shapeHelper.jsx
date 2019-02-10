@@ -8,6 +8,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_boundingBox = $.__bodymovin.bm_boundingBox;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
     var ob = {}, shapeItemTypes = {
         shape: 'sh',
         rect: 'rc',
@@ -349,6 +350,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 }
                 ob.or = bm_keyframeHelper.exportKeyframes(prop.property('Outer Radius'), frameRate, stretch);
                 ob.os = bm_keyframeHelper.exportKeyframes(prop.property('Outer Roundness'), frameRate, stretch);
+
                 ob.ix = prop.propertyIndex;
             } else if (itemType === shapeItemTypes.ellipse) {
                 ob = {};
@@ -400,7 +402,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.lj = prop.property('Line Join').value;
                 if (ob.lj === 1) {
                     ob.ml = Math.round(prop.property('Miter Limit').value * 100) / 100;
-                    ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
+                    // ob.ml2 = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 }
                 ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
                 getDashData(ob,prop, frameRate, stretch);
@@ -497,6 +499,13 @@ $.__bodymovin.bm_shapeHelper = (function () {
             if (ob) {
                 ob.nm = prop.name;
                 ob.mn = prop.matchName;
+                if(bm_renderManager.shouldIgnoreExpressionProperties()) {
+                    delete ob.mn;
+                    delete ob.np;
+                    delete ob.cix;
+                    delete ob.np;
+                    delete ob.ix;
+                }
                 ob.hd = !enabled;
                 var layerAttributes = bm_generalUtils.findAttributes(prop.name);
                 if(layerAttributes.ln){

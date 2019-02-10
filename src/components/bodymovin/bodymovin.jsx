@@ -1,5 +1,5 @@
 import React from 'react'
-import bodymovin from '../../bodymovin'
+import bodymovin from '../../lottie'
 
 class Bodymovin extends React.Component {
 
