@@ -33,7 +33,8 @@ let defaultComposition = {
             active: false,
             list:[]
         },
-        guideds: false
+        guideds: false,
+        ignore_expression_properties: false,
     }
   }
 

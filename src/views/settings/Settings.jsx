@@ -104,6 +104,7 @@ class Settings extends React.PureComponent {
     this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
     this.toggleAVD = this.toggleValue.bind(this,'avd')
+    this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
     this.qualityChange = this.qualityChange.bind(this)
@@ -253,6 +254,16 @@ class Settings extends React.PureComponent {
               description='Exports an xml for Androids Animated Vector Drawable'
               toggleItem={this.toggleAVD}
               active={this.props.settings ? this.props.settings.avd : false}  />
+            <SettingsCollapsableItem 
+              title={'Advanced'}
+              description={'Advanced export features'}
+              >
+              <SettingsListItem 
+                title='Remove expression properties (Reduces filesize)'
+                description='Removes properties that are only used for expressions. Select if your animation is not using expressions or your expressions are not using special properties.'
+                toggleItem={this.toggleExpressionProperties}
+                active={this.props.settings ? this.props.settings.ignore_expression_properties : false}  />
+            </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>
             <BaseButton text='Cancel' type='gray' onClick={this.cancelSettings}></BaseButton>

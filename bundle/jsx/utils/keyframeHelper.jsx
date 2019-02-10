@@ -5,6 +5,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -366,7 +367,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 bezierOut.y = bm_generalUtils.roundNumber(bezierOut.y, 3);
                 segmentOb.i = bezierIn;
                 segmentOb.o = bezierOut;
-                if (bezierIn.x.length) {
+                /*if (bezierIn.x.length) {
                     segmentOb.n = [];
                     kLen = bezierIn.x.length;
                     for (k = 0; k < kLen; k += 1) {
@@ -374,7 +375,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     }
                 } else {
                     segmentOb.n = (bezierIn.x.toString() + '_' + bezierIn.y.toString() + '_' + bezierOut.x.toString() + '_' + bezierOut.y.toString()).replace(/\./g, 'p');
-                }
+                }*/
                 segmentOb.t = bm_generalUtils.roundNumber(lastKey.time * frameRate, 3);
                 if(propertyValueType !== PropertyValueType.NO_VALUE) {
                     segmentOb.s = getPropertyValue(property.keyValue(j), true);
@@ -473,7 +474,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
         searchRovingKeyframes(prop);
         returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
-        if(prop.propertyIndex) {
+        if(prop.propertyIndex && !bm_renderManager.shouldIgnoreExpressionProperties()) {
             returnOb.ix = prop.propertyIndex;
         }
         bm_expressionHelper.checkExpression(prop, returnOb);

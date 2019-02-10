@@ -376,6 +376,10 @@ $.__bodymovin.bm_renderManager = (function () {
     function shouldSkipImages() {
         return currentCompSettings.should_skip_images && !currentCompSettings.should_encode_images;
     }
+
+    function shouldIgnoreExpressionProperties() {
+        return currentCompSettings && currentCompSettings.ignore_expression_properties;
+    }
     
     ob.renderData = {
         exportData : {
@@ -394,6 +398,7 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.getCompressionQuality = getCompressionQuality;
     ob.shouldEncodeImages = shouldEncodeImages;
     ob.shouldSkipImages = shouldSkipImages;
+    ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
     
     return ob;
 }());
