@@ -378,7 +378,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function shouldIgnoreExpressionProperties() {
-        return currentCompSettings && currentCompSettings.ignore_expression_properties;
+        return currentCompSettings.ignore_expression_properties;
     }
     
     ob.renderData = {
