@@ -3,7 +3,6 @@ import { StyleSheet, css } from 'aphrodite'
 import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
 import checkbox from '../../../assets/animations/checkbox.json'
 import Variables from '../../../helpers/styles/variables'
-import textEllipsis from '../../../helpers/styles/textEllipsis'
 
 const styles = StyleSheet.create({
     wrapper: {
