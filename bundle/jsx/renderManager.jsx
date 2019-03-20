@@ -384,6 +384,10 @@ $.__bodymovin.bm_renderManager = (function () {
     function shouldExportOldFormat() {
         return currentCompSettings.export_old_format;
     }
+
+    function shouldSkipDefaultProperties() {
+        return currentCompSettings.skip_default_properties;
+    }
     
     ob.renderData = {
         exportData : {
@@ -404,6 +408,7 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.shouldSkipImages = shouldSkipImages;
     ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
     ob.shouldExportOldFormat = shouldExportOldFormat;
+    ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
     
     return ob;
 }());
