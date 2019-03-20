@@ -35,6 +35,8 @@ let defaultComposition = {
         },
         guideds: false,
         ignore_expression_properties: false,
+        export_old_format: false,
+        skip_default_properties: false,
     }
   }
 

@@ -105,6 +105,8 @@ class Settings extends React.PureComponent {
     this.toggleDemo = this.toggleValue.bind(this,'demo')
     this.toggleAVD = this.toggleValue.bind(this,'avd')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
+    this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
+    this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
     this.qualityChange = this.qualityChange.bind(this)
@@ -263,6 +265,16 @@ class Settings extends React.PureComponent {
                 description='Removes properties that are only used for expressions. Select if your animation is not using expressions or your expressions are not using special properties.'
                 toggleItem={this.toggleExpressionProperties}
                 active={this.props.settings ? this.props.settings.ignore_expression_properties : false}  />
+              <SettingsListItem 
+                title='Export old json format (for backwards compatibility)'
+                description='Exports old json format in case you are using it with older players'
+                toggleItem={this.toggleJsonFormat}
+                active={this.props.settings ? this.props.settings.export_old_format : false}  />
+              <SettingsListItem 
+                title='Skip default properties (Reduces filesize)'
+                description='Skips default properties. Uncheck if you are not using the latest Ios, Android or web players.'
+                toggleItem={this.toggleSkipDefaultProperties}
+                active={this.props.settings ? this.props.settings.skip_default_properties : false}  />
             </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>

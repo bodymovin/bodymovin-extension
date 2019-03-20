@@ -7,6 +7,7 @@ import Variables from '../../../helpers/styles/variables'
 const styles = StyleSheet.create({
     wrapper: {
       width: '100%',
+      paddingBottom: '10px',
       minHeight: '40px',
       backgroundColor: Variables.colors.gray_darkest,
     },
@@ -42,11 +43,12 @@ const styles = StyleSheet.create({
       color: '#fff',
       fontSize: '14px',
       marginRight: '10px',
-      paddingBottom: '10px',
+      paddingBottom: '4px',
     },
     'name--desc': {
       color: '#ccc',
-      fontSize: '12px'
+      fontSize: '12px',
+      lineHeight: '14px'
     },
     inputBox: {
       border: '1px solid ' + Variables.colors.white,

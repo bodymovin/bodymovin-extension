@@ -380,6 +380,10 @@ $.__bodymovin.bm_renderManager = (function () {
     function shouldIgnoreExpressionProperties() {
         return currentCompSettings.ignore_expression_properties;
     }
+
+    function shouldExportOldFormat() {
+        return currentCompSettings.export_old_format;
+    }
     
     ob.renderData = {
         exportData : {
@@ -399,6 +403,7 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.shouldEncodeImages = shouldEncodeImages;
     ob.shouldSkipImages = shouldSkipImages;
     ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
+    ob.shouldExportOldFormat = shouldExportOldFormat;
     
     return ob;
 }());
