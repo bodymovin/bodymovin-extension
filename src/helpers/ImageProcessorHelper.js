@@ -7,8 +7,9 @@ path.parse = function(_path){
 	}
 }
 
-function ImageObject(_canvas) {
+function ImageObject(_canvas, _img) {
 	this.canvas = _canvas;
+	this._img = _img;
 	this.updateBitmap();
 }
 
@@ -19,16 +20,15 @@ ImageObject.prototype.updateBitmap = function() {
 }
 
 ImageObject.prototype.clone = function() {
-	return new ImageObject(this.copyCanvas());
+	return new ImageObject(this.copyCanvas(), this._img);
 }
 
 
 ImageObject.prototype.opaque = function() {
-	var clonedCanvas = this.copyCanvas();
 	var canvasCtx = this.canvas.getContext('2d');
 	canvasCtx.fillStyle = 'white';
 	canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	canvasCtx.drawImage(clonedCanvas, 0, 0);
+	canvasCtx.drawImage(this._img, 0, 0);
 	this.updateBitmap();
 	return this;
 }
@@ -38,7 +38,7 @@ ImageObject.prototype.copyCanvas = function() {
 	clonedCanvas.width = this.canvas.width;
 	clonedCanvas.height = this.canvas.height;
 	var clonedCanvasCtx = clonedCanvas.getContext('2d');
-	clonedCanvasCtx.drawImage(this.canvas, 0, 0);
+	clonedCanvasCtx.drawImage(this._img, 0, 0);
 	return clonedCanvas;
 }
 
@@ -53,7 +53,7 @@ function loadImage(path) {
 			var ctx = canvas.getContext('2d');
 			ctx.drawImage(img, 0, 0);
 
-			res(new ImageObject(canvas));
+			res(new ImageObject(canvas, img));
 		}
 		img.src = path;
 	});
