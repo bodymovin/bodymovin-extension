@@ -129,10 +129,11 @@ $.__bodymovin.bm_renderManager = (function () {
     function render(comp, destination, fsDestination, compSettings) {
         app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
-        bm_ProjectHelper.init();
         hasExpressionsFlag = false;
         currentCompID = comp.id;
         currentCompSettings = compSettings;
+
+        bm_ProjectHelper.init();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
         destinationPath = destination;
         fsDestinationPath = fsDestination;
@@ -388,6 +389,10 @@ $.__bodymovin.bm_renderManager = (function () {
     function shouldSkipDefaultProperties() {
         return currentCompSettings.skip_default_properties;
     }
+
+    function shouldIncludeNotSupportedProperties() {
+        return currentCompSettings.not_supported_properties;
+    }
     
     ob.renderData = {
         exportData : {
@@ -409,6 +414,7 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
     ob.shouldExportOldFormat = shouldExportOldFormat;
     ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
+    ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
     
     return ob;
 }());

@@ -107,6 +107,7 @@ class Settings extends React.PureComponent {
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
+    this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
     this.qualityChange = this.qualityChange.bind(this)
@@ -275,6 +276,11 @@ class Settings extends React.PureComponent {
                 description='Skips default properties. Uncheck if you are not using the latest Ios, Android or web players.'
                 toggleItem={this.toggleSkipDefaultProperties}
                 active={this.props.settings ? this.props.settings.skip_default_properties : false}  />
+              <SettingsListItem 
+                title='Include non supported properties'
+                description='Only check this if you need specific properties for uses  other that the player.'
+                toggleItem={this.toggleNotSupportedProperties}
+                active={this.props.settings ? this.props.settings.not_supported_properties : false}  />
             </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>
