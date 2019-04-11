@@ -21,7 +21,8 @@ $.__bodymovin.bm_blendModes = (function () {
         hue : 12,
         saturation : 13,
         color : 14,
-        luminosity :15
+        luminosity :15,
+        add: 16
     };
 
     var BlendingModeShape = {
@@ -100,6 +101,9 @@ $.__bodymovin.bm_blendModes = (function () {
                 break;
             case BlendingMode.LUMINOSITY:
                 blendModeValue = blendModes.luminosity;
+                break;
+            case BlendingMode.ADD:
+                blendModeValue = blendModes.add;
                 break;
             default:
                 blendModeValue = blendModes.normal;
