@@ -62,7 +62,7 @@
   "dependencies": {
     "@babel/preset-env": "^7.0.0",
     "aphrodite": "^1.1.0",
-    "bodymovin-to-avd": "^1.0.6",
+    "bodymovin-to-avd": "^1.0.8",
     "jimp": "^0.2.28",
     "png-to-jpeg": "^1.0.1",
     "react": "^15.4.2",
