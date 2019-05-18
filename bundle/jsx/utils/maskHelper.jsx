@@ -44,6 +44,9 @@ $.__bodymovin.bm_maskHelper = (function () {
             $.__bodymovin.bm_shapeHelper.checkVertexCount(shapeData.pt.k);
             shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
             shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
+            if ($.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties()) {
+                shapeData.f = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Feather'), frameRate, stretch);
+            }
             shapeData.nm = maskElement.name;
             layerData.masksProperties.push(shapeData);
         }
