@@ -4,7 +4,7 @@ import { StyleSheet, css } from 'aphrodite'
 import CompositionsList from './list/CompositionsList'
 import CompositionsListHeader from './listHeader/CompositionsListHeader'
 import MainHeader from '../../components/header/Main_header'
-import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer, toggleShowSelected} from '../../redux/actions/compositionActions'
+import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer, toggleShowSelected, applySettingsToSelectedComps} from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
 import Variables from '../../helpers/styles/variables'
@@ -88,6 +88,11 @@ class Compositions extends React.Component {
           onClick={this.props.toggleShowSelected}>
             {this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
         </div>
+        <div 
+          className={css(styles.toggleButton)} 
+          onClick={this.props.applySettingsToSelectedComps}>
+            {'Apply Stored Settings to Selected Comps'}
+        </div>
     	</div>
     	)
   }
@@ -107,7 +112,8 @@ const mapDispatchToProps = {
   goToPreview: goToPreview,
   goToPlayer: goToPlayer,
   showRenderBlock: showRenderBlock,
-  toggleShowSelected: toggleShowSelected
+  toggleShowSelected: toggleShowSelected,
+  applySettingsToSelectedComps: applySettingsToSelectedComps
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

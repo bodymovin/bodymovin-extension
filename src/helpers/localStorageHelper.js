@@ -117,11 +117,39 @@ function savePathsToLocalStorage(paths) {
 	return prom
 }
 
+function saveSettingsToLocalStorage(settings) {
+	return new Promise((resolve, reject) => {
+		try {
+			localStorage.setItem('defaultSettings', JSON.stringify(settings))
+			resolve()
+		} catch(err) {
+			reject()
+		}
+	})
+}
+
+function getSettingsFromLocalStorage(paths) {
+	return new Promise((resolve, reject) => {
+		try {
+			var settings = localStorage.getItem('defaultSettings');
+			if(settings) {
+				resolve(JSON.parse(settings))
+			} else {
+				reject()
+			}
+		} catch(err) {
+			reject()
+		}
+	})
+}
+
 export {
 	getProjectFromLocalStorage,
 	saveProjectToLocalStorage,
 	getFontsFromLocalStorage,
 	saveFontsFromLocalStorage,
 	getPathsFromLocalStorage,
-	savePathsToLocalStorage
+	savePathsToLocalStorage,
+	getSettingsFromLocalStorage,
+	saveSettingsToLocalStorage,
 }

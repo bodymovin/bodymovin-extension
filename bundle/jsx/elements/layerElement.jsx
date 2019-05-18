@@ -127,7 +127,7 @@ $.__bodymovin.bm_layerElement = (function () {
         if (lType !== layerTypes.camera) {
             bm_transformHelper.exportTransform(layerInfo, layerData, frameRate);
             bm_maskHelper.exportMasks(layerInfo, layerData, frameRate);
-            bm_effectsHelper.exportEffects(layerInfo, layerData, frameRate);
+            bm_effectsHelper.exportEffects(layerInfo, layerData, frameRate, includeHiddenData);
             bm_layerStylesHelper.exportStyles(layerInfo, layerData, frameRate);
             bm_timeremapHelper.exportTimeremap(layerInfo, layerData, frameRate);
         }

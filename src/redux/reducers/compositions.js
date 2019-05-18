@@ -5,7 +5,7 @@ let initialState = {
   filter: '',
   items:{},
   current: 0,
-  show_only_selected: false
+  show_only_selected: false,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -349,6 +349,59 @@ function toggleSelected(state, action) {
   return newState
 }
 
+function applySettingsToAllComps(state, action) {
+  const items = state.items
+  const itemKeys = Object.keys(items)
+  const newItems = itemKeys.reduce((accumulator, key) => {
+    const settingsClone = JSON.parse(JSON.stringify(action.settings))
+    const item = items[key]
+    if (item.selected) {
+      const itemSettings = {
+        ...item.settings,
+        ...settingsClone
+      }
+      accumulator[key] = {
+        ...item,
+         settings: itemSettings
+      }
+    } else {
+      accumulator[key] = item
+    }
+    return accumulator
+  }, {})
+  return {
+    ...state,
+    items: newItems
+  }
+}
+
+function applySettingsFromCache(state, action) {
+
+  if(action.allComps) {
+    return applySettingsToAllComps(state, action)
+  }
+
+  const settingsClone = JSON.parse(JSON.stringify(action.settings))
+
+  let item = state.items[state.current]
+  const newSettings = {
+    ...item.settings,
+    ...settingsClone,
+  }
+  const newState = {
+    ...state,
+    items: {
+      ...state.items,
+      [state.current]: {
+        ...item,
+        settings: newSettings
+      }
+    }
+  }
+  console.log(newState)
+  return newState
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -378,6 +431,8 @@ export default function compositions(state = initialState, action) {
       return updateSettingsValue(state, action)
     case actionTypes.SETTINGS_TOGGLE_SELECTED:
       return toggleSelected(state, action)
+    case actionTypes.SETTINGS_APPLY_FROM_CACHE:
+      return applySettingsFromCache(state, action)
     default:
       return state
   }
