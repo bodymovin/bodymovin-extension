@@ -11,7 +11,7 @@ var insert = require('gulp-insert');
 var version = '5.5.2'
 
 var extensionSource = './bundle';
-var extensionDestination = '../../../tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
+var extensionDestination = '/Library/Application Support/Adobe/CEP/extensions/bodymovin-tg';
 gulp.task('watch-extension', function() {
     gulp.src(extensionSource + '/**/*', {base: extensionSource})
         .pipe(watch(extensionSource, {base: extensionSource}))
@@ -53,8 +53,8 @@ gulp.task('create-gzip', function() {
 
 gulp.task('copy-manifest', function() {
     return gulp.src('bundle/CSXS/manifest.xml')
-    	.pipe(replace(/(<Extension Id="com\.bodymovin\.bodymovin" Version=")(.+)(" \/>)/g,'$1'+version+'$3'))
-    	.pipe(replace(/(<ExtensionManifest Version="5\.0" ExtensionBundleId="com\.bodymovin\.bodymovin" ExtensionBundleVersion=")(.+)(")/g,'$1'+version+'$3'))
+    	.pipe(replace(/(<Extension Id="org\.telegram\.bodymovin-tg" Version=")(.+)(" \/>)/g,'$1'+version+'$3'))
+    	.pipe(replace(/(<ExtensionManifest Version="5\.0" ExtensionBundleId="org\.telegram\.bodymovin-tg" ExtensionBundleVersion=")(.+)(")/g,'$1'+version+'$3'))
     	.pipe(replace(/(<MainPath>\.\/)(index_dev.html)(<\/MainPath>)/g,'$1'+'index.html'+'$3'))
         .pipe(gulp.dest('build/CSXS/'));
 });

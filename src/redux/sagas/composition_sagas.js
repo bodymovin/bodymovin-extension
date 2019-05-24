@@ -1,11 +1,8 @@
 import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
-import {saveSettingsToLocalStorage, getSettingsFromLocalStorage} from '../../helpers/localStorageHelper'
 import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
-import settingsSelector from '../selectors/settings_selector'
-import {applySettingsFromCache} from '../actions/compositionActions'
 
 function *getCSCompositions(action) {
 	while(true) {
@@ -56,25 +53,10 @@ function *goToSettings() {
 	})
 }
 
-function *saveSettings() {
-	let settings = yield select(settingsSelector)
-	yield call(saveSettingsToLocalStorage, settings)
-}
-
-function *applySettings(action) {
-	try {
-		const settings = yield call(getSettingsFromLocalStorage)
-		yield put(applySettingsFromCache(settings, action.allComps))
-	} catch(err) {
-	}
-}
-
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
   fork(startRender),
   takeEvery(actions.RENDER_STOP, stopRender),
-  takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
-  takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
-  takeEvery(actions.SETTINGS_APPLY, applySettings),
+  takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings)
 ]

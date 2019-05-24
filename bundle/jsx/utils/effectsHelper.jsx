@@ -279,7 +279,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         return ob;
     }
     
-    function exportEffects(layerInfo, layerData, frameRate, includeHiddenData) {
+    function exportEffects(layerInfo, layerData, frameRate) {
         //bm_eventDispatcher.log('PropertyType.PROPERTY' + PropertyType.PROPERTY);
         //bm_eventDispatcher.log('PropertyType.INDEXED_GROUP' + PropertyType.INDEXED_GROUP);
         //bm_eventDispatcher.log('PropertyType.NAMED_GROUP' + PropertyType.NAMED_GROUP);
@@ -293,7 +293,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var effectsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            if(effectElement.enabled || includeHiddenData) {
+            if(effectElement.enabled) {
                 var effectType = getEffectType(effectElement.matchName);
                 /*
                 //If the effect is not a Slider Control and is not enabled, it won't be exported.

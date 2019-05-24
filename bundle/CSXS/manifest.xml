@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="5.0" ExtensionBundleId="com.bodymovin.bodymovin" ExtensionBundleVersion="4.5.5"
+<ExtensionManifest Version="5.0" ExtensionBundleId="org.telegram.bodymovin-tg" ExtensionBundleVersion="4.5.5"
 		ExtensionBundleName="bodymovin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.bodymovin.bodymovin" Version="4.5.5" />
+		<Extension Id="org.telegram.bodymovin-tg" Version="4.5.5" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -31,7 +31,7 @@
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
-		<Extension Id="com.bodymovin.bodymovin">
+		<Extension Id="org.telegram.bodymovin-tg">
 			<DispatchInfo >
 				<Resources>
 				<MainPath>./index_dev.html</MainPath>
@@ -47,7 +47,7 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>Bodymovin</Menu>
+					<Menu>Bodymovin for Telegram Stickers</Menu>
 					<Geometry>
 						<Size>
 							<Height>500</Height>

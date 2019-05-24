@@ -143,6 +143,7 @@ $.__bodymovin.bm_renderManager = (function () {
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
+            tgs: 1,
             v : version_number,
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
@@ -156,7 +157,6 @@ $.__bodymovin.bm_renderManager = (function () {
             fonts : [],
             layers : [],
             markers : []
-            
         };
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
@@ -379,7 +379,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function shouldIgnoreExpressionProperties() {
-        return currentCompSettings.ignore_expression_properties;
+        return true;
     }
 
     function shouldExportOldFormat() {

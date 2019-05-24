@@ -100,6 +100,18 @@ csInterface.addEventListener('bm:image:process', function (ev) {
 	}
 })
 
+csInterface.addEventListener('tg:compress', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+
+		dispatcher({ 
+			type: actions.TG_COMPRESS,
+			data: data
+		})
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:project:id', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -180,7 +192,7 @@ function getDestinationPath(comp, alternatePath) {
 		if(comp.settings.standalone) {
 			alternatePath += 'data.js'
 		} else {
-			alternatePath += 'data.json'
+			alternatePath += 'data.tgs'
 		}
 		destinationPath = alternatePath
 	}
@@ -290,6 +302,14 @@ function imageProcessed(result) {
 	})
 }
 
+function dataCompressed(result) {
+	extensionLoader.then(function(){
+		let base64data = result.buf.toString('base64');
+		var eScript = '$.__bodymovin.bm_dataManager.dataCompressed("' + base64data + '")';
+		csInterface.evalScript(eScript);
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -301,5 +321,6 @@ export {
 	goToFolder,
 	getVersionFromExtension,
 	imageProcessed,
+	dataCompressed,
 	saveAVD
 }

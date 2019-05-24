@@ -4,7 +4,7 @@ import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
-import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
+import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
 
@@ -24,36 +24,7 @@ const styles = StyleSheet.create({
       display: 'flex',
       flexDirection: 'column'
     },
-    header: {
-      width: '100%',
-      height: '60px',
-      alignItems: 'center',
-      display: 'flex',
-      flexGrow: 0,
-      padding: '10px 0',
-      justifyContent: 'space-between'
-    },
-    headerTitle: {
-      flexGrow: 0,
-      fontSize: '18px',
-    },
-    headerButtons: {
-      flexGrow: 0,
-      display: 'inline-block',
-      verticalAlign: 'top',
-    },
-    headerButtonsButton: {
-      backgroundColor: 'transparent',
-      borderRadius:'4px',
-      color: Variables.colors.green,
-      cursor: 'pointer',
-      display: 'inline-block',
-      marginLeft: '4px',
-      padding: '4px 1px',
-      textDecoration: 'underline',
-      verticalAlign: 'top',
-    },
-    headerSpacer: {
+    title: {
       width: '100%',
       flexGrow: 0,
       fontSize: '18px',
@@ -207,23 +178,7 @@ class Settings extends React.PureComponent {
     return (
     	<div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
-          <div className={css(styles.header)}>
-            <div className={css(styles.headerTitle)}>Settings</div>
-              <div className={css(styles.headerButtons)}>
-                <button 
-                  className={css(styles.headerButtonsButton)}
-                  onClick={this.props.onRememberSettings}
-                >
-                 Remember Settings
-                </button>
-                <button 
-                  className={css(styles.headerButtonsButton)}
-                  onClick={this.props.onApplySettings}
-                >
-                 Apply Settings
-                </button>
-              </div>
-          </div>
+          <div className={css(styles.title)}>Settings</div>
           <ul className={css(styles.compsList)}>
             <SettingsListItem 
               title='Split'
@@ -345,8 +300,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   setCurrentCompId: setCurrentCompId,
-  onRememberSettings: rememberSettings,
-  onApplySettings: applySettings,
   cancelSettings: cancelSettings,
   goToComps: goToComps,
   toggleSettingsValue: toggleSettingsValue,

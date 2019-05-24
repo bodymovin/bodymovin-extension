@@ -74,7 +74,6 @@ class CompositionsListHeader extends React.Component {
     return (
     	<ul className={css(styles.container)}>
         <li className={css(styles.item, styles.radio, textEllipsis)}>Selected</li>
-        <li className={css(styles.item, styles.settings, textEllipsis)}>Settings</li>
         <li className={css(styles.item, styles.name, textEllipsis)}>
           <div className={css(styles.nameBox)}>
             <input className={css(styles.name_input)} type="text" placeholder="Name" onChange={this.props.filterChange} value={this.props.filterValue} />
@@ -82,7 +81,7 @@ class CompositionsListHeader extends React.Component {
             </div>
           </div>
         </li>
-    		<li className={css(styles.item, styles.destination, textEllipsis)}>../Destination Folder</li>
+    		<li className={css(styles.item, styles.destination, textEllipsis)}>Destination Folder</li>
     	</ul>
     	);
   }

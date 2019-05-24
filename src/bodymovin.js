@@ -4320,7 +4320,7 @@ var assetLoader = (function(){
         // set responseType after calling open or IE will break.
         try {
             // This crashes on Android WebView prior to KitKat
-            xhr.responseType = "json";
+            xhr.responseType = "tgs";
         } catch (err) {}
         xhr.send();
         xhr.onreadystatechange = function () {
@@ -11273,11 +11273,11 @@ AnimationItem.prototype.setParams = function(params) {
     if(params.animationData){
         this.configAnimation(params.animationData);
     }else if(params.path){
-        if(params.path.substr(-4) != 'json'){
+        if(params.path.substr(-3) != 'tgs'){
             if (params.path.substr(-1, 1) != '/') {
                 params.path += '/';
             }
-            params.path += 'data.json';
+            params.path += 'data.tgs';
         }
 
         if(params.path.lastIndexOf('\\') != -1){
@@ -11286,7 +11286,7 @@ AnimationItem.prototype.setParams = function(params) {
             this.path = params.path.substr(0,params.path.lastIndexOf('/')+1);
         }
         this.fileName = params.path.substr(params.path.lastIndexOf('/')+1);
-        this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.json'));
+        this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.tgs'));
 
         assetLoader.load(params.path, this.configAnimation.bind(this), function() {
             this.trigger('data_failed');
@@ -11372,7 +11372,7 @@ AnimationItem.prototype.loadNextSegment = function() {
     }
     var segment = segments.shift();
     this.timeCompleted = segment.time * this.frameRate;
-    var segmentPath = this.path+this.fileName+'_' + this.segmentPos + '.json';
+    var segmentPath = this.path+this.fileName+'_' + this.segmentPos + '.tgs';
     this.segmentPos += 1;
     assetLoader.load(segmentPath, this.includeLayers.bind(this), function() {
         this.trigger('data_failed');

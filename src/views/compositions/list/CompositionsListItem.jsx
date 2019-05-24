@@ -1,10 +1,8 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
-import BodymovinSettings from '../../../components/bodymovin/bodymovin_settings'
 import BodymovinDots from '../../../components/bodymovin/bodymovin_dots'
 import checkbox from '../../../assets/animations/checkbox.json'
-import settings from '../../../assets/animations/settings.json'
 import Variables from '../../../helpers/styles/variables'
 import textEllipsis from '../../../helpers/styles/textEllipsis'
 
@@ -114,14 +112,6 @@ class CompositionsListItem extends React.Component {
   	        <BodymovinCheckbox animationData={checkbox} animate={this.props.item.selected} autoplay={false} loop={false} >
   	          <button className={css(styles.item, styles.radio)} onClick={this.toggleItem}></button>
   	        </BodymovinCheckbox>
-            <BodymovinSettings animationData={settings} animate={this.state.settingsHovered} autoplay={false} loop={false} >
-    				  <button 
-                className={css(styles.item, styles.settings)} 
-                onClick={this.showSettings}
-                onMouseEnter={this.settingsHovered}
-                onMouseLeave={this.settingsLeft}>
-                </button>
-            </BodymovinSettings>
   				<div className={css(styles.item, styles.name, textEllipsis)} title={this.props.item.name}>{this.props.item.name}</div>
   				{this.props.item.destination 
             && <div className={css(styles.item, styles.destination, textEllipsis)} onClick={this.selectDestination} title={this.props.item.destination}>{this.props.item.destination}</div>}

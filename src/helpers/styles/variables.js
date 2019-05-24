@@ -1,7 +1,7 @@
 export default {
 	colors: {
-		green: '#00B743',
-		green2: '#04631d',
+		green: '#5caddd',
+		green2: '#4592cd',
 		yellow: '#ffcc00',
 		blue: '#0099cc',
 		red: '#ff6633',

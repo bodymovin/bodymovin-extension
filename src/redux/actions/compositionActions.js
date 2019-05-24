@@ -96,37 +96,9 @@ function goToComps() {
 }
 
 function toggleShowSelected() {
+	console.log('toggleShowSelected:')
 	return {
 		type: actionTypes.SETTINGS_TOGGLE_SELECTED,
-	}
-}
-
-function rememberSettings() {
-	return {
-		type: actionTypes.SETTINGS_REMEMBER,
-	}
-}
-
-function applySettings() {
-	return {
-		type: actionTypes.SETTINGS_APPLY,
-		allComps: false
-	}
-}
-
-function applySettingsToSelectedComps(settings) {
-	return {
-		type: actionTypes.SETTINGS_APPLY,
-		settings,
-		allComps: true
-	}
-}
-
-function applySettingsFromCache(settings, allComps) {
-	return {
-		type: actionTypes.SETTINGS_APPLY_FROM_CACHE,
-		settings,
-		allComps
 	}
 }
 
@@ -145,9 +117,5 @@ export {
 	updateSettingsValue,
 	goToPreview,
 	goToPlayer,
-	goToComps,
-	rememberSettings,
-	applySettings,
-	applySettingsFromCache,
-	applySettingsToSelectedComps,
+	goToComps
 }

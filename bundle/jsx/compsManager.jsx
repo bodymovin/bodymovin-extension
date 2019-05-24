@@ -42,7 +42,7 @@ $.__bodymovin.bm_compsManager = (function () {
             uri = absoluteURI;
         } else {
             uri = Folder.desktop.absoluteURI + '/data';
-            uri += standalone ? '.js' : '.json';
+            uri += standalone ? '.js' : '.tgs';
         }
         var f = new File(uri);
         var saveFileData = f.saveDlg();
