@@ -277,10 +277,6 @@ $.__bodymovin.bm_dataManager = (function () {
                     error = 'Composition should not include any Star Shapes';
                     break;
                 }
-                if (items[i].ty == "mm") {
-                    error = 'Composition should not include any Merge Paths';
-                    break;
-                }
                 if (items[i].ty == "gs") {
                     error = 'Composition should not include any Gradient Strokes';
                     break;
@@ -339,10 +335,6 @@ loop:
                     error = 'Composition should not include any Auto-Oriented Layers';
                     break;
                 }
-                if (layers[i].ef != null) {
-                    error = 'Composition should not include any Layer Effects';
-                    break;
-                }
 
                 error = checkItems(layers[i].shapes, true);
                 if (error != null) {
@@ -358,6 +350,17 @@ loop:
         _destinationPath = destinationPath;
         deleteExtraParams(data, config);
         separateComps(data.layers, data.comps);
+
+        if (data.comps) {
+            if (data.assets) {
+                data.assets = data.assets.concat(data.comps);
+            } else {
+                data.assets = data.comps;
+            }
+            data.comps = null;
+            delete data.comps;
+        }
+
         var string = JSON.stringify(data);
         string = string.replace(/\n/g, '');
 

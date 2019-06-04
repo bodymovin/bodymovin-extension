@@ -23,7 +23,7 @@ let defaultComposition = {
         demo: false,
         avd: false,
         glyphs: true,
-        hiddens: false,
+        hiddens: true,
         original_names: false,
         should_encode_images: false,
         should_compress: false,
@@ -33,7 +33,7 @@ let defaultComposition = {
             active: false,
             list:[]
         },
-        guideds: false,
+        guideds: true,
         ignore_expression_properties: false,
         export_old_format: false,
         skip_default_properties: false,
