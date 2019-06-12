@@ -336,10 +336,14 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 assignmentExpression.right = convertUnaryExpression(assignmentExpression.right);
             } else if (assignmentExpression.right.type === 'CallExpression') {
                 handleCallExpression(assignmentExpression.right);
-            } else  if (assignmentExpression.right.type=== 'MemberExpression') {
+            } else  if (assignmentExpression.right.type === 'MemberExpression') {
                 handleMemberExpression(assignmentExpression.right);
-            } else  if (assignmentExpression.right.type=== 'ConditionalExpression') {
+            } else  if (assignmentExpression.right.type === 'ConditionalExpression') {
                 handleConditionalExpression(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type === 'ConditionalExpression') {
+                handleConditionalExpression(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type === 'ArrayExpression') {
+                handleSequenceExpressions(assignmentExpression.right.elements);
             }
         }
     }
