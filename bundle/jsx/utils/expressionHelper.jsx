@@ -344,6 +344,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 handleConditionalExpression(assignmentExpression.right);
             } else  if (assignmentExpression.right.type === 'ArrayExpression') {
                 handleSequenceExpressions(assignmentExpression.right.elements);
+            } else  if (assignmentExpression.right.type === 'FunctionExpression') {
+                handleFunctionDeclaration(assignmentExpression.right);
             }
         }
     }
@@ -429,13 +431,15 @@ $.__bodymovin.bm_expressionHelper = (function () {
         var j, jLen;
         for(i = 0; i < len; i += 1) {
             if (body[i].type === 'ExpressionStatement') {
-                if(body[i].expression.type === 'CallExpression') {
+                if (body[i].expression.type === 'CallExpression') {
                     jLen = body[i].expression.arguments.length;
                     for (j = 0; j < jLen; j += 1) {
                         if(body[i].expression.arguments[j].type === 'AssignmentExpression') {
                             body[i].expression.arguments[j] = body[i].expression.arguments[j].right;
                         }
                     } 
+                } else if (body[i].expression.type === 'AssignmentExpression') {
+                    handleAssignmentExpression(body[i].expression);
                 }
             } else if (body[i].type === 'FunctionDeclaration') {
                 if (body[i].body && body[i].body.type === 'BlockStatement') {
