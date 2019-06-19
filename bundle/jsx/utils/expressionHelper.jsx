@@ -308,6 +308,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
                     handleCallExpression(declarations[i].init);
                 } else if (declarations[i].init.type === 'ConditionalExpression') {
                     handleConditionalExpression(declarations[i].init);
+                } else if (declarations[i].init.type === 'LogicalExpression') {
+                    handleLogicalExpression(declarations[i].init);
                 }
             }
         }
@@ -346,6 +348,54 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 handleSequenceExpressions(assignmentExpression.right.elements);
             } else  if (assignmentExpression.right.type === 'FunctionExpression') {
                 handleFunctionDeclaration(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type === 'LogicalExpression') {
+                handleLogicalExpression(assignmentExpression.right);
+            }
+        }
+    }
+
+    function handleLogicalExpression(logicalExpression) {
+        if (logicalExpression.right){
+            if (logicalExpression.right.type === 'BinaryExpression') {
+                logicalExpression.right = convertBinaryExpression(logicalExpression.right);
+            } else if (logicalExpression.right.type === 'UnaryExpression') {
+                logicalExpression.right = convertUnaryExpression(logicalExpression.right);
+            } else if (logicalExpression.right.type === 'CallExpression') {
+                handleCallExpression(logicalExpression.right);
+            } else  if (logicalExpression.right.type === 'MemberExpression') {
+                handleMemberExpression(logicalExpression.right);
+            } else  if (logicalExpression.right.type === 'ConditionalExpression') {
+                handleConditionalExpression(logicalExpression.right);
+            } else  if (logicalExpression.right.type === 'ConditionalExpression') {
+                handleConditionalExpression(logicalExpression.right);
+            } else  if (logicalExpression.right.type === 'ArrayExpression') {
+                handleSequenceExpressions(logicalExpression.right.elements);
+            } else  if (logicalExpression.right.type === 'FunctionExpression') {
+                handleFunctionDeclaration(logicalExpression.right);
+            } else  if (logicalExpression.right.type === 'LogicalExpression') {
+                handleLogicalExpression(logicalExpression.right);
+            }
+        }
+
+        if (logicalExpression.left){
+            if (logicalExpression.left.type === 'BinaryExpression') {
+                logicalExpression.left = convertBinaryExpression(logicalExpression.left);
+            } else if (logicalExpression.left.type === 'UnaryExpression') {
+                logicalExpression.left = convertUnaryExpression(logicalExpression.left);
+            } else if (logicalExpression.left.type === 'CallExpression') {
+                handleCallExpression(logicalExpression.left);
+            } else  if (logicalExpression.left.type === 'MemberExpression') {
+                handleMemberExpression(logicalExpression.left);
+            } else  if (logicalExpression.left.type === 'ConditionalExpression') {
+                handleConditionalExpression(logicalExpression.left);
+            } else  if (logicalExpression.left.type === 'ConditionalExpression') {
+                handleConditionalExpression(logicalExpression.left);
+            } else  if (logicalExpression.left.type === 'ArrayExpression') {
+                handleSequenceExpressions(logicalExpression.left.elements);
+            } else  if (logicalExpression.left.type === 'FunctionExpression') {
+                handleFunctionDeclaration(logicalExpression.left);
+            } else  if (logicalExpression.left.type === 'LogicalExpression') {
+                handleLogicalExpression(logicalExpression.left);
             }
         }
     }
@@ -355,25 +405,29 @@ $.__bodymovin.bm_expressionHelper = (function () {
             conditionalExpression.test = convertBinaryExpression(conditionalExpression.test);
         }
         if(conditionalExpression.consequent){
-            if (conditionalExpression.consequent.type=== 'AssignmentExpression') {
+            if (conditionalExpression.consequent.type === 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.consequent);
-            } else if (conditionalExpression.consequent.type=== 'BinaryExpression') {
+            } else if (conditionalExpression.consequent.type === 'BinaryExpression') {
                 conditionalExpression.consequent = convertBinaryExpression(conditionalExpression.consequent);
-            } else if (conditionalExpression.consequent.type=== 'SequenceExpression') {
+            } else if (conditionalExpression.consequent.type === 'SequenceExpression') {
                 handleSequenceExpressions(conditionalExpression.consequent.expressions);
-            } else if (conditionalExpression.consequent.type=== 'CallExpression') {
+            } else if (conditionalExpression.consequent.type === 'CallExpression') {
                 handleCallExpression(conditionalExpression.consequent);
+            } else if (conditionalExpression.consequent.type === 'LogicalExpression') {
+                handleLogicalExpression(conditionalExpression.consequent);
             }
         }
         if(conditionalExpression.alternate){
-            if (conditionalExpression.alternate.type=== 'AssignmentExpression') {
+            if (conditionalExpression.alternate.type === 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.alternate);
-            } else if (conditionalExpression.alternate.type=== 'BinaryExpression') {
+            } else if (conditionalExpression.alternate.type === 'BinaryExpression') {
                 conditionalExpression.alternate = convertBinaryExpression(conditionalExpression.alternate);
-            } else if (conditionalExpression.alternate.type=== 'SequenceExpression') {
+            } else if (conditionalExpression.alternate.type === 'SequenceExpression') {
                 handleSequenceExpressions(conditionalExpression.alternate.expressions);
-            } else if (conditionalExpression.alternate.type=== 'CallExpression') {
+            } else if (conditionalExpression.alternate.type === 'CallExpression') {
                 handleCallExpression(conditionalExpression.alternate);
+            } else if (conditionalExpression.alternate.type === 'LogicalExpression') {
+                handleLogicalExpression(conditionalExpression.alternate);
             }
         }
     }
@@ -395,6 +449,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 handleMemberExpression(expressions[i]);
             } else  if (expressions[i].type === 'ArrayExpression') {
                 handleSequenceExpressions(expressions[i].elements);
+            } else  if (expressions[i].type === 'LogicalExpression') {
+                handleLogicalExpression(expressions[i]);
             }
         }
     }
@@ -412,6 +468,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
             handleConditionalExpression(expressionStatement.expression);
         } else if (expressionStatement.expression.type === 'SequenceExpression') {
             handleSequenceExpressions(expressionStatement.expression.expressions);
+        } else if (expressionStatement.expression.type === 'LogicalExpression') {
+            handleLogicalExpression(expressionStatement.expression);
         }
     }
 
@@ -440,6 +498,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
                     } 
                 } else if (body[i].expression.type === 'AssignmentExpression') {
                     handleAssignmentExpression(body[i].expression);
+                } else if (body[i].expression.type === 'LogicalExpression') {
+                    handleLogicalExpression(body[i].expression);
                 }
             } else if (body[i].type === 'FunctionDeclaration') {
                 if (body[i].body && body[i].body.type === 'BlockStatement') {
