@@ -5,6 +5,7 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     var bm_projectManager = $.__bodymovin.bm_projectManager;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var layerTypes = $.__bodymovin.layerTypes;
     var getLayerType = $.__bodymovin.getLayerType;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
@@ -103,7 +104,7 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     }
 
     function getOutlinesLayer(comp) {
-        var i = 1, len = comp.layers.length;
+        var i = 1, len = comp.layers.length, layer;
         while(i <= len) {
             layer = comp.layers[i];
             var layerType = getLayerType(layer);
@@ -118,81 +119,85 @@ $.__bodymovin.bm_textShapeHelper = (function () {
         if (bm_compsManager.cancelled) {
             return;
         }
-        var charCode = ch.charCodeAt(0);
-            //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
-        if (charCode === 13 || charCode === 3 || charCode === 160 || charCode === 65279) {
-            charData.w = 0;
-            return;
-        }
-        var shapeLayer;
-        var l, lLen;
-        var cmdID = bm_projectManager.getCommandID('shapesFromText');
-        layerInfo.copyToComp(comp);
-        //var dupl = comp.layers[1];
-        //var dupl = comp.layers.addText();
-        //removeLayerAnimators(dupl);
-        var textProp = dupl.property("Source Text");
-        var textDocument = textProp.value;
-        if (charCode !== 32 && charCode !== 9) {
-            textDocument.text = ch + ch;
-        } else {
-            textDocument.text = 'i' + ch + 'i';
-        }
-        textDocument.font = originalTextDocument.font;
-        textDocument.fontSize = 100;
-        textDocument.tracking = 0;
-        textDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
-        textProp.setValue(textDocument);
-        dupl.enabled = true;
-        dupl.selected = true;
-        var hasShapeData = true;
-        if (charCode !== 32 && charCode !== 9) {
-            hasShapeData = false;
-            app.executeCommand(3781);
-        }
-        dupl.selected = false;
-        var doubleSize, singleSize;
-        doubleSize = dupl.sourceRectAtTime(0, false).width;
-        if (charCode !== 32 && charCode !== 9) {
-            textDocument.text = ch;
-        } else {
-            textDocument.text = 'ii';
-        }
-        textProp.setValue(textDocument);
-        singleSize = dupl.sourceRectAtTime(0, false).width;
-        charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
-        shapeLayer = getOutlinesLayer(comp);
-        charData.data = {};
-        if (charCode !== 32 && charCode !== 9) {
-            $.__bodymovin.bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
-            while(charData.data.shapes.length > 1) {
-                charData.data.shapes.pop();
+        try {
+            var charCode = ch.charCodeAt(0);
+                //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
+            if (charCode === 13 || charCode === 3 || charCode === 160 || charCode === 65279) {
+                charData.w = 0;
+                return;
             }
-            lLen = charData.data.shapes[0].it.length;
-            for (l = 0; l < lLen; l += 1) {
-                var ks = charData.data.shapes[0].it[l].ks;
-                if (ks) {
-                    var k, kLen = ks.k.i.length;
-                    /*for (k = 0; k < kLen; k += 1) {
-                        ks.k.i[k][0] += ks.k.v[k][0];
-                        ks.k.i[k][1] += ks.k.v[k][1];
-                        ks.k.o[k][0] += ks.k.v[k][0];
-                        ks.k.o[k][1] += ks.k.v[k][1];
-                    }*/
-                } else {
-                    charData.data.shapes[0].it.splice(l, 1);
-                    l -= 1;
-                    lLen -= 1;
+            var shapeLayer;
+            var l, lLen;
+            var cmdID = bm_projectManager.getCommandID('shapesFromText');
+            layerInfo.copyToComp(comp);
+            //var dupl = comp.layers[1];
+            //var dupl = comp.layers.addText();
+            //removeLayerAnimators(dupl);
+            var textProp = dupl.property("Source Text");
+            var textDocument = textProp.value;
+            if (charCode !== 32 && charCode !== 9) {
+                textDocument.text = ch + ch;
+            } else {
+                textDocument.text = 'i' + ch + 'i';
+            }
+            textDocument.font = originalTextDocument.font;
+            textDocument.fontSize = 100;
+            textDocument.tracking = 0;
+            textDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
+            textProp.setValue(textDocument);
+            dupl.enabled = true;
+            dupl.selected = true;
+            var hasShapeData = true;
+            if (charCode !== 32 && charCode !== 9) {
+                hasShapeData = false;
+                app.executeCommand(3781);
+            }
+            dupl.selected = false;
+            var doubleSize, singleSize;
+            doubleSize = dupl.sourceRectAtTime(0, false).width;
+            if (charCode !== 32 && charCode !== 9) {
+                textDocument.text = ch;
+            } else {
+                textDocument.text = 'ii';
+            }
+            textProp.setValue(textDocument);
+            singleSize = dupl.sourceRectAtTime(0, false).width;
+            charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
+            shapeLayer = getOutlinesLayer(comp);
+            charData.data = {};
+            if (charCode !== 32 && charCode !== 9) {
+                $.__bodymovin.bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
+                while(charData.data.shapes.length > 1) {
+                    charData.data.shapes.pop();
+                }
+                lLen = charData.data.shapes[0].it.length;
+                for (l = 0; l < lLen; l += 1) {
+                    var ks = charData.data.shapes[0].it[l].ks;
+                    if (ks) {
+                        var k, kLen = ks.k.i.length;
+                        /*for (k = 0; k < kLen; k += 1) {
+                            ks.k.i[k][0] += ks.k.v[k][0];
+                            ks.k.i[k][1] += ks.k.v[k][1];
+                            ks.k.o[k][0] += ks.k.v[k][0];
+                            ks.k.o[k][1] += ks.k.v[k][1];
+                        }*/
+                    } else {
+                        charData.data.shapes[0].it.splice(l, 1);
+                        l -= 1;
+                        lLen -= 1;
+                    }
                 }
             }
-        }
 
 
 
 
-        if(shapeLayer && shapeLayer.containingComp) {
-            shapeLayer.selected = false;
-            shapeLayer.remove();
+            if(shapeLayer && shapeLayer.containingComp) {
+                shapeLayer.selected = false;
+                shapeLayer.remove();
+            }
+        } catch(err) {
+            bm_eventDispatcher.alert('Character could not be created: ' + ch); 
         }
     }
     
@@ -228,9 +233,20 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                     currentFont = font;
                     createNewChar(layerInfo, textDocument, '[]', {});
                 }
-                var l, lLen;
+                var l, lLen, ch;
                 for (j = 0; j < jLen; j += 1) {
-                    var ch = text.substr(j, 1);
+                    var charCode = text.charCodeAt(j);
+                    if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+                        charCode = text.charCodeAt(j + 1);
+                        if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
+                            ch = text.substr(j, 2);
+                            ++j;
+                        } else {
+                            ch = text.substr(j, 1);
+                        }
+                    } else {
+                        ch = text.substr(j, 1);
+                    }
                     var charData = addChar(ch, fontSize, font, fontStyle);
                     if (charData !== false) {
                         createNewChar(layerInfo, textDocument, ch, charData);
