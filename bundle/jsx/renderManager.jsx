@@ -164,9 +164,21 @@ $.__bodymovin.bm_renderManager = (function () {
         createLayers(comp, exportData.layers, exportData.fr, true);
         exportExtraComps(exportData);
         exportCompMarkers(exportData, comp);
+        exportMotionBlur(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
         app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
+    }
+
+    function exportMotionBlur(exportData, comp) {
+        if (comp.motionBlur && shouldIncludeNotSupportedProperties()) {
+            exportData.mb = {
+              sa : comp.shutterAngle,
+              sp : comp.shutterPhase,
+              spf: comp.motionBlurSamplesPerFrame,
+              asl: comp.motionBlurAdaptiveSampleLimit
+            };
+        }
     }
 
     function exportCompMarkers(exportData, comp) {
