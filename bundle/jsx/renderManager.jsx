@@ -71,7 +71,7 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
     
-    function createLayers(comp, layers, framerate, deepTraversing) {
+    function createLayers(comp, layers, framerate, exportMarkers, deepTraversing) {
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
@@ -104,6 +104,12 @@ $.__bodymovin.bm_renderManager = (function () {
                     delete layerData.tt;
                 }
             }
+            
+            if(layerInfo.property("Marker") && layerInfo.property("Marker").numKeys >= 1) {
+                markerProperty = layerInfo.property("Marker");
+                addMarkerProperty(markerProperty, framerate, exportMarkers)
+            }
+
             layers.push(layerData);
             pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate});
             prevLayerData = layerData;
@@ -120,7 +126,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 currentExportedComps.push(layerData.compId);
                 if(deepTraversing){
                     layerData.layers = [];
-                    createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing);
+                    createLayers(layerInfo.source, layerData.layers, framerate, exportMarkers, deepTraversing);
                 }
             }
         }
@@ -161,7 +167,8 @@ $.__bodymovin.bm_renderManager = (function () {
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
         ob.renderData.firstFrame = exportData.ip * comp.frameRate;
-        createLayers(comp, exportData.layers, exportData.fr, true);
+        createLayers(comp, exportData.layers, exportData.fr, exportData.markers, true);
+        alert('finished creating layrs')
         exportExtraComps(exportData);
         exportCompMarkers(exportData, comp);
         exportMotionBlur(exportData, comp);
@@ -181,20 +188,21 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
 
+    function addMarkerProperty(markerProperty, framerate, markersList) {
+        var len = markerProperty.numKeys, markerElement;
+        for (i = 0; i < len; i += 1) {
+            markerData = {};
+            markerElement = markerProperty.keyValue(i + 1);
+            markerData.tm = markerProperty.keyTime(i + 1) * framerate;
+            markerData.cm = markerElement.comment;
+            markerData.dr = markerElement.duration * framerate;
+            markersList.push(markerData);
+        }
+    }
+
     function exportCompMarkers(exportData, comp) {
-        
         if(comp.markerProperty && comp.markerProperty.numKeys >= 1) {
-            var markerProperty = comp.markerProperty;
-            var markersList = exportData.markers;
-            var len = markerProperty.numKeys, markerElement;
-            for (i = 0; i < len; i += 1) {
-                markerData = {};
-                markerElement = markerProperty.keyValue(i + 1);
-                markerData.tm = markerProperty.keyTime(i + 1) * exportData.fr;
-                markerData.cm = markerElement.comment;
-                markerData.dr = markerElement.duration * exportData.fr;
-                markersList.push(markerData);
-            }
+            addMarkerProperty(comp.markerProperty, exportData.fr, exportData.markers)
         }
     }
 
@@ -221,7 +229,7 @@ $.__bodymovin.bm_renderManager = (function () {
                         w: comp.width,
                         h: comp.height
                     };
-                    createLayers(comp, compData.layers, exportData.fr, false);
+                    createLayers(comp, compData.layers, exportData.fr, exportData.markers, false);
                     exportData.comps.push(compData);
                 }
             }
