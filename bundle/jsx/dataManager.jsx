@@ -1,11 +1,9 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_downloadManager, File*/
+/*global bm_eventDispatcher, bm_generalUtils, bm_downloadManager, File, $*/
 
 $.__bodymovin.bm_dataManager = (function () {
-    'use strict';
     var ob = {};
     var animationSegments;
-    var segmentCount = 0;
     var _endCallback;
     var _destinationPath;
     var JSON = $.__bodymovin.JSON;
@@ -100,7 +98,6 @@ $.__bodymovin.bm_dataManager = (function () {
                         currentPeriod = {
                             layers: []
                         };
-                        segmentCount += 1;
                     }
                     var randomId = bm_generalUtils.random(10);
                     layers[i].id = randomId;
@@ -194,11 +191,11 @@ $.__bodymovin.bm_dataManager = (function () {
         _destinationPath = destinationPath;
         deleteExtraParams(data, config);
         separateComps(data.layers, data.comps);
-        var dataFile, segmentPath, s, string;
+        var dataFile, segmentPath, string, filePathName;
         if (config.segmented) {
             splitAnimation(data, config.segmentedTime);
             var i, len = animationSegments.length;
-            var filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
+            filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
             filePathName = filePathName.substr(0, filePathName.lastIndexOf('.'));
             for (i = 0; i < len; i += 1) {
                 segmentPath = destinationPath.substr(0, destinationPath.lastIndexOf('/') + 1);
@@ -238,7 +235,7 @@ $.__bodymovin.bm_dataManager = (function () {
             } else {
                 demoStr = demoStr.replace('__[[RENDERER]]__', "svg");
             }
-            var filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
+            filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
             var demoDestinationPath = destinationPath.replace(filePathName,'demo.html');
             var demoFile = new File(demoDestinationPath);
             demoFile.open('w', 'TEXT', '????');
@@ -266,7 +263,6 @@ $.__bodymovin.bm_dataManager = (function () {
             bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
         }
         animationSegments = [];
-        segmentCount = 0;
         if(config.avd) {
             exportAVDVersion(data);
         } else {

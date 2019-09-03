@@ -78,10 +78,6 @@ $.__bodymovin.bm_compsManager = (function () {
         }
         bm_eventDispatcher.sendEvent('bm:compositions:list', compositions);
     }
-    
-    function complete() {
-        bm_eventDispatcher.sendEvent('bm:render:complete', currentComposition.id);
-    }
 
     function renderComposition(compositionData) {
         ob.cancelled = false;
