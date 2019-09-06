@@ -1,12 +1,14 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app*/
+/*global layerElement, bm_generalUtils, bm_eventDispatcher, $, RQItemStatus, bm_renderManager, bm_compsManager, File, app*/
 $.__bodymovin.bm_sourceHelper = (function () {
     'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
-    var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
+    var compSources = [], imageSources = [], fonts = []
+    , currentExportingImage, assetsArray, folder, currentCompID
+    , originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
     var temporaryFolder;
     var queue, playSound, autoSave, canEditPrefs = true;
@@ -148,20 +150,203 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         temporaryFolder.remove();
     }
+
+    //// IMAGE SEQUENCE FUNCTIONS
+
+    var sequenceSources = [], sequenceSourcesStills = []
+    var currentExportingImageSequenceIndex = 0;
+    var sequenceSourcesStillsCount = 0;
+    var currentStillIndex = 0;
+    var currentSequenceTotalFrames = 0;
+    var sequenceCount = 0;
+    var helperSequenceComp = null;
+
+    function searchSequenceSource(item) {
+        var i = 0, len = sequenceSources.length;
+        while (i < len) {
+            if (sequenceSources[i].source === item.source) {
+                return sequenceSources[i].id;
+            }
+            i += 1;
+        }
+        return false;
+    }
+
+    function addSequenceSource(item) {
+        var sequenceSource = {
+            source: item.source,
+            id: 'sequence_' + sequenceCount++,
+        }
+        sequenceSources.push(sequenceSource);
+        return sequenceSource.id;
+    }
+
+    function addImageSequenceStills(source, totalFrames) {
+
+        var i = 0;
+        var sequenceRange = []
+        for(i = 0; i < totalFrames; i += 1) {
+            sequenceRange.push('imgSeq_' + sequenceSourcesStillsCount++)
+        }
+
+        var sequenceStills = {
+            totalFrames: totalFrames,
+            source: source,
+            name: source.name,
+            source_name: source.name,
+            range: sequenceRange,
+            width: source.width,
+            height: source.height,
+            
+        }
+        sequenceSourcesStills.push(sequenceStills);
+        sequenceSourcesStillsCount += totalFrames;
+        return sequenceStills.range;
+    }
+
+    function getSequenceSourceBySource(source) {
+        var i = 0, len = sequenceSources.length;
+        while (i < len) {
+            if (sequenceSources[i].source === source) {
+                return sequenceSources[i].id;
+            }
+            i += 1;
+        }
+    }
+
+    function saveNextStillInSequence() {
+
+        if (currentStillIndex === currentSequenceTotalFrames) {
+            currentExportingImageSequenceIndex += 1;
+            helperSequenceComp.remove();
+            saveNextImageSequence();
+            return;
+        }
+
+        var currentSourceData = sequenceSourcesStills[currentExportingImageSequenceIndex];
+        var totalFrames = currentSourceData.totalFrames;
+
+        bm_eventDispatcher.sendEvent('bm:render:update', 
+            {
+                type: 'update', 
+                message: 'Exporting sequence: ' + currentSourceData.name,
+                compId: currentCompID,
+                progress: currentStillIndex / totalFrames
+            }
+        );
+        var imageName = originalNamesFlag ? 
+            formatImageName(currentSourceData.source_name) 
+            : 
+            'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex + '.png';
+
+        currentSavingAsset = {
+            id: currentSourceData.range[currentStillIndex],
+            w: currentSourceData.width,
+            h: currentSourceData.height,
+            t: 'seq',
+            u: 'images/',
+            p: imageName,
+            e: 0
+        }
+        assetsArray.push(currentSavingAsset);
+
+        var file = new File(temporaryFolder.absoluteURI + '/' + imageName);
+
+        // Overwrite any existing file.
+        if (file.exists) {
+            file.remove();
+        }
+
+        helperSequenceComp.workAreaStart = currentStillIndex / currentSourceData.source.frameRate;
+        helperSequenceComp.workAreaDuration = 1 / currentSourceData.source.frameRate;
+
+        // Add composition item to render queue and set to render.
+        var item = app.project.renderQueue.items.add(helperSequenceComp);
+        item.render = true;
+
+        // Set output parameters.
+        // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
+        var outputModule = item.outputModule(1);
+        outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
+        outputModule.file = file;
+
+        // Set cleanup.
+        item.onStatusChanged = function() {
+            if (item.status === RQItemStatus.DONE) {
+                // Due to an apparent bug, "00000" is appended to the file extension.
+                // NOTE: This appears to be related to the "File Template" setting's
+                //       frame number parameter ('[#####]').
+                //       However, attempts to fix this by setting the "File Template"
+                //       and/or "File Name" parameter of the output module's "Output
+                //       File Info" setting had no effect.
+                // NOTE: Also tried setting output module's "Use Comp Frame Number"
+                //       setting to false.
+                // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
+
+                var imgIndex = currentStillIndex.toString();
+                while(imgIndex.length < 5) {
+                    imgIndex = '0' + imgIndex;
+                }
+
+                var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + imgIndex);
+                if (bug.exists) {
+                    bug.rename(imageName);
+                }
+
+                bm_eventDispatcher.sendEvent('bm:image:process', {
+                    path: temporaryFolder.fsName + '/' + imageName, 
+                    should_compress: bm_renderManager.shouldCompressImages(), 
+                    compression_rate: bm_renderManager.getCompressionQuality()/100,
+                    should_encode_images: bm_renderManager.shouldEncodeImages()
+                })
+            }
+        };
+
+        // Render.
+        app.project.renderQueue.render();
+        
+    }
+
+    function saveSequence() {
+        var currentSourceData = sequenceSourcesStills[currentExportingImageSequenceIndex];
+        currentStillIndex = 0;
+        currentSequenceTotalFrames = currentSourceData.totalFrames;
+        var frameRate = currentSourceData.source.frameRate;
+
+        helperSequenceComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSourceData.width), Math.max(4, currentSourceData.height), 1, (currentSourceData.totalFrames + 1) / frameRate, frameRate);
+        helperSequenceComp.layers.add(currentSourceData.source);
+        saveNextStillInSequence();
+
+    }
+
+    function saveNextImageSequence() {
+        if (currentExportingImageSequenceIndex === sequenceSourcesStills.length) {
+            finishImageSave();
+        } else {
+            saveSequence();
+        }
+    }
+
+    //// IMAGE SEQUENCE FUNCTIONS END
+
+    function finishImageSave() {
+
+        saveFilesToFolder();
+        restoreRenderQueue(queue);
+
+        if(canEditPrefs) {
+            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);   
+        }
+        bm_renderManager.imagesReady();
+    }
     
     function saveNextImage() {
         if (bm_compsManager.cancelled) {
             return;
         }
         if (currentExportingImage === imageSources.length) {
-            saveFilesToFolder();
-            restoreRenderQueue(queue);
-
-            if(canEditPrefs) {
-                app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-                app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);   
-            }
-            bm_renderManager.imagesReady();
+            saveNextImageSequence();
             return;
         }
         var currentSourceData = imageSources[currentExportingImage];
@@ -237,8 +422,13 @@ $.__bodymovin.bm_sourceHelper = (function () {
             currentSavingAsset.u = '';
             currentSavingAsset.e = 1;
         }
-        currentExportingImage += 1;
-        saveNextImage();
+        if(currentSavingAsset.t === 'seq') {
+            currentStillIndex += 1;
+            saveNextStillInSequence();
+        } else {
+            currentExportingImage += 1;
+            saveNextImage();
+        }
     }
     
     function renderQueueIsBusy() {
@@ -269,7 +459,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function exportImages(path, assets, compId, _originalNamesFlag) {
-        if (imageSources.length === 0 || bm_renderManager.shouldSkipImages()) {
+        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0) || bm_renderManager.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }
@@ -281,6 +471,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         originalNamesFlag = _originalNamesFlag;
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting images', compId: currentCompID, progress: 0});
         currentExportingImage = 0;
+        currentExportingImageSequenceIndex = 0;
         var file = new File(path);
         folder = file.parent;
         folder.changePath('images/');
@@ -331,8 +522,12 @@ $.__bodymovin.bm_sourceHelper = (function () {
     function reset() {
         compSources.length = 0;
         imageSources.length = 0;
+        sequenceSources.length = 0;
+        sequenceSourcesStills.length = 0;
         fonts.length = 0;
         imageCount = 0;
+        sequenceCount = 0;
+        sequenceSourcesStillsCount = 0;
         imageName = 0;
     }
     
@@ -340,6 +535,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
         imageProcessed: imageProcessed,
         checkCompSource: checkCompSource,
         checkImageSource: checkImageSource,
+        searchSequenceSource: searchSequenceSource,
+        addSequenceSource: addSequenceSource,
+        addImageSequenceStills: addImageSequenceStills,
+        getSequenceSourceBySource: getSequenceSourceBySource,
         setCompSourceId: setCompSourceId,
         exportImages : exportImages,
         addFont : addFont,

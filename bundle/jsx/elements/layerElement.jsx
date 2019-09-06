@@ -14,6 +14,7 @@ $.__bodymovin.bm_layerElement = (function () {
     var bm_layerStylesHelper = $.__bodymovin.bm_layerStylesHelper;
     var bm_cameraHelper = $.__bodymovin.bm_cameraHelper;
     var bm_textHelper = $.__bodymovin.bm_textHelper;
+    var bm_imageSeqHelper = $.__bodymovin.bm_imageSeqHelper;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
 
     var completeCallback;
@@ -23,6 +24,7 @@ $.__bodymovin.bm_layerElement = (function () {
     function prepareLayer(layerInfo, ind) {
         var layerData = {};
         var layerType = getLayerType(layerInfo);
+
         if (layerType === layerTypes.audio || layerType === layerTypes.light || layerType === layerTypes.adjustment || layerType === layerTypes.pholderStill || layerType === layerTypes.pholderVideo) {
             layerData.isValid = false;
             layerData.render = false;
@@ -97,7 +99,7 @@ $.__bodymovin.bm_layerElement = (function () {
         var layerType = layerData.ty;
         var sourceId;
         if (layerType === layerTypes.precomp) {
-            sourceId = bm_sourceHelper.checkCompSource(layerInfo, layerType);
+            sourceId = bm_sourceHelper.checkCompSource(layerInfo);
             if (sourceId !== false) {
                 layerData.refId = sourceId;
             } else {
@@ -109,6 +111,14 @@ $.__bodymovin.bm_layerElement = (function () {
             }
         } else if (layerType === layerTypes.still) {
             layerData.refId = bm_sourceHelper.checkImageSource(layerInfo);
+        } else if (layerType === layerTypes.imageSeq) {
+            sourceId = bm_sourceHelper.searchSequenceSource(layerInfo);
+            layerData.refId = sourceId;
+            if (!sourceId) {
+                sourceId = bm_sourceHelper.addSequenceSource(layerInfo);
+                layerData.refId = sourceId;
+                layerData.compId = sourceId;
+            }
         }
     }
     
@@ -147,6 +157,8 @@ $.__bodymovin.bm_layerElement = (function () {
         } else if (lType === layerTypes.precomp) {
             layerData.w = layerInfo.width;
             layerData.h = layerInfo.height;
+        } else if (lType === layerTypes.imageSeq) {
+            bm_imageSeqHelper.exportStills(layerInfo, layerData, frameRate);
         } else if (lType === layerTypes.camera) {
             bm_cameraHelper.exportCamera(layerInfo, layerData, frameRate);
         }

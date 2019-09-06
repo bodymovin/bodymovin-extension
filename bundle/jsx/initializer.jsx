@@ -30,6 +30,7 @@ $.evalFile(extensionPath + 'utils/ProjectParser.jsx');
 $.evalFile(extensionPath + 'utils/markerHelper.jsx');
 $.evalFile(extensionPath + 'utils/textAnimatorHelper.jsx');
 $.evalFile(extensionPath + 'utils/textHelper.jsx');
+$.evalFile(extensionPath + 'utils/imageSeqHelper.jsx');
 $.evalFile(extensionPath + 'helpers/boundingBox.jsx');
 $.evalFile(extensionPath + 'helpers/layerResolver.jsx');
 $.evalFile(extensionPath + 'helpers/blendModes.jsx');
