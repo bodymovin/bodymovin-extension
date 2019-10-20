@@ -250,9 +250,6 @@ $.__bodymovin.bm_renderManager = (function () {
     }
     
     function clearNames(layers) {
-        if (hasExpressionsFlag) {
-            return;
-        }
         var i, len = layers.length;
         for (i = 0; i < len; i += 1) {
             layers[i].nm = null;
@@ -260,8 +257,21 @@ $.__bodymovin.bm_renderManager = (function () {
             if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 clearNames(layers[i].layers);
             }
+            if (layers[i].shapes) {
+                clearShapeNames(layers[i].shapes)
+            }
         }
-        
+    }
+
+    function clearShapeNames(shapes) {
+        var i, len = shapes.length;
+        for (i = 0; i < len; i += 1) {
+            shapes[i].nm = null;
+            delete shapes[i].nm;
+            if (shapes[i].it) {
+                clearShapeNames(shapes[i].it)
+            }            
+        }
     }
     
     function removeExtraData() {
@@ -387,7 +397,8 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function shouldSkipDefaultProperties() {
-        return currentCompSettings.skip_default_properties;
+        return true;
+        //return currentCompSettings.skip_default_properties;
     }
 
     function shouldIncludeNotSupportedProperties() {

@@ -323,12 +323,12 @@ loop:
                     error = 'Composition should not include any Texts';
                     break;
                 }
-                if (layers[i].hasMask === true || layers[i].masksProperties != null) {
-                    error = 'Composition should not include any Masks';
+                if (layers[i].ty === 9) {
+                    error = 'Composition should not include any Videos';
                     break;
                 }
-                if (layers[i].tt != null) {
-                    error = 'Composition should not include any Mattes';
+                if (layers[i].hasMask === true || layers[i].masksProperties != null) {
+                    error = 'Composition should not include any Masks';
                     break;
                 }
                 if (layers[i].ao === 1) {
@@ -364,18 +364,22 @@ loop:
         var string = JSON.stringify(data);
         string = string.replace(/\n/g, '');
 
-        var frameRate = data.fr;
-        var totalFrames = data.op - data.ip;
-
         var error = null;
 
+        var frameRate = data.fr;
+        if (frameRate != 30.0 && frameRate != 60.0) {
+            error = 'Composition framerate must be exactly 30 or 60 FPS';
+        }
+
+        var totalFrames = data.op - data.ip;
+
         var duration = totalFrames / frameRate;
-        if (duration > 3.0) {
+        if (error == null && duration > 3.0) {
             error = 'Composition duration must be not greater than 3 seconds';
         }
 
-        if (error == null && (data.w != 512 || data.h != 512)) {
-            error = 'Composition dimensions should be exactly 512x512px';
+        if (error == null && !((data.w == 100 && data.h == 100) || (data.w == 512 && data.h >= 512 && data.h <= 832 && data.h % 16 == 0) || (data.h == 512 && data.w >= 512 && data.w <= 832 && data.w % 16 == 0))) {
+           error = 'Composition dimensions should be exactly 512x512px (or 100x100px for sticker set thumbnail)';
         }
 
         if (error == null && data.ddd != null && data.ddd != 0) {
