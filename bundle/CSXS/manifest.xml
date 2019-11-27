@@ -6,8 +6,8 @@
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-            <Host Name="AEFT" Version="[13.0,17.9]" Port="8093" />
-            <Host Name="AEFX" Version="[13.0,17.9]" Port="8093" />
+            <Host Name="AEFT" Version="[13.0,99.9]" Port="8093" />
+            <Host Name="AEFX" Version="[13.0,99.9]" Port="8093" />
 
             <!-- Illustrator -->
             <!-- <Host Name="ILST" Version="[18.0,18.9]" />-->
