@@ -7,39 +7,13 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var ob = {};
     
-    function exportTextSelector(layerInfo, frameRate, stretch) {
-        var ob = {};
-        var i, len;
-        var selectorProperty;
-        
-        var property, propertyName;
-        len = layerInfo.numProperties;
-        var selectorType = -1;
-        for (i = 0; i < len; i += 1) {
-            propertyName = layerInfo.property(i + 1).matchName;
-            if (propertyName === 'ADBE Text Selector') {
-                selectorType = 0;
-                selectorProperty = layerInfo.property('ADBE Text Selector');
-                break;
-            } else if (propertyName === 'ADBE Text Expressible Selector') {
-                selectorType = 1;
-                selectorProperty = layerInfo.property('ADBE Text Expressible Selector');
-                break;
-            }
-        }
-        
-        if(!selectorProperty) {
-            selectorType = -1;
-        } else {
-            len = selectorProperty.numProperties;
-        }
-        /*for (i = 0; i < len; i += 1) {
-            //bm_eventDispatcher.log(selectorProperty.property(i + 1).matchName);
-        }*/
-        
-        
-        if (selectorType === 0) {
-            
+    function exportTextSelectors(layerInfo, frameRate, stretch) {
+        var selectors = [];
+
+        function exportSelector(selectorProperty) {
+            if (!selectorProperty) return;
+
+            var ob = {};
             var advancedProperty = selectorProperty.property('ADBE Text Range Advanced');
             ob.t = 0;
             ob.xe = bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Levels Max Ease'), frameRate, stretch);
@@ -71,26 +45,52 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
                 }
             }
             ob.r = rangeUnits;
-        } else if (selectorType === 1) {
+
+            selectors.push(ob);
+        }
+
+        function exportExpressibleSelector(selectorProperty) {
+            if (!selectorProperty) return;
+
+            var ob = {};
             ob.t = 1;
             ob.b = selectorProperty.property('ADBE Text Range Type2').value;
             var amount = selectorProperty.property('ADBE Text Expressible Amount');
             bm_expressionHelper.checkExpression(amount, ob);
             //bm_eventDispatcher.log(ob.x);
-        } else if (selectorType === -1) {
-            ob.t = 0;
-            ob.xe = {k:0}
-            ob.ne = {k:0}
-            ob.a = {k:100}
-            ob.b = 1
-            ob.b = 0
-            ob.sh = 0
-            ob.s = {k:0}
-            ob.e = {k:100}
-            ob.o = {k:0}
-            //bm_eventDispatcher.log(ob.x);
+
+            selectors.push(ob);
         }
-        return ob;
+
+        var len = layerInfo.numProperties;
+        for (var i = 0; i < len; i += 1) {
+            var prop = layerInfo.property(i + 1);
+            var propertyName = prop.matchName;
+            if (propertyName === 'ADBE Text Selector') {
+                exportSelector(prop);
+            } else if (propertyName === 'ADBE Text Expressible Selector') {
+                exportExpressibleSelector(prop);
+            }
+        }
+
+        if (selectors.length == 0) {
+            // Always export a full range selector, when no explicit selectors are present.
+            selectors.push({
+                t : 0,
+                xe: {k:0},
+                ne: {k:0},
+                a : {k:100},
+                b : 1,
+                sh: 0,
+                s : {k:0},
+                e : {k:100},
+                o : {k:0}
+            });
+        }
+
+        var export_array = selectors.length > 1 && $.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties();
+
+        return export_array ? selectors : selectors[0];
     }
     
     function exportAnimationSelector(layerInfo, frameRate, stretch) {
@@ -179,7 +179,7 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
         for (i = 0; i < len; i += 1) {
             switch (layerInfo.property(i + 1).matchName) {
             case "ADBE Text Selectors":
-                ob.s = exportTextSelector(layerInfo.property(i + 1), frameRate, stretch);
+                ob.s = exportTextSelectors(layerInfo.property(i + 1), frameRate, stretch);
                 break;
             case "ADBE Text Animator Properties":
                 ob.a = exportAnimationSelector(layerInfo.property(i + 1), frameRate, stretch);
