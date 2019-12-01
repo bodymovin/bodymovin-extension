@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var watch = require('gulp-watch');
 var htmlreplace = require('gulp-html-replace');
 var eventstream = require("event-stream");
-var gulpSequence = require('gulp-sequence');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
@@ -21,8 +20,6 @@ gulp.task('copy-extension', function() {
     gulp.src(extensionSource+'/**/*')
         .pipe(gulp.dest(extensionDestination));
 });
-
-gulp.task('copy-extension-bundle', gulpSequence('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-renderManager','copy-debug'))
 
 gulp.task('copy-all', function() {
     return gulp.src(extensionSource+'/**/*')
@@ -90,7 +87,7 @@ gulp.task('build-demo-data', function() {
 });
 
 
-gulp.task('replace-demo-data',['build-demo-data'], function() {
+gulp.task('replace-demo-data', gulp.series(['build-demo-data'], function() {
     //htmlreplace;
     return gulp.src('bundle/assets/player/demo.html')
         .pipe(htmlreplace({
@@ -100,4 +97,6 @@ gulp.task('replace-demo-data',['build-demo-data'], function() {
             }
         }))
         .pipe(gulp.dest('build/assets/player/'));
-});
+}));
+
+gulp.task('copy-extension-bundle', gulp.series('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-renderManager','copy-debug'))
