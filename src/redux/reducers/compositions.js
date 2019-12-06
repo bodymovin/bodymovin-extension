@@ -1,4 +1,5 @@
 import actionTypes from '../actions/actionTypes'
+import ExportModes from '../../helpers/ExportModes'
 
 let initialState = {
 	list: [],
@@ -38,6 +39,7 @@ let defaultComposition = {
         export_old_format: false,
         skip_default_properties: false,
         not_supported_properties: false,
+        export_mode: ExportModes.STANDARD,
     }
   }
 
@@ -402,6 +404,29 @@ function applySettingsFromCache(state, action) {
   return newState
 }
 
+function updateExportMode(state, action) {
+  let newItem = {...state.items[state.current]}
+  let newSettings = {...newItem.settings}
+  if (action.exportMode === ExportModes.STANDALONE) {
+    if(newItem.destination) {
+      if(newSettings.standalone){
+        newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
+        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
+      } else {
+        newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+      }
+    }
+  }
+  newSettings.export_mode = action.exportMode
+  newItem.settings = newSettings
+  let newItems = {...state.items}
+  newItems[state.current] = newItem
+  let newState = {...state}
+  newState.items = newItems
+  return newState
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -433,6 +458,8 @@ export default function compositions(state = initialState, action) {
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:
       return applySettingsFromCache(state, action)
+    case actionTypes.SETTINGS_EXPORT_MODE_UPDATED:
+      return updateExportMode(state, action)
     default:
       return state
   }

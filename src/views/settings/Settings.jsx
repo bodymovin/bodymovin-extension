@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsExportMode from './SettingsExportMode'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
@@ -292,6 +293,7 @@ class Settings extends React.PureComponent {
               description='Exports animation and player bundled in a single file'
               toggleItem={this.toggleStandalone}
               active={this.props.settings ? this.props.settings.standalone : false}  />
+            <SettingsExportMode/>
             <SettingsListItem 
               title='Demo'
               description='Exports an html for local preview'
@@ -351,7 +353,7 @@ const mapDispatchToProps = {
   goToComps: goToComps,
   toggleSettingsValue: toggleSettingsValue,
   updateSettingsValue: updateSettingsValue,
-  toggleExtraComp: toggleExtraComp
+  toggleExtraComp: toggleExtraComp,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)

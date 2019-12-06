@@ -130,6 +130,14 @@ function applySettingsFromCache(settings, allComps) {
 	}
 }
 
+function handleExportMode(exportMode) {
+	console.log('handleExportMode', actionTypes.SETTINGS_EXPORT_MODE_UPDATED)
+	return {
+		type: actionTypes.SETTINGS_EXPORT_MODE_UPDATED,
+		exportMode,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -150,4 +158,5 @@ export {
 	applySettings,
 	applySettingsFromCache,
 	applySettingsToSelectedComps,
+	handleExportMode,
 }
