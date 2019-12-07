@@ -1,9 +1,18 @@
 import { call, put, take, select, fork, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
-import {getProjectFromLocalStorage, saveProjectToLocalStorage, savePathsToLocalStorage, getPathsFromLocalStorage} from '../../helpers/localStorageHelper'
-import {getVersionFromExtension} from '../../helpers/CompositionsProvider'
+import {
+	getProjectFromLocalStorage, 
+	saveProjectToLocalStorage, 
+	savePathsToLocalStorage, 
+	getPathsFromLocalStorage,
+} from '../../helpers/localStorageHelper'
+import {
+	loadFileData
+} from '../../helpers/FileLoader'
+import {getVersionFromExtension, setLottiePaths} from '../../helpers/CompositionsProvider'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
+import LottieVersions from '../../helpers/LottieVersions'
 
 function *projectGetStoredData(action) {
 	try{
@@ -47,6 +56,12 @@ function *saveStoredData() {
 			actions.SETTINGS_TOGGLE_EXTRA_COMP, 
 			actions.SETTINGS_CANCEL,
 			actions.SETTINGS_EXPORT_MODE_UPDATED,
+			actions.SETTINGS_BANNER_WIDTH_UPDATED,
+			actions.SETTINGS_BANNER_HEIGHT_UPDATED,
+			actions.SETTINGS_BANNER_ORIGIN_UPDATED,
+			actions.SETTINGS_BANNER_VERSION_UPDATED,
+			actions.SETTINGS_BANNER_LIBRARY_PATH_UPDATED,
+			actions.SETTINGS_BANNER_RENDERER_UPDATED,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
@@ -61,10 +76,22 @@ function *savePathsData() {
 	}
 }
 
+function *getLottieFilesSizes() {
+	let i = 0
+	while (i < LottieVersions.length) {
+		const lottieData = LottieVersions[i] 
+		const fileData = yield call(loadFileData, `assets/player/${lottieData.local}` )
+		lottieData.fileSize = Math.round(fileData.length / 100) / 10 + ' Kb'
+		i += 1
+	}
+	setLottiePaths(LottieVersions)
+}
+
 export default [
   takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
-  takeEvery(actions.PATHS_GET, getPaths),
-  takeEvery(actions.PATHS_GET, getVersion),
+  takeEvery([actions.APP_INITIALIZED], getPaths),
+  takeEvery([actions.APP_INITIALIZED], getVersion),
+  takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
   fork(saveStoredData),
   fork(savePathsData)
 ]

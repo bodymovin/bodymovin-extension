@@ -4,6 +4,7 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import bodymovin2Avd from 'bodymovin-to-avd'
+import ExportModes from './ExportModes'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -171,21 +172,33 @@ function getCompositions() {
 	return prom
 }
 
+function setLottiePaths(paths) {
+	return new Promise(function(resolve, reject){
+		extensionLoader.then(function(){
+			
+			var eScript = '$.__bodymovin.bm_bannerExporter.setLottiePaths(' + JSON.stringify(paths) + ')';
+			csInterface.evalScript(eScript);
+			resolve();
+		})
+	})
+}
+
 function getDestinationPath(comp, alternatePath) {
 	let destinationPath = ''
-	if(comp.absoluteURI) {
+	if(comp.absoluteURI) { 
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
 		alternatePath = alternatePath.split('\\').join('\\\\')
-		if(comp.settings.standalone) {
+		if(comp.settings.export_mode === ExportModes.STANDALONE) {
 			alternatePath += 'data.js'
 		} else {
 			alternatePath += 'data.json'
 		}
 		destinationPath = alternatePath
 	}
+	var isStandalone = comp.settings.export_mode === ExportModes.STANDALONE
 	extensionLoader.then(function(){
-		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
+		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + isStandalone + ')'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve, reject){
@@ -290,6 +303,23 @@ function imageProcessed(result) {
 	})
 }
 
+var getFileData = function(path) { 
+	return new Promise(function(resolve, reject){
+
+		function onFileData(ev) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			csInterface.removeEventListener('bm:application:file', onFileData)
+			resolve(data)
+		}
+
+		csInterface.addEventListener('bm:application:file', onFileData)
+		extensionLoader.then(function(){
+			var eScript = '$.__bodymovin.bm_projectManager.getFileData("' + path + '")';
+		    csInterface.evalScript(eScript);
+		})
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -301,5 +331,7 @@ export {
 	goToFolder,
 	getVersionFromExtension,
 	imageProcessed,
-	saveAVD
+	saveAVD,
+	getFileData,
+	setLottiePaths,
 }

@@ -9,7 +9,7 @@ import {applySettingsFromCache} from '../actions/compositionActions'
 
 function *getCSCompositions(action) {
 	while(true) {
-		yield take(actions.COMPOSITIONS_GET_COMPS)
+		yield take([actions.COMPOSITIONS_GET_COMPS, actions.APP_INITIALIZED, actions.APP_FOCUSED])
 		yield call(getCompositions)
 	}
 }

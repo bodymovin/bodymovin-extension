@@ -131,10 +131,51 @@ function applySettingsFromCache(settings, allComps) {
 }
 
 function handleExportMode(exportMode) {
-	console.log('handleExportMode', actionTypes.SETTINGS_EXPORT_MODE_UPDATED)
 	return {
 		type: actionTypes.SETTINGS_EXPORT_MODE_UPDATED,
 		exportMode,
+	}
+}
+
+function handleBannerWidthChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_WIDTH_UPDATED,
+		value,
+	}
+}
+
+function handleBannerHeightChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_HEIGHT_UPDATED,
+		value,
+	}
+}
+
+function handleBannerVersionChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_VERSION_UPDATED,
+		value,
+	}
+}
+
+function handleBannerOriginChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED,
+		value,
+	}
+}
+
+function handleBannerLibraryPathChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LIBRARY_PATH_UPDATED,
+		value,
+	}
+}
+
+function lottieBannerRendererUpdated(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_RENDERER_UPDATED,
+		value,
 	}
 }
 
@@ -159,4 +200,10 @@ export {
 	applySettingsFromCache,
 	applySettingsToSelectedComps,
 	handleExportMode,
+	handleBannerWidthChange,
+	handleBannerHeightChange,
+	handleBannerVersionChange,
+	handleBannerOriginChange,
+	handleBannerLibraryPathChange,
+	lottieBannerRendererUpdated,
 }

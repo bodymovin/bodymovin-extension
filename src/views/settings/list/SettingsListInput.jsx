@@ -5,7 +5,6 @@ import Variables from '../../../helpers/styles/variables'
 const styles = StyleSheet.create({
     wrapper: {
       width: '100%',
-      paddingTop: '10px',
       paddingBottom: '10px',
       minHeight: '40px',
       backgroundColor: Variables.colors.gray_darkest,
@@ -18,11 +17,6 @@ const styles = StyleSheet.create({
       padding: '4px 0',
       height: '100%',
       alignItems: 'end'
-    },
-    dropdown: {
-      flexGrow: 1,
-      flexShrink: 1,
-      width: '200px',
     },
     item: {
       backgroundColor:'transparent',
@@ -46,6 +40,9 @@ const styles = StyleSheet.create({
       fontSize: '12px',
       lineHeight: '14px'
     },
+    input: {
+      width: '100%',
+    },
     disabled: {
       opacity: .3
     },
@@ -67,33 +64,25 @@ class SettingsListItem extends React.PureComponent {
     this.props.onChange(ev.target.value)
   }
 
-	render(){ 
-		return (<li 
-			className={css(styles.wrapper)}>
+  render(){ 
+    return (<li 
+      className={css(styles.wrapper)}>
         <div className={css(styles.composition)}>
           <div className={css(styles.emptyColumn)}></div>
           <div className={css(styles.content)}>
-    				<div className={css(styles.item, styles.name)}>
+            <div className={css(styles.item, styles.name)}>
               <div className={css(styles['name--title'])}>{this.props.title}</div>
-              <select 
-                className={css(styles.dropdown)} 
+              <input 
+                className={css(styles['input'])}
+                value={this.props.value}
                 onChange={this.handleChange}
-                value={this.props.current}
-              >
-                {this.props.options.map(option => (
-                  <option 
-                    key={option.value} 
-                    value={option.value}
-                  >
-                    {option.text}
-                  </option>))}
-              </select>
+              />
             </div>
             <div title={this.props.description} className={css(styles['name--desc'])}>{this.props.description}</div>
-				  </div>
+          </div>
         </div>
-			</li>)
-	}
+      </li>)
+  }
 }
 
 export default SettingsListItem

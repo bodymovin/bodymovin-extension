@@ -5,17 +5,6 @@ function hideAlert() {
 		type: actionTypes.ALERT_HIDE
 	}
 }
-function getPaths() {
-	return {
-		type: actionTypes.PATHS_GET
-	}
-}
-
-function getVersion() {
-	return {
-		type: actionTypes.VERSION_GET
-	}
-}
 
 function versionFetched(version) {
 	return {
@@ -31,10 +20,22 @@ function appVersionFetched(version) {
 	}
 }
 
+function appInitialized() {
+	return {
+		type: actionTypes.APP_INITIALIZED,
+	}
+}
+
+function appFocused() {
+	return {
+		type: actionTypes.APP_FOCUSED,
+	}
+}
+
 export {
 	hideAlert,
-	getPaths,
-	getVersion,
 	versionFetched,
-	appVersionFetched
+	appVersionFetched,
+	appInitialized,
+	appFocused,
 }

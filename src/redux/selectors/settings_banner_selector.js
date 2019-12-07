@@ -8,14 +8,16 @@ const getCurrentComp = (state) => {
 	return state.compositions.current
 }
 
-const settingsExportModeSelector = createSelector(
+const settingsBannerSelector = createSelector(
   [getItems, getCurrentComp ],
   (items, current) => {
 
+  	const bannerSettings = items[current].settings.banner
+
   	return {
-  		export_mode: items[current] ? items[current].settings.export_mode : null,
+  		...bannerSettings,
   	}
   }
 )
 
-export default settingsExportModeSelector
+export default settingsBannerSelector

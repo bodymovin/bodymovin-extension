@@ -10,6 +10,8 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_downloadManager = $.__bodymovin.bm_downloadManager;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_bannerExporter = $.__bodymovin.bm_bannerExporter;
+    var bm_standardExporter = $.__bodymovin.bm_standardExporter;
     var layerTypes = $.__bodymovin.layerTypes;
     
     function addCompsToSegment(layers, comps, segmentComps) {
@@ -248,26 +250,32 @@ $.__bodymovin.bm_dataManager = (function () {
                 bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
             }
         }
-        if (config.standalone) {
-            var bodymovinJsStr = bm_downloadManager.getStandaloneData();
-            string = bodymovinJsStr.replace("\"__[ANIMATIONDATA]__\"",  string );
-            string = string.replace("\"__[STANDALONE]__\"", 'true');
-        }
-        
-        ////
-        try {
-            dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-            //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-            dataFile.close();
-        } catch (errr) {
-            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-        }
-        animationSegments = [];
-        if(config.avd) {
-            exportAVDVersion(data);
+        if (config.export_mode === 'banner') {
+            bm_bannerExporter.save(string, destinationPath, config, callback);
         } else {
-            _endCallback();
+            if (config.export_mode === 'standalone') {
+                var bodymovinJsStr = bm_downloadManager.getStandaloneData();
+                string = bodymovinJsStr.replace("\"__[ANIMATIONDATA]__\"",  string );
+                string = string.replace("\"__[STANDALONE]__\"", 'true');
+            }
+            try {
+                dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
+                //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
+                dataFile.close();
+            } catch (errr) {
+                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
+            }
+            animationSegments = [];
+            if(config.avd) {
+                exportAVDVersion(data);
+            } else {
+                _endCallback();
+            }
+
         }
+
+        ////
+        
     }
     
     ob.saveData = saveData;

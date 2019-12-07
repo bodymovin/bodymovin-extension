@@ -32,6 +32,7 @@ $.__bodymovin.bm_downloadManager = (function () {
         var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
         var folder = new Folder(extensionPath);
         folder = folder.parent;
+        bm_eventDispatcher.log('folder.absoluteURI:' + folder.absoluteURI)
         var bmFile = new File(folder.absoluteURI + '/assets/player/standalone.js');
         bmFile.open('r');
         var str = bmFile.read();
@@ -48,9 +49,20 @@ $.__bodymovin.bm_downloadManager = (function () {
         return str;
     }
     
+    function getTemplateData() {
+        var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
+        var folder = new Folder(extensionPath);
+        folder = folder.parent;
+        var bmFile = new File(folder.absoluteURI + '/assets/player/banner_template.html');
+        bmFile.open('r');
+        var str = bmFile.read();
+        return str;
+    }
+    
     ob.getPlayer = getPlayer;
     ob.getStandaloneData = getStandaloneData;
     ob.getDemoData = getDemoData;
+    ob.getTemplateData = getTemplateData;
 
     return ob;
 }());

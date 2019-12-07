@@ -88,13 +88,22 @@ $.__bodymovin.bm_projectManager = (function () {
             }
         }
     }
+
+    function getFileData(path) {
+        var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
+        var folder = new Folder(extensionPath);
+        folder = folder.parent;
+        var file = new File(folder.absoluteURI + '/' + path)
+        bm_eventDispatcher.sendEvent('bm:application:file', {path: folder.absoluteURI, length: file.length});
+    }
     
     var ob = {
         checkProject: checkProject,
         getCompositions: getCompositions,
         getCompositionById: getCompositionById,
         searchCommands: searchCommands,
-        getCommandID: getCommandID
+        getCommandID: getCommandID,
+        getFileData: getFileData, 
     };
     return ob;
 }());

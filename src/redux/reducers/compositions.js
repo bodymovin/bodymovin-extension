@@ -1,5 +1,7 @@
 import actionTypes from '../actions/actionTypes'
 import ExportModes from '../../helpers/ExportModes'
+import LottieVersions, {findLottieVersion} from '../../helpers/LottieVersions'
+import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
 
 let initialState = {
 	list: [],
@@ -40,6 +42,14 @@ let defaultComposition = {
         skip_default_properties: false,
         not_supported_properties: false,
         export_mode: ExportModes.STANDARD,
+        banner: {
+          lottie_origin: LottieLibraryOrigins.LOCAL,
+          lottie_path: 'https://',
+          lottie_library: LottieVersions[0].value,
+          lottie_renderer: 'svg',
+          width: '500',
+          height: '500',
+        }
     }
   }
 
@@ -267,7 +277,7 @@ function cancelSettings(state, action) {
   let newItems = {...state.items}
   let newItem = {...state.items[state.current]}
   newItem.settings = action.storedSettings
-  if(newItem.settings.standalone){
+  if(newItem.settings.export_mode === ExportModes.STANDALONE){
     newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
     newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
   } else {
@@ -283,23 +293,13 @@ function toggleSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
   if(action.name === 'extraComps') {
+
     let newExtraComps = {...newSettings.extraComps}
     newExtraComps.active = !newExtraComps.active
     newSettings.extraComps = newExtraComps
   } else {
     newSettings[action.name] = !newSettings[action.name]
-    if(action.name === 'standalone') {
-      if(newItem.destination) {
-        if(newSettings.standalone){
-          newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
-          newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
-        } else {
-          newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
-          newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
-        }
-      }
-    }
-  }
+  } 
   newItem.settings = newSettings
   let newItems = {...state.items}
   newItems[state.current] = newItem
@@ -400,22 +400,19 @@ function applySettingsFromCache(state, action) {
       }
     }
   }
-  console.log(newState)
   return newState
 }
 
 function updateExportMode(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
-  if (action.exportMode === ExportModes.STANDALONE) {
-    if(newItem.destination) {
-      if(newSettings.standalone){
-        newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
-        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
-      } else {
-        newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
-        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
-      }
+  if (newItem.destination) {
+    if (action.exportMode === ExportModes.STANDALONE) {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
+    } else {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
     }
   }
   newSettings.export_mode = action.exportMode
@@ -425,6 +422,45 @@ function updateExportMode(state, action) {
   let newState = {...state}
   newState.items = newItems
   return newState
+}
+
+function updateBanner(state, action) {
+  let newItem = {...state.items[state.current]}
+  let newSettings = {...newItem.settings}
+  const newBanner = {...newSettings.banner}
+  if (action.type === actionTypes.SETTINGS_BANNER_WIDTH_UPDATED) {
+    newBanner.width = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_HEIGHT_UPDATED) {
+    newBanner.height = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED) {
+    newBanner.lottie_origin = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) {
+    newBanner.lottie_library = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LIBRARY_PATH_UPDATED) {
+    newBanner.lottie_path = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_RENDERER_UPDATED) {
+    newBanner.lottie_renderer = action.value
+  }
+  if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
+    || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
+  {
+    if (newBanner.lottie_origin !== LottieLibraryOrigins.CUSTOM) {
+      const lottieVersion = findLottieVersion(newBanner.lottie_library)
+      if (!lottieVersion.renderers.includes(newBanner.lottie_renderer)) {
+        newBanner.lottie_renderer = lottieVersion.renderers[0]
+      }
+    }
+  }
+  newSettings.banner = newBanner
+  newItem.settings = newSettings
+  let newItems = {...state.items}
+  newItems[state.current] = newItem
+
+  return {
+    ...state,
+    items: newItems
+  }
+
 }
 
 export default function compositions(state = initialState, action) {
@@ -460,6 +496,13 @@ export default function compositions(state = initialState, action) {
       return applySettingsFromCache(state, action)
     case actionTypes.SETTINGS_EXPORT_MODE_UPDATED:
       return updateExportMode(state, action)
+    case actionTypes.SETTINGS_BANNER_WIDTH_UPDATED:
+    case actionTypes.SETTINGS_BANNER_HEIGHT_UPDATED:
+    case actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED:
+    case actionTypes.SETTINGS_BANNER_VERSION_UPDATED:
+    case actionTypes.SETTINGS_BANNER_LIBRARY_PATH_UPDATED:
+    case actionTypes.SETTINGS_BANNER_RENDERER_UPDATED:
+      return updateBanner(state, action)
     default:
       return state
   }

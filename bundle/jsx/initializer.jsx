@@ -14,6 +14,8 @@ $.evalFile(extensionPath + 'utils/expressions/reservedPropertiesHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressions/valueAssignmentHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressions/variableDeclarationHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressionHelper.jsx');
+$.evalFile(extensionPath + 'exporters/bannerExporter.jsx');
+$.evalFile(extensionPath + 'exporters/standardExporter.jsx');
 $.evalFile(extensionPath + 'esprima.jsx');
 $.evalFile(extensionPath + 'escodegen.jsx');
 $.evalFile(extensionPath + 'utils/bez.jsx');

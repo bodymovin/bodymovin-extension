@@ -1,3 +1,5 @@
+import {getFileData} from './CompositionsProvider'
+
 function loadBodymovinFileData(path) {
 	var reject, resolve
     var promise = new Promise(function(_resolve, _reject) {
@@ -22,3 +24,13 @@ function loadBodymovinFileData(path) {
 }
 
 export default loadBodymovinFileData
+
+async function loadFileData(path) {
+    const value = await getFileData(path)
+    return Promise.resolve(value)
+    
+}
+
+export {
+    loadFileData
+}

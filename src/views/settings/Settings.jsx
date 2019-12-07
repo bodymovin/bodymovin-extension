@@ -127,7 +127,6 @@ class Settings extends React.PureComponent {
     this.toggleGuideds = this.toggleValue.bind(this,'guideds')
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
     this.toggleSegmented = this.toggleValue.bind(this,'segmented')
-    this.toggleStandalone = this.toggleValue.bind(this,'standalone')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
@@ -260,6 +259,17 @@ class Settings extends React.PureComponent {
                 {this.getExtraComps()}
               </div>
             </li>}
+            <SettingsExportMode/>
+            <SettingsListItem 
+              title='Demo'
+              description='Exports an html for local preview'
+              toggleItem={this.toggleDemo}
+              active={this.props.settings ? this.props.settings.demo : false}  />
+            <SettingsListItem 
+              title='AVD'
+              description='Exports an xml for Androids Animated Vector Drawable'
+              toggleItem={this.toggleAVD}
+              active={this.props.settings ? this.props.settings.avd : false}  />
             <SettingsCollapsableItem 
               title={'Assets'}
               description={'Rasterized assets settings (jpg, png)'}
@@ -288,22 +298,6 @@ class Settings extends React.PureComponent {
                 toggleItem={this.toggleSkipImages}
                 active={this.props.settings ? this.props.settings.should_skip_images : false}  />
             </SettingsCollapsableItem>
-            <SettingsListItem 
-              title='Standalone'
-              description='Exports animation and player bundled in a single file'
-              toggleItem={this.toggleStandalone}
-              active={this.props.settings ? this.props.settings.standalone : false}  />
-            <SettingsExportMode/>
-            <SettingsListItem 
-              title='Demo'
-              description='Exports an html for local preview'
-              toggleItem={this.toggleDemo}
-              active={this.props.settings ? this.props.settings.demo : false}  />
-            <SettingsListItem 
-              title='AVD'
-              description='Exports an xml for Androids Animated Vector Drawable'
-              toggleItem={this.toggleAVD}
-              active={this.props.settings ? this.props.settings.avd : false}  />
             <SettingsCollapsableItem 
               title={'Advanced'}
               description={'Advanced export features'}

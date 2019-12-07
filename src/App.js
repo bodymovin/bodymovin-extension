@@ -10,8 +10,7 @@ import rootSaga from './redux/sagas'
 import './App.css';
 import './reset.css';
 import {setDispatcher} from './helpers/storeDispatcher'
-import {getCompositions} from './redux/actions/compositionActions'
-import {getPaths, getVersion} from './redux/actions/generalActions'
+import {appInitialized, appFocused} from './redux/actions/generalActions'
 
 const sagaMiddleware = createSagaMiddleware()
 
@@ -32,12 +31,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    store.dispatch(getCompositions())
     window.onfocus = function(){
-      store.dispatch(getCompositions())
+      store.dispatch(appFocused())
     }
-    store.dispatch(getPaths())
-    store.dispatch(getVersion())
+    store.dispatch(appInitialized())
   }
 
 
