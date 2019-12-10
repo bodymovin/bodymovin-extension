@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global app, bm_eventDispatcher */
+/*global app, bm_eventDispatcher, $, Folder */
 
 $.__bodymovin.bm_projectManager = (function () {
     'use strict';
@@ -96,6 +96,14 @@ $.__bodymovin.bm_projectManager = (function () {
         var file = new File(folder.absoluteURI + '/' + path)
         bm_eventDispatcher.sendEvent('bm:application:file', {path: folder.absoluteURI, length: file.length});
     }
+
+    function getFile(path) {
+        var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
+        var folder = new Folder(extensionPath);
+        folder = folder.parent;
+        var file = new File(folder.absoluteURI + '/' + path)
+        return file;
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -104,6 +112,7 @@ $.__bodymovin.bm_projectManager = (function () {
         searchCommands: searchCommands,
         getCommandID: getCommandID,
         getFileData: getFileData, 
+        getFile: getFile, 
     };
     return ob;
 }());

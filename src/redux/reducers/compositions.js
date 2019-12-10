@@ -49,6 +49,7 @@ let defaultComposition = {
           lottie_renderer: 'svg',
           width: '500',
           height: '500',
+          click_tag: 'https://',
         }
     }
   }
@@ -440,6 +441,8 @@ function updateBanner(state, action) {
     newBanner.lottie_path = action.value
   } else if (action.type === actionTypes.SETTINGS_BANNER_RENDERER_UPDATED) {
     newBanner.lottie_renderer = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED) {
+    newBanner.click_tag = action.value
   }
   if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
     || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
@@ -502,6 +505,7 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_VERSION_UPDATED:
     case actionTypes.SETTINGS_BANNER_LIBRARY_PATH_UPDATED:
     case actionTypes.SETTINGS_BANNER_RENDERER_UPDATED:
+    case actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED:
       return updateBanner(state, action)
     default:
       return state

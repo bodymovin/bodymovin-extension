@@ -179,6 +179,13 @@ function lottieBannerRendererUpdated(value) {
 	}
 }
 
+function lottieBannerClickTagUpdated(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED,
+		value,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -206,4 +213,5 @@ export {
 	handleBannerOriginChange,
 	handleBannerLibraryPathChange,
 	lottieBannerRendererUpdated,
+	lottieBannerClickTagUpdated,
 }

@@ -8,6 +8,7 @@ import {
   handleBannerOriginChange,
   handleBannerLibraryPathChange,
   lottieBannerRendererUpdated,
+  lottieBannerClickTagUpdated,
 } from '../../redux/actions/compositionActions'
 import settings_banner_selector from '../../redux/selectors/settings_banner_selector'
 import SettingsListItem from './list/SettingsListItem'
@@ -15,6 +16,8 @@ import SettingsListInput from './list/SettingsListInput'
 import SettingsListDropdown from './list/SettingsListDropdown'
 import LottieVersions from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
+// import jszip from 'jszip'
+// console.log('jszip', jszip)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -125,6 +128,12 @@ class SettingsBanner extends React.PureComponent {
             current={this.props.lottie_renderer}
             options={this.buildRendererOptions()}  
           />
+          <SettingsListInput
+            title='Set Click tag value'
+            description='Set the Click tag value'
+            value={this.props.click_tag}
+            onChange={this.props.handleBannerLibraryClickTagChange}
+          />
           <SettingsListItem 
             title='Width'
             description='Banner Width'
@@ -158,6 +167,7 @@ const mapDispatchToProps = {
   handleBannerVersionChange: handleBannerVersionChange,
   handleBannerOriginChange: handleBannerOriginChange,
   handleBannerLibraryPathChange: handleBannerLibraryPathChange,
+  handleBannerLibraryClickTagChange: lottieBannerClickTagUpdated,
   lottieBannerRendererUpdated: lottieBannerRendererUpdated,
 }
 

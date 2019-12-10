@@ -62,6 +62,7 @@ function *saveStoredData() {
 			actions.SETTINGS_BANNER_VERSION_UPDATED,
 			actions.SETTINGS_BANNER_LIBRARY_PATH_UPDATED,
 			actions.SETTINGS_BANNER_RENDERER_UPDATED,
+			actions.SETTINGS_BANNER_CLICK_TAG_UPDATED,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
