@@ -32,7 +32,6 @@ $.__bodymovin.bm_downloadManager = (function () {
         var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
         var folder = new Folder(extensionPath);
         folder = folder.parent;
-        bm_eventDispatcher.log('folder.absoluteURI:' + folder.absoluteURI)
         var bmFile = new File(folder.absoluteURI + '/assets/player/standalone.js');
         bmFile.open('r');
         var str = bmFile.read();

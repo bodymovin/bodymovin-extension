@@ -21,14 +21,16 @@ $.__bodymovin.bm_compsManager = (function () {
         if (!compData) {
             compData = {
                 id: comp.id,
-                name: comp.name
+                name: comp.name,
+                width: comp.width, 
+                height: comp.height
             };
         }
         
         return compData;
     }
     
-    function searchCompositionDestination(id, absoluteURI, standalone) {
+    function searchCompositionDestination(id, absoluteURI, extension) {
         /*var i = 0, len = compositions.length, compData;
         while (i < len) {
             if (compositions[i].id === id) {
@@ -42,8 +44,9 @@ $.__bodymovin.bm_compsManager = (function () {
             uri = absoluteURI;
         } else {
             uri = Folder.desktop.absoluteURI + '/data';
-            uri += standalone ? '.js' : '.json';
+            uri += '.' + extension;
         }
+
         var f = new File(uri);
         var saveFileData = f.saveDlg();
         if (saveFileData !== null) {

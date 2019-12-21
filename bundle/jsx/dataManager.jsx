@@ -224,8 +224,6 @@ $.__bodymovin.bm_dataManager = (function () {
             delete data.comps;
         }
         dataFile = new File(destinationPath);
-        dataFile.open('w', 'TEXT', '????');
-        dataFile.encoding = 'UTF-8';
         string = JSON.stringify(data);
         string = string.replace(/\n/g, '');
         ////
@@ -259,6 +257,8 @@ $.__bodymovin.bm_dataManager = (function () {
                 string = string.replace("\"__[STANDALONE]__\"", 'true');
             }
             try {
+                dataFile.open('w', 'TEXT', '????');
+                dataFile.encoding = 'UTF-8';
                 dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
                 //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
                 dataFile.close();

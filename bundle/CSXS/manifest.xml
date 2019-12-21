@@ -3,6 +3,7 @@
 		ExtensionBundleName="bodymovin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
 		<Extension Id="com.bodymovin.bodymovin" Version="4.5.5" />
+		<Extension Id="com.bodymovin.bodymovin_server" Version="4.5.5" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -70,6 +71,32 @@
 						<Icon Type="DarkNormal">./icons/iconDarkNormal.png</Icon>
 						<Icon Type="DarkRollOver">./icons/iconDarkRollover.png</Icon>
 					</Icons>					
+				</UI>
+			</DispatchInfo>
+		</Extension>
+		<Extension Id="com.bodymovin.bodymovin_server">
+			<DispatchInfo >
+				<Resources>
+				<MainPath>./localserver.html</MainPath>
+                <CEFCommandLine>
+                    <Parameter>--enable-nodejs</Parameter>
+                    <Parameter>--mixed-context</Parameter>
+                    <Parameter>--enable-media-stream</Parameter>
+                </CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>false</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Custom</Type>
+					<Geometry>
+						<Size>
+							<Height>0</Height>
+							<Width>0</Width>
+						</Size>
+                        
+					</Geometry>
+					<Icons />				
 				</UI>
 			</DispatchInfo>
 		</Extension>

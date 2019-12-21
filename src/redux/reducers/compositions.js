@@ -47,9 +47,13 @@ let defaultComposition = {
           lottie_path: 'https://',
           lottie_library: LottieVersions[0].value,
           lottie_renderer: 'svg',
-          width: '500',
-          height: '500',
+          width: 500,
+          height: 500,
+          use_original_sizes: true,
+          original_width: 500,
+          original_height: 500,
           click_tag: 'https://',
+          zip_files: true,
         }
     }
   }
@@ -71,7 +75,21 @@ function toggleComposition(state, action) {
 }
 
 function createComp(comp) {
-  return {...defaultComposition, id:comp.id, name: comp.name, settings: {...defaultComposition.settings}}
+  return {
+    ...defaultComposition, 
+    id: comp.id, 
+    name: comp.name, 
+    settings: {
+      ...defaultComposition.settings,
+      banner: {
+        ...defaultComposition.settings.banner,
+        width: comp.width || 500,
+        height: comp.height || 500,
+        original_width: comp.width || 500,
+        original_height: comp.height || 500,
+      }
+    }
+  }
 }
 
 function setStoredData(state, action) {
@@ -147,6 +165,21 @@ function searchRemovedExtraComps(settings, compositions) {
   return newSettings
 }
 
+function updateCompsSize(settings, composition) {
+  if(settings.banner.original_width !== composition.width
+    || settings.banner.original_height !== composition.height) {
+    return {
+      ...settings,
+        banner: {
+          ...settings.banner,
+          original_width: composition.width,
+          original_height: composition.height,
+        }
+    }
+  }
+  return settings
+}
+
 function addCompositions(state, action) {
   let newItems = {...state.items}
   let listChanged: false
@@ -169,6 +202,7 @@ function addCompositions(state, action) {
         itemsChanged = true
       }
       let settings = searchRemovedExtraComps(itemData.settings, action.compositions)
+      settings = updateCompsSize(itemData.settings, item)
       if(settings !== itemData.settings){
         itemData = {...state.items[item.id], ...{settings: settings}}
         newItems[item.id] = itemData
@@ -278,12 +312,20 @@ function cancelSettings(state, action) {
   let newItems = {...state.items}
   let newItem = {...state.items[state.current]}
   newItem.settings = action.storedSettings
-  if(newItem.settings.export_mode === ExportModes.STANDALONE){
+  if (newItem.settings.export_mode === ExportModes.STANDALONE){
     newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
     newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
-  } else {
+  } else if (newItem.settings.export_mode === ExportModes.STANDARD){
     newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
     newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+  } else {
+    if (newItem.settings.banner.zip_files) {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.zip')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.zip')
+    } else {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+    }
   }
   newItems[state.current] = newItem
   newState.items = newItems
@@ -407,16 +449,24 @@ function applySettingsFromCache(state, action) {
 function updateExportMode(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
+  newSettings.export_mode = action.exportMode
   if (newItem.destination) {
-    if (action.exportMode === ExportModes.STANDALONE) {
+    if (newSettings.export_mode === ExportModes.STANDALONE) {
       newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
       newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
-    } else {
+    } else if (newSettings.export_mode === ExportModes.STANDARD){
       newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
       newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+    } else {
+      if (newSettings.banner.zip_files) {
+        newItem.destination = newItem.destination.replace(extensionReplacer,'.zip')
+        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.zip')
+      } else {
+        newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+        newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+      }
     }
   }
-  newSettings.export_mode = action.exportMode
   newItem.settings = newSettings
   let newItems = {...state.items}
   newItems[state.current] = newItem
@@ -443,6 +493,10 @@ function updateBanner(state, action) {
     newBanner.lottie_renderer = action.value
   } else if (action.type === actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED) {
     newBanner.click_tag = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED) {
+    newBanner.zip_files = !newBanner.zip_files
+  } else if (action.type === actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED) {
+    newBanner.use_original_sizes = !newBanner.use_original_sizes
   }
   if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
     || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
@@ -458,6 +512,16 @@ function updateBanner(state, action) {
   newItem.settings = newSettings
   let newItems = {...state.items}
   newItems[state.current] = newItem
+
+  if (action.type === actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED) {
+    if (newBanner.zip_files) {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.zip')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.zip')
+    } else {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+    }
+  }
 
   return {
     ...state,
@@ -506,6 +570,8 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_LIBRARY_PATH_UPDATED:
     case actionTypes.SETTINGS_BANNER_RENDERER_UPDATED:
     case actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED:
+    case actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED:
+    case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
       return updateBanner(state, action)
     default:
       return state

@@ -281,7 +281,7 @@ class Settings extends React.PureComponent {
                 active={this.props.settings ? this.props.settings.original_names : false}  />
               {this.props.canCompressAssets && <SettingsListItem 
                 title='Enable compression'
-                description='Set compression ratio for jpgs (0-100)'
+                description='Set compression ratio for image layers (0-100)'
                 toggleItem={this.toggleCompressImages}
                 needsInput={true} 
                 inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 

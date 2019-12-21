@@ -5,6 +5,7 @@ import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import bodymovin2Avd from 'bodymovin-to-avd'
 import ExportModes from './ExportModes'
+import jszip from 'jszip'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -162,6 +163,31 @@ csInterface.addEventListener('app:version', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:zip:banner', function (ev) {
+	if(ev.data) {
+		const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		////
+		const folderFilesData = window.cep.fs.readdir(data.folderPath)
+		if(folderFilesData.err === 0) {
+			const folderFiles = folderFilesData.data
+			var zip = new jszip();
+			folderFiles.forEach(fileName => {
+				var content = window.cep.fs.readFile(data.folderPath + '/' + fileName)
+				if (content.err === 0) {
+					zip.file(fileName, content.data);
+				}
+				window.__fs.unlink(data.folderPath + '/' + fileName, ()=>{})
+			})
+			zip.generateNodeStream({type:'nodebuffer',streamFiles:true, compression: "DEFLATE"})
+			.pipe(window.__fs.createWriteStream(data.destinationPath))
+			.on('finish', function () {
+				window.__fs.rmdir(data.folderPath)
+			});
+		}
+	} else {
+	}
+})
+
 function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
@@ -191,14 +217,21 @@ function getDestinationPath(comp, alternatePath) {
 		alternatePath = alternatePath.split('\\').join('\\\\')
 		if(comp.settings.export_mode === ExportModes.STANDALONE) {
 			alternatePath += 'data.js'
+		} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+			alternatePath += 'data.zip'
 		} else {
 			alternatePath += 'data.json'
 		}
 		destinationPath = alternatePath
 	}
-	var isStandalone = comp.settings.export_mode === ExportModes.STANDALONE
+	var extension = 'json'
+	if (comp.settings.export_mode === ExportModes.STANDALONE) {
+		extension = 'js'
+	} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+		extension = 'zip'
+	}
 	extensionLoader.then(function(){
-		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + isStandalone + ')'
+		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '","' + extension + '")'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve, reject){
@@ -291,7 +324,7 @@ function getVersionFromExtension() {
 function imageProcessed(result) {
 	extensionLoader.then(function(){
 		var eScript = '$.__bodymovin.bm_sourceHelper.imageProcessed(';
-		eScript += result.compressed;
+		eScript += result.extension === 'jpg';
 		eScript += ',';
 		if(result.encoded) {
 			eScript += '"' + result.encoded_data + '"'
@@ -320,6 +353,10 @@ var getFileData = function(path) {
 	})
 }
 
+function initializeServer() {
+	csInterface.requestOpenExtension("com.bodymovin.bodymovin_server", "");
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -334,4 +371,5 @@ export {
 	saveAVD,
 	getFileData,
 	setLottiePaths,
+	initializeServer,
 }

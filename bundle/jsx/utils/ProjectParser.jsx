@@ -4,6 +4,7 @@ $.__bodymovin.bm_ProjectHelper = (function(){
 
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var JSON = $.__bodymovin.JSON;
     var fileString = '';
 
     var ob = {};
@@ -56,7 +57,7 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         var i = 0, len = shapeNavigation.length;
         while(i<len){
             var encoded = unescape(encodeURIComponent(shapeNavigation[i]))
-            navigationIndex = fileString.indexOf(encoded,navigationIndex);
+            navigationIndex = fileString.indexOf(encoded,navigationIndex + 1);
             i += 1;
         }
         gradientIndex = fileString.indexOf('ADBE Vector Grad Colors',navigationIndex);
@@ -71,6 +72,9 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         if(limitIndex === -1){
             limitIndex = Number.MAX_VALUE;
         }
+        bm_eventDispatcher.log('gradFillIndex' + gradFillIndex)
+        bm_eventDispatcher.log('gradStrokeIndex' + gradStrokeIndex)
+        bm_eventDispatcher.log('limitIndex' + limitIndex)
         //var regEx = /<prop.map>/g;
         var currentKey = 0, keyframes = [], hasOpacity = false, maxOpacities = 0, maxColors = 0;
         while(currentKey < numKeys){
@@ -160,6 +164,8 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             currentKey += 1;
         }
         i = 0;
+        bm_eventDispatcher.log('length: ' + keyframes.length)
+        bm_eventDispatcher.log(JSON.stringify(keyframes))
         var arr, arrayLength,count,lastValue,offsetValue, mergedKeys = [], mergedArr, j;
         while(i<numKeys){
             mergedArr = [];

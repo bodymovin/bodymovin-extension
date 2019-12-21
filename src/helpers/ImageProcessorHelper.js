@@ -123,6 +123,12 @@ function difference(image1, image2) {
 	}
 }
 
+function compressPng() {
+	return new Promise(() => {
+
+	})
+}
+
 function compressAndSave(image, data) {
 	return new Promise(function(res, rej){
 		var opaque_image = image.clone().opaque()
@@ -146,7 +152,10 @@ function compressAndSave(image, data) {
 				rej()
 			})
 		} else {
-			rej()
+			compressPng()
+			.then(res({
+
+			}))
 		}
 	})
 }
@@ -179,6 +188,8 @@ function encode(image, data) {
 		getDrawnCanvas(image)
 		.then(convertCanvasToData)
 		.then(function(encoded_data){
+			console.log('encoded_data')
+			console.log(encoded_data)
 			res({
 				new_path: '',
 				encoded_data: encoded_data,
@@ -189,33 +200,115 @@ function encode(image, data) {
 	})
 }
 
-function processImage(actionData) {
+function compressImage(path, compression_rate) {
+	path = path.replace(/\\/g, '/')
+	return new Promise((resolve, reject) => {
+		fetch('http://localhost:3119/processImage/', 
+			{
+				method: 'post',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					path: encodeURIComponent(path),
+					compression: compression_rate
+				})
+			})
+		.then(async (response) => {
+			const jsonResponse = await response.json()
+			if (jsonResponse.status === 'error') {
+				resolve({
+					path,
+					extension: 'png',
+				})
+			} else {
+				setTimeout(() => {
+					resolve({
+						path: jsonResponse.path,
+						extension: jsonResponse.extension,
+					})
+				}, 1)
+			}
+		})
+		.catch((err) => {
+			console.log('ERROR', err)
+		})
+	})
+}
+
+function handleImageCompression(path, settings) {
+	if(settings.should_compress) {
+		return compressImage(path, settings.compression_rate)
+	} else {
+		return Promise.resolve({
+			path,
+			extension: 'png',
+		})
+	}
+}
+
+async function getEncodedFile(path) {
+	const encodedImageResponse = await fetch('http://localhost:3119/encode/', 
+	{
+		method: 'post',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			path: encodeURIComponent(path),
+		})
+	})
+	const jsonResponse = await encodedImageResponse.json()
+	console.log('jsonResponse', jsonResponse)
+	return jsonResponse.data
+
+}
+
+async function processImage(actionData) {
 
 	let path = actionData.path
 
-	return new Promise(function(res, rej){
-		loadImage(path)
-		.then(function (image) {
-			if(actionData.should_encode_images && actionData.should_compress) {
-				return compressAndEncode(image, actionData)
-			} else if(actionData.should_compress) {
-				return compressAndSave(image, actionData)
-			} else if(actionData.should_encode_images) {
-				return encode(image, actionData)
-			} else {
-				return Promise.reject()
-			}
-		})
-		.then(function(response){
-			res(response)
-		})
-		.catch(function(err){
-			res({
+	try {
+
+		if (!actionData.should_encode_images && !actionData.should_compress) {
+			return {
 				encoded: false,
 				compressed: false
-			})
-		})
-	})
+			}
+		}
+
+		const imageCompressedData = await handleImageCompression(path, actionData)
+
+		if (actionData.should_encode_images) {
+			const imagePath = imageCompressedData.extension === 'png' ? 
+				imageCompressedData.path
+				:
+				imageCompressedData.path.substr(0, imageCompressedData.path.lastIndexOf('.png')) + '.jpg'
+
+			let encodedImage = await getEncodedFile(imagePath)
+			encodedImage = `data:image/${imageCompressedData.extension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+			return {
+				encoded_data: encodedImage,
+				encoded: true,
+			}
+			// const image = await loadImage(imagePath)
+			// return await encode(image, actionData)
+		} else {
+			return {
+				new_path: imageCompressedData.path,
+				encoded: false,
+				compressed: true,
+				extension: imageCompressedData.extension
+			}
+		}
+	} catch(err) {
+		return {
+			encoded: false,
+			compressed: false
+		}
+	}
 }
 
 export default processImage

@@ -130,10 +130,13 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function saveFilesToFolder() {
+        bm_eventDispatcher.log('saveFilesToFolder')
         var i, len = assetsArray.length;
         var copyingFile;
         for(i = 0; i < len; i += 1) {
+            bm_eventDispatcher.log('saveFilesToFolder: ' + i);
             if(!assetsArray[i].e) {
+                bm_eventDispatcher.log('saveFilesToFolder: ' + temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
                 copyingFile = new File(temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
                 if(copyingFile.exists) {
                     if(!folder.exists) {
@@ -414,6 +417,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function imageProcessed(changedFlag, encoded_data) {
+        
+        //For now all images are pngs
         if(changedFlag) {
             currentSavingAsset.p = currentSavingAsset.p.replace(new RegExp('png' + '$'), 'jpg')
         }

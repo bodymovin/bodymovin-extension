@@ -9,7 +9,7 @@ import {
 import {
 	loadFileData
 } from '../../helpers/FileLoader'
-import {getVersionFromExtension, setLottiePaths} from '../../helpers/CompositionsProvider'
+import {getVersionFromExtension, setLottiePaths, initializeServer} from '../../helpers/CompositionsProvider'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import LottieVersions from '../../helpers/LottieVersions'
@@ -63,6 +63,9 @@ function *saveStoredData() {
 			actions.SETTINGS_BANNER_LIBRARY_PATH_UPDATED,
 			actions.SETTINGS_BANNER_RENDERER_UPDATED,
 			actions.SETTINGS_BANNER_CLICK_TAG_UPDATED,
+			actions.SETTINGS_BANNER_ZIP_FILES_UPDATED,
+			actions.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED,
+			actions.SETTINGS_APPLY_FROM_CACHE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
@@ -88,11 +91,16 @@ function *getLottieFilesSizes() {
 	setLottiePaths(LottieVersions)
 }
 
+function *start() {
+	yield call(initializeServer)
+}
+
 export default [
   takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
   takeEvery([actions.APP_INITIALIZED], getPaths),
   takeEvery([actions.APP_INITIALIZED], getVersion),
   takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
+  takeEvery([actions.APP_INITIALIZED], start),
   fork(saveStoredData),
   fork(savePathsData)
 ]

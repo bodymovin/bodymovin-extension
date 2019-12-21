@@ -186,6 +186,18 @@ function lottieBannerClickTagUpdated(value) {
 	}
 }
 
+function lottieBannerZipFilesUpdated() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED,
+	}
+}
+
+function lottieBannerCustomSizeFlagUpdated() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -214,4 +226,6 @@ export {
 	handleBannerLibraryPathChange,
 	lottieBannerRendererUpdated,
 	lottieBannerClickTagUpdated,
+	lottieBannerZipFilesUpdated,
+	lottieBannerCustomSizeFlagUpdated,
 }

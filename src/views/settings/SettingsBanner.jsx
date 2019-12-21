@@ -9,6 +9,8 @@ import {
   handleBannerLibraryPathChange,
   lottieBannerRendererUpdated,
   lottieBannerClickTagUpdated,
+  lottieBannerZipFilesUpdated,
+  lottieBannerCustomSizeFlagUpdated,
 } from '../../redux/actions/compositionActions'
 import settings_banner_selector from '../../redux/selectors/settings_banner_selector'
 import SettingsListItem from './list/SettingsListItem'
@@ -16,8 +18,6 @@ import SettingsListInput from './list/SettingsListInput'
 import SettingsListDropdown from './list/SettingsListDropdown'
 import LottieVersions from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
-// import jszip from 'jszip'
-// console.log('jszip', jszip)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -135,21 +135,35 @@ class SettingsBanner extends React.PureComponent {
             onChange={this.props.handleBannerLibraryClickTagChange}
           />
           <SettingsListItem 
-            title='Width'
-            description='Banner Width'
-            active={true} 
-            needsInput={true} 
-            inputValue={this.props.width} 
-            inputValueChange={this.handleBannerWidthChange} 
-          />
+            title='Use composition size'
+            description='Uncheck for setting custom banner width and height'
+            toggleItem={this.props.handleCustomSizeFlagChange}
+            active={this.props.use_original_sizes}  />
+          {!this.props.use_original_sizes && 
+            <span>
+              <SettingsListItem 
+                title='Width'
+                description='Banner Width'
+                active={true} 
+                needsInput={true} 
+                inputValue={this.props.width} 
+                inputValueChange={this.handleBannerWidthChange} 
+              />
+              <SettingsListItem 
+                title='Height'
+                description='Banner Height'
+                active={true} 
+                needsInput={true} 
+                inputValue={this.props.height} 
+                inputValueChange={this.handleBannerHeightChange} 
+              />
+            </span>
+          }
           <SettingsListItem 
-            title='Height'
-            description='Banner Height'
-            active={true} 
-            needsInput={true} 
-            inputValue={this.props.height} 
-            inputValueChange={this.handleBannerHeightChange} 
-          />
+            title='Zip Files'
+            description='Select if you want to zip banner files'
+            toggleItem={this.props.handleZipFilesChange}
+            active={this.props.zip_files}  />
 
         </ul>
       </div>
@@ -167,8 +181,10 @@ const mapDispatchToProps = {
   handleBannerVersionChange: handleBannerVersionChange,
   handleBannerOriginChange: handleBannerOriginChange,
   handleBannerLibraryPathChange: handleBannerLibraryPathChange,
-  handleBannerLibraryClickTagChange: lottieBannerClickTagUpdated,
   lottieBannerRendererUpdated: lottieBannerRendererUpdated,
+  handleBannerLibraryClickTagChange: lottieBannerClickTagUpdated,
+  handleCustomSizeFlagChange: lottieBannerCustomSizeFlagUpdated,
+  handleZipFilesChange: lottieBannerZipFilesUpdated,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsBanner)
