@@ -145,7 +145,6 @@ function compressAndSave(image, data) {
 				res({
 					new_path: new_path,
 					encoded: false,
-					compressed: true
 				})
 			})
 			.catch(function(err){
@@ -174,7 +173,6 @@ function compressAndEncode(image, data) {
 					new_path: '',
 					encoded_data: encoded_data,
 					encoded: true,
-					compressed: true
 				})
 			})
 		})
@@ -194,7 +192,6 @@ function encode(image, data) {
 				new_path: '',
 				encoded_data: encoded_data,
 				encoded: true,
-				compressed: false
 			})
 		})
 	})
@@ -275,7 +272,6 @@ async function processImage(actionData) {
 		if (!actionData.should_encode_images && !actionData.should_compress) {
 			return {
 				encoded: false,
-				compressed: false
 			}
 		}
 
@@ -292,6 +288,7 @@ async function processImage(actionData) {
 			return {
 				encoded_data: encodedImage,
 				encoded: true,
+				extension: imageCompressedData.extension
 			}
 			// const image = await loadImage(imagePath)
 			// return await encode(image, actionData)
@@ -299,14 +296,12 @@ async function processImage(actionData) {
 			return {
 				new_path: imageCompressedData.path,
 				encoded: false,
-				compressed: true,
 				extension: imageCompressedData.extension
 			}
 		}
 	} catch(err) {
 		return {
 			encoded: false,
-			compressed: false
 		}
 	}
 }

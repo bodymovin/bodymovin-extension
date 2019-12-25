@@ -7,12 +7,13 @@ const express = require('express')
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var PNG = require('pngjs').PNG;
+var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
+var ltf = new LottieToFlare()
 
 async function processImage(path, compression, hasTransparency) {
 	//C:\\Program Files\\Adobe\\Adobe After Effects 2020\\Support Files
 	// const files = await imagemin(['C:/Users/tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin/server/images/*.{jpg,png}'], {
 	const destinationPathFolder = path.substr(0, path.lastIndexOf('/') + 1);
-	const destinationFileName = path.substr(path.lastIndexOf('/') + 1);
 	const destinationFullPath = destinationPathFolder;
 	const plugins = []
 	if (hasTransparency) {
@@ -128,6 +129,29 @@ app.post('/processImage/', async function(req, res){
 				status: 'error',
 				err: error,
 				message: error.message,
+			});
+		}
+	} else {
+		res.send({
+			status: 'error',
+			message: 'missing params',
+		});
+	}
+});
+
+app.post('/convertToFlare/', async function(req, res){
+	if (req.body.animation) {
+		try {
+			const result = await ltf.convert(req.body.animation)
+			res.send({
+				status: 'success',
+				payload: result,
+			});
+		} catch(error) {
+			res.send({
+				status: 'error',
+				message: error.message,
+				error: error
 			});
 		}
 	} else {

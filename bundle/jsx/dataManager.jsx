@@ -3,7 +3,6 @@
 
 $.__bodymovin.bm_dataManager = (function () {
     var ob = {};
-    var animationSegments;
     var _endCallback;
     var _destinationPath;
     var JSON = $.__bodymovin.JSON;
@@ -12,115 +11,9 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_bannerExporter = $.__bodymovin.bm_bannerExporter;
     var bm_standardExporter = $.__bodymovin.bm_standardExporter;
+    var bm_demoExporter = $.__bodymovin.bm_demoExporter;
+    var bm_fileManager = $.__bodymovin.bm_fileManager;
     var layerTypes = $.__bodymovin.layerTypes;
-    
-    function addCompsToSegment(layers, comps, segmentComps) {
-        var i, len = layers.length, j, jLen;
-        for (i = 0; i < len; i += 1) {
-            if (layers[i].ty === layerTypes.precomp) {
-                j = 0;
-                jLen = comps.length;
-                while (j < jLen) {
-                    if (comps[j].id === layers[i].refId) {
-                        segmentComps.push(comps.splice(j, 1)[0]);
-                        addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-                        break;
-                    }
-                    j += 1;
-                }
-            }
-        }
-    }
-    
-    function splitAnimation(data, time) {
-        var comps = data.comps;
-        var layers = data.layers;
-        var frameRate = data.fr;
-        var totalFrames = data.op - data.ip;
-        var i, len = layers.length, j, jLen;
-        var currentSegment = time * frameRate;
-        var segmentLength = time * frameRate;
-        animationSegments = [];
-        var currentPeriod, segments, segmentComps;
-        for (i = 0; i < len; i += 1) {
-            if (layers[i].ip < currentSegment) {
-                if (layers[i].ty === layerTypes.precomp) {
-                    if (!segmentComps) {
-                        segmentComps = [];
-                    }
-                    j = 0;
-                    jLen = comps.length;
-                    while (j < jLen) {
-                        if (comps[j].id === layers[i].refId) {
-                            segmentComps.push(comps.splice(j, 1)[0]);
-                            addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-                            break;
-                        }
-                        j += 1;
-                    }
-                }
-            }
-        }
-        if (data.assets && segmentComps && segmentComps.length) {
-            data.assets = data.assets.concat(segmentComps);
-            if (data.comps) {
-                delete data.comps;
-            }
-        } else {
-            data.assets = segmentComps;
-        }
-        
-        var timeData;
-        
-        while (currentSegment < totalFrames) {
-            currentPeriod = null;
-            segmentComps = null;
-            for (i = 0; i < len; i += 1) {
-                if (layers[i].ip >= currentSegment && layers[i].ip < currentSegment + segmentLength) {
-                    if (!segments) {
-                        segments = [];
-                    }
-                    if (layers[i].ty === layerTypes.precomp) {
-                        if (!segmentComps) {
-                            segmentComps = [];
-                        }
-                        j = 0;
-                        jLen = comps.length;
-                        while (j < jLen) {
-                            if (comps[j].id === layers[i].refId) {
-                                segmentComps.push(comps.splice(j, 1)[0]);
-                                addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-                                break;
-                            }
-                            j += 1;
-                        }
-                    }
-                    if (!currentPeriod) {
-                        timeData = currentSegment / frameRate;
-                        currentPeriod = {
-                            layers: []
-                        };
-                    }
-                    var randomId = bm_generalUtils.random(10);
-                    layers[i].id = randomId;
-                    currentPeriod.layers.push(layers[i]);
-                    layers[i] = {
-                        id: randomId,
-                        ty: 99
-                    };
-                }
-            }
-            if (currentPeriod) {
-                currentPeriod.assets = segmentComps;
-                animationSegments.push(currentPeriod);
-                segments.push({
-                    time: timeData
-                });
-            }
-            currentSegment += segmentLength;
-        }
-        data.segments = segments;
-    }
     
     function separateComps(layers, comps) {
         var i, len = layers.length;
@@ -189,83 +82,46 @@ $.__bodymovin.bm_dataManager = (function () {
     }
     
     function saveData(data, destinationPath, config, callback) {
+
+        var destinationFile = new File(destinationPath);
+        var destinationFolder = destinationFile.parent;
+        var destinationFileName = destinationFile.name;
+        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+
         _endCallback = callback;
         _destinationPath = destinationPath;
         deleteExtraParams(data, config);
         separateComps(data.layers, data.comps);
-        var dataFile, segmentPath, string, filePathName;
-        if (config.segmented) {
-            splitAnimation(data, config.segmentedTime);
-            var i, len = animationSegments.length;
-            filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
-            filePathName = filePathName.substr(0, filePathName.lastIndexOf('.'));
-            for (i = 0; i < len; i += 1) {
-                segmentPath = destinationPath.substr(0, destinationPath.lastIndexOf('/') + 1);
-                segmentPath += filePathName + '_' + i + '.json';
-                dataFile = new File(segmentPath);
-                dataFile.open('w', 'TEXT', '????');
-                dataFile.encoding = 'UTF-8';
-                string = JSON.stringify(animationSegments[i]);
-                try {
-                    dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-                    //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-                    dataFile.close();
-                } catch (err) {
-                    bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-                }
-            }
-        } else if (data.comps) {
-            if (data.assets) {
-                data.assets = data.assets.concat(data.comps);
-            } else {
-                data.assets = data.comps;
-            }
-            data.comps = null;
-            delete data.comps;
-        }
+
+        var stringifiedData = JSON.stringify(data);
+        stringifiedData = stringifiedData.replace(/\n/g, '');
+        bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData);
+
+
+        ////
+        var dataFile, segmentPath, fullFilePathName, filePathName;
+        fullFilePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
+
+
+
+
+
         dataFile = new File(destinationPath);
-        string = JSON.stringify(data);
-        string = string.replace(/\n/g, '');
         ////
         if (config.demo) {
-            var demoStr = bm_downloadManager.getDemoData();
-            demoStr = demoStr.replace('"__[[ANIMATIONDATA]]__"', "" + string + "");
-            if(data.ddd) {
-                demoStr = demoStr.replace('__[[RENDERER]]__', "html");
-            } else {
-                demoStr = demoStr.replace('__[[RENDERER]]__', "svg");
-            }
-            filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
-            var demoDestinationPath = destinationPath.replace(filePathName,'demo.html');
-            var demoFile = new File(demoDestinationPath);
-            demoFile.open('w', 'TEXT', '????');
-            demoFile.encoding = 'UTF-8';
-            try {
-                demoFile.write(demoStr); //DO NOT ERASE, JSON UNFORMATTED
-                //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-                demoFile.close();
-            } catch (errr) {
-                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-            }
+            bm_demoExporter.save(destinationPath);
         }
-        if (config.export_mode === 'banner') {
-            bm_bannerExporter.save(string, destinationPath, config, callback);
+        if (config.export_mode === 'standard') {
+            bm_standardExporter.save(destinationPath, config);
+        } else if (config.export_mode === 'banner') {
+            bm_bannerExporter.save(destinationPath, config, callback);
         } else {
             if (config.export_mode === 'standalone') {
                 var bodymovinJsStr = bm_downloadManager.getStandaloneData();
-                string = bodymovinJsStr.replace("\"__[ANIMATIONDATA]__\"",  string );
-                string = string.replace("\"__[STANDALONE]__\"", 'true');
+                stringifiedData = bodymovinJsStr.replace("\"__[ANIMATIONDATA]__\"",  stringifiedData );
+                stringifiedData = stringifiedData.replace("\"__[STANDALONE]__\"", 'true');
             }
-            try {
-                dataFile.open('w', 'TEXT', '????');
-                dataFile.encoding = 'UTF-8';
-                dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-                //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-                dataFile.close();
-            } catch (errr) {
-                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-            }
-            animationSegments = [];
+            bm_fileManager.addFile(fullFilePathName, ['raw'], stringifiedData);
             if(config.avd) {
                 exportAVDVersion(data);
             } else {

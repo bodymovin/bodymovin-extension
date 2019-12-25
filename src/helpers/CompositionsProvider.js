@@ -163,27 +163,31 @@ csInterface.addEventListener('app:version', function (ev) {
 	}
 })
 
+function addDirToZip(zip, currentRelativePath, fullPath) {
+	let fileData = window.cep.fs.readFile(fullPath + currentRelativePath)
+	if(fileData.err === 0) {
+		zip.file(currentRelativePath, fileData.data);
+	} else {
+		fileData = window.cep.fs.readdir(fullPath + currentRelativePath)
+		if (fileData.err === 0) {
+			fileData.data.forEach(fileName => {
+				addDirToZip(zip, currentRelativePath + '/' + fileName, fullPath)
+			})
+		}
+		
+	}
+}
+
 csInterface.addEventListener('bm:zip:banner', function (ev) {
 	if(ev.data) {
 		const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-		////
-		const folderFilesData = window.cep.fs.readdir(data.folderPath)
-		if(folderFilesData.err === 0) {
-			const folderFiles = folderFilesData.data
-			var zip = new jszip();
-			folderFiles.forEach(fileName => {
-				var content = window.cep.fs.readFile(data.folderPath + '/' + fileName)
-				if (content.err === 0) {
-					zip.file(fileName, content.data);
-				}
-				window.__fs.unlink(data.folderPath + '/' + fileName, ()=>{})
-			})
-			zip.generateNodeStream({type:'nodebuffer',streamFiles:true, compression: "DEFLATE"})
-			.pipe(window.__fs.createWriteStream(data.destinationPath))
-			.on('finish', function () {
-				window.__fs.rmdir(data.folderPath)
-			});
-		}
+		var zip = new jszip();
+		addDirToZip(zip, '/', data.folderPath)
+		zip.generateNodeStream({type:'nodebuffer',streamFiles:true, compression: "DEFLATE"})
+		.pipe(window.__fs.createWriteStream(data.destinationPath))
+		.on('finish', function () {
+			csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFinished()');
+		});
 	} else {
 	}
 })

@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_compsManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager*/
+/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_compsManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager, Folder, $ */
 
 $.__bodymovin.bm_renderManager = (function () {
     'use strict';
@@ -10,6 +10,8 @@ $.__bodymovin.bm_renderManager = (function () {
     var layerTypes = $.__bodymovin.layerTypes;
     var bm_layerElement = $.__bodymovin.bm_layerElement;
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_fileManager = $.__bodymovin.bm_fileManager;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
@@ -125,8 +127,17 @@ $.__bodymovin.bm_renderManager = (function () {
             }
         }
     }
-    
+
     function render(comp, destination, fsDestination, compSettings) {
+
+        $.__bodymovin.bm_sourceHelper.reset();
+        $.__bodymovin.bm_textShapeHelper.reset();
+
+        if(!bm_fileManager.createTemporaryFolder()) {
+            return;
+        };
+
+        ////
         app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
         hasExpressionsFlag = false;
@@ -137,8 +148,6 @@ $.__bodymovin.bm_renderManager = (function () {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
         destinationPath = destination;
         fsDestinationPath = fsDestination;
-        $.__bodymovin.bm_sourceHelper.reset();
-        $.__bodymovin.bm_textShapeHelper.reset();
         bm_layerElement.reset();
         pendingLayers.length = 0;
         pendingComps.length = 0;
@@ -187,7 +196,8 @@ $.__bodymovin.bm_renderManager = (function () {
             var markerProperty = comp.markerProperty;
             var markersList = exportData.markers;
             var len = markerProperty.numKeys, markerElement;
-            for (i = 0; i < len; i += 1) {
+            var markerData;
+            for (var i = 0; i < len; i += 1) {
                 markerData = {};
                 markerElement = markerProperty.keyValue(i + 1);
                 markerData.tm = markerProperty.keyTime(i + 1) * exportData.fr;

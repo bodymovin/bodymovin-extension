@@ -1,14 +1,32 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_downloadManager, File, Folder, $*/
+/*global File, Folder, $*/
 
 $.__bodymovin.bm_bannerExporter = (function () {
 
 	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 	var bm_downloadManager = $.__bodymovin.bm_downloadManager;
+    var bm_fileManager = $.__bodymovin.bm_fileManager;
 	var bm_projectManager;
     var JSON = $.__bodymovin.JSON;
 	var ob = {};
 	var lottiePaths = []
+	var _callback;
+
+	function getJsonData(rawFiles) {
+		var i = 0, len = rawFiles.length;
+		while(i < len) {
+			if(rawFiles[i].name.indexOf('.json') !== -1) {
+				break;
+			}
+			i += 1;
+		}
+		var fileData = bm_fileManager.getFileById(rawFiles[i].id);
+		var jsonFile = fileData.file;
+		jsonFile.open('r');
+		var content = jsonFile.read();
+		jsonFile.close();
+		return content;
+	}
 
 	function getLottiePath(bannerConfig) {
 		var sourcePath = '';
@@ -33,7 +51,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		}
 	}
 
-	function createTemplate(config, filePathName, savingFolder) {
+	function createTemplate(config, filePathName) {
 		var bannerConfig = config.banner
 		var templateData = bm_downloadManager.getTemplateData()
 		var sizes = getSizes(bannerConfig)
@@ -46,89 +64,157 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		.replace(/__LOTTIE_SOURCE__/g, getLottiePath(bannerConfig))
 		.replace(/__FILE_PATH__/g, filePathName)
 
-		var dataFile = new File(savingFolder.fullName + '/index.html');
-		dataFile.open('w', 'TEXT', '????');
-		dataFile.encoding = 'UTF-8';
-		dataFile.write(templateData);
-		dataFile.close();
+		var indexFile = bm_fileManager.addFile('index.html', ['banner'], templateData)
+
+		return [indexFile];
+
+		// var dataFile = new File(savingFolder.fullName + '/index.html');
+		// dataFile.open('w', 'TEXT', '????');
+		// dataFile.encoding = 'UTF-8';
+		// dataFile.write(templateData);
+		// dataFile.close();
 
 	}
 
-	function includeAdditionalFiles(config, savingFolder) {
+	function includeLottiePlayer(bannerConfig) {
+		var i = 0, len = lottiePaths.length, sourcePath;
+		while ( i < len) {
+			if(lottiePaths[i].value === bannerConfig.lottie_library) {
+				sourcePath = lottiePaths[i][bannerConfig.lottie_origin];
+			}
+			i += 1;
+		}
+		var file = bm_projectManager.getFile('/assets/player/' + sourcePath)
+
+		var lottieFileData = bm_fileManager.createFile(sourcePath, ['banner'])
+
+		file.copy(lottieFileData.file.fsName);
+
+		return [lottieFileData];
+	}
+
+	function copyAssets() {
+
+		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+		var copiedFiles = [];
+
+		var i = 0, len = rawFiles.length;
+		// TODO improve this solution
+		while(i < len) {
+			if(rawFiles[i].name.indexOf('.json') === -1) {
+				var fileData = bm_fileManager.getFileById(rawFiles[i].id);
+				if (fileData) {
+					var file = fileData.file;
+					if(file.exists) {
+						var destinationFileData = bm_fileManager.createFile(fileData.name, ['banner', 'images'])
+						file.copy(destinationFileData.file.fsName)
+						copiedFiles.push(destinationFileData);
+					}
+				}
+			}
+			i += 1;
+		}
+
+		return copiedFiles;
+	}
+
+	function includeAdditionalFiles(config) {
+
+		var additionalFiles = [];
+
 		if (!bm_projectManager) {
 			bm_projectManager = $.__bodymovin.bm_projectManager;
 		}
 		var bannerConfig = config.banner
 		if (bannerConfig.lottie_origin === 'local') {
-			var i = 0, len = lottiePaths.length, sourcePath;
-			while ( i < len) {
-				if(lottiePaths[i].value === bannerConfig.lottie_library) {
-					sourcePath = lottiePaths[i][bannerConfig.lottie_origin];
-				}
-				i += 1;
-			}
-			// var file = bm_projectManager.getFile('/assets/player/lottie.js')
-			var file = bm_projectManager.getFile('/assets/player/' + sourcePath)
-
-
-			/*var i = 0, len = lottiePaths.length;
-			while ( i < len) {
-				if(lottiePaths[i].value === bannerConfig.lottie_library) {
-					sourcePath = lottiePaths[i][bannerConfig.lottie_origin];
-				}
-				i += 1;
-			}*/
-
-			var dataFile = new File(savingFolder.fullName + '/' + sourcePath);
-			
-			file.copy( dataFile )
+			additionalFiles = additionalFiles.concat(includeLottiePlayer(bannerConfig));
 		}
+		additionalFiles = additionalFiles.concat(copyAssets());
+
+		return additionalFiles;
 	}
 
-	function save(stringData, destinationPath, config, callback) {
+	function copyBannerFolder(destinationFolder) {
+		var bannerFiles = bm_fileManager.getFilesOnPath(['banner']);
+		var i, len = bannerFiles.length;
+		var j, jLen;
+		var copiedFile, copiedDestinationFolder, bannerFileData, bannerFile;
+		for (i = 0; i < len; i += 1) {
+			bannerFileData = bannerFiles[i];
+			bannerFile = bannerFileData.file;
+			jLen = bannerFileData.path.length;
+			j = 1;
+			copiedDestinationFolder = new Folder(destinationFolder.fsName);
+			while (j < jLen) {
+				copiedDestinationFolder.changePath(bannerFileData.path[j]);
+				if(!copiedDestinationFolder.exists) {
+					copiedDestinationFolder.create();
+				}
+				j += 1;
+			}
+			copiedFile = new File(copiedDestinationFolder.fsName);
+			copiedFile.changePath(bannerFileData.name);
+			bannerFile.copy(copiedFile.fsName);
+		}
+		_callback();
+	}
 
-		var bannerConfig = config.banner
-		var savingFolder
-		var destinationPathFolder = destinationPath.substr(0, destinationPath.lastIndexOf('/') + 1);
-		var destinationFolder = new Folder(destinationPathFolder)
+	function save(destinationPath, config, callback) {
+
+		_callback = callback;
+		var bannerFiles = [];
+
+		var originalDestinationFile = new File(destinationPath);
+		var destinationFileName = originalDestinationFile.name;
+        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+		var bannerDestinationFolder = new Folder(originalDestinationFile.parent);
+		bannerDestinationFolder.changePath('banner');
+		if (!bannerDestinationFolder.exists) {
+			bannerDestinationFolder.create();
+		}
+
+		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+
+		var animationStringData = getJsonData(rawFiles);
+
+		var bannerConfig = config.banner;
+
+
+		bannerFiles = bannerFiles.concat(createTemplate(config, destinationFileNameWithoutExtension + '.json'));
+		bannerFiles = bannerFiles.concat(includeAdditionalFiles(config));
+
+		var jsonFile =  bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['banner'], animationStringData);
+		bannerFiles.push(jsonFile);
+		
 		if (bannerConfig.zip_files) {
-			var tempFolderName = 'tmp_' + Math.random().toString().substr(2)
-			savingFolder = new Folder(Folder.temp.path + '/LottieTemp/' + tempFolderName)
+			var temporaryFolder = bm_fileManager.getTemporaryFolder();
+			var bannerFolder = new Folder(temporaryFolder.fsName);
+			bannerFolder.changePath('banner');
+			bm_eventDispatcher.sendEvent(
+				'bm:zip:banner', 
+				{
+					destinationPath: bannerDestinationFolder.fsName + '/' + destinationFileName, 
+					folderPath: bannerFolder.fsName
+				}
+			);
 		} else {
-			savingFolder = destinationFolder
+			copyBannerFolder(bannerDestinationFolder)
 		}
-
-		if (savingFolder.exists || savingFolder.create()) {
-
-			var filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
-			var jsonPathName = filePathName
-			if (bannerConfig.zip_files) {
-				jsonPathName = jsonPathName.replace('.zip', '.json')
-			}
-
-			createTemplate(config, jsonPathName, savingFolder)
-			includeAdditionalFiles(config, savingFolder)
-			var dataFile = new File(savingFolder.fullName + '/' + jsonPathName);
-			dataFile.open('w', 'TEXT', '????');
-			dataFile.encoding = 'UTF-8';
-			dataFile.write(stringData);
-			dataFile.close();
-
-			
-			if (bannerConfig.zip_files) {
-				bm_eventDispatcher.sendEvent('bm:zip:banner', {destinationPath: destinationFolder.fsName + '/' + filePathName, folderPath: savingFolder.fsName});
-			}
-			
-		}
-		callback();
 	}
 
 	function setLottiePaths(paths) {
 		lottiePaths = paths
 	}
 
+	function bannerFinished() {
+		if (_callback) {
+			_callback()
+		}
+	}
+
 	ob.save = save;
-	ob.setLottiePaths = setLottiePaths
+	ob.setLottiePaths = setLottiePaths;
+	ob.bannerFinished = bannerFinished;
     
     return ob;
 }());

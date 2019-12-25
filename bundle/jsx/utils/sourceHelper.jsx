@@ -5,12 +5,11 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_fileManager = $.__bodymovin.bm_fileManager;
     var compSources = [], imageSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
     , originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
-    var temporaryFolder;
     var queue, playSound, autoSave, canEditPrefs = true;
 
     function checkCompSource(item) {
@@ -34,7 +33,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     
     function checkImageSource(item) {
         var arr = imageSources;
-        var i = 0, len = arr.length, isRendered = false;
+        var i = 0, len = arr.length;
         while (i < len) {
             if (arr[i].source === item.source) {
                 return arr[i].id;
@@ -61,18 +60,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
             i += 1;
         }
-    }
-
-    var reservedChars = ['/','?','<','>','\\',':','*','|','"','\''];
-    function isReserverChar(charString){
-        var i = 0, len = reservedChars.length;
-        while( i < len) {
-            if(reservedChars[i] === charString){
-                return true;
-            }
-            i += 1;
-        }
-        return false
     }
 
     //                  A-Z      - .    0 - 9     _      a-z
@@ -112,10 +99,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         var i;
         for(i = 0; i < totalChars; i += 1) {
-            /*var newChar = String.fromCharCode(name.charCodeAt(i) % (2 << 7))
-            if(!isReserverChar(newChar)){
-                sanitizedName += newChar
-            }*/
             var charCode = name.charCodeAt(i)
             if(isValidChar(charCode)) {
                 sanitizedName += name.substr(i,1)
@@ -130,6 +113,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function saveFilesToFolder() {
+        /***
+        var temporaryFolder = bm_fileManager.getTemporaryFolder();
         bm_eventDispatcher.log('saveFilesToFolder')
         var i, len = assetsArray.length;
         var copyingFile;
@@ -146,12 +131,14 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 }
             }
         }
+        
         var files = temporaryFolder.getFiles();
         len = files.length;
         for(i = 0; i < len; i += 1) {
             files[i].remove();
         }
         temporaryFolder.remove();
+        ***/
     }
 
     //// IMAGE SEQUENCE FUNCTIONS
@@ -242,6 +229,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
             : 
             'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex + '.png';
 
+        var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
+        var file = renderFileData.file;
+
         currentSavingAsset = {
             id: currentSourceData.range[currentStillIndex],
             w: currentSourceData.width,
@@ -249,16 +239,11 @@ $.__bodymovin.bm_sourceHelper = (function () {
             t: 'seq',
             u: 'images/',
             p: imageName,
-            e: 0
+            e: 0,
+            fileId: renderFileData.id,
         }
         assetsArray.push(currentSavingAsset);
 
-        var file = new File(temporaryFolder.absoluteURI + '/' + imageName);
-
-        // Overwrite any existing file.
-        if (file.exists) {
-            file.remove();
-        }
 
         helperSequenceComp.workAreaStart = currentStillIndex / currentSourceData.source.frameRate;
         helperSequenceComp.workAreaDuration = 1 / currentSourceData.source.frameRate;
@@ -295,6 +280,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 if (bug.exists) {
                     bug.rename(imageName);
                 }
+
 
                 bm_eventDispatcher.sendEvent('bm:image:process', {
                     path: temporaryFolder.fsName + '/' + imageName, 
@@ -356,23 +342,23 @@ $.__bodymovin.bm_sourceHelper = (function () {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
         var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
+        var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
+        var file = renderFileData.file;
+
         currentSavingAsset = {
             id: currentSourceData.id,
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
             p: imageName,
-            e: 0
+            e: 0,
+            fileId: renderFileData.id
         }
         assetsArray.push(currentSavingAsset);
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
-        var file = new File(temporaryFolder.absoluteURI + '/' + imageName);
 
-        // Overwrite any existing file.
-        if (file.exists) {
-            file.remove();
-        }
+
 
         // Add composition item to render queue and set to render.
         var item = app.project.renderQueue.items.add(helperComp);
@@ -396,13 +382,19 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 // NOTE: Also tried setting output module's "Use Comp Frame Number"
                 //       setting to false.
                 // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
+                /***
                 var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
+                ***/
+                var bug = new File(file.fsName + '00000');
                 if (bug.exists) {
                     bug.rename(imageName);
                 }
 
                 bm_eventDispatcher.sendEvent('bm:image:process', {
+                    /***
                     path: temporaryFolder.fsName + '/' + imageName, 
+                    ***/
+                    path: file.fsName, 
                     should_compress: bm_renderManager.shouldCompressImages(), 
                     compression_rate: bm_renderManager.getCompressionQuality()/100,
                     should_encode_images: bm_renderManager.shouldEncodeImages()
@@ -421,11 +413,13 @@ $.__bodymovin.bm_sourceHelper = (function () {
         //For now all images are pngs
         if(changedFlag) {
             currentSavingAsset.p = currentSavingAsset.p.replace(new RegExp('png' + '$'), 'jpg')
+            bm_fileManager.replaceFileExtension(currentSavingAsset.fileId, 'jpg');
         }
         if(encoded_data) {
             currentSavingAsset.p = encoded_data;
             currentSavingAsset.u = '';
             currentSavingAsset.e = 1;
+            bm_fileManager.removeFile(currentSavingAsset.fileId);
         }
         if(currentSavingAsset.t === 'seq') {
             currentStillIndex += 1;
@@ -480,16 +474,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         var file = new File(path);
         folder = file.parent;
         folder.changePath('images/');
-        var folder_random_name = bm_generalUtils.random(10);
-        temporaryFolder = new Folder(Folder.temp.absoluteURI);
-        temporaryFolder.changePath('Bodymovin/'+folder_random_name);
         assetsArray = assets;
-        if (!temporaryFolder.exists) {
-            if (!temporaryFolder.create()) {
-                bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + temporaryFolder.fsName);
-                return;
-            }
-        }
 
         try {
             playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
