@@ -149,13 +149,11 @@ csInterface.addEventListener('bm:create:avd', function (ev) {
 csInterface.addEventListener('bm:create:rive', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
-
-		console.log(data)
-		let animationData = JSON.parse(data.animation);
 		dispatcher({ 
 				type: actions.RIVE_SAVE_DATA,
-				data: animationData,
+				origin: data.origin,
 				destination: data.destination,
+				fileName: data.fileName,
 		})
 	} else {
 	}
@@ -324,6 +322,20 @@ function goToFolder(path) {
 	})
 }
 
+function riveFileSaveSuccess() {
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_riveExporter.saveSuccess()';
+	    csInterface.evalScript(eScript);
+	})
+}
+
+function riveFileSaveFailed() {
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_riveExporter.saveFailed()';
+	    csInterface.evalScript(eScript);
+	})
+}
+
 
 
 async function saveAVD(data, destination) {
@@ -418,4 +430,6 @@ export {
 	getFileData,
 	setLottiePaths,
 	initializeServer,
+	riveFileSaveSuccess,
+	riveFileSaveFailed,
 }

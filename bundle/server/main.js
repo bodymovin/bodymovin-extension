@@ -1,6 +1,6 @@
 const imagemin = require('imagemin');
-const imageminJpegtran = require('imagemin-jpegtran');
-const imageminJpegoptim = require('imagemin-jpegoptim');
+// const imageminJpegtran = require('imagemin-jpegtran');
+// const imageminJpegoptim = require('imagemin-jpegoptim');
 const imageminPngquant = require('imagemin-pngquant');
 const pngToJpeg = require('png-to-jpeg');
 const express = require('express')
@@ -8,7 +8,9 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var PNG = require('pngjs').PNG;
 var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
-var ltf = new LottieToFlare()
+var ltf = new LottieToFlare();
+
+var JSZip = require('jszip');
 
 async function processImage(path, compression, hasTransparency) {
 	//C:\\Program Files\\Adobe\\Adobe After Effects 2020\\Support Files
@@ -44,7 +46,7 @@ const port = 3119
 
 app.get('/', (req, res) => {
 
-	res.send('Root')
+	res.send('Root 2')
 })
 
 function checkImageTransparency(imagePath) {
@@ -140,18 +142,51 @@ app.post('/processImage/', async function(req, res){
 });
 
 app.post('/convertToFlare/', async function(req, res){
-	if (req.body.animation) {
+	if (req.body.origin && req.body.destination && req.body.fileName) {
 		try {
-			const result = await ltf.convert(req.body.animation)
+			// const originPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\rive";
+			// const destinationPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\riveExport";
+			// var destinationName = 'flare.flr2d';
+			const originPath = decodeURIComponent(req.body.origin);
+			const destinationPath = decodeURIComponent(req.body.destination);
+			var destinationName = decodeURIComponent(req.body.fileName);
+
+			const zip = JSZip();
+
+			const dirItems = await readdir(originPath);
+			const jsonFilePath = await getJsonPath(dirItems, originPath);
+
+			const jsonDataString = await getJsonData(jsonFilePath)
+			const result = await ltf.convert(jsonDataString);
+			zip.file(destinationName, JSON.stringify(result));
+
+			// Adding assets
+			const jsonData = JSON.parse(jsonDataString)
+			const lottieAssets = jsonData.assets
+				.filter(asset => !!asset.p)
+
+			const assetsData = await Promise.all(lottieAssets.map(asset => {
+				return getFile(originPath + '\\' + asset.u + asset.p)
+			}))
+			lottieAssets.forEach((asset, index) => {
+				zip.file(asset.id, assetsData[index]);
+			})
+
+			const zipBlob = await zip.generateAsync({type: 'nodebuffer'})
+
+			fs.writeFile(destinationPath + '\\' + destinationName, zipBlob, 'binary', (error, success) => {
+				console.log(error, success)
+			});
+			
+
 			res.send({
 				status: 'success',
-				payload: result,
 			});
 		} catch(error) {
 			res.send({
 				status: 'error',
-				message: error.message,
-				error: error
+				error: error,
+				message: error ? error.message || 'No message but error' : 'No Error',
 			});
 		}
 	} else {
@@ -163,6 +198,61 @@ app.post('/convertToFlare/', async function(req, res){
 });
 
 
+
+// Helpers
+
+function readdir(path) {
+	return new Promise((resolve, reject) => {
+		fs.readdir(path, function(err, items) {
+			if (!err && items) {
+				resolve(items)
+			} else {
+				reject('No Items')
+			}
+		});
+	})
+}
+
+function getJsonPath(items, originPath) {
+	return new Promise((resolve, reject) => {
+		let jsonFilePath = '';
+		for (var i=0; i<items.length; i++) {
+			console.log(items[i])
+			console.log(items[i].indexOf('.json'))
+			if (items[i].indexOf('.json') !== -1) {
+				jsonFilePath = originPath + '\\' + items[i];
+				break;
+			}
+		}
+		if (jsonFilePath) {
+			resolve(jsonFilePath)
+		} else {
+			reject('No json Path');
+		}
+	})
+}
+
+function getJsonData(path) {
+	return new Promise((resolve, reject) => {
+		const jsonData = fs.readFileSync(path, "utf8");
+		if (jsonData) {
+			resolve(jsonData)
+		} else {
+			reject('Failed getting Json')
+		}
+	})
+}
+
+function getFile(path, encoding = '') {
+	return new Promise((resolve, reject) => {
+		const fileData = fs.readFileSync(path, encoding);
+		if (fileData) {
+			resolve(fileData)
+		} else {
+			reject('Failed getting File: ' + path)
+		}
+	})
+}
 
 ////  TESTING ULRS
 
@@ -202,6 +292,55 @@ app.get('/process', async function(req, res){
 
 });
 
+
+
+const getFlare = async function(req, res){
+	try {
+		const originPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\rive";
+		const destinationPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\riveExport";
+		var destinationName = 'flare.flr2d';
+
+		const zip = JSZip();
+
+		const dirItems = await readdir(originPath);
+		const jsonFilePath = await getJsonPath(dirItems, originPath);
+
+		const jsonDataString = await getJsonData(jsonFilePath)
+		const result = await ltf.convert(jsonDataString);
+		zip.file(destinationName, JSON.stringify(result));
+
+		// Adding assets
+		const jsonData = JSON.parse(jsonDataString)
+		const lottieAssets = jsonData.assets
+			.filter(asset => !!asset.p)
+
+		const assetsData = await Promise.all(lottieAssets.map(asset => {
+			return getFile(originPath + '\\' + asset.u + asset.p)
+		}))
+		lottieAssets.forEach((asset, index) => {
+			zip.file(asset.id, assetsData[index]);
+		})
+
+		const zipBlob = await zip.generateAsync({type: 'nodebuffer'})
+
+		fs.writeFile(destinationPath + '\\' + destinationName, zipBlob, 'binary', (error, success) => {
+			console.log(error, success)
+		});
+		
+
+		res.send({
+			status: 'success',
+		});
+	} catch(error) {
+		res.send({
+			status: 'error',
+			error: error
+		});
+	}
+}
+
+app.get('/flare', getFlare);
+getFlare({send:(message)=>{console.log(message)}}, {send:(message)=>{console.log(message)}});
 
 ////  END TESTING ULRS
 

@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_projectManager, bm_eventDispatcher, Folder, File */
+/*global $, Folder, File */
 
 $.__bodymovin.bm_compsManager = (function () {
     'use strict';
@@ -10,6 +10,7 @@ $.__bodymovin.bm_compsManager = (function () {
     
     
     function getCompositionData(comp) {
+        //
         var i = 0, len = compositions.length, compData;
         while (i < len) {
             if (compositions[i].id === comp.id) {

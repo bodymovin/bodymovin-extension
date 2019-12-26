@@ -186,8 +186,6 @@ function encode(image, data) {
 		getDrawnCanvas(image)
 		.then(convertCanvasToData)
 		.then(function(encoded_data){
-			console.log('encoded_data')
-			console.log(encoded_data)
 			res({
 				new_path: '',
 				encoded_data: encoded_data,
@@ -258,7 +256,6 @@ async function getEncodedFile(path) {
 		})
 	})
 	const jsonResponse = await encodedImageResponse.json()
-	console.log('jsonResponse', jsonResponse)
 	return jsonResponse.data
 
 }

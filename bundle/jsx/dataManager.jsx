@@ -80,6 +80,18 @@ $.__bodymovin.bm_dataManager = (function () {
         deleteLayerParams(data.layers);
     }
 
+    function moveCompsToAssets(data) {
+        if (data.comps) {
+            if (data.assets) {
+                data.assets = data.assets.concat(data.comps);
+            } else {
+                data.assets = data.comps;
+            }
+            data.comps = null;
+            delete data.comps;
+        }
+    }
+
     function onResult(type, status) {
 
         results[type] = status;
@@ -121,6 +133,7 @@ $.__bodymovin.bm_dataManager = (function () {
 
         deleteExtraParams(data, config);
         separateComps(data.layers, data.comps);
+        moveCompsToAssets(data);
 
         var stringifiedData = JSON.stringify(data);
         stringifiedData = stringifiedData.replace(/\n/g, '');

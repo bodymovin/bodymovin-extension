@@ -15,6 +15,7 @@
     "imagemin-jpegoptim": "^6.0.0",
     "imagemin-jpegtran": "^6.0.0",
     "imagemin-pngquant": "^8.0.0",
+    "jszip": "^3.2.2",
     "png-to-jpeg": "^1.0.1",
     "pngjs": "^3.4.0"
   }

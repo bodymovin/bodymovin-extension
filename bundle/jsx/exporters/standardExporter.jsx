@@ -30,7 +30,28 @@ $.__bodymovin.bm_standardExporter = (function () {
         }
     }
 
+    function moveCompsAssetsToCompsArray(data) {
+    	if(!data.assets) {
+    		return;
+    	}
+		var assets = data.assets;
+		var comps = [];
+		var i = 0, len = assets.length;
+		var splicedComp;
+		while (i < len) {
+			if (assets[i].layers) {
+				splicedComp = assets.splice(i, 1);
+				comps.push(splicedComp[0]);
+				i -= 1;
+				len -= 1;
+			}
+			i += 1;
+		}
+		data.comps = comps;
+    }
+
 	function splitAnimation(data, time) {
+		moveCompsAssetsToCompsArray(data);
 	    var comps = data.comps;
 	    var layers = data.layers;
 	    var frameRate = data.fr;
@@ -160,16 +181,6 @@ $.__bodymovin.bm_standardExporter = (function () {
 			        	// TODO: handle error
 			        }
 			    }
-			} else {
-				if (data.comps) {
-				    if (data.assets) {
-				        data.assets = data.assets.concat(data.comps);
-				    } else {
-				        data.assets = data.comps;
-				    }
-				    data.comps = null;
-				    delete data.comps;
-				}
 			}
 
 	        destinationFile.open('w', 'TEXT', '????');

@@ -18,6 +18,31 @@ $.__bodymovin.bm_riveExporter = (function () {
         _callback(exporterHelpers.exportTypes.RIVE, exporterHelpers.exportStatuses.FAILED);
     }
 
+    function copyAssets() {
+
+    	var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+
+    	var i = 0, len = rawFiles.length;
+    	while(i < len) {
+			var fileData = bm_fileManager.getFileById(rawFiles[i].id);
+			if (fileData) {
+				var file = fileData.file;
+				if(file.exists) {
+					var filePath = fileData.path;
+					var j = 1, jLen = filePath.length;
+					var destinationFolder = ['rive'];
+					while (j < jLen) {
+						destinationFolder.push(filePath[j]);
+						j += 1;
+					}
+					var destinationFileData = bm_fileManager.createFile(fileData.name, destinationFolder)
+					file.copy(destinationFileData.file.fsName);
+				}
+			}
+    		i += 1;
+    	}
+    }
+
 	function save(destinationPath, config, callback) {
 		_callback = callback;
 
@@ -32,13 +57,17 @@ $.__bodymovin.bm_riveExporter = (function () {
 				destinationFolder.create();
 			}
 
-			var riveDestinationFileName = new File(destinationFolder.fsName)
-			riveDestinationFileName.changePath(destinationFileNameWithoutExtension + '.rive')
+			copyAssets();
+			var temporaryFolder = bm_fileManager.getTemporaryFolder()
+			var originFolder = new Folder(temporaryFolder.fsName);
+			originFolder.changePath('rive');
 
-			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
-
-			var animationStringData = exporterHelpers.getJsonData(rawFiles);
-			bm_eventDispatcher.sendEvent('bm:create:rive', {animation: animationStringData, destination: riveDestinationFileName.fsName});
+			bm_eventDispatcher.sendEvent('bm:create:rive', 
+				{
+					origin: originFolder.fsName, 
+					destination: destinationFolder.fsName,
+					fileName: destinationFileNameWithoutExtension + '.flr2d',
+				});
 		
 		} else {
 			_callback(exporterHelpers.exportTypes.RIVE, exporterHelpers.exportStatuses.SUCCESS);
