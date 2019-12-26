@@ -25,7 +25,6 @@ $.evalFile(extensionPath + 'exporters/riveExporter.jsx');
 $.evalFile(extensionPath + 'esprima.jsx');
 $.evalFile(extensionPath + 'escodegen.jsx');
 $.evalFile(extensionPath + 'utils/bez.jsx');
-$.evalFile(extensionPath + 'utils/PropertyFactory.jsx');
 $.evalFile(extensionPath + 'utils/keyframeHelper.jsx');
 $.evalFile(extensionPath + 'utils/transformHelper.jsx');
 $.evalFile(extensionPath + 'utils/maskHelper.jsx');

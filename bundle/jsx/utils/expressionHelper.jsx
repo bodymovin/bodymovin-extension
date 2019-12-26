@@ -2,7 +2,6 @@
 /*global $, esprima, escodegen*/
 
 $.__bodymovin.bm_expressionHelper = (function () {
-    'use strict';
     var esprima = $.__bodymovin.esprima;
     var variableDeclaration_helper = $.__bodymovin.bm_variableDeclarationHelper;
     var valueAssignment_helper = $.__bodymovin.bm_valueAssignmentHelper;
@@ -75,6 +74,8 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 return '$bm_div';
             case '%':
                 return '$bm_mod';
+            default:
+                return '$bm_sum';
 
         }
     }
@@ -87,8 +88,9 @@ $.__bodymovin.bm_expressionHelper = (function () {
             case '/':
             case '%':
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     function convertBinaryExpression(expression) {
@@ -541,7 +543,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
         returnOb.k = eval(expression)
     }
 
-    function separateBodyDeclaredFunctions(body) {
+    /*function separateBodyDeclaredFunctions(body) {
         var i, len = body.length;
         separate_functions.bodies.length = 0;
         separate_functions.names.length = 0;
@@ -554,7 +556,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
                 len -= 1;
             }
         }
-    }
+    }*/
 
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {

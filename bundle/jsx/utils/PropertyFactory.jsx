@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bez*/
+/*global bez, $*/
 
 $.__bodymovin.PropertyFactory = (function () {
     
@@ -200,10 +200,10 @@ $.__bodymovin.PropertyFactory = (function () {
                 while(flag){
                     keyData = this.keyframes[i];
                     nextKeyData = this.keyframes[i+1];
-                    if((nextKeyData.t - this.offsetTime) > frameNum && dir == 1){
+                    if((nextKeyData.t - this.offsetTime) > frameNum && dir === 1){
                         break;
                     }
-                    if(i < len - 1 && dir == 1){
+                    if(i < len - 1 && dir === 1){
                         i += dir;
                     }else{
                         flag = false;
@@ -261,7 +261,6 @@ $.__bodymovin.PropertyFactory = (function () {
     function getKeys(arr){
         var i = 0, len = arr.length;
         if(!this.keyframes){
-            var i = 0, len = arr.length;
             while(i<len){
                 if(arr[i] === 0){
                     return;

@@ -1,7 +1,6 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, MaskMode*/
+/*global $, MaskMode*/
 $.__bodymovin.bm_maskHelper = (function () {
-    'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
 
@@ -21,6 +20,8 @@ $.__bodymovin.bm_maskHelper = (function () {
             return 'd';
         case MaskMode.DIFFERENCE:
             return 'f';
+        default:
+            return undefined;
         }
     }
     
@@ -32,10 +33,9 @@ $.__bodymovin.bm_maskHelper = (function () {
         layerData.hasMask = true;
         layerData.masksProperties = [];
         var masks = layerInfo.mask;
-        var i, len = masks.numProperties, maskShape, maskElement;
+        var i, len = masks.numProperties, maskElement;
         for (i = 0; i < len; i += 1) {
             maskElement = masks(i + 1);
-            maskShape = maskElement.property('maskShape').value;
             var shapeData = {
                 inv: maskElement.inverted,
                 mode: getMaskMode(maskElement.maskMode)

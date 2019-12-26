@@ -1,11 +1,9 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global PropertyValueType, KeyframeInterpolationType, bm_generalUtils, bm_eventDispatcher, bm_expressionHelper*/
+/*global PropertyValueType, KeyframeInterpolationType, $ */
 $.__bodymovin.bm_keyframeHelper = (function () {
-    'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
-    var bm_renderManager = $.__bodymovin.bm_renderManager;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -92,97 +90,6 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
     }
 
-    function calcTweenData(property, startIndex, endIndex, framerate) {
-        var startTime = property.keyTime(startIndex);
-        var endTime = property.keyTime(endIndex);
-        var durationTime = endTime - startTime;
-
-        var startFrame = startTime * framerate;
-        var endFrame = endTime * framerate;
-        var durationFrames = endFrame - startFrame;
-
-        var startValue;
-        var endValue;
-
-        if (property.value instanceof Array) {
-            startValue = property.keyValue(startIndex)[0];
-            endValue = property.keyValue(endIndex)[0];
-        } else {
-            startValue = property.keyValue(startIndex);
-            endValue = property.keyValue(endIndex);
-        }
-
-        return {
-            startTime: startTime,
-            endTime: endTime,
-            durationTime: durationTime,
-            startFrame: startFrame,
-            endFrame: endFrame,
-            durationFrames: durationFrames,
-            startValue: startValue,
-            endValue: endValue
-        };
-    }
-
-    function calcOutgoingControlPoint(tweenData, property, keyIndex, framerate) {
-        var outgoingEase = property.keyOutTemporalEase(keyIndex);
-        var outgoingSpeed = outgoingEase[0].speed;
-        var outgoingInfluence = outgoingEase[0].influence / 100;
-
-        var m = outgoingSpeed / framerate; // Slope
-        var x = tweenData.durationFrames * outgoingInfluence;
-        var b = tweenData.startValue; // Y-intercept
-        var y = (m * x) + b;
-
-        var correctedX = tweenData.startFrame + x;
-        return [correctedX/tweenData.durationFrames, y];
-    }
-
-    function calcIncomingControlPoint(tweenData, property, keyIndex, framerate) {
-        var incomingEase = property.keyInTemporalEase(keyIndex + 1);
-        var incomingSpeed = incomingEase[0].speed;
-        var incomingInfluence = incomingEase[0].influence / 100;
-
-        var m = -incomingSpeed / framerate; // Slope
-        var x = tweenData.durationFrames * incomingInfluence;
-        var b = tweenData.endValue; // Y-intercept
-        var y = (m * x) + b;
-
-        var correctedX = tweenData.endFrame - x;
-        return [correctedX/tweenData.durationFrames, y];
-    }
-
-    var clampInfiniteValues = true; // Whether to clamp Infinite values or leave them as "Infinite"
-
-    function getNormalizedCurve (tweenData, p0, p1) {
-        function normalize (val, min, max) {
-            var delta = max - min;
-            var normalized = (val - min)/delta;
-
-            // Clamps infinite values. Optional.
-            if (clampInfiniteValues) {
-                if (normalized === Number.NEGATIVE_INFINITY)
-                    normalized = -10;
-                if (normalized === Number.POSITIVE_INFINITY)
-                    normalized = 10;
-            }
-
-            return normalized;
-        }
-
-        var x1 = normalize(p0[0], tweenData.startFrame, tweenData.endFrame).toFixed(3);
-        var y1 = normalize(p0[1], tweenData.startValue, tweenData.endValue).toFixed(3);
-
-        if (isNaN(y1)) y1 = x1;
-
-        var x2 = normalize(p1[0], tweenData.startFrame, tweenData.endFrame).toFixed(3);
-        var y2 = normalize(p1[1], tweenData.startValue, tweenData.endValue).toFixed(3);
-
-        if (isNaN(y2)) y2 = x2;
-
-        return [x1, y1, x2, y2];
-    }
-    
     function exportKeys(prop, frRate, stretch, keyframeValues) {
         var exportOldFormat = $.__bodymovin.bm_renderManager.shouldExportOldFormat();
         var currentExpression = '';

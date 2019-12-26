@@ -1,7 +1,6 @@
 /*jslint vars: true , plusplus: true, continue:true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper*/
+/*global $*/
 $.__bodymovin.bm_cameraHelper = (function () {
-    'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
     

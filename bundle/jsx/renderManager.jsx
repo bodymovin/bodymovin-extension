@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_compsManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager, Folder, $ */
+/*global app, File, bm_dataManager, Folder, $ */
 
 $.__bodymovin.bm_renderManager = (function () {
     'use strict';
@@ -10,7 +10,6 @@ $.__bodymovin.bm_renderManager = (function () {
     var layerTypes = $.__bodymovin.layerTypes;
     var bm_layerElement = $.__bodymovin.bm_layerElement;
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
@@ -57,7 +56,7 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
 
-    function removeHiddenContent(shapes) {
+    /*function removeHiddenContent(shapes) {
         if(shapes) {
             var i = 0, len = shapes.length;
             while(i < len) {
@@ -71,7 +70,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 i += 1;
             }
         }
-    }
+    }*/
     
     function createLayers(comp, layers, framerate, deepTraversing) {
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
@@ -271,7 +270,7 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
     
-    function clearNames(layers) {
+    /*function clearNames(layers) {
         if (hasExpressionsFlag) {
             return;
         }
@@ -284,7 +283,7 @@ $.__bodymovin.bm_renderManager = (function () {
             }
         }
         
-    }
+    }*/
     
     function removeExtraData() {
         clearUnrenderedLayers(ob.renderData.exportData.layers);

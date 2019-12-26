@@ -1,10 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_keyframeHelper*/
+/*global $, PropertyValueType, KeyframeInterpolationType, PropertyType */
 $.__bodymovin.bm_effectsHelper = (function () {
-    'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,
@@ -102,7 +100,6 @@ $.__bodymovin.bm_effectsHelper = (function () {
         } else {
             return effectTypes.pointControl;
         }
-        return '';
     }
     
     function exportNoValueControl(effect, frameRate, stretch) {
@@ -125,16 +122,6 @@ $.__bodymovin.bm_effectsHelper = (function () {
         return ob;
     }
     
-    function exportAngleControl(effect, frameRate, stretch) {
-        var ob = {};
-        ob.ty = effectTypes.angleControl;
-        ob.nm = effect.name;
-        ob.mn = effect.matchName;
-        ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
-        return ob;
-    }
-    
     function exportColorControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.colorControl;
@@ -148,16 +135,6 @@ $.__bodymovin.bm_effectsHelper = (function () {
     function exportPointControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.pointControl;
-        ob.nm = effect.name;
-        ob.mn = effect.matchName;
-        ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
-        return ob;
-    }
-    
-    function exportCheckboxControl(effect, frameRate, stretch) {
-        var ob = {};
-        ob.ty = effectTypes.checkboxControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
@@ -200,7 +177,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         return ob;
     }
     
-    function iterateEffectProperties(effectElement) {
+    /*function iterateEffectProperties(effectElement) {
         var i, len = effectElement.numProperties;
         for (i = 0; i < len; i += 1) {
             var prop = effectElement.property(i + 1);
@@ -208,7 +185,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
             for (var s in prop) {
                 propsArray.push({key:s,value:''});
             }
-            /* bm_eventDispatcher.log(propsArray);
+             bm_eventDispatcher.log(propsArray);
             bm_eventDispatcher.log('prop.name: ' + prop.name);
             bm_eventDispatcher.log('prop.matchName: ' + prop.matchName);
             bm_eventDispatcher.log('prop.propertyType: ' + prop.propertyType);
@@ -221,9 +198,9 @@ $.__bodymovin.bm_effectsHelper = (function () {
             if(prop.hasMin){
                 bm_eventDispatcher.log('prop.minValue: ' + prop.minValue);
             }
-            bm_eventDispatcher.log('----------------');*/
+            bm_eventDispatcher.log('----------------');
         }
-    }
+    }*/
     
     function exportCustomEffect(elem,effectType, frameRate, stretch) {
         var ob = {};

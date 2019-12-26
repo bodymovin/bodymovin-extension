@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global Folder, File, bm_eventDispatcher, $ */
+/*global Folder, File, $ */
 $.__bodymovin.bm_downloadManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};

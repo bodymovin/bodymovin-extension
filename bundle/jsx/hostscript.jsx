@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, File, Folder*/
+/*global $, File, Folder*/
 
 $.__bodymovin = $.__bodymovin || {esprima:{}}
 $.__bodymovin.bm_main = (function () {
