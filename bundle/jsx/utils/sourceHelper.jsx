@@ -11,6 +11,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
     , originalNamesFlag, imageCount = 0, imageName = 0;
     var currentSavingAsset;
     var queue, playSound, autoSave, canEditPrefs = true;
+    var _lastSecond = -1;
+    var _lastMilliseconds = -1;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -204,6 +206,36 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
     }
 
+    // Adding time offset between renders to prevent AE bug when saving logs with the same name.
+    function scheduleNextSaveStilInSequence() {
+
+        var now = new Date();
+        var newSecond = now.getSeconds();
+        var newMilliSeconds = now.getMilliseconds();
+        if (newSecond !== _lastSecond) {
+            _lastSecond = newSecond;
+            _lastMilliseconds = newMilliSeconds;
+            saveNextStillInSequence();
+        } else {
+            app.scheduleTask('$.__bodymovin.bm_sourceHelper.scheduleNextSaveStilInSequence();', (1000 - _lastMilliseconds), false);
+        }
+    }
+
+    // Adding time offset between renders to prevent AE bug when saving logs with the same name.
+    function scheduleNextSaveImage() {
+
+        var now = new Date();
+        var newSecond = now.getSeconds();
+        var newMilliSeconds = now.getMilliseconds();
+        if (newSecond !== _lastSecond) {
+            _lastSecond = newSecond;
+            _lastMilliseconds = newMilliSeconds;
+            saveNextImage();
+        } else {
+            app.scheduleTask('$.__bodymovin.bm_sourceHelper.scheduleNextSaveImage();', (1000 - _lastMilliseconds), false);
+        }
+    }
+
     function saveNextStillInSequence() {
 
         if (currentStillIndex === currentSequenceTotalFrames) {
@@ -304,7 +336,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
         helperSequenceComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSourceData.width), Math.max(4, currentSourceData.height), 1, (currentSourceData.totalFrames + 1) / frameRate, frameRate);
         helperSequenceComp.layers.add(currentSourceData.source);
-        saveNextStillInSequence();
+        scheduleNextSaveStilInSequence();
 
     }
 
@@ -423,10 +455,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         if(currentSavingAsset.t === 'seq') {
             currentStillIndex += 1;
-            saveNextStillInSequence();
+            scheduleNextSaveStilInSequence();
         } else {
             currentExportingImage += 1;
-            saveNextImage();
+            scheduleNextSaveImage();
         }
     }
     
@@ -486,7 +518,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
 
         queue = backupRenderQueue();
-        saveNextImage();  
+        scheduleNextSaveImage();  
     }
     
     function addFont(fontName, fontFamily, fontStyle) {
@@ -533,7 +565,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
         exportImages : exportImages,
         addFont : addFont,
         getFonts : getFonts,
-        reset: reset
+        reset: reset,
+        scheduleNextSaveStilInSequence: scheduleNextSaveStilInSequence,
+        scheduleNextSaveImage: scheduleNextSaveImage,
     };
     
 }());
