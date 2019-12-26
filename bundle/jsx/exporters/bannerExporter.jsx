@@ -6,27 +6,11 @@ $.__bodymovin.bm_bannerExporter = (function () {
 	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 	var bm_downloadManager = $.__bodymovin.bm_downloadManager;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var exporterHelpers = $.__bodymovin.bm_exporterHelpers;
 	var bm_projectManager;
-    var JSON = $.__bodymovin.JSON;
 	var ob = {};
-	var lottiePaths = []
+	var lottiePaths = [];
 	var _callback;
-
-	function getJsonData(rawFiles) {
-		var i = 0, len = rawFiles.length;
-		while(i < len) {
-			if(rawFiles[i].name.indexOf('.json') !== -1) {
-				break;
-			}
-			i += 1;
-		}
-		var fileData = bm_fileManager.getFileById(rawFiles[i].id);
-		var jsonFile = fileData.file;
-		jsonFile.open('r');
-		var content = jsonFile.read();
-		jsonFile.close();
-		return content;
-	}
 
 	function getLottiePath(bannerConfig) {
 		var sourcePath = '';
@@ -156,49 +140,54 @@ $.__bodymovin.bm_bannerExporter = (function () {
 			copiedFile.changePath(bannerFileData.name);
 			bannerFile.copy(copiedFile.fsName);
 		}
-		_callback();
+		_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.SUCCESS);
 	}
 
 	function save(destinationPath, config, callback) {
 
 		_callback = callback;
-		var bannerFiles = [];
 
-		var originalDestinationFile = new File(destinationPath);
-		var destinationFileName = originalDestinationFile.name;
-        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
-		var bannerDestinationFolder = new Folder(originalDestinationFile.parent);
-		bannerDestinationFolder.changePath('banner');
-		if (!bannerDestinationFolder.exists) {
-			bannerDestinationFolder.create();
-		}
+		if (config.export_modes.banner) {
+			var bannerFiles = [];
 
-		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+			var originalDestinationFile = new File(destinationPath);
+			var destinationFileName = originalDestinationFile.name;
+	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+			var bannerDestinationFolder = new Folder(originalDestinationFile.parent);
+			bannerDestinationFolder.changePath('banner');
+			if (!bannerDestinationFolder.exists) {
+				bannerDestinationFolder.create();
+			}
 
-		var animationStringData = getJsonData(rawFiles);
+			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
 
-		var bannerConfig = config.banner;
+			var animationStringData = exporterHelpers.getJsonData(rawFiles);
+
+			var bannerConfig = config.banner;
 
 
-		bannerFiles = bannerFiles.concat(createTemplate(config, destinationFileNameWithoutExtension + '.json'));
-		bannerFiles = bannerFiles.concat(includeAdditionalFiles(config));
+			bannerFiles = bannerFiles.concat(createTemplate(config, destinationFileNameWithoutExtension + '.json'));
+			bannerFiles = bannerFiles.concat(includeAdditionalFiles(config));
 
-		var jsonFile =  bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['banner'], animationStringData);
-		bannerFiles.push(jsonFile);
-		
-		if (bannerConfig.zip_files) {
-			var temporaryFolder = bm_fileManager.getTemporaryFolder();
-			var bannerFolder = new Folder(temporaryFolder.fsName);
-			bannerFolder.changePath('banner');
-			bm_eventDispatcher.sendEvent(
-				'bm:zip:banner', 
-				{
-					destinationPath: bannerDestinationFolder.fsName + '/' + destinationFileName, 
-					folderPath: bannerFolder.fsName
-				}
-			);
+			var jsonFile =  bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['banner'], animationStringData);
+			bannerFiles.push(jsonFile);
+			
+			if (bannerConfig.zip_files) {
+				var temporaryFolder = bm_fileManager.getTemporaryFolder();
+				var bannerFolder = new Folder(temporaryFolder.fsName);
+				bannerFolder.changePath('banner');
+				bm_eventDispatcher.sendEvent(
+					'bm:zip:banner', 
+					{
+						destinationPath: bannerDestinationFolder.fsName + '/' + destinationFileName, 
+						folderPath: bannerFolder.fsName
+					}
+				);
+			} else {
+				copyBannerFolder(bannerDestinationFolder)
+			}
 		} else {
-			copyBannerFolder(bannerDestinationFolder)
+			_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.SUCCESS);
 		}
 	}
 
@@ -207,9 +196,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 	}
 
 	function bannerFinished() {
-		if (_callback) {
-			_callback()
-		}
+		_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.SUCCESS);
 	}
 
 	ob.save = save;

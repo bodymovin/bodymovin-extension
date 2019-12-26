@@ -35,6 +35,7 @@ $.__bodymovin.bm_downloadManager = (function () {
         var bmFile = new File(folder.absoluteURI + '/assets/player/standalone.js');
         bmFile.open('r');
         var str = bmFile.read();
+        bmFile.close();
         return str;
     }
     
@@ -45,6 +46,7 @@ $.__bodymovin.bm_downloadManager = (function () {
         var bmFile = new File(folder.absoluteURI + '/assets/player/demo.html');
         bmFile.open('r');
         var str = bmFile.read();
+        bmFile.close();
         return str;
     }
     

@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
       minHeight: '40px',
       backgroundColor: Variables.colors.gray_darkest,
     },
+    wrapper__active: {
+      background: Variables.gradients.blueGreen
+    },
     composition: {
       width: '100%',
       fontSize: '12px',
@@ -19,9 +22,6 @@ const styles = StyleSheet.create({
       height: '100%',
       display: 'flex',
       alignItems: 'end'
-    },
-    composition__active: {
-      background: Variables.gradients.blueGreen
     },
     item: {
       flexGrow: 0,
@@ -77,8 +77,8 @@ class SettingsListItem extends React.PureComponent {
 
 	render(){ 
 		return (<li 
-			className={css(styles.wrapper)}>
-        <div className={css(styles.composition, this.props.active && styles.composition__active)}>
+			className={css(styles.wrapper, this.props.active && styles.wrapper__active)}>
+        <div className={css(styles.composition)}>
   	      <BodymovinCheckbox animationData={checkbox} animate={this.props.active}>
   	          <button className={css(styles.item, styles.radio)} onClick={this.props.toggleItem}></button>
   	      </BodymovinCheckbox>

@@ -3,30 +3,14 @@
 
 $.__bodymovin.bm_standardExporter = (function () {
 
-	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var layerTypes = $.__bodymovin.layerTypes;
     var JSON = $.__bodymovin.JSON;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var exporterHelpers = $.__bodymovin.bm_exporterHelpers;
 	var ob = {}
     var animationSegments;
-
-    function getJsonData(rawFiles) {
-    	var i = 0, len = rawFiles.length;
-    	while(i < len) {
-    		if(rawFiles[i].name.indexOf('.json') !== -1) {
-    			break;
-    		}
-    		i += 1;
-    	}
-    	var fileData = bm_fileManager.getFileById(rawFiles[i].id);
-    	var jsonFile = fileData.file;
-    	jsonFile.open('r');
-    	var content = jsonFile.read();
-
-    	jsonFile.close();
-    	return content;
-    }
+	var _callback;
     
     function addCompsToSegment(layers, comps, segmentComps) {
         var i, len = layers.length, j, jLen;
@@ -76,9 +60,6 @@ $.__bodymovin.bm_standardExporter = (function () {
 	        }
 	    }
 
-	    if (segmentComps) {
-	    	bm_eventDispatcher.log(segmentComps.length)
-	    }
 	    if (data.assets && segmentComps && segmentComps.length) {
 	        data.assets = data.assets.concat(segmentComps);
 	        if (data.comps) {
@@ -140,92 +121,73 @@ $.__bodymovin.bm_standardExporter = (function () {
 	    data.segments = segments;
 	}
 
-	function saveAssets(rawFiles, destinationFolder) {
-		var i = 0, len = rawFiles.length;
-		// TODO improve this solution
-		while(i < len) {
-			if(rawFiles[i].name.indexOf('.json') === -1) {
-				var fileData = bm_fileManager.getFileById(rawFiles[i].id);
-				if (fileData) {
-					var file = fileData.file;
-					if(file.exists) {
-						var destinationFileFolder = new Folder(destinationFolder.fsName);
-						// TODO improve this solution even more
-						destinationFileFolder.changePath('images');
-						if (!destinationFileFolder.exists) {
-							destinationFileFolder.create();
-						}
-						var destinationFile = new File(destinationFileFolder.fsName);
-						destinationFile.changePath(file.name);
-						if (!file.copy(destinationFile.fsName)) {
-							bm_eventDispatcher.log('COPY FAILED')
-						}
-					}
+	function save(destinationPath, config, callback) {
+
+		_callback = callback;
+
+		if (config.export_modes.standard) {
+			var originalDestinationFile = new File(destinationPath);
+			var destinationFileName = originalDestinationFile.name;
+	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+			var renderDestinationFolder = new Folder(originalDestinationFile.parent);
+			renderDestinationFolder.changePath('render');
+			if (!renderDestinationFolder.exists) {
+				renderDestinationFolder.create();
+			}
+			var destinationFile = new File(renderDestinationFolder.fsName);
+			destinationFile.changePath(destinationFileNameWithoutExtension + '.json');
+
+			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+			var animationStringData = exporterHelpers.getJsonData(rawFiles);
+			var data = JSON.parse(animationStringData);
+
+	        var dataFile, string;
+			if (config.segmented) {
+			    splitAnimation(data, config.segmentedTime);
+			    var i, len = animationSegments.length;
+			    // filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
+			    for (i = 0; i < len; i += 1) {
+			        dataFile = new File(renderDestinationFolder.fsName);
+			        dataFile.changePath('data_' + i + '.json');
+			        dataFile.open('w', 'TEXT', '????');
+			        dataFile.encoding = 'UTF-8';
+			        string = JSON.stringify(animationSegments[i]);
+			        try {
+			            dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
+			            //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
+			            dataFile.close();
+			        } catch (err) {
+			        	// TODO: handle error
+			        }
+			    }
+			} else {
+				if (data.comps) {
+				    if (data.assets) {
+				        data.assets = data.assets.concat(data.comps);
+				    } else {
+				        data.assets = data.comps;
+				    }
+				    data.comps = null;
+				    delete data.comps;
 				}
 			}
-			i += 1;
-		}
-	}
 
-	function save(destinationPath, config) {
-
-		var originalDestinationFile = new File(destinationPath);
-		var destinationFileName = originalDestinationFile.name;
-		var renderDestinationFolder = new Folder(originalDestinationFile.parent);
-		renderDestinationFolder.changePath('render');
-		if (!renderDestinationFolder.exists) {
-			renderDestinationFolder.create();
-		}
-		var destinationFile = new File(renderDestinationFolder.fsName);
-		destinationFile.changePath(destinationFileName);
-
-		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
-		var animationStringData = getJsonData(rawFiles);
-		var data = JSON.parse(animationStringData);
-
-        var dataFile, string;
-		if (config.segmented) {
-		    splitAnimation(data, config.segmentedTime);
-		    var i, len = animationSegments.length;
-		    // filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
-		    for (i = 0; i < len; i += 1) {
-		        dataFile = new File(renderDestinationFolder.fsName);
-		        dataFile.changePath('data_' + i + '.json');
-		        dataFile.open('w', 'TEXT', '????');
-		        dataFile.encoding = 'UTF-8';
-		        string = JSON.stringify(animationSegments[i]);
-		        try {
-		            dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-		            //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-		            dataFile.close();
-		        } catch (err) {
-		            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-		        }
-		    }
+	        destinationFile.open('w', 'TEXT', '????');
+	        destinationFile.encoding = 'UTF-8';
+	        string = JSON.stringify(data);
+	        try {
+	            destinationFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
+	            //destinationFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
+	            destinationFile.close();
+				_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
+	        } catch (err) {
+				_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.FAILED);
+	        }
+			exporterHelpers.saveAssets(rawFiles, renderDestinationFolder);
 		} else {
-			if (data.comps) {
-			    if (data.assets) {
-			        data.assets = data.assets.concat(data.comps);
-			    } else {
-			        data.assets = data.comps;
-			    }
-			    data.comps = null;
-			    delete data.comps;
-			}
+			_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
 		}
 
-        destinationFile.open('w', 'TEXT', '????');
-        destinationFile.encoding = 'UTF-8';
-        string = JSON.stringify(data);
-        try {
-            destinationFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-            //destinationFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-            destinationFile.close();
-        } catch (err) {
-            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not write file.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
-        }
-
-		saveAssets(rawFiles, renderDestinationFolder);
 	}
 
 	ob.save = save;

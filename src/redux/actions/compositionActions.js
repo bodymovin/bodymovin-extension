@@ -172,6 +172,13 @@ function handleBannerLibraryPathChange(value) {
 	}
 }
 
+function handleModeToggle(value) {
+	return {
+		type: actionTypes.SETTINGS_MODE_TOGGLE,
+		value,
+	}
+}
+
 function lottieBannerRendererUpdated(value) {
 	return {
 		type: actionTypes.SETTINGS_BANNER_RENDERER_UPDATED,
@@ -222,6 +229,7 @@ export {
 	handleBannerWidthChange,
 	handleBannerHeightChange,
 	handleBannerVersionChange,
+	handleModeToggle,
 	handleBannerOriginChange,
 	handleBannerLibraryPathChange,
 	lottieBannerRendererUpdated,

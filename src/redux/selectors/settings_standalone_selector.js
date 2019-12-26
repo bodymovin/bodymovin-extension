@@ -13,11 +13,9 @@ const settingsBannerSelector = createSelector(
   (items, current) => {
 
   	const exportModes = items[current].settings.export_modes
-  	const bannerSettings = items[current].settings.banner
 
   	return {
-  		_isActive: exportModes.banner,
-  		...bannerSettings,
+  		_isActive: exportModes.standalone,
   	}
   }
 )

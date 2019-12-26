@@ -7,6 +7,17 @@ import bodymovin2Avd from 'bodymovin-to-avd'
 import ExportModes from './ExportModes'
 import jszip from 'jszip'
 
+function writeFile(path, data) {
+	return new Promise((resolve, reject) => {
+		var result = window.cep.fs.writeFile(path, data);
+		if (0 !== result.err) {
+			reject(result.err)
+		} else {
+			resolve(true)
+		}
+	})
+}
+
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
 		let compositions = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -127,11 +138,25 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 
 csInterface.addEventListener('bm:create:avd', function (ev) {
 	if(ev.data) {
-		let animationData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
-		animationData.layers = (typeof animationData.layers === "string") ? JSON.parse(animationData.layers) :  animationData.layers;
-		animationData.assets = (typeof animationData.assets === "string") ? JSON.parse(animationData.assets) :  animationData.assets;
-		//let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
-		saveAVD(animationData);
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+
+		let animationData = JSON.parse(data.animation);
+		saveAVD(animationData, data.destination);
+	} else {
+	}
+})
+
+csInterface.addEventListener('bm:create:rive', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+
+		console.log(data)
+		let animationData = JSON.parse(data.animation);
+		dispatcher({ 
+				type: actions.RIVE_SAVE_DATA,
+				data: animationData,
+				destination: data.destination,
+		})
 	} else {
 	}
 })
@@ -299,7 +324,24 @@ function goToFolder(path) {
 	})
 }
 
-function saveAVD(data) {
+
+
+async function saveAVD(data, destination) {
+	try {
+		var avdData = await bodymovin2Avd(data);
+		await writeFile(destination, avdData);
+		
+		var eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
+	    csInterface.evalScript(eScript);
+	} catch(error) {
+		extensionLoader.then(function(){
+			var eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
+			csInterface.evalScript(eScript);
+		})
+		dispatcher({ 
+				type: actions.RENDER_AVD_FAILED
+		})
+	}
 	bodymovin2Avd(data).then(function(avdData){
 		var eScript = "$.__bodymovin.bm_dataManager.saveAVDData('" + avdData + "')";
 	    csInterface.evalScript(eScript);

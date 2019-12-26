@@ -42,6 +42,14 @@ let defaultComposition = {
         skip_default_properties: false,
         not_supported_properties: false,
         export_mode: ExportModes.STANDARD,
+        export_modes: {
+          standard: true,
+          demo: false,
+          standalone: false,
+          banner: false,
+          avd: false,
+          rive: false,
+        },
         banner: {
           lottie_origin: LottieLibraryOrigins.LOCAL,
           lottie_path: 'https://',
@@ -182,7 +190,7 @@ function updateCompsSize(settings, composition) {
 
 function addCompositions(state, action) {
   let newItems = {...state.items}
-  let listChanged: false
+  let listChanged = false
   let itemsChanged = false
   let newList = []
   let i, len = action.compositions.length
@@ -475,6 +483,23 @@ function updateExportMode(state, action) {
   return newState
 }
 
+function toggleMode(state, action) {
+  let newItem = {...state.items[state.current]}
+  let newSettings = {...newItem.settings}
+  const mode = action.value
+  newSettings.export_modes = {
+    ...newSettings.export_modes,
+    [mode]: !newSettings.export_modes[mode]
+  }
+  newItem.settings = newSettings
+  let newItems = {...state.items}
+  newItems[state.current] = newItem
+  return {
+    ...state,
+    items: newItems
+  }
+}
+
 function updateBanner(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
@@ -573,6 +598,8 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED:
     case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
       return updateBanner(state, action)
+    case actionTypes.SETTINGS_MODE_TOGGLE:
+      return toggleMode(state, action)
     default:
       return state
   }
