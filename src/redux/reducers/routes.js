@@ -7,6 +7,7 @@ let routes = {
   settings: 3,
   fonts: 4,
   player: 5,
+  importFile: 6,
 }
 
 let initialState = {
@@ -28,6 +29,8 @@ export default function project(state = initialState, action) {
       return {...state, ...{route: routes.player}}
     case actionTypes.GOTO_SETTINGS:
       return {...state, ...{route: routes.settings}}
+    case actionTypes.GOTO_IMPORT:
+      return {...state, ...{route: routes.importFile}}
     case actionTypes.RENDER_STOP:
     case actionTypes.SETTINGS_CANCEL:
     case actionTypes.GOTO_COMPS:
@@ -35,4 +38,8 @@ export default function project(state = initialState, action) {
     default:
       return state
   }
+}
+
+export {
+  routes
 }

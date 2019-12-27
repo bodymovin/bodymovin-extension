@@ -4,7 +4,18 @@ import { StyleSheet, css } from 'aphrodite'
 import CompositionsList from './list/CompositionsList'
 import CompositionsListHeader from './listHeader/CompositionsListHeader'
 import MainHeader from '../../components/header/Main_header'
-import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer, toggleShowSelected, applySettingsToSelectedComps} from '../../redux/actions/compositionActions'
+import {
+  getDestination, 
+  filterChange, 
+  toggleItem, 
+  displaySettings, 
+  getCompositions, 
+  goToPreview, 
+  goToPlayer, 
+  toggleShowSelected, 
+  applySettingsToSelectedComps,
+  goToImportFile,
+} from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
 import Variables from '../../helpers/styles/variables'
@@ -74,6 +85,7 @@ class Compositions extends React.Component {
           startRender={this.renderComps} 
           goToPreview={this.props.goToPreview} 
           refresh={this.props.getCompositions} 
+          goToImportFile={this.props.goToImportFile} 
           goToPlayer={this.props.goToPlayer} />
     		<CompositionsListHeader 
     			filterValue={this.props.filter} 
@@ -106,14 +118,15 @@ const mapDispatchToProps = {
   getDestination: getDestination,
   toggleItem: toggleItem,
   displaySettings: displaySettings,
-	getCompositions: getCompositions,
-	filterChange: filterChange,
+  getCompositions: getCompositions,
+  filterChange: filterChange,
   startRender: startRender,
   goToPreview: goToPreview,
   goToPlayer: goToPlayer,
   showRenderBlock: showRenderBlock,
   toggleShowSelected: toggleShowSelected,
-  applySettingsToSelectedComps: applySettingsToSelectedComps
+  applySettingsToSelectedComps: applySettingsToSelectedComps,
+	goToImportFile: goToImportFile,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

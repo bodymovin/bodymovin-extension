@@ -22,6 +22,7 @@ $.evalFile(extensionPath + 'exporters/standaloneExporter.jsx');
 $.evalFile(extensionPath + 'exporters/demoExporter.jsx');
 $.evalFile(extensionPath + 'exporters/avdExporter.jsx');
 $.evalFile(extensionPath + 'exporters/riveExporter.jsx');
+$.evalFile(extensionPath + 'importers/lottieImporter.jsx');
 $.evalFile(extensionPath + 'esprima.jsx');
 $.evalFile(extensionPath + 'escodegen.jsx');
 $.evalFile(extensionPath + 'utils/bez.jsx');

@@ -1,5 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
+import {routes} from '../redux/reducers/routes'
 
 import Render from './render/Render'
 import Compositions from './compositions/Compositions'
@@ -7,21 +8,24 @@ import SettingsView from './settings/Settings'
 import PreviewView from './preview/Preview'
 import FontsView from './fonts/Fonts'
 import PlayerView from './player/Player'
+import FileImportView from './fileImport/FileImport'
 
 function getView(route) {
 	switch(route) {
-      case 0:
+      case routes.compositions:
         return <Compositions />
-      case 1:
+      case routes.render:
         return <Render />
-      case 2:
+      case routes.preview:
         return <PreviewView />
-      case 3:
+      case routes.settings:
         return <SettingsView />
-      case 4:
+      case routes.fonts:
         return <FontsView />
-      case 5:
+      case routes.player:
         return <PlayerView />
+      case routes.importFile:
+        return <FileImportView />
       default:
         return <Compositions />
     }

@@ -9,9 +9,9 @@ function *browseFile() {
 		let paths = yield select(storingPathsSelector)
 		let filePath = yield call(fileBrowser, paths.previewPath)
 		yield put({ 
-					type: actions.PREVIEW_FILE_BROWSED,
-					path: filePath
-			})
+				type: actions.PREVIEW_FILE_BROWSED,
+				path: filePath
+		})
 	} catch(err) {
 
 	}

@@ -56,6 +56,7 @@ function Main_header(props) {
 					<BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
 					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
                     <div className={css(styles.buttons_separator)}></div>
+                    <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
 					<BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
 				</div>
 				<div className={css(styles.separator)}></div>

@@ -205,6 +205,12 @@ function lottieBannerCustomSizeFlagUpdated() {
 	}
 }
 
+function goToImportFile() {
+	return {
+		type: actionTypes.GOTO_IMPORT,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -221,6 +227,7 @@ export {
 	goToPreview,
 	goToPlayer,
 	goToComps,
+	goToImportFile,
 	rememberSettings,
 	applySettings,
 	applySettingsFromCache,

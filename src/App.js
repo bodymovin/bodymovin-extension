@@ -7,6 +7,7 @@ import Footer from './components/footer/Footer'
 import reducer  from './redux/reducers/index'
 import createSagaMiddleware from 'redux-saga'
 import rootSaga from './redux/sagas'
+import extendScriptMiddleware from './redux/middlewares/extendScriptMiddleware'
 import './App.css';
 import './reset.css';
 import {setDispatcher} from './helpers/storeDispatcher'
@@ -16,7 +17,8 @@ const sagaMiddleware = createSagaMiddleware()
 
 let composeStore = compose(
   applyMiddleware(
-    sagaMiddleware
+    sagaMiddleware,
+    extendScriptMiddleware,
   )
 )(createStore)
 
