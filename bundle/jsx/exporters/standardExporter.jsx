@@ -163,7 +163,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 			    // filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
 			    for (i = 0; i < len; i += 1) {
 			        dataFile = new File(destinationData.folder.fsName);
-			        dataFile.changePath('data_' + i + '.json');
+			        dataFile.changePath(destinationData.fileName + '_' + i + '.json');
 			        dataFile.open('w', 'TEXT', '????');
 			        dataFile.encoding = 'UTF-8';
 			        string = JSON.stringify(animationSegments[i]);
