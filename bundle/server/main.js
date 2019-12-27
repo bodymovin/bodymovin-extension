@@ -5,6 +5,7 @@ const imageminPngquant = require('imagemin-pngquant');
 const pngToJpeg = require('png-to-jpeg');
 const express = require('express')
 var fs = require('fs');
+var nodePath = require('path');
 var bodyParser = require('body-parser');
 var PNG = require('pngjs').PNG;
 var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
@@ -141,6 +142,53 @@ app.post('/processImage/', async function(req, res){
 	}
 });
 
+app.post('/createBanner/', async function(req, res){
+	if (req.body.origin && req.body.destination) {
+		try {
+
+			const zip = JSZip();
+
+			const traverseDirToZip = async(absolutePath, relativePath = '') => {
+				const dirItems = await readdir(absolutePath + relativePath);
+				await Promise.all(dirItems.map(async item => {
+					const fileRelativePath = relativePath + nodePath.sep + item;
+					if (fs.lstatSync(absolutePath + fileRelativePath).isDirectory()) {
+						await traverseDirToZip(absolutePath, fileRelativePath)
+					} else {
+						const fileData = await getFile(absolutePath + fileRelativePath)
+						zip.file(fileRelativePath, fileData);
+					}
+				}))
+				return 'ENDED'
+			}
+
+			const originFolder = decodeURIComponent(req.body.origin);
+			const destinationFolderFile = decodeURIComponent(req.body.destination);
+
+
+			await traverseDirToZip(originFolder);
+
+			const zipBlob = await zip.generateAsync({type: 'nodebuffer', compression: "DEFLATE"})
+
+			fs.writeFile(destinationFolderFile, zipBlob, 'binary', (error, success) => {
+				res.send({
+					status: 'success',
+				});
+			});
+		} catch(error) {
+			res.send({
+				status: 'error',
+				error: error,
+				message: error ? error.message || 'No message but error' : 'No Error',
+			});
+		}
+	} else {
+		res.send({
+			status: 'error',
+			message: 'missing params',
+		});
+	}
+})
 app.post('/convertToFlare/', async function(req, res){
 	if (req.body.origin && req.body.destination && req.body.fileName) {
 		try {
@@ -339,8 +387,50 @@ const getFlare = async function(req, res){
 	}
 }
 
+const getBanner = async (req, res) => {
+
+	try {
+
+		const zip = JSZip();
+
+		const traverseDirToZip = async(absolutePath, relativePath = '') => {
+			const dirItems = await readdir(absolutePath + relativePath);
+			await Promise.all(dirItems.map(async item => {
+				const fileRelativePath = relativePath + nodePath.sep + item;
+				if (fs.lstatSync(absolutePath + fileRelativePath).isDirectory()) {
+					await traverseDirToZip(absolutePath, fileRelativePath)
+				} else {
+					const fileData = await getFile(absolutePath + fileRelativePath)
+					zip.file(fileRelativePath, fileData);
+				}
+			}))
+			return 'ENDED'
+		}
+
+		const originFolder = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\7y69mmow98\\banner'
+		const destinationFolderFile = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\7y69mmow98\\bannerExport\\export.zip'
+
+
+		const dirItems = await traverseDirToZip(originFolder);
+
+		const zipBlob = await zip.generateAsync({type: 'nodebuffer', compression: "DEFLATE"})
+
+		fs.writeFile(destinationFolderFile, zipBlob, 'binary', (error, success) => {
+			console.log(error, success)
+		});
+
+		res.send({
+			status: 'success',
+		});
+	} catch(err) {
+		console.log(err)
+	}
+}
+
 app.get('/flare', getFlare);
-getFlare({send:(message)=>{console.log(message)}}, {send:(message)=>{console.log(message)}});
+app.get('/banner', getBanner);
+
+getBanner({send:()=>{}}, {send:()=>{}})
 
 ////  END TESTING ULRS
 

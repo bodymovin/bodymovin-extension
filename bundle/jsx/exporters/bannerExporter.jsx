@@ -148,16 +148,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		_callback = callback;
 
 		if (config.export_modes.banner) {
-			var bannerFiles = [];
-
-			var originalDestinationFile = new File(destinationPath);
-			var destinationFileName = originalDestinationFile.name;
-	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
-			var bannerDestinationFolder = new Folder(originalDestinationFile.parent);
-			bannerDestinationFolder.changePath('banner');
-			if (!bannerDestinationFolder.exists) {
-				bannerDestinationFolder.create();
-			}
+			var destinationData = exporterHelpers.parseDestination(destinationPath, 'banner');
 
 			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
 
@@ -166,10 +157,11 @@ $.__bodymovin.bm_bannerExporter = (function () {
 			var bannerConfig = config.banner;
 
 
-			bannerFiles = bannerFiles.concat(createTemplate(config, destinationFileNameWithoutExtension + '.json'));
+			var bannerFiles = [];
+			bannerFiles = bannerFiles.concat(createTemplate(config, destinationData.fileName + '.json'));
 			bannerFiles = bannerFiles.concat(includeAdditionalFiles(config));
 
-			var jsonFile =  bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['banner'], animationStringData);
+			var jsonFile =  bm_fileManager.addFile(destinationData.fileName + '.json', ['banner'], animationStringData);
 			bannerFiles.push(jsonFile);
 			
 			if (bannerConfig.zip_files) {
@@ -179,12 +171,12 @@ $.__bodymovin.bm_bannerExporter = (function () {
 				bm_eventDispatcher.sendEvent(
 					'bm:zip:banner', 
 					{
-						destinationPath: bannerDestinationFolder.fsName + '/' + destinationFileName, 
+						destinationPath: destinationData.folder.fsName + '/' + destinationData.fileName + '.zip', 
 						folderPath: bannerFolder.fsName
 					}
 				);
 			} else {
-				copyBannerFolder(bannerDestinationFolder)
+				copyBannerFolder(destinationData.folder)
 			}
 		} else {
 			_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.SUCCESS);
@@ -199,9 +191,14 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.SUCCESS);
 	}
 
+	function bannerFailed() {
+		_callback(exporterHelpers.exportTypes.BANNER, exporterHelpers.exportStatuses.FAILED);
+	}
+
 	ob.save = save;
 	ob.setLottiePaths = setLottiePaths;
 	ob.bannerFinished = bannerFinished;
+	ob.bannerFailed = bannerFailed;
     
     return ob;
 }());

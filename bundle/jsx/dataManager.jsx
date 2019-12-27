@@ -94,12 +94,12 @@ $.__bodymovin.bm_dataManager = (function () {
 
     function onResult(type, status) {
 
-        results[type] = status;
+        results[type].status = status;
         var idleCount = 0, failedCount = 0
         for (var exportType in results) {
-            if (results[exportType].status === exporterHelpers.exportStatuses.IDLE) {
+            if (results[exportType].status === exportStatuses.IDLE) {
                 idleCount += 1;
-            } else if (results[exportType].status === exporterHelpers.exportStatuses.FAILED) {
+            } else if (results[exportType].status === exportStatuses.FAILED) {
                 failedCount += 1;
             }
         }

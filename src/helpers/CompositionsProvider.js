@@ -3,9 +3,9 @@ import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
+import {saveFile as bannerSaveFile} from './bannerHelper'
 import bodymovin2Avd from 'bodymovin-to-avd'
 import ExportModes from './ExportModes'
-import jszip from 'jszip'
 
 function writeFile(path, data) {
 	return new Promise((resolve, reject) => {
@@ -201,17 +201,18 @@ function addDirToZip(zip, currentRelativePath, fullPath) {
 	}
 }
 
-csInterface.addEventListener('bm:zip:banner', function (ev) {
-	if(ev.data) {
-		const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-		var zip = new jszip();
-		addDirToZip(zip, '/', data.folderPath)
-		zip.generateNodeStream({type:'nodebuffer',streamFiles:true, compression: "DEFLATE"})
-		.pipe(window.__fs.createWriteStream(data.destinationPath))
-		.on('finish', function () {
+csInterface.addEventListener('bm:zip:banner', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			const bannerResponse = await bannerSaveFile(data.folderPath, data.destinationPath);
 			csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFinished()');
-		});
-	} else {
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFailed()');
 	}
 })
 

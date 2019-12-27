@@ -6,6 +6,8 @@ $.__bodymovin.bm_fileManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
 
+    var _isLocked = false;
+
 	var ob = {
         createTemporaryFolder: createTemporaryFolder,
         getTemporaryFolder: getTemporaryFolder,
@@ -14,7 +16,8 @@ $.__bodymovin.bm_fileManager = (function () {
         getFilesOnPath: getFilesOnPath,
         getFileById: getFileById,
         replaceFileExtension: replaceFileExtension,
-		removeFile: removeFile,
+        removeFile: removeFile,
+		removeOldTemporaryFolder: removeOldTemporaryFolder,
 	};
 
     function createTemporaryFolder() {
@@ -131,6 +134,43 @@ $.__bodymovin.bm_fileManager = (function () {
         var file = renderFileData.file;
         file.remove();
         renderFiles.splice(renderFileIndex, 1);
+    }
+
+    function removeFolderContent(folder) {
+        var folderFiles = folder.getFiles();
+        var fileOrFolder;
+        for(var i = 0; i < folderFiles.length; i += 1) {
+            fileOrFolder = folderFiles[i];
+            if (fileOrFolder.constructor === Folder) {
+                removeFolderContent(fileOrFolder);
+            } else {
+                fileOrFolder.remove();
+            }
+        }
+        folder.remove();
+    }
+
+    function removeOldTemporaryFolder() {
+        if(_isLocked) {
+            return;
+        }
+        _isLocked = true;
+        var currentDate = new Date();
+        var appTemporaryFolder = new Folder(Folder.temp.absoluteURI);
+        appTemporaryFolder.changePath('Bodymovin');
+        var appFolderFiles = appTemporaryFolder.getFiles();
+        var temporaryRemovableFolder;
+        for(var i = 0; i < appFolderFiles.length; i += 1) {
+            temporaryRemovableFolder = appFolderFiles[i];
+            if (temporaryRemovableFolder.getFiles) {
+                var createdDate = temporaryRemovableFolder.created;
+                var elapsedTime = (currentDate.getTime() - createdDate.getTime()) / 1000;
+                if (elapsedTime > 60 * 60 * 24) { // 1 day keeping temp files
+                    removeFolderContent(temporaryRemovableFolder);
+                }
+            }
+        }
+        _isLocked = false;
     }
 
 	return ob;

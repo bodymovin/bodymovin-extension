@@ -4,6 +4,8 @@
 $.__bodymovin.bm_exporterHelpers = (function () {
 
 	var bm_fileManager = $.__bodymovin.bm_fileManager;
+	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+	var JSON = $.__bodymovin.JSON;
 
 	var ob = {}
 
@@ -48,9 +50,32 @@ $.__bodymovin.bm_exporterHelpers = (function () {
 		}
 	}
 
+	function parseDestination(destinationPath, subFolder) {
+		var destinationFile = new File(destinationPath);
+		var destinationFolder = new Folder(destinationFile.parent);
+		if (subFolder) {
+			destinationFolder.changePath(subFolder);
+			if(!destinationFolder.exists) {
+				destinationFolder.create();
+			}
+		}
+		var destinationFileName = destinationFile.name;
+        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+        var destinationExtension = destinationFileName.substr(destinationFileName.lastIndexOf('.') + 1);
+
+        return {
+        	extension: destinationExtension,
+        	file: destinationFile,
+        	fileName: destinationFileNameWithoutExtension,
+        	folder: destinationFolder,
+        	fullFileName: destinationFileName,
+        }
+	}
+
 
 	ob.getJsonData = getJsonData;
 	ob.saveAssets = saveAssets;
+	ob.parseDestination = parseDestination;
 	
 	ob.exportTypes = {
 		AVD: 'avd',

@@ -1,5 +1,5 @@
-const saveFile = async (origin, destination, fileName) => {
-	const encodedImageResponse = await fetch('http://localhost:3119/convertToFlare/', 
+const saveFile = async (origin, destination) => {
+	const encodedImageResponse = await fetch('http://localhost:3119/createBanner/', 
 	{
 		method: 'post',
 		headers: {
@@ -9,7 +9,6 @@ const saveFile = async (origin, destination, fileName) => {
 		body: JSON.stringify({
 			origin: encodeURIComponent(origin),
 			destination: encodeURIComponent(destination),
-			fileName: encodeURIComponent(fileName),
 		})
 	})
 	const jsonResponse = await encodedImageResponse.json()

@@ -48,14 +48,7 @@ $.__bodymovin.bm_riveExporter = (function () {
 
 		if (config.export_modes.rive) {
 
-			var originalDestinationFile = new File(destinationPath);
-			var destinationFileName = originalDestinationFile.name;
-	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
-			var destinationFolder = new Folder(originalDestinationFile.parent);
-			destinationFolder.changePath('rive');
-			if (!destinationFolder.exists) {
-				destinationFolder.create();
-			}
+			var destinationData = exporterHelpers.parseDestination(destinationPath, 'rive');
 
 			copyAssets();
 			var temporaryFolder = bm_fileManager.getTemporaryFolder()
@@ -65,8 +58,8 @@ $.__bodymovin.bm_riveExporter = (function () {
 			bm_eventDispatcher.sendEvent('bm:create:rive', 
 				{
 					origin: originFolder.fsName, 
-					destination: destinationFolder.fsName,
-					fileName: destinationFileNameWithoutExtension + '.flr2d',
+					destination: destinationData.folder.fsName,
+					fileName: destinationData.fileName + '.flr2d',
 				});
 		
 		} else {

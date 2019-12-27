@@ -1,7 +1,6 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, bm_generalUtils, bm_eventDispatcher, $, RQItemStatus, bm_renderManager, bm_compsManager, File, app*/
+/*global layerElement, $, RQItemStatus, File, app, PREFType */
 $.__bodymovin.bm_sourceHelper = (function () {
-    'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
@@ -308,18 +307,21 @@ $.__bodymovin.bm_sourceHelper = (function () {
                     imgIndex = '0' + imgIndex;
                 }
 
-                var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + imgIndex);
+                var bug = new File(file.fsName + imgIndex);
                 if (bug.exists) {
                     bug.rename(imageName);
                 }
 
-
                 bm_eventDispatcher.sendEvent('bm:image:process', {
+                    /***
                     path: temporaryFolder.fsName + '/' + imageName, 
+                    ***/
+                    path: file.fsName, 
                     should_compress: bm_renderManager.shouldCompressImages(), 
                     compression_rate: bm_renderManager.getCompressionQuality()/100,
                     should_encode_images: bm_renderManager.shouldEncodeImages()
                 })
+
             }
         };
 
@@ -475,7 +477,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         var queue = [];
         for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
             var item = app.project.renderQueue.item(i);
-            if (item.status == RQItemStatus.QUEUED) {
+            if (item.status === RQItemStatus.QUEUED) {
                 queue.push(i);
                 item.render = false;
             }

@@ -22,18 +22,10 @@ $.__bodymovin.bm_avdExporter = (function () {
 		_callback = callback;
 
 		if (config.export_modes.avd) {
+			var destinationData = exporterHelpers.parseDestination(destinationPath, 'avd');
 
-			var originalDestinationFile = new File(destinationPath);
-			var destinationFileName = originalDestinationFile.name;
-	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
-			var avdDestinationFolder = new Folder(originalDestinationFile.parent);
-			avdDestinationFolder.changePath('avd');
-			if (!avdDestinationFolder.exists) {
-				avdDestinationFolder.create();
-			}
-
-			var avdDestinationFileName = new File(avdDestinationFolder.fsName)
-			avdDestinationFileName.changePath(destinationFileNameWithoutExtension + '.xml')
+			var avdDestinationFileName = new File(destinationData.folder.fsName)
+			avdDestinationFileName.changePath(destinationData.fileName + '.xml')
 
 			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
 

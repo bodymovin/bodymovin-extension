@@ -96,12 +96,7 @@ $.__bodymovin.bm_compsManager = (function () {
             }
             i += 1;
         }
-        /*if (!comp) {
-            bm_eventDispatcher.sendEvent('bm:render:complete');
-            return;
-        }
-        bm_eventDispatcher.sendEvent('bm:render:complete', currentComposition.id);
-        return;*/
+
         bm_eventDispatcher.sendEvent('bm:render:start', currentComposition.id);
         var destination = currentComposition.absoluteURI;
         var fsDestination = currentComposition.destination;

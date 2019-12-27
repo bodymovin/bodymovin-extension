@@ -6,6 +6,7 @@ $.__bodymovin.bm_projectManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_XMPHelper = $.__bodymovin.bm_XMPHelper;
+    var bm_fileManager = $.__bodymovin.bm_fileManager;
     var commands = {};
     var projectId = '';
     var project;
@@ -60,6 +61,8 @@ $.__bodymovin.bm_projectManager = (function () {
             projectId = storedProjectId;
             bm_eventDispatcher.sendEvent('bm:project:id', {id:projectId});
         }
+        
+        bm_fileManager.removeOldTemporaryFolder();
     }
     
     function getCompositions() {

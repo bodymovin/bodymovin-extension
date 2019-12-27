@@ -147,16 +147,10 @@ $.__bodymovin.bm_standardExporter = (function () {
 		_callback = callback;
 
 		if (config.export_modes.standard) {
-			var originalDestinationFile = new File(destinationPath);
-			var destinationFileName = originalDestinationFile.name;
-	        var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
-			var renderDestinationFolder = new Folder(originalDestinationFile.parent);
-			renderDestinationFolder.changePath('render');
-			if (!renderDestinationFolder.exists) {
-				renderDestinationFolder.create();
-			}
-			var destinationFile = new File(renderDestinationFolder.fsName);
-			destinationFile.changePath(destinationFileNameWithoutExtension + '.json');
+			var destinationData = exporterHelpers.parseDestination(destinationPath, '');
+
+			var destinationFile = new File(destinationData.folder.fsName);
+			destinationFile.changePath(destinationData.fileName + '.json');
 
 			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
 			var animationStringData = exporterHelpers.getJsonData(rawFiles);
@@ -168,11 +162,12 @@ $.__bodymovin.bm_standardExporter = (function () {
 			    var i, len = animationSegments.length;
 			    // filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
 			    for (i = 0; i < len; i += 1) {
-			        dataFile = new File(renderDestinationFolder.fsName);
+			        dataFile = new File(destinationData.folder.fsName);
 			        dataFile.changePath('data_' + i + '.json');
 			        dataFile.open('w', 'TEXT', '????');
 			        dataFile.encoding = 'UTF-8';
 			        string = JSON.stringify(animationSegments[i]);
+        			string = string.replace(/\n/g, '');
 			        try {
 			            dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
 			            //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
@@ -186,6 +181,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 	        destinationFile.open('w', 'TEXT', '????');
 	        destinationFile.encoding = 'UTF-8';
 	        string = JSON.stringify(data);
+			string = string.replace(/\n/g, '');
 	        try {
 	            destinationFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
 	            //destinationFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
@@ -194,7 +190,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 	        } catch (err) {
 				_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.FAILED);
 	        }
-			exporterHelpers.saveAssets(rawFiles, renderDestinationFolder);
+			exporterHelpers.saveAssets(rawFiles, destinationData.folder);
 		} else {
 			_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
 		}

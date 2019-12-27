@@ -1,7 +1,6 @@
 /*jslint vars: true , plusplus: true, continue:true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, bm_eventDispatcher, bm_generalUtils, PropertyFactory, Matrix*/
+/*global $*/
 $.__bodymovin.bm_shapeHelper = (function () {
-    'use strict';
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
@@ -107,33 +106,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 }
             }
         }
-    }
-
-    function sliceBezier(pt1,pt2,pt3,pt4, t){
-        var x1 = pt1[0], y1 = pt1[1];
-        var x2 = pt2[0]+pt1[0], y2 = pt2[1]+pt1[1];
-        var x3 = pt3[0]+pt4[0], y3 = pt3[1]+pt4[1];
-        var x4 = pt4[0], y4 = pt4[1];
-        var x12 = (x2-x1)*t+x1;
-        var y12 = (y2-y1)*t+y1;
-
-        var x23 = (x3-x2)*t+x2;
-        var y23 = (y3-y2)*t+y2;
-
-        var x34 = (x4-x3)*t+x3;
-        var y34 = (y4-y3)*t+y3;
-
-        var x123 = (x23-x12)*t+x12;
-        var y123 = (y23-y12)*t+y12;
-
-        var x234 = (x34-x23)*t+x23;
-        var y234 = (y34-y23)*t+y23;
-
-        var x1234 = (x234-x123)*t+x123;
-        var y1234 = (y234-y123)*t+y123;
-
-        return [[x1, y1], [x12, y12], [x123, y123], [x1234, y1234]];
-
     }
 
     function getCurvesAtPerc(pt1,pt2,pt3,pt4, t){
@@ -269,18 +241,15 @@ $.__bodymovin.bm_shapeHelper = (function () {
         }
         var i, len = shape.length;
         var maxVertextCount = shape[0].s[0].i.length;
-        var variesCount = false;
         for (i = 0; i < len; i += 1) {
             if(shape[i].s && shape[i].s[0]){
                 if(maxVertextCount !== shape[i].s[0].i.length){
                     maxVertextCount = Math.max(maxVertextCount, shape[i].s[0].i.length);
-                    variesCount = true;
                 }
             }
             if(shape[i].e && shape[i].e[0]){
                 if(maxVertextCount !== shape[i].e[0].i.length){
                     maxVertextCount = Math.max(maxVertextCount, shape[i].e[0].i.length);
-                    variesCount = true;
                 }
             }
         }
@@ -294,13 +263,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
         }
     }
 
-    function checkAdditionalCases(prop) {
-        if(extraParams && extraParams.is_rubberhose_autoflop && prop.name === 'Admin'){
-            return true;
-        }
-        return false;
-    }
-    
     function iterateProperties(iteratable, array, frameRate, stretch, isText, isEnabled, includeHiddenData) {
         var i, len = iteratable.numProperties, ob, prop, itemType, enabled;
         for (i = 0; i < len; i += 1) {
@@ -463,8 +425,8 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 navigationShapeTree.push(prop.name);
                 iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled, includeHiddenData);
                 if (!isText) {
-                    var trOb = {};
-                    var transformProperty = prop.property('Transform');
+                    trOb = {};
+                    transformProperty = prop.property('Transform');
                     trOb.ty = 'tr';
                     trOb.p = bm_keyframeHelper.exportKeyframes(transformProperty.property('Position'), frameRate, stretch);
                     trOb.a = bm_keyframeHelper.exportKeyframes(transformProperty.property('Anchor Point'), frameRate, stretch);
@@ -588,39 +550,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
         }
     }
 
-    function compareGroupWithBox(items, matrix, containingBox) {
-        var groupMatrix = new $.__bodymovin.Matrix();
-        matrix.clone(groupMatrix);
-        var transform = items[items.length - 1];
-        var degToRads = Math.PI / 180;
-        if(transform.a.a !== 0 
-            || transform.p.a !== 0 
-            || transform.r.a !== 0 
-            || transform.s.a !== 0 
-            || transform.sa.a !== 0 
-            || transform.sk.a !== 0) {
-            return false;
-        }
-        groupMatrix.translate(-transform.a.k[0], -transform.a.k[1], 0);
-        groupMatrix.scale(transform.s.k[0] / 100, transform.s.k[1] / 100, 1);
-        groupMatrix.skewFromAxis(-transform.sk.k * degToRads, transform.sa.k * degToRads);
-        groupMatrix.rotate(-transform.r.k * degToRads);
-        groupMatrix.translate(transform.p.k[0], transform.p.k[1], 0);
-        var i, len = items.length;
-        for(i = 0; i < len - 1; i += 1) {
-            if(items[i].ty === shapeItemTypes.shape) {
-                if(!compareShapeWithBox(items[i], groupMatrix, containingBox)) {
-                    return false;
-                }
-            } else if(items[i].ty === shapeItemTypes.group) {
-                if(!compareGroupWithBox(items[i], groupMatrix, containingBox)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     function isStraightAngle(pt1, pt2, pt3) {
         var degToRads = Math.PI / 180;
         var side_a = Math.sqrt(Math.pow(pt1[0] - pt2[0],2) + Math.pow(pt1[1] - pt2[1],2));
@@ -655,10 +584,11 @@ $.__bodymovin.bm_shapeHelper = (function () {
         //var mat = new $.__bodymovin.Matrix();
         var i, len = items.length;
         var canRemoveContainerShape = false;
+        var containingBoxIndex, containingShape;
         for(i = len - 1; i >= 0; i -= 1) {
             if(items[i].ty === shapeItemTypes.merge && items[i].mm === 4 && i > 0) {
                 if(items[i - 1].ty === shapeItemTypes.shape) {
-                    var containingShape = items[i - 1];
+                    containingShape = items[i - 1];
                     if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
                         //containingBox = bm_boundingBox.getBoundingBox(containingShape.ks.k, mat);
                         containingBoxIndex = i;
@@ -668,7 +598,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     var containingGroup = items[i - 1];
                     var groupItems = containingGroup.it;
                     if(groupItems && groupItems.length > 1 && groupItems[groupItems.length - 2].ty  === shapeItemTypes.shape) {
-                        var containingShape = groupItems[groupItems.length - 2];
+                        containingShape = groupItems[groupItems.length - 2];
                         if(containingShape.ks.a === 0 && isShapeSquare(containingShape.ks.k)) {
                             containingBoxIndex = i;
                             canRemoveContainerShape = true;
