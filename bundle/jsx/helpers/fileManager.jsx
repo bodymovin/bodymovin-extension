@@ -65,9 +65,7 @@ $.__bodymovin.bm_fileManager = (function () {
         }
         var file = new File(fileFolder.absoluteURI);
         file.changePath(fileName);
-        if (file.exists) {
-            file.remove();
-        }
+        
         var renderFile = {
             name: fileName,
             path: path,

@@ -3,201 +3,117 @@
 
 $.__bodymovin.bm_standardExporter = (function () {
 
-    var layerTypes = $.__bodymovin.layerTypes;
-    var JSON = $.__bodymovin.JSON;
-    var bm_fileManager = $.__bodymovin.bm_fileManager;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
-    var exporterHelpers = $.__bodymovin.bm_exporterHelpers;
+	var bm_fileManager = $.__bodymovin.bm_fileManager;
+	var exporterHelpers = $.__bodymovin.bm_exporterHelpers;
+	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 	var ob = {}
-    var animationSegments;
 	var _callback;
-    
-    function addCompsToSegment(layers, comps, segmentComps) {
-        var i, len = layers.length, j, jLen;
-        for (i = 0; i < len; i += 1) {
-            if (layers[i].ty === layerTypes.precomp) {
-                j = 0;
-                jLen = comps.length;
-                while (j < jLen) {
-                    if (comps[j].id === layers[i].refId) {
-                        segmentComps.push(comps.splice(j, 1)[0]);
-                        addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-                        break;
-                    }
-                    j += 1;
-                }
-            }
-        }
-    }
+	var _destinationData;
 
-    function moveCompsAssetsToCompsArray(data) {
-    	if(!data.assets) {
-    		return;
-    	}
-		var assets = data.assets;
-		var comps = [];
-		var i = 0, len = assets.length;
-		var splicedComp;
-		while (i < len) {
-			if (assets[i].layers) {
-				splicedComp = assets.splice(i, 1);
-				comps.push(splicedComp[0]);
-				i -= 1;
-				len -= 1;
+	function copyAssets() {
+
+		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+		var i = 0, len = rawFiles.length;
+		while(i < len) {
+			var fileData = bm_fileManager.getFileById(rawFiles[i].id);
+			if (fileData) {
+				var file = fileData.file;
+				if(file.exists) {
+					var filePath = fileData.path;
+					var j = 1, jLen = filePath.length;
+					var destinationFolder = ['standard'];
+					while (j < jLen) {
+						destinationFolder.push(filePath[j]);
+						j += 1;
+					}
+					var destinationFileData = bm_fileManager.createFile(fileData.name, destinationFolder);
+					file.copy(destinationFileData.file.fsName);
+				}
 			}
 			i += 1;
 		}
-		data.comps = comps;
-    }
-
-	function splitAnimation(data, time) {
-		moveCompsAssetsToCompsArray(data);
-	    var comps = data.comps;
-	    var layers = data.layers;
-	    var frameRate = data.fr;
-	    var totalFrames = data.op - data.ip;
-	    var i, len = layers.length, j, jLen;
-	    var currentSegment = time * frameRate;
-	    var segmentLength = time * frameRate;
-	    animationSegments = [];
-	    var currentPeriod, segments, segmentComps;
-	    for (i = 0; i < len; i += 1) {
-	        if (layers[i].ip < currentSegment) {
-	            if (layers[i].ty === layerTypes.precomp) {
-	                if (!segmentComps) {
-	                    segmentComps = [];
-	                }
-	                j = 0;
-	                jLen = comps.length;
-	                while (j < jLen) {
-	                    if (comps[j].id === layers[i].refId) {
-	                        segmentComps.push(comps.splice(j, 1)[0]);
-	                        addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-	                        break;
-	                    }
-	                    j += 1;
-	                }
-	            }
-	        }
-	    }
-
-	    if (data.assets && segmentComps && segmentComps.length) {
-	        data.assets = data.assets.concat(segmentComps);
-	        if (data.comps) {
-	            delete data.comps;
-	        }
-	    } else if(segmentComps) {
-	        data.assets = segmentComps;
-	    }
-	    
-	    var timeData;
-	    
-	    while (currentSegment < totalFrames) {
-	        currentPeriod = null;
-	        segmentComps = null;
-	        for (i = 0; i < len; i += 1) {
-	            if (layers[i].ip >= currentSegment && layers[i].ip < currentSegment + segmentLength) {
-	                if (!segments) {
-	                    segments = [];
-	                }
-	                if (layers[i].ty === layerTypes.precomp) {
-	                    if (!segmentComps) {
-	                        segmentComps = [];
-	                    }
-	                    j = 0;
-	                    jLen = comps.length;
-	                    while (j < jLen) {
-	                        if (comps[j].id === layers[i].refId) {
-	                            segmentComps.push(comps.splice(j, 1)[0]);
-	                            addCompsToSegment(segmentComps[segmentComps.length - 1].layers, comps, segmentComps);
-	                            break;
-	                        }
-	                        j += 1;
-	                    }
-	                }
-	                if (!currentPeriod) {
-	                    timeData = currentSegment / frameRate;
-	                    currentPeriod = {
-	                        layers: []
-	                    };
-	                }
-	                var randomId = bm_generalUtils.random(10);
-	                layers[i].id = randomId;
-	                currentPeriod.layers.push(layers[i]);
-	                layers[i] = {
-	                    id: randomId,
-	                    ty: 99
-	                };
-	            }
-	        }
-	        if (currentPeriod) {
-	            currentPeriod.assets = segmentComps;
-	            animationSegments.push(currentPeriod);
-	            segments.push({
-	                time: timeData
-	            });
-	        }
-	        currentSegment += segmentLength;
-	    }
-	    data.segments = segments;
 	}
 
-	function save(destinationPath, config, callback) {
+	function moveAssetsToDestination() {
+		var rawFiles = bm_fileManager.getFilesOnPath(['standard']);
+		var i = 0, len = rawFiles.length;
+		while(i < len) {
+			var fileData = bm_fileManager.getFileById(rawFiles[i].id);
+			if (fileData) {
+				var file = fileData.file;
+				if(file.exists) {
+					var filePath = fileData.path;
+					var j = 1, jLen = filePath.length;
+					var destinationFolder = new Folder(_destinationData.folder.fsName);
+					while (j < jLen) {
+						destinationFolder.changePath(filePath[j]);
+						if (!destinationFolder.exists) {
+							destinationFolder.create();
+						}
+						j += 1;
+					}
+					var destinationFile = new File(destinationFolder.fsName);
+					destinationFile.changePath(fileData.name);
+					file.copy(destinationFile.fsName);
+				}
+			}
+			i += 1;
+		}
+		_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
+	}
+	
+	function save(destinationPath, config, callback, data) {
 
 		_callback = callback;
 
 		if (config.export_modes.standard) {
-			var destinationData = exporterHelpers.parseDestination(destinationPath, '');
+			_destinationData = exporterHelpers.parseDestination(destinationPath, '');
 
-			var destinationFile = new File(destinationData.folder.fsName);
-			destinationFile.changePath(destinationData.fileName + '.json');
+			var destinationFile = new File(_destinationData.folder.fsName);
+			destinationFile.changePath(_destinationData.fileName + '.json');
 
-			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
-			var animationStringData = exporterHelpers.getJsonData(rawFiles);
-			var data = JSON.parse(animationStringData);
+			copyAssets();
 
-	        var dataFile, string;
 			if (config.segmented) {
-			    splitAnimation(data, config.segmentedTime);
-			    var i, len = animationSegments.length;
-			    // filePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
-			    for (i = 0; i < len; i += 1) {
-			        dataFile = new File(destinationData.folder.fsName);
-			        dataFile.changePath(destinationData.fileName + '_' + i + '.json');
-			        dataFile.open('w', 'TEXT', '????');
-			        dataFile.encoding = 'UTF-8';
-			        string = JSON.stringify(animationSegments[i]);
-        			string = string.replace(/\n/g, '');
-			        try {
-			            dataFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-			            //dataFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-			            dataFile.close();
-			        } catch (err) {
-			        	// TODO: handle error
-			        }
-			    }
+
+				var temporaryFolder = bm_fileManager.getTemporaryFolder();
+				var originFolder = new Folder(temporaryFolder.fsName);
+				originFolder.changePath('raw');
+				var destinationFolder = new Folder(temporaryFolder.fsName);
+				destinationFolder.changePath('standard');
+
+				bm_eventDispatcher.sendEvent('bm:split:animation', 
+				{
+					origin: originFolder.fsName, 
+					destination: destinationFolder.fsName,
+					fileName: _destinationData.fileName,
+					time: config.segmentedTime,
+				});
+				
+			} else {
+				moveAssetsToDestination();
 			}
 
-	        destinationFile.open('w', 'TEXT', '????');
-	        destinationFile.encoding = 'UTF-8';
-	        string = JSON.stringify(data);
-			string = string.replace(/\n/g, '');
-	        try {
-	            destinationFile.write(string); //DO NOT ERASE, JSON UNFORMATTED
-	            //destinationFile.write(JSON.stringify(ob.renderData.exportData, null, '  ')); //DO NOT ERASE, JSON FORMATTED
-	            destinationFile.close();
-				_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
-	        } catch (err) {
-				_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.FAILED);
-	        }
-			exporterHelpers.saveAssets(rawFiles, destinationData.folder);
 		} else {
 			_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
 		}
 
 	}
 
+	function splitSuccess(totalSegments) {
+		for (var i = 0; i < totalSegments; i += 1) {
+			bm_fileManager.createFile(_destinationData.fileName  + '_' + i + '.json', ['standard']);
+		}
+		moveAssetsToDestination();
+	}
+
+	function splitFailed() {
+		_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.FAILED);
+	}
+
 	ob.save = save;
-    
-    return ob;
+	ob.splitSuccess = splitSuccess;
+	ob.splitFailed = splitFailed;
+	
+	return ob;
 }());

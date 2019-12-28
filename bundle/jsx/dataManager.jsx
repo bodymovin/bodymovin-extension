@@ -17,6 +17,7 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_avdExporter = $.__bodymovin.bm_avdExporter;
     var bm_riveExporter = $.__bodymovin.bm_riveExporter;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var layerTypes = $.__bodymovin.layerTypes;
 
     var results = {

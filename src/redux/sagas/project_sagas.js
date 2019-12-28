@@ -55,7 +55,6 @@ function *saveStoredData() {
 			actions.SETTINGS_TOGGLE_VALUE, 
 			actions.SETTINGS_TOGGLE_EXTRA_COMP, 
 			actions.SETTINGS_CANCEL,
-			actions.SETTINGS_EXPORT_MODE_UPDATED,
 			actions.SETTINGS_BANNER_WIDTH_UPDATED,
 			actions.SETTINGS_BANNER_HEIGHT_UPDATED,
 			actions.SETTINGS_BANNER_ORIGIN_UPDATED,
@@ -66,6 +65,7 @@ function *saveStoredData() {
 			actions.SETTINGS_BANNER_ZIP_FILES_UPDATED,
 			actions.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED,
 			actions.SETTINGS_APPLY_FROM_CACHE,
+			actions.SETTINGS_MODE_TOGGLE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)

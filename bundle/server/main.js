@@ -9,6 +9,7 @@ var nodePath = require('path');
 var bodyParser = require('body-parser');
 var PNG = require('pngjs').PNG;
 var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
+var animationSegmenter = require('./animationSegmenter')
 var ltf = new LottieToFlare();
 
 var JSZip = require('jszip');
@@ -188,7 +189,8 @@ app.post('/createBanner/', async function(req, res){
 			message: 'missing params',
 		});
 	}
-})
+});
+
 app.post('/convertToFlare/', async function(req, res){
 	if (req.body.origin && req.body.destination && req.body.fileName) {
 		try {
@@ -229,6 +231,43 @@ app.post('/convertToFlare/', async function(req, res){
 
 			res.send({
 				status: 'success',
+			});
+		} catch(error) {
+			res.send({
+				status: 'error',
+				error: error,
+				message: error ? error.message || 'No message but error' : 'No Error',
+			});
+		}
+	} else {
+		res.send({
+			status: 'error',
+			message: 'missing params',
+		});
+	}
+});
+
+app.post('/splitAnimation/', async function(req, res){
+	if (req.body.origin && req.body.destination && req.body.fileName && req.body.time) {
+		try {
+			const origin = decodeURIComponent(req.body.origin);
+			const destination = decodeURIComponent(req.body.destination);
+			const fileName = decodeURIComponent(req.body.fileName);
+			const time = req.body.time;
+
+			const jsonData = await getJsonData(origin + nodePath.sep + fileName + '.json')
+			const jsonObject = JSON.parse(jsonData);
+			const animationPieces = await animationSegmenter(jsonObject, time)
+
+			await writeFile(destination + nodePath.sep + fileName + '.json', JSON.stringify(animationPieces.main))
+			await Promise.all(animationPieces.segments.map((segment, index) => {
+				return writeFile(destination + nodePath.sep + fileName  + '_' + index + '.json', JSON.stringify(segment))
+			}))
+
+
+			res.send({
+				status: 'success',
+				totalSegments: animationPieces.segments.length
 			});
 		} catch(error) {
 			res.send({
@@ -299,6 +338,18 @@ function getFile(path, encoding = '') {
 		} else {
 			reject('Failed getting File: ' + path)
 		}
+	})
+}
+
+function writeFile(path, content, encoding = 'utf8') {
+	return new Promise((resolve, reject) => {
+		fs.writeFile(path, content, 'utf8', (error, success) => {
+			if (error) {
+				reject(error)
+			} else {
+				resolve(success)
+			}
+		});
 	})
 }
 
@@ -427,10 +478,21 @@ const getBanner = async (req, res) => {
 	}
 }
 
+const segment = async(req, res) => {
+	const originFolder = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\9wh0m1fqqt\\raw'
+	const originFile = originFolder + '\\data.json'
+	const jsonData = await getJsonData(originFile)
+	const jsonObject = JSON.parse(jsonData);
+	const animationPieces = await animationSegmenter(jsonObject)
+	console.log(animationPieces)
+	res.send({
+		status: 'success'
+	})
+}
+
 app.get('/flare', getFlare);
 app.get('/banner', getBanner);
-
-getBanner({send:()=>{}}, {send:()=>{}})
+app.get('/segment', segment);
 
 ////  END TESTING ULRS
 

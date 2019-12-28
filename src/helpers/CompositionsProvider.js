@@ -4,8 +4,8 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
+import {splitAnimation} from './splitAnimationHelper'
 import bodymovin2Avd from 'bodymovin-to-avd'
-import ExportModes from './ExportModes'
 
 function writeFile(path, data) {
 	return new Promise((resolve, reject) => {
@@ -216,6 +216,21 @@ csInterface.addEventListener('bm:zip:banner', async function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:split:animation', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			const splitResponse = await splitAnimation(data.origin, data.destination, data.fileName, data.time);
+			csInterface.evalScript('$.__bodymovin.bm_standardExporter.splitSuccess(' + splitResponse + ')');
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
+	}
+})
+
 function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
@@ -243,9 +258,9 @@ function getDestinationPath(comp, alternatePath) {
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
 		alternatePath = alternatePath.split('\\').join('\\\\')
-		if(comp.settings.export_mode === ExportModes.STANDALONE) {
+		if(comp.settings.export_modes.standalone) {
 			alternatePath += 'data.js'
-		} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+		} else if (comp.settings.export_modes.banner && comp.settings.banner.zip_files) {
 			alternatePath += 'data.zip'
 		} else {
 			alternatePath += 'data.json'
@@ -253,9 +268,9 @@ function getDestinationPath(comp, alternatePath) {
 		destinationPath = alternatePath
 	}
 	var extension = 'json'
-	if (comp.settings.export_mode === ExportModes.STANDALONE) {
+	if (comp.settings.export_modes.standalone) {
 		extension = 'js'
-	} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+	} else if (comp.settings.export_modes.banner && comp.settings.banner.zip_files) {
 		extension = 'zip'
 	}
 	extensionLoader.then(function(){

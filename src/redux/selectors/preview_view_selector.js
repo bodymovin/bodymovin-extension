@@ -28,8 +28,10 @@ const previewViewSelector = createSelector(
   		totalFrames = 1
   	}
 
+    console.log(compositions.items)
+
     let previewableItems = compositions.list.filter(function(id){
-      return compositions.items[id].renderStatus === 1 && compositions.items[id].settings.export_mode === ExportModes.STANDALONE
+      return compositions.items[id].renderStatus === 1 && compositions.items[id].settings.export_modes.standard
     }).map(function(id){
         return compositions.items[id]
     })
