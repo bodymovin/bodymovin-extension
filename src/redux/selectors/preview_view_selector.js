@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect'
-import ExportModes from '../../helpers/ExportModes'
 
 const getPreview = (state) => state.preview
 const getCompositions = (state) => state.compositions

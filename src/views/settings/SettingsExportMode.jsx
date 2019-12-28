@@ -1,5 +1,4 @@
 import React from 'react'
-import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 // import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import SettingsBanner from './SettingsBanner'

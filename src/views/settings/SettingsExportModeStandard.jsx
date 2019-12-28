@@ -2,7 +2,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import SettingsListItem from './list/SettingsListItem'
-import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
+// import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import {
   handleModeToggle, 
   updateSettingsValue, 

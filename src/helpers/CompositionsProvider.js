@@ -186,27 +186,12 @@ csInterface.addEventListener('app:version', function (ev) {
 	}
 })
 
-function addDirToZip(zip, currentRelativePath, fullPath) {
-	let fileData = window.cep.fs.readFile(fullPath + currentRelativePath)
-	if(fileData.err === 0) {
-		zip.file(currentRelativePath, fileData.data);
-	} else {
-		fileData = window.cep.fs.readdir(fullPath + currentRelativePath)
-		if (fileData.err === 0) {
-			fileData.data.forEach(fileName => {
-				addDirToZip(zip, currentRelativePath + '/' + fileName, fullPath)
-			})
-		}
-		
-	}
-}
-
 csInterface.addEventListener('bm:zip:banner', async function (ev) {
 	try {
 		if(ev.data) {
 			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 			////
-			const bannerResponse = await bannerSaveFile(data.folderPath, data.destinationPath);
+			await bannerSaveFile(data.folderPath, data.destinationPath);
 			csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFinished()');
 		} else {
 			throw new Error('Missing data')
