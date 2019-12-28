@@ -284,6 +284,9 @@ app.post('/splitAnimation/', async function(req, res){
 	}
 });
 
+app.get('/ping', function(req, res){
+	res.send('pong')
+})
 
 
 // Helpers

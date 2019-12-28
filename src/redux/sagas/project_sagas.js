@@ -10,9 +10,12 @@ import {
 	loadFileData
 } from '../../helpers/FileLoader'
 import {getVersionFromExtension, setLottiePaths, initializeServer} from '../../helpers/CompositionsProvider'
+import {ping as serverPing} from '../../helpers/serverHelper'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import LottieVersions from '../../helpers/LottieVersions'
+
+const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 function *projectGetStoredData(action) {
 	try{
@@ -91,8 +94,24 @@ function *getLottieFilesSizes() {
 	setLottiePaths(LottieVersions)
 }
 
+function *pingServer() {
+	while(true) {
+		yield call(delay, 5000)
+		yield call(serverPing)
+	}
+}
+
 function *start() {
-	yield call(initializeServer)
+	while(true) {
+		yield call(initializeServer)
+		try {
+			yield call(pingServer)
+		} catch (err) {
+			yield put({ 
+					type: actions.SERVER_PING_FAIL,
+			})
+		}
+	}
 }
 
 export default [

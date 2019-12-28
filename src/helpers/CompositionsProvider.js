@@ -4,19 +4,8 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
+import {saveFile as avdSaveFile} from './avdHelper'
 import {splitAnimation} from './splitAnimationHelper'
-import bodymovin2Avd from 'bodymovin-to-avd'
-
-function writeFile(path, data) {
-	return new Promise((resolve, reject) => {
-		var result = window.cep.fs.writeFile(path, data);
-		if (0 !== result.err) {
-			reject(result.err)
-		} else {
-			resolve(true)
-		}
-	})
-}
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -136,12 +125,19 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	}
 })
 
-csInterface.addEventListener('bm:create:avd', function (ev) {
+csInterface.addEventListener('bm:create:avd', async function (ev) {
 	if(ev.data) {
-		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
-
-		let animationData = JSON.parse(data.animation);
-		saveAVD(animationData, data.destination);
+		try {
+			let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+			await avdSaveFile(data.origin, data.destination)
+			// let animationData = JSON.parse(data.animation);
+			// saveAVD(animationData, data.destination);
+			const eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
+	    	csInterface.evalScript(eScript);
+		} catch(err) {
+	    	const eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
+	    	csInterface.evalScript(eScript);
+		} 
 	} else {
 	}
 })
@@ -337,38 +333,6 @@ function riveFileSaveFailed() {
 	})
 }
 
-
-
-async function saveAVD(data, destination) {
-	try {
-		var avdData = await bodymovin2Avd(data);
-		await writeFile(destination, avdData);
-		
-		var eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
-	    csInterface.evalScript(eScript);
-	} catch(error) {
-		extensionLoader.then(function(){
-			var eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
-			csInterface.evalScript(eScript);
-		})
-		dispatcher({ 
-				type: actions.RENDER_AVD_FAILED
-		})
-	}
-	bodymovin2Avd(data).then(function(avdData){
-		var eScript = "$.__bodymovin.bm_dataManager.saveAVDData('" + avdData + "')";
-	    csInterface.evalScript(eScript);
-	}).catch(function(){
-		extensionLoader.then(function(){
-			var eScript = '$.__bodymovin.bm_dataManager.saveAVDFailed()';
-			csInterface.evalScript(eScript);
-		})
-		dispatcher({ 
-				type: actions.RENDER_AVD_FAILED
-		})
-	})
-}
-
 function getVersionFromExtension() {
 	let prom = new Promise(function(resolve, reject){
 		resolve()
@@ -427,7 +391,6 @@ export {
 	goToFolder,
 	getVersionFromExtension,
 	imageProcessed,
-	saveAVD,
 	getFileData,
 	setLottiePaths,
 	initializeServer,
