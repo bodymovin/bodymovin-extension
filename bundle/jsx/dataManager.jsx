@@ -144,7 +144,7 @@ $.__bodymovin.bm_dataManager = (function () {
 
         bm_avdExporter.save(destinationPath, config, onResult);
         bm_bannerExporter.save(destinationPath, config, onResult);
-        bm_demoExporter.save(destinationPath, config, onResult);
+        bm_demoExporter.save(destinationPath, config, onResult, data);
         bm_riveExporter.save(destinationPath, config, onResult);
         bm_standardExporter.save(destinationPath, config, onResult);
         bm_standaloneExporter.save(destinationPath, config, onResult);
