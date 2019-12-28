@@ -1,6 +1,4 @@
 import bodymovin2Avd from 'bodymovin-to-avd'
-import csInterface from './CSInterfaceHelper'
-import extensionLoader from './ExtensionLoader'
 
 function writeFile(path, data) {
 	return new Promise((resolve, reject) => {

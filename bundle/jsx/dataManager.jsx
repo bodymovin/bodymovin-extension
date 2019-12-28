@@ -107,7 +107,7 @@ $.__bodymovin.bm_dataManager = (function () {
         
         if (idleCount === 0) {
             if (failedCount > 0) {
-                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Some exports failed.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
+                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Some exports failed.<br /> Is Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network enabled?'});
             }
             _endCallback();
         }

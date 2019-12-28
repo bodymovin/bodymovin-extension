@@ -254,7 +254,12 @@ $.__bodymovin.bm_renderManager = (function () {
     
     function saveData() {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
-        bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
+        try {
+            bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
+        } catch(err) {
+            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not export files <br /> Is Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network enabled?'});
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render Failed ', compId: currentCompID, progress: 1, isFinished: false, fsPath: fsDestinationPath});
+        }
     }
     
     function clearUnrenderedLayers(layers) {
