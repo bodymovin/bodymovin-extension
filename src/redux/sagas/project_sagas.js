@@ -10,9 +10,12 @@ import {
 	loadFileData
 } from '../../helpers/FileLoader'
 import {getVersionFromExtension, setLottiePaths, initializeServer} from '../../helpers/CompositionsProvider'
+import {ping as serverPing} from '../../helpers/serverHelper'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import LottieVersions from '../../helpers/LottieVersions'
+
+const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 function *projectGetStoredData(action) {
 	try{
@@ -55,7 +58,6 @@ function *saveStoredData() {
 			actions.SETTINGS_TOGGLE_VALUE, 
 			actions.SETTINGS_TOGGLE_EXTRA_COMP, 
 			actions.SETTINGS_CANCEL,
-			actions.SETTINGS_EXPORT_MODE_UPDATED,
 			actions.SETTINGS_BANNER_WIDTH_UPDATED,
 			actions.SETTINGS_BANNER_HEIGHT_UPDATED,
 			actions.SETTINGS_BANNER_ORIGIN_UPDATED,
@@ -66,6 +68,7 @@ function *saveStoredData() {
 			actions.SETTINGS_BANNER_ZIP_FILES_UPDATED,
 			actions.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED,
 			actions.SETTINGS_APPLY_FROM_CACHE,
+			actions.SETTINGS_MODE_TOGGLE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
@@ -91,8 +94,24 @@ function *getLottieFilesSizes() {
 	setLottiePaths(LottieVersions)
 }
 
+function *pingServer() {
+	while(true) {
+		yield call(delay, 5000)
+		yield call(serverPing)
+	}
+}
+
 function *start() {
-	yield call(initializeServer)
+	while(true) {
+		yield call(initializeServer)
+		try {
+			yield call(pingServer)
+		} catch (err) {
+			yield put({ 
+					type: actions.SERVER_PING_FAIL,
+			})
+		}
+	}
 }
 
 export default [

@@ -130,13 +130,6 @@ function applySettingsFromCache(settings, allComps) {
 	}
 }
 
-function handleExportMode(exportMode) {
-	return {
-		type: actionTypes.SETTINGS_EXPORT_MODE_UPDATED,
-		exportMode,
-	}
-}
-
 function handleBannerWidthChange(value) {
 	return {
 		type: actionTypes.SETTINGS_BANNER_WIDTH_UPDATED,
@@ -232,7 +225,6 @@ export {
 	applySettings,
 	applySettingsFromCache,
 	applySettingsToSelectedComps,
-	handleExportMode,
 	handleBannerWidthChange,
 	handleBannerHeightChange,
 	handleBannerVersionChange,

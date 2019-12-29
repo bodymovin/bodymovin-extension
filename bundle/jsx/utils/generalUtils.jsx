@@ -137,7 +137,7 @@ $.__bodymovin.bm_generalUtils = (function () {
         }
         return ob;
     }
-    
+
     ob.random = random;
     ob.roundNumber = roundNumber;
     ob.setTimeout = setTimeout;

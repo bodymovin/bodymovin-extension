@@ -51,7 +51,7 @@ $.__bodymovin.bm_riveExporter = (function () {
 			var destinationData = exporterHelpers.parseDestination(destinationPath, 'rive');
 
 			copyAssets();
-			var temporaryFolder = bm_fileManager.getTemporaryFolder()
+			var temporaryFolder = bm_fileManager.getTemporaryFolder();
 			var originFolder = new Folder(temporaryFolder.fsName);
 			originFolder.changePath('rive');
 

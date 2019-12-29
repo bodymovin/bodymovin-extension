@@ -10,7 +10,7 @@ $.__bodymovin.bm_demoExporter = (function () {
 	var ob = {}
 	var _callback;
 
-	function save(destinationPath, config, callback) {
+	function save(destinationPath, config, callback, data) {
 
 		_callback = callback;
 
@@ -25,7 +25,6 @@ $.__bodymovin.bm_demoExporter = (function () {
 	        // var fullFilePathName = destinationPath.substr(destinationPath.lastIndexOf('/') + 1);
 
 			var animationStringData = exporterHelpers.getJsonData(rawFiles);
-			var data = JSON.parse(animationStringData);
 
 			var demoStr = bm_downloadManager.getDemoData();
 			demoStr = demoStr.replace('"__[[ANIMATIONDATA]]__"', "" + animationStringData + "");

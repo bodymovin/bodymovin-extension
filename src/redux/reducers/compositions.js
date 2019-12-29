@@ -454,7 +454,7 @@ function applySettingsFromCache(state, action) {
   return newState
 }
 
-function updateExportMode(state, action) {
+/*function updateExportMode(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
   newSettings.export_mode = action.exportMode
@@ -481,7 +481,7 @@ function updateExportMode(state, action) {
   let newState = {...state}
   newState.items = newItems
   return newState
-}
+}*/
 
 function toggleMode(state, action) {
   let newItem = {...state.items[state.current]}
@@ -492,6 +492,20 @@ function toggleMode(state, action) {
     [mode]: !newSettings.export_modes[mode]
   }
   newItem.settings = newSettings
+  ////
+  if (newItem.destination) {
+    if (newSettings.export_modes.standalone) {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
+    } else if (newSettings.export_modes.banner && newSettings.banner.zip_files){
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.zip')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.zip')
+    } else {
+      newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
+      newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+    }
+  }
+  ////
   let newItems = {...state.items}
   newItems[state.current] = newItem
   return {
@@ -586,8 +600,6 @@ export default function compositions(state = initialState, action) {
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:
       return applySettingsFromCache(state, action)
-    case actionTypes.SETTINGS_EXPORT_MODE_UPDATED:
-      return updateExportMode(state, action)
     case actionTypes.SETTINGS_BANNER_WIDTH_UPDATED:
     case actionTypes.SETTINGS_BANNER_HEIGHT_UPDATED:
     case actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED:

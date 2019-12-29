@@ -17,6 +17,7 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_avdExporter = $.__bodymovin.bm_avdExporter;
     var bm_riveExporter = $.__bodymovin.bm_riveExporter;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var layerTypes = $.__bodymovin.layerTypes;
 
     var results = {
@@ -106,7 +107,7 @@ $.__bodymovin.bm_dataManager = (function () {
         
         if (idleCount === 0) {
             if (failedCount > 0) {
-                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Some exports failed.<br /> Make sure you have enabled scripts to write files. <br /> Edit > Preferences > General > Allow Scripts to Write Files and Access Network '});
+                bm_eventDispatcher.sendEvent('bm:alert', {message: 'Some exports failed.<br /> Is Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network enabled?'});
             }
             _endCallback();
         }
@@ -143,7 +144,7 @@ $.__bodymovin.bm_dataManager = (function () {
 
         bm_avdExporter.save(destinationPath, config, onResult);
         bm_bannerExporter.save(destinationPath, config, onResult);
-        bm_demoExporter.save(destinationPath, config, onResult);
+        bm_demoExporter.save(destinationPath, config, onResult, data);
         bm_riveExporter.save(destinationPath, config, onResult);
         bm_standardExporter.save(destinationPath, config, onResult);
         bm_standaloneExporter.save(destinationPath, config, onResult);

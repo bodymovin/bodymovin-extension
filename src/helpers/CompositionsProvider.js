@@ -4,19 +4,8 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
-import bodymovin2Avd from 'bodymovin-to-avd'
-import ExportModes from './ExportModes'
-
-function writeFile(path, data) {
-	return new Promise((resolve, reject) => {
-		var result = window.cep.fs.writeFile(path, data);
-		if (0 !== result.err) {
-			reject(result.err)
-		} else {
-			resolve(true)
-		}
-	})
-}
+import {saveFile as avdSaveFile} from './avdHelper'
+import {splitAnimation} from './splitAnimationHelper'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -136,12 +125,19 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	}
 })
 
-csInterface.addEventListener('bm:create:avd', function (ev) {
+csInterface.addEventListener('bm:create:avd', async function (ev) {
 	if(ev.data) {
-		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
-
-		let animationData = JSON.parse(data.animation);
-		saveAVD(animationData, data.destination);
+		try {
+			let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+			await avdSaveFile(data.origin, data.destination)
+			// let animationData = JSON.parse(data.animation);
+			// saveAVD(animationData, data.destination);
+			const eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
+	    	csInterface.evalScript(eScript);
+		} catch(err) {
+	    	const eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
+	    	csInterface.evalScript(eScript);
+		} 
 	} else {
 	}
 })
@@ -186,33 +182,33 @@ csInterface.addEventListener('app:version', function (ev) {
 	}
 })
 
-function addDirToZip(zip, currentRelativePath, fullPath) {
-	let fileData = window.cep.fs.readFile(fullPath + currentRelativePath)
-	if(fileData.err === 0) {
-		zip.file(currentRelativePath, fileData.data);
-	} else {
-		fileData = window.cep.fs.readdir(fullPath + currentRelativePath)
-		if (fileData.err === 0) {
-			fileData.data.forEach(fileName => {
-				addDirToZip(zip, currentRelativePath + '/' + fileName, fullPath)
-			})
-		}
-		
-	}
-}
-
 csInterface.addEventListener('bm:zip:banner', async function (ev) {
 	try {
 		if(ev.data) {
 			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 			////
-			const bannerResponse = await bannerSaveFile(data.folderPath, data.destinationPath);
+			await bannerSaveFile(data.folderPath, data.destinationPath);
 			csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFinished()');
 		} else {
 			throw new Error('Missing data')
 		}
 	} catch(err) {
 		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.bannerFailed()');
+	}
+})
+
+csInterface.addEventListener('bm:split:animation', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			const splitResponse = await splitAnimation(data.origin, data.destination, data.fileName, data.time);
+			csInterface.evalScript('$.__bodymovin.bm_standardExporter.splitSuccess(' + splitResponse + ')');
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
 	}
 })
 
@@ -243,9 +239,9 @@ function getDestinationPath(comp, alternatePath) {
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
 		alternatePath = alternatePath.split('\\').join('\\\\')
-		if(comp.settings.export_mode === ExportModes.STANDALONE) {
+		if(comp.settings.export_modes.standalone) {
 			alternatePath += 'data.js'
-		} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+		} else if (comp.settings.export_modes.banner && comp.settings.banner.zip_files) {
 			alternatePath += 'data.zip'
 		} else {
 			alternatePath += 'data.json'
@@ -253,9 +249,9 @@ function getDestinationPath(comp, alternatePath) {
 		destinationPath = alternatePath
 	}
 	var extension = 'json'
-	if (comp.settings.export_mode === ExportModes.STANDALONE) {
+	if (comp.settings.export_modes.standalone) {
 		extension = 'js'
-	} else if (comp.settings.export_mode === ExportModes.BANNER && comp.settings.banner.zip_files) {
+	} else if (comp.settings.export_modes.banner && comp.settings.banner.zip_files) {
 		extension = 'zip'
 	}
 	extensionLoader.then(function(){
@@ -337,38 +333,6 @@ function riveFileSaveFailed() {
 	})
 }
 
-
-
-async function saveAVD(data, destination) {
-	try {
-		var avdData = await bodymovin2Avd(data);
-		await writeFile(destination, avdData);
-		
-		var eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
-	    csInterface.evalScript(eScript);
-	} catch(error) {
-		extensionLoader.then(function(){
-			var eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
-			csInterface.evalScript(eScript);
-		})
-		dispatcher({ 
-				type: actions.RENDER_AVD_FAILED
-		})
-	}
-	bodymovin2Avd(data).then(function(avdData){
-		var eScript = "$.__bodymovin.bm_dataManager.saveAVDData('" + avdData + "')";
-	    csInterface.evalScript(eScript);
-	}).catch(function(){
-		extensionLoader.then(function(){
-			var eScript = '$.__bodymovin.bm_dataManager.saveAVDFailed()';
-			csInterface.evalScript(eScript);
-		})
-		dispatcher({ 
-				type: actions.RENDER_AVD_FAILED
-		})
-	})
-}
-
 function getVersionFromExtension() {
 	let prom = new Promise(function(resolve, reject){
 		resolve()
@@ -427,7 +391,6 @@ export {
 	goToFolder,
 	getVersionFromExtension,
 	imageProcessed,
-	saveAVD,
 	getFileData,
 	setLottiePaths,
 	initializeServer,

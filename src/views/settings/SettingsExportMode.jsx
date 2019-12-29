@@ -1,5 +1,4 @@
 import React from 'react'
-import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 // import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import SettingsBanner from './SettingsBanner'
@@ -8,8 +7,6 @@ import SettingsAVD from './SettingsExportModeAVD'
 import SettingsFlare from './SettingsExportModeFlare'
 import SettingsDemo from './SettingsExportModeDemo'
 import SettingsStandalone from './SettingsExportModeStandalone'
-import {handleExportMode} from '../../redux/actions/compositionActions'
-import settings_export_mode_selector from '../../redux/selectors/settings_export_mode_selector'
 import ExportModes from '../../helpers/ExportModes'
 import Variables from '../../helpers/styles/variables'
 
@@ -45,10 +42,6 @@ class SettingsExportMode extends React.PureComponent {
     [ExportModes.BANNER]: 'Exports a bundle of files for banner usage',
   }
 
-  handleChange = (value) => {
-    this.props.handleExportMode(value)
-  }
-
   getDescription() {
 
   }
@@ -57,54 +50,31 @@ class SettingsExportMode extends React.PureComponent {
 		return (
       <div className={css(styles.wrapper)}>
         <div className={css(styles.wrapperContainer)}>
-            <div className={css(styles.title)}>Export Modes</div>
-            <div className={css(styles.modes)}>
-              <div className={css(styles.modeItem)}>
-                <SettingsStandard />
-              </div>
-              <div className={css(styles.modeItem)}>
-                <SettingsDemo />
-              </div>
-              <div className={css(styles.modeItem)}>
-                <SettingsFlare />
-              </div>
-              <div className={css(styles.modeItem)}>
-                <SettingsStandalone />
-              </div>
-              <div className={css(styles.modeItem)}>
-                <SettingsBanner />
-              </div>
-              <div className={css(styles.modeItem)}>
-                <SettingsAVD />
-              </div>
+          <div className={css(styles.title)}>Export Modes</div>
+          <div className={css(styles.modes)}>
+            <div className={css(styles.modeItem)}>
+              <SettingsStandard />
             </div>
-          {/*<SettingsListDropdown 
-            title='Export mode'
-            description={this.descriptions[this.props.export_mode]}
-            onChange={this.handleChange}
-            current={this.props.export_mode}
-            options={[
-              {value:ExportModes.STANDARD, text: 'Standard'}, 
-              {value:ExportModes.STANDALONE, text: 'Standalone'}, 
-              {value:ExportModes.BANNER, text: 'Banner'}
-            ]}  
-          />*/}
-          {
-            /*this.props.export_mode === ExportModes.BANNER &&
-            <SettingsBanner />*/
-          }
+            <div className={css(styles.modeItem)}>
+              <SettingsDemo />
+            </div>
+            <div className={css(styles.modeItem)}>
+              <SettingsFlare />
+            </div>
+            <div className={css(styles.modeItem)}>
+              <SettingsStandalone />
+            </div>
+            <div className={css(styles.modeItem)}>
+              <SettingsBanner />
+            </div>
+            <div className={css(styles.modeItem)}>
+              <SettingsAVD />
+            </div>
+          </div>
         </div>
       </div>
     )
 	}
 }
 
-function mapStateToProps(state) {
-  return settings_export_mode_selector(state)
-}
-
-const mapDispatchToProps = {
-  handleExportMode: handleExportMode,
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsExportMode)
+export default SettingsExportMode

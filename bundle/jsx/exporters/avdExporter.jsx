@@ -27,10 +27,13 @@ $.__bodymovin.bm_avdExporter = (function () {
 			var avdDestinationFileName = new File(destinationData.folder.fsName)
 			avdDestinationFileName.changePath(destinationData.fileName + '.xml')
 
-			var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
+			var temporaryFolder = bm_fileManager.getTemporaryFolder();
+			var jsonFile = new File(temporaryFolder.fsName);
+			jsonFile.changePath('raw');
+			jsonFile.changePath(destinationData.fileName + '.json');
 
-			var animationStringData = exporterHelpers.getJsonData(rawFiles);
-			bm_eventDispatcher.sendEvent('bm:create:avd', {animation: animationStringData, destination: avdDestinationFileName.fsName});
+			// var animationStringData = exporterHelpers.getJsonData(rawFiles);
+			bm_eventDispatcher.sendEvent('bm:create:avd', {origin: jsonFile.fsName, destination: avdDestinationFileName.fsName});
 		
 		} else {
 			_callback(exporterHelpers.exportTypes.AVD, exporterHelpers.exportStatuses.SUCCESS);
