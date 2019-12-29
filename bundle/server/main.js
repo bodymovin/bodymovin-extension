@@ -216,7 +216,7 @@ app.post('/convertToFlare/', async function(req, res){
 				.filter(asset => !!asset.p)
 
 			const assetsData = await Promise.all(lottieAssets.map(asset => {
-				return getFile(originPath + '\\' + asset.u + asset.p)
+				return getFile(originPath + nodePath.sep + asset.u + asset.p)
 			}))
 			lottieAssets.forEach((asset, index) => {
 				zip.file(asset.id, assetsData[index]);
@@ -224,7 +224,7 @@ app.post('/convertToFlare/', async function(req, res){
 
 			const zipBlob = await zip.generateAsync({type: 'nodebuffer'})
 
-			fs.writeFile(destinationPath + '\\' + destinationName, zipBlob, 'binary', (error, success) => {
+			fs.writeFile(destinationPath + nodePath.sep + destinationName, zipBlob, 'binary', (error, success) => {
 				console.log(error, success)
 			});
 			
@@ -310,7 +310,7 @@ function getJsonPath(items, originPath) {
 			console.log(items[i])
 			console.log(items[i].indexOf('.json'))
 			if (items[i].indexOf('.json') !== -1) {
-				jsonFilePath = originPath + '\\' + items[i];
+				jsonFilePath = originPath + nodePath.sep + items[i];
 				break;
 			}
 		}
@@ -417,7 +417,7 @@ const getFlare = async function(req, res){
 			.filter(asset => !!asset.p)
 
 		const assetsData = await Promise.all(lottieAssets.map(asset => {
-			return getFile(originPath + '\\' + asset.u + asset.p)
+			return getFile(originPath + nodePath.sep + asset.u + asset.p)
 		}))
 		lottieAssets.forEach((asset, index) => {
 			zip.file(asset.id, assetsData[index]);
@@ -425,7 +425,7 @@ const getFlare = async function(req, res){
 
 		const zipBlob = await zip.generateAsync({type: 'nodebuffer'})
 
-		fs.writeFile(destinationPath + '\\' + destinationName, zipBlob, 'binary', (error, success) => {
+		fs.writeFile(destinationPath + nodePath.sep + destinationName, zipBlob, 'binary', (error, success) => {
 			console.log(error, success)
 		});
 		
