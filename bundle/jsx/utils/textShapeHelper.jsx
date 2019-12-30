@@ -1,7 +1,6 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global app, bm_projectManager, bm_shapeHelper, bm_renderManager, ParagraphJustification*/
+/*global app, bm_projectManager, $, ParagraphJustification*/
 $.__bodymovin.bm_textShapeHelper = (function () {
-    'use strict';
     var bm_projectManager = $.__bodymovin.bm_projectManager;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;

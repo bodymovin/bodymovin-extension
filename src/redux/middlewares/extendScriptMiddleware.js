@@ -2,7 +2,6 @@ import actionTypes from '../actions/actionTypes'
 import {convertLottieFileFromPath} from '../../helpers/ImportFilesHelper'
 
 function handleImportLottieSuccess(action) {
-	console.log(action)
 	convertLottieFileFromPath(action.path);
 }
 

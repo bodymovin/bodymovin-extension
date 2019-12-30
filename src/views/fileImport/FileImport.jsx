@@ -1,6 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
+import {goToComps} from '../../redux/actions/compositionActions'
 import {importLottieFile} from '../../redux/actions/importActions'
 
 const styles = StyleSheet.create({
@@ -25,15 +26,22 @@ class FileImport extends React.Component {
       <div className={css(styles.container)}>
         File Import
         <button
+          style={{height:'80px', border: '1px solid'}}
           onClick={this.onLottieSelect}
         >Import Lottie
+        </button>
+        <button
+          style={{height:'80px', border: '1px solid'}}
+          onClick={this.props.goToComps}
+        >Back
         </button>
       </div>
       );
   }
 }
 const mapDispatchToProps = {
-  importLottieFile: importLottieFile
+  importLottieFile: importLottieFile,
+  goToComps: goToComps,
 }
 
 export default connect(null, mapDispatchToProps)(FileImport)

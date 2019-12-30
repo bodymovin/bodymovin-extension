@@ -1,64 +1,69 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $*/
+/*global File, Folder, $, app*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
 	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
- 	// var bm_fileManager = $.__bodymovin.bm_fileManager;
-    var JSON = $.__bodymovin.JSON;
 
 	var ob = {};
 
+	var mainFolder;
+	var elements = {};
+	var frameRate = 0;
+
+	function getElementById(id) {
+		if(elements[id]) {
+			return elements[id].element;
+		}
+		return null;
+	}
+
 	function createFolder(name) {
-
+		name = name || 'Imported_Lottie_Animation';
+		mainFolder = app.project.items.addFolder(name);
 	}
 
-	function importLottie(lottie) {
-		bm_eventDispatcher.log("ASSETS: " + lottie.assets.length)
-	}
-
-	function loadFileFromPath(path) {
-		bm_eventDispatcher.log("PASO 1: ");
-		bm_eventDispatcher.log(path);
-		var lottieFile = new File(decodeURIComponent(path));
-		if (lottieFile.exists) {
-			bm_eventDispatcher.log("PASO 2:EXISTS: ");
-			lottieFile.open('r');
-			bm_eventDispatcher.log("PASO 3:EXISTS: ");
-			var lottieString = lottieFile.read();
-			bm_eventDispatcher.log("PASO 4:EXISTS: ");
-			lottieFile.close();
-			bm_eventDispatcher.log("PASO 5:EXISTS: ");
-			bm_eventDispatcher.log("PASO 6:EXISTS: ");
-
-		} else {
-			throw new Error('File does not exist')
+	function createComp(name, width, height, duration, id) {
+		name = name || 'Lottie_Main_Comp';
+		var comp = app.project.items.addComp(name, width, height, 1, duration / frameRate, frameRate);
+		elements[id] = {
+			element: comp
 		}
-
+		comp.parentFolder = mainFolder;
+		//'bm_charHelper', 1000, 1000, 1, 1, 1
 	}
 
-	function importFromPath(path) {
-		try {
-			loadFileFromPath(path)
-			// var lottieFile = new File(decodeURIComponent(path))
-			// bm_eventDispatcher.log("PASO 2: ")
-			// lottieFile.open('r');
-			// bm_eventDispatcher.log("PASO 3: ")
-			// var lottieString = lottieFile.read();
-			// bm_eventDispatcher.log("PASO 4: ")
-			// lottieFile.close();
-			// bm_eventDispatcher.log("PASO 5: ")
-			// importLottie(JSON.parse(lottieString))
-			// bm_eventDispatcher.log("PASO 6: ")
+	function createSolid(color, name, width, height, duration, elementId, parentCompId) {
+		var comp = getElementById(parentCompId);
+		// comp.layers.addSolid(color, name, width, height, 1, duration);
+		bm_eventDispatcher.log(comp.layers.length);
 
-		} catch(err) {
-            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not import lottie file'});
-		}
+		var solid = comp.layers.addSolid(color, name, width, height, 1, duration / frameRate);
+		elements[elementId] = {
+			element: solid
+		};
 	}
 
+	function setFrameRate(value) {
+		frameRate = value;
+	}
 
-	ob.importLottie = importLottie;
-	ob.importFromPath = importFromPath;
+	function setElementPosition(value, elementId) {
+		var element = getElementById(elementId);
+		element.transform.position.setValue(value);
+	}
+
+	function reset() {
+		elements = {};
+		mainFolder = null;
+	}
+
+	ob.reset = reset;
+	ob.createFolder = createFolder;
+	ob.createComp = createComp;
+	ob.createSolid = createSolid;
+	ob.setFrameRate = setFrameRate;
+	ob.setElementPosition = setElementPosition;
     
     return ob;
 }());
