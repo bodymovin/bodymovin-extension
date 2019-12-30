@@ -88,7 +88,7 @@ function *getLottieFilesSizes() {
 	while (i < LottieVersions.length) {
 		const lottieData = LottieVersions[i] 
 		const fileData = yield call(loadFileData, `assets/player/${lottieData.local}` )
-		lottieData.fileSize = Math.round(fileData.length / 100) / 10 + ' Kb'
+		lottieData.fileSize = Math.round(fileData.size / 100) / 10 + ' Kb'
 		i += 1
 	}
 	setLottiePaths(LottieVersions)

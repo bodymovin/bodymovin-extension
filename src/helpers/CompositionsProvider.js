@@ -359,23 +359,6 @@ function imageProcessed(result) {
 	})
 }
 
-var getFileData = function(path) { 
-	return new Promise(function(resolve, reject){
-
-		function onFileData(ev) {
-			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-			csInterface.removeEventListener('bm:application:file', onFileData)
-			resolve(data)
-		}
-
-		csInterface.addEventListener('bm:application:file', onFileData)
-		extensionLoader.then(function(){
-			var eScript = '$.__bodymovin.bm_projectManager.getFileData("' + path + '")';
-		    csInterface.evalScript(eScript);
-		})
-	})
-}
-
 function initializeServer() {
 	csInterface.requestOpenExtension("com.bodymovin.bodymovin_server", "");
 }
@@ -391,7 +374,6 @@ export {
 	goToFolder,
 	getVersionFromExtension,
 	imageProcessed,
-	getFileData,
 	setLottiePaths,
 	initializeServer,
 	riveFileSaveSuccess,

@@ -1,4 +1,6 @@
-import {getFileData} from './CompositionsProvider'
+import csInterface from './CSInterfaceHelper'
+import {getSeparator} from './osHelper'
+import fs from './fs_proxy'
 
 function loadBodymovinFileData(path) {
 	var reject, resolve
@@ -26,8 +28,9 @@ function loadBodymovinFileData(path) {
 export default loadBodymovinFileData
 
 async function loadFileData(path) {
-    const value = await getFileData(path)
-    return Promise.resolve(value)
+    var extensionPath = csInterface.getSystemPath('extension');
+    var fileStats = fs.statSync(extensionPath +  getSeparator() + path)
+    return Promise.resolve(fileStats)
     
 }
 
