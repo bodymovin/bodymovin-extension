@@ -35,9 +35,23 @@ function createLayer(layerData, compId) {
 	}
 }
 
+function findLayerByIndex(layers, index) {
+	return layers.find(layer => layer.ind === index)
+}
+
 function iterateLayers(layers, compId) {
-	layers.forEach(layer => {
+	layers
+	.reverse()
+	.forEach(layer => {
 		createLayer(layer, compId)
+	})
+	// Iterating twice so all layers have been created
+	layers
+	.forEach(layer => {
+		if ('parent' in layer) {
+			const parentLayer = findLayerByIndex(layers, layer.parent);
+			sendCommand('setLayerParent', [layer.__importId, parentLayer.__importId]);
+		}
 	})
 }
 
@@ -46,7 +60,7 @@ async function convertLottieFileFromPath(path) {
 	try {
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path)
-		// console.log('lottieData', lottieData)
+		console.log('lottieData', lottieData)
 		setFrameRate(lottieData.fr);
 		sendCommand('setFrameRate', [lottieData.fr]);
 		createFolder(lottieData.nm)

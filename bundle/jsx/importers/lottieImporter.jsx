@@ -72,6 +72,12 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	}
 
+	function setLayerParent(layerId, parentLayerId) {
+		var layer = getElementById(layerId);
+		var parent = getElementById(parentLayerId);
+		layer.setParentWithJump(parent);
+	}
+
 	function reset() {
 		elements = {};
 		mainFolder = null;
@@ -85,6 +91,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setElementTransformValue = setElementTransformValue;
 	ob.setElementTransformKey = setElementTransformKey;
 	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
+	ob.setLayerParent = setLayerParent;
     
     return ob;
 }());
