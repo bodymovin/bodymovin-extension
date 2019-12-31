@@ -57,22 +57,18 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		element.transform[propertyName].setValueAtTime(time / frameRate, value);
 	}
 
-	function setElementTemporalKeyAtIndex(propertyName, index, valueIn, valueOut, elementId) {
-		// bm_eventDispatcher.log('PASO 1')
-		// bm_eventDispatcher.log(propertyName)
-		// bm_eventDispatcher.log(index)
-		// bm_eventDispatcher.log(valueIn)
-		// bm_eventDispatcher.log(valueOut)
+	function setElementTemporalKeyAtIndex(propertyName, index, inInfluences, inSpeeds, outInfluences, outSpeeds, elementId) {
 		var element = getElementById(elementId);
-		// bm_eventDispatcher.log('PASO 2')
 		var property = element.transform.property(propertyName);
-		// bm_eventDispatcher.log('PASO 3')
-		var easeIn = new KeyframeEase(valueIn[0], valueIn[1]);
-		// bm_eventDispatcher.log('PASO 4')
-		var easeOut = new KeyframeEase(valueOut[0], valueOut[1]);
-		// bm_eventDispatcher.log('PASO 5')
-		property.setTemporalEaseAtKey(index, [easeIn], [easeOut]);
-		// bm_eventDispatcher.log('PASO 6')
+		var inEases = [];
+		var outEases = [];
+		for (var i = 0; i < inInfluences.length; i += 1) {
+			var easeIn = new KeyframeEase(inSpeeds[i], inInfluences[i]);
+			inEases.push(easeIn);
+			var easeOut = new KeyframeEase(outSpeeds[i], outInfluences[i]);
+			outEases.push(easeOut);
+		}
+		property.setTemporalEaseAtKey(index, inEases, outEases);
 
 	}
 
