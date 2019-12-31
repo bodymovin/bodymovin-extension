@@ -170,6 +170,8 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 segmentOb.h = 1;
             } else {
                 duration = (key.time - lastKey.time)/STRETCH_FACTOR;
+                bm_eventDispatcher.log('duration')
+                bm_eventDispatcher.log(duration)
                 len = propertyValueType === PropertyValueType.NO_VALUE ? 0 : key.value.length;
                 bezierIn = {};
                 bezierOut = {};
@@ -206,6 +208,14 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     bezierOut.x = [];
                     kLen = key.easeIn.length;
                     for (k = 0; k < kLen; k += 1) {
+                        bm_eventDispatcher.log('key.easeIn[k].influence')
+                        bm_eventDispatcher.log(key.easeIn[k].influence)
+                        bm_eventDispatcher.log('key.easeIn[k].speed')
+                        bm_eventDispatcher.log(key.easeIn[k].speed)
+                        bm_eventDispatcher.log('lastKey.easeOut[k].influence')
+                        bm_eventDispatcher.log(lastKey.easeOut[k].influence)
+                        bm_eventDispatcher.log('lastKey.easeOut[k].speed')
+                        bm_eventDispatcher.log(lastKey.easeOut[k].speed)
                         bezierIn.x[k] = 1 - key.easeIn[k].influence / 100;
                         bezierOut.x[k] = lastKey.easeOut[k].influence / 100;
                     }
@@ -257,10 +267,16 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                                 if(Math.abs(yNormal) < 0.0000001) {
                                     yNormal = 1;
                                 }
+                                bm_eventDispatcher.log('yNormal')
+                                bm_eventDispatcher.log(yNormal)
                                 /*bezierIn.y[k] = 1 - ((key.easeIn[k].speed) / averageSpeed[k]) * (key.easeIn[k].influence / 100);
                                 bezierOut.y[k] = ((lastKey.easeOut[k].speed) / averageSpeed[k]) * bezierOut.x[k];*/
                                 var bezierY = (lastKey.easeOut[k].speed*lastKey.easeOut[k].influence/100);
                                 var bezierInY = (key.easeIn[k].speed*key.easeIn[k].influence/100);
+                                bm_eventDispatcher.log('bezierY')
+                                bm_eventDispatcher.log(bezierY)
+                                bm_eventDispatcher.log('bezierInY')
+                                bm_eventDispatcher.log(bezierInY)
                                 bezierIn.y[k] = 1 - (bezierInY*duration)/yNormal;
                                 bezierOut.y[k] = (bezierY*duration)/yNormal;
                             }

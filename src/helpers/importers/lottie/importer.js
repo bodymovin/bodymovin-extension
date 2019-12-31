@@ -1,7 +1,7 @@
-import csInterface from './CSInterfaceHelper'
-import loadLottieData from './FileLoader'
-import random from './randomGenerator'
-import {hexToRgbAsNormalizedArray} from './colorConverter'
+import csInterface from '../../CSInterfaceHelper'
+import loadLottieData from '../../FileLoader'
+import random from '../../randomGenerator'
+import {hexToRgbAsNormalizedArray} from '../../colorConverter'
 
 var _frameRate = 0;
 

@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, app*/
+/*global File, Folder, $, KeyframeEase, app*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -36,7 +36,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function createSolid(color, name, width, height, duration, elementId, parentCompId) {
 		var comp = getElementById(parentCompId);
 		// comp.layers.addSolid(color, name, width, height, 1, duration);
-		bm_eventDispatcher.log(comp.layers.length);
 
 		var solid = comp.layers.addSolid(color, name, width, height, 1, duration / frameRate);
 		elements[elementId] = {
@@ -48,9 +47,33 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		frameRate = value;
 	}
 
-	function setElementPosition(value, elementId) {
+	function setElementTransformValue(propertyName, value, elementId) {
 		var element = getElementById(elementId);
-		element.transform.position.setValue(value);
+		element.transform[propertyName].setValue(value);
+	}
+
+	function setElementTransformKey(propertyName, time, value, elementId) {
+		var element = getElementById(elementId);
+		element.transform[propertyName].setValueAtTime(time / frameRate, value);
+	}
+
+	function setElementTemporalKeyAtIndex(propertyName, index, valueIn, valueOut, elementId) {
+		// bm_eventDispatcher.log('PASO 1')
+		// bm_eventDispatcher.log(propertyName)
+		// bm_eventDispatcher.log(index)
+		// bm_eventDispatcher.log(valueIn)
+		// bm_eventDispatcher.log(valueOut)
+		var element = getElementById(elementId);
+		// bm_eventDispatcher.log('PASO 2')
+		var property = element.transform.property(propertyName);
+		// bm_eventDispatcher.log('PASO 3')
+		var easeIn = new KeyframeEase(valueIn[0], valueIn[1]);
+		// bm_eventDispatcher.log('PASO 4')
+		var easeOut = new KeyframeEase(valueOut[0], valueOut[1]);
+		// bm_eventDispatcher.log('PASO 5')
+		property.setTemporalEaseAtKey(index, [easeIn], [easeOut]);
+		// bm_eventDispatcher.log('PASO 6')
+
 	}
 
 	function reset() {
@@ -63,7 +86,9 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createComp = createComp;
 	ob.createSolid = createSolid;
 	ob.setFrameRate = setFrameRate;
-	ob.setElementPosition = setElementPosition;
+	ob.setElementTransformValue = setElementTransformValue;
+	ob.setElementTransformKey = setElementTransformKey;
+	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
     
     return ob;
 }());

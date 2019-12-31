@@ -1,5 +1,5 @@
 import actionTypes from '../actions/actionTypes'
-import {convertLottieFileFromPath} from '../../helpers/ImportFilesHelper'
+import {convertLottieFileFromPath} from '../../helpers/importers/lottie/importer'
 
 function handleImportLottieSuccess(action) {
 	convertLottieFileFromPath(action.path);
