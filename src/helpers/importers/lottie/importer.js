@@ -21,7 +21,19 @@ function createSolid(layerData, compId) {
 		color, 
 		layerData.nm, 
 		layerData.sw, 
-		layerData.sw, layerData.op - layerData.ip, 
+		layerData.sh, 
+		layerData.op - layerData.ip, 
+		layerId, 
+		compId
+	]);
+	processTransform(layerData.ks, layerId)
+}
+
+function createNull(layerData, compId) {
+	const layerId = random(10);
+	layerData.__importId = layerId;
+	sendCommand('createNull', [
+		layerData.op - layerData.ip, 
 		layerId, 
 		compId
 	]);
@@ -32,6 +44,10 @@ function createLayer(layerData, compId) {
 	switch (layerData.ty) {
 		case 1:
 		createSolid(layerData, compId)
+		break;
+		case 3:
+		createNull(layerData, compId)
+		break;
 	}
 }
 

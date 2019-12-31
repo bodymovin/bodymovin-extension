@@ -33,6 +33,15 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		//'bm_charHelper', 1000, 1000, 1, 1, 1
 	}
 
+	function createNull(duration, elementId, parentCompId) {
+		var comp = getElementById(parentCompId);
+
+		var solid = comp.layers.addNull(duration / frameRate);
+		elements[elementId] = {
+			element: solid
+		};
+	}
+
 	function createSolid(color, name, width, height, duration, elementId, parentCompId) {
 		var comp = getElementById(parentCompId);
 		// comp.layers.addSolid(color, name, width, height, 1, duration);
@@ -86,6 +95,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.reset = reset;
 	ob.createFolder = createFolder;
 	ob.createComp = createComp;
+	ob.createNull = createNull;
 	ob.createSolid = createSolid;
 	ob.setFrameRate = setFrameRate;
 	ob.setElementTransformValue = setElementTransformValue;
