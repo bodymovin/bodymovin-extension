@@ -52,6 +52,15 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		};
 	}
 
+	function addComposition(compSourceId, parentCompId, elementId) {
+		var comp = getElementById(compSourceId);
+		var parentComp = getElementById(parentCompId);
+		var compLayer = parentComp.layers.add(comp);
+		elements[elementId] = {
+			element: compLayer
+		};
+	}
+
 	function setFrameRate(value) {
 		frameRate = value;
 	}
@@ -97,6 +106,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createComp = createComp;
 	ob.createNull = createNull;
 	ob.createSolid = createSolid;
+	ob.addComposition = addComposition;
 	ob.setFrameRate = setFrameRate;
 	ob.setElementTransformValue = setElementTransformValue;
 	ob.setElementTransformKey = setElementTransformKey;
