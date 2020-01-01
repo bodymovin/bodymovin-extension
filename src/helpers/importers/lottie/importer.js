@@ -3,6 +3,7 @@ import random from '../../randomGenerator'
 import {hexToRgbAsNormalizedArray} from '../../colorConverter'
 import sendCommand from './commandHelper'
 import processTransform from './transform'
+import processShape from './shape'
 import {setFrameRate} from './frameRateHelper'
 
 function createFolder(name = '') {
@@ -42,13 +43,25 @@ function createNull(layerData, compId) {
 	processTransform(layerData.ks, layerId);
 }
 
+function createShape(layerData, compId) {
+	const layerId = random(10);
+	layerData.__importId = layerId;
+	sendCommand('createShape', [
+		layerId, 
+		compId
+	]);
+	processLayerExtraProps(layerData, layerId);
+	processShape(layerData, layerId);
+	processTransform(layerData.ks, layerId);
+}
+
 function createCompositionLayer(layerData, parentCompId, assets) {
 	const compositionSourceData = assets.find(asset => asset.id === layerData.refId)
 	if (!compositionSourceData.__created) {
 		compositionSourceData.__created = true;
 		const sourceCompId = random(10);
 		compositionSourceData.__sourceId = sourceCompId;
-		createComp(layerData.nm, layerData.w, layerData.h, 99999, sourceCompId);
+		createComp(layerData.nm, layerData.w, layerData.h, 9999, sourceCompId);
 		iterateLayers(compositionSourceData.layers, sourceCompId, assets);
 	}
 	const layerId = random(10);
@@ -59,14 +72,10 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 	]);
 	processLayerExtraProps(layerData, layerId);
 	processTransform(layerData.ks, layerId);
-	// console.log('createCompositionLayer', layerData)
-	// console.log('createCompositionLayer', parentCompId)
-	// console.log('createCompositionLayer', assets)
-	// console.log('compositionLayers', compositionLayers)
 }
 
 function processLayerExtraProps(layerData, layerId) {
-	
+
 	if (layerData.st !== 0) {
 		sendCommand('setLayerStartTime', [
 			layerId,
@@ -96,7 +105,6 @@ function skipLayer(layerData) {
 }
 
 function createLayer(layerData, compId, assets) {
-	console.log(layerData)
 	switch (layerData.ty) {
 		case 0:
 		createCompositionLayer(layerData, compId, assets);
@@ -106,6 +114,9 @@ function createLayer(layerData, compId, assets) {
 		break;
 		case 3:
 		createNull(layerData, compId)
+		break;
+		case 4:
+		createShape(layerData, compId)
 		break;
 		default:
 		skipLayer(layerData, compId)
@@ -132,16 +143,6 @@ function iterateLayers(layers, compId, assets) {
 	})
 }
 
-function createCompositions(assets) {
-	console.log(assets)
-	assets.filter(asset => 'layers' in asset)
-	.forEach(composition => {
-		console.log(composition)
-		// createComp(composition)
-	})
-}
-
-
 async function convertLottieFileFromPath(path) {
 	try {
 		sendCommand('reset');
@@ -149,7 +150,6 @@ async function convertLottieFileFromPath(path) {
 		console.log('lottieData', lottieData)
 		setFrameRate(lottieData.fr);
 		sendCommand('setFrameRate', [lottieData.fr]);
-		createCompositions(lottieData.assets);
 		createFolder(lottieData.nm)
 		const mainCompId = random(10);
 		createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);

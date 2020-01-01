@@ -4,7 +4,7 @@ import {getFrameRate} from './frameRateHelper'
 function addKeyframes(keyframes, propertyName, elementId) {
 	console.log(keyframes)
 	keyframes.forEach(keyframe => {
-		sendCommand('setElementTransformKey', 
+		sendCommand('setElementKey', 
 			[
 				propertyName, 
 				keyframe.t,
@@ -61,7 +61,7 @@ function addKeyframes(keyframes, propertyName, elementId) {
 	outInfluences.push(fillingArray);
 	
 	inSpeeds.forEach((easing, index) => {
-		sendCommand('setElementTransformTemporalKeyAtIndex', 
+		sendCommand('setElementTemporalKeyAtIndex', 
 			[
 				propertyName, 
 				index + 1,
@@ -75,51 +75,24 @@ function addKeyframes(keyframes, propertyName, elementId) {
 	})
 }
 
-function processTransform(transformData, elementId) {
-	if (transformData.p) {
-		if (transformData.p && transformData.p.k) {
-			if (typeof transformData.p.k[0] === 'number') {
-				sendCommand('setElementTransformValue', ['position', transformData.p.k, elementId]);
-			} else {
-				console.log(transformData.p.k)
-				addKeyframes(transformData.p.k, 'position', elementId)
+const processProperty = (propertyName, propertyData, elementId, defaultValue) => {
+	if (propertyData && 'k' in propertyData) {
+		if (typeof propertyData.k === 'number') {
+			if (defaultValue !== propertyData.k) {
+				sendCommand('setElementPropertValue', [propertyName, propertyData.k, elementId]);
 			}
-		}
-
-		if (transformData.r && 'k' in transformData.r) {
-			if (typeof transformData.r.k === 'number') {
-				sendCommand('setElementTransformValue', ['rotation', transformData.r.k, elementId]);
+		} else if (Array.isArray(propertyData.k) && typeof propertyData.k[0] === 'number') {
+			let differentIndex = propertyData.k.findIndex((value, index) => defaultValue === undefined || defaultValue[index] !== value);
+			if (differentIndex !== -1) {
+				console.log('YES SETTING')
+				sendCommand('setElementPropertValue', [propertyName, propertyData.k, elementId]);
 			} else {
-				addKeyframes(transformData.r.k, 'rotation', elementId)
+				console.log('NOT SETTING')
 			}
-		}
-
-		if (transformData.s && 'k' in transformData.s) {
-			if (typeof transformData.s.k[0] === 'number') {
-				sendCommand('setElementTransformValue', ['scale', transformData.s.k, elementId]);
-			} else {
-				// console.log(transformData.s)
-				addKeyframes(transformData.s.k, 'scale', elementId)
-			}
-		}
-
-		if (transformData.a && 'k' in transformData.a) {
-			if (typeof transformData.a.k[0] === 'number') {
-				sendCommand('setElementTransformValue', ['anchorPoint', transformData.a.k, elementId]);
-			} else {
-				// console.log(transformData.s)
-				addKeyframes(transformData.a.k, 'anchorPoint', elementId)
-			}
-		}
-
-		if (transformData.o && 'k' in transformData.o) {
-			if (typeof transformData.o.k === 'number') {
-				sendCommand('setElementTransformValue', ['opacity', transformData.o.k, elementId]);
-			} else {
-				addKeyframes(transformData.o.k, 'opacity', elementId)
-			}
+		} else {
+			addKeyframes(propertyData.k, propertyName, elementId)
 		}
 	}
 }
 
-export default processTransform;
+export default processProperty
