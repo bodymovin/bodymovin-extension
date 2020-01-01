@@ -96,6 +96,26 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		layer.setParentWithJump(parent);
 	}
 
+	function setLayerStartTime(layerId, time) {
+		var layer = getElementById(layerId);
+		layer.startTime = time / frameRate;
+	}
+
+	function setLayerInPoint(layerId, time) {
+		var layer = getElementById(layerId);
+		layer.inPoint = time / frameRate;
+	}
+
+	function setLayerOutPoint(layerId, time) {
+		var layer = getElementById(layerId);
+		layer.outPoint = time / frameRate;
+	}
+
+	function setLayerStretch(layerId, stretch) {
+		var layer = getElementById(layerId);
+		layer.stretch = stretch;
+	}
+
 	function reset() {
 		elements = {};
 		mainFolder = null;
@@ -112,6 +132,10 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setElementTransformKey = setElementTransformKey;
 	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
 	ob.setLayerParent = setLayerParent;
+	ob.setLayerStartTime = setLayerStartTime;
+	ob.setLayerStretch = setLayerStretch;
+	ob.setLayerInPoint = setLayerInPoint;
+	ob.setLayerOutPoint = setLayerOutPoint;
     
     return ob;
 }());

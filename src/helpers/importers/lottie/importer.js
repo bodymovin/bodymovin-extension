@@ -26,7 +26,8 @@ function createSolid(layerData, compId) {
 		layerId, 
 		compId
 	]);
-	processTransform(layerData.ks, layerId)
+	processLayerExtraProps(layerData, layerId);
+	processTransform(layerData.ks, layerId);
 }
 
 function createNull(layerData, compId) {
@@ -37,7 +38,8 @@ function createNull(layerData, compId) {
 		layerId, 
 		compId
 	]);
-	processTransform(layerData.ks, layerId)
+	processLayerExtraProps(layerData, layerId);
+	processTransform(layerData.ks, layerId);
 }
 
 function createCompositionLayer(layerData, parentCompId, assets) {
@@ -46,7 +48,7 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 		compositionSourceData.__created = true;
 		const sourceCompId = random(10);
 		compositionSourceData.__sourceId = sourceCompId;
-		createComp(layerData.nm, layerData.w, layerData.h, layerData.op - layerData.ip, sourceCompId);
+		createComp(layerData.nm, layerData.w, layerData.h, 99999, sourceCompId);
 		iterateLayers(compositionSourceData.layers, sourceCompId, assets);
 	}
 	const layerId = random(10);
@@ -55,11 +57,38 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 		parentCompId,
 		layerId,
 	]);
-	processTransform(layerData.ks, layerId)
+	processLayerExtraProps(layerData, layerId);
+	processTransform(layerData.ks, layerId);
 	// console.log('createCompositionLayer', layerData)
 	// console.log('createCompositionLayer', parentCompId)
 	// console.log('createCompositionLayer', assets)
 	// console.log('compositionLayers', compositionLayers)
+}
+
+function processLayerExtraProps(layerData, layerId) {
+	
+	if (layerData.st !== 0) {
+		sendCommand('setLayerStartTime', [
+			layerId,
+			layerData.st, 
+		]);
+	}
+	if (layerData.sr !== 1) {
+		sendCommand('setLayerStretch', [
+			layerId,
+			layerData.sr * 100, 
+		]);
+	}
+	if (layerData.ip !== 0) {
+		sendCommand('setLayerInPoint', [
+			layerId,
+			layerData.ip, 
+		]);
+	}
+	sendCommand('setLayerOutPoint', [
+		layerId,
+		layerData.op, 
+	]);
 }
 
 function skipLayer(layerData) {
