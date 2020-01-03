@@ -147,7 +147,6 @@ async function convertLottieFileFromPath(path) {
 	try {
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path)
-		console.log('lottieData', lottieData)
 		setFrameRate(lottieData.fr);
 		sendCommand('setFrameRate', [lottieData.fr]);
 		createFolder(lottieData.nm)

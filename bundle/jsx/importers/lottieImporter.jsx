@@ -70,11 +70,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		frameRate = value;
 	}
 
-	function setElementTransformValue(propertyName, value, elementId) {
-		var element = getElementById(elementId);
-		element.transform.property(propertyName).setValue(value);
-	}
-
 	function setElementTemporalKeyAtIndex(propertyName, index, inInfluences, inSpeeds, outInfluences, outSpeeds, elementId) {
 		var element = getElementById(elementId);
 		var property = element.property(propertyName);
@@ -91,10 +86,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	}
 
 	function formatValue(value) {
-		bm_eventDispatcher.log(typeof value)
-		bm_eventDispatcher.log(value)
 		if (typeof value === 'object' && value.i) {
-			bm_eventDispatcher.log('PASOSOSO')
 			var sVerts= value.v;
 			var sITans= value.i;
 			var sOTans = value.o;
@@ -119,12 +111,11 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	function setElementPropertValue(propertyName, value, elementId) {
 		var element = getElementById(elementId);
-		element[propertyName].setValue(formatValue(value));
-	}
-
-	function setElementTransformKey(propertyName, time, value, elementId) {
-		var element = getElementById(elementId);
-		element.transform[propertyName].setValueAtTime(time / frameRate, formatValue(value));
+		if (propertyName === 'name') {
+			element[propertyName] = value
+		} else {
+			element[propertyName].setValue(formatValue(value));
+		}
 	}
 
 	function setElementKey(propertyName, time, value, elementId) {
@@ -132,20 +123,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		element[propertyName].setValueAtTime(time / frameRate, formatValue(value));
 	}
 
-	function setElementTransformTemporalKeyAtIndex(propertyName, index, inInfluences, inSpeeds, outInfluences, outSpeeds, elementId) {
-		var element = getElementById(elementId);
-		var property = element.transform.property(propertyName);
-		var inEases = [];
-		var outEases = [];
-		for (var i = 0; i < inInfluences.length; i += 1) {
-			var easeIn = new KeyframeEase(inSpeeds[i], inInfluences[i]);
-			inEases.push(easeIn);
-			var easeOut = new KeyframeEase(outSpeeds[i], outInfluences[i]);
-			outEases.push(easeOut);
-		}
-		property.setTemporalEaseAtKey(index, inEases, outEases);
-
-	}
 
 	function setLayerParent(layerId, parentLayerId) {
 		var layer = getElementById(layerId);
@@ -187,10 +164,31 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
+	function createEllipse(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Shape - Ellipse");
+		addElement(elementId, elementProperty);
+	}
+
+	function createStar(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Shape - Star");
+		addElement(elementId, elementProperty);
+	}
+
 	function createFill(elementId, containerId) {
 		var element = getElementById(containerId);
 		var property = element.property("Contents");
 		var elementProperty = property.addProperty("ADBE Vector Graphic - Fill");
+		addElement(elementId, elementProperty);
+	}
+
+	function createStroke(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Graphic - Stroke");
 		addElement(elementId, elementProperty);
 	}
 
@@ -234,9 +232,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createShapeLayer = createShapeLayer;
 	ob.addComposition = addComposition;
 	ob.setFrameRate = setFrameRate;
-	ob.setElementTransformValue = setElementTransformValue;
-	ob.setElementTransformKey = setElementTransformKey;
-	ob.setElementTransformTemporalKeyAtIndex = setElementTransformTemporalKeyAtIndex;
 	ob.setElementPropertValue = setElementPropertValue;
 	ob.setElementKey = setElementKey;
 	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
@@ -247,7 +242,10 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setLayerOutPoint = setLayerOutPoint;
 	ob.createShapeGroup = createShapeGroup;
 	ob.createRectangle = createRectangle;
+	ob.createEllipse = createEllipse;
+	ob.createStar = createStar;
 	ob.createFill = createFill;
+	ob.createStroke = createStroke;
 	ob.createShape = createShape;
 	ob.createShapePath = createShapePath;
 	ob.assignIdToProp = assignIdToProp;

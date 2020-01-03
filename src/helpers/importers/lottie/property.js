@@ -10,6 +10,7 @@ function formatProperty(property) {
 }
 
 function addKeyframes(keyframes, propertyName, elementId) {
+	console.log('ADD KEYFRAMES')
 	console.log(keyframes)
 	keyframes.forEach(keyframe => {
 		sendCommand('setElementKey', 
