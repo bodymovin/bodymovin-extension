@@ -43,10 +43,10 @@ function createNull(layerData, compId) {
 	processTransform(layerData.ks, layerId);
 }
 
-function createShape(layerData, compId) {
+function createShapeLayer(layerData, compId) {
 	const layerId = random(10);
 	layerData.__importId = layerId;
-	sendCommand('createShape', [
+	sendCommand('createShapeLayer', [
 		layerId, 
 		compId
 	]);
@@ -116,7 +116,7 @@ function createLayer(layerData, compId, assets) {
 		createNull(layerData, compId)
 		break;
 		case 4:
-		createShape(layerData, compId)
+		createShapeLayer(layerData, compId)
 		break;
 		default:
 		skipLayer(layerData, compId)

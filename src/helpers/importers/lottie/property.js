@@ -1,6 +1,14 @@
 import sendCommand from './commandHelper'
 import {getFrameRate} from './frameRateHelper'
 
+function formatProperty(property) {
+	// This solves keyframed paths that are defined as an array of a single shape
+	if (Array.isArray(property) && typeof property[0] === 'object' && 'i' in property[0]) {
+		return property[0];
+	}
+	return property;
+}
+
 function addKeyframes(keyframes, propertyName, elementId) {
 	console.log(keyframes)
 	keyframes.forEach(keyframe => {
@@ -8,7 +16,7 @@ function addKeyframes(keyframes, propertyName, elementId) {
 			[
 				propertyName, 
 				keyframe.t,
-				keyframe.s, 
+				formatProperty(keyframe.s), 
 				elementId
 			]
 		);
@@ -76,18 +84,17 @@ function addKeyframes(keyframes, propertyName, elementId) {
 }
 
 const processProperty = (propertyName, propertyData, elementId, defaultValue) => {
-	if (propertyData && 'k' in propertyData) {
-		if (typeof propertyData.k === 'number') {
+	if (typeof propertyData === 'number' || typeof propertyData === 'string') {
+		sendCommand('setElementPropertValue', [propertyName, propertyData, elementId]);
+	} else if (propertyData && 'k' in propertyData) {
+		if (typeof propertyData.k === 'number' || !Array.isArray(propertyData.k)) {
 			if (defaultValue !== propertyData.k) {
-				sendCommand('setElementPropertValue', [propertyName, propertyData.k, elementId]);
+				sendCommand('setElementPropertValue', [propertyName, formatProperty(propertyData.k), elementId]);
 			}
 		} else if (Array.isArray(propertyData.k) && typeof propertyData.k[0] === 'number') {
 			let differentIndex = propertyData.k.findIndex((value, index) => defaultValue === undefined || defaultValue[index] !== value);
 			if (differentIndex !== -1) {
-				console.log('YES SETTING')
 				sendCommand('setElementPropertValue', [propertyName, propertyData.k, elementId]);
-			} else {
-				console.log('NOT SETTING')
 			}
 		} else {
 			addKeyframes(propertyData.k, propertyName, elementId)

@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, app*/
+/*global File, Folder, $, KeyframeEase, Shape, app*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -52,7 +52,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, element);
 	}
 
-	function createShape(elementId, parentCompId) {
+	function createShapeLayer(elementId, parentCompId) {
 		var comp = getElementById(parentCompId);
 
 		var element = comp.layers.addShape();
@@ -90,19 +90,46 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	}
 
+	function formatValue(value) {
+		bm_eventDispatcher.log(typeof value)
+		bm_eventDispatcher.log(value)
+		if (typeof value === 'object' && value.i) {
+			bm_eventDispatcher.log('PASOSOSO')
+			var sVerts= value.v;
+			var sITans= value.i;
+			var sOTans = value.o;
+			// var sShape = new Shape(); 
+			// sShape.vertices = sVerts; 
+			// sShape.inTangents = sITans; 
+			// sShape.outTangents = sOTans; 
+			// sShape.closed = value.c;
+			// var sVerts= [[-4.66796875,-4.614013671875],[-4.66796875,-1.584716796875],[4.701171875,-1.584716796875],[8.44921875,1.823486328125],[8.44921875,3.798095703125],[4.701171875,7.206298828125],[-4.66796875,7.206298828125],[-8.44921875,3.798095703125],[-8.44921875,3.387939453125],[-5.3125,2.809814453125],[-5.3125,4.512939453125],[5.283203125,4.512939453125],[5.283203125,1.208251953125],[-4.048828125,1.208251953125],[-7.833984375,-2.199462890625],[-7.833984375,-3.797607421875],[-4.048828125,-7.206298828125],[4.498046875,-7.206298828125],[8.283203125,-4.072998046875],[8.283203125,-3.729248046875],[5.248046875,-3.082275390625],[5.248046875,-4.614013671875]];
+			// var sITans= [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
+			// var sOTans = [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
+			var sShape = new Shape(); 
+			sShape.vertices = sVerts; 
+			sShape.inTangents = sITans; 
+			sShape.outTangents = sOTans; 
+			sShape.closed = value.c;
+			return sShape;
+		} else {
+			return value;
+		}
+	}
+
 	function setElementPropertValue(propertyName, value, elementId) {
 		var element = getElementById(elementId);
-		element[propertyName].setValue(value);
+		element[propertyName].setValue(formatValue(value));
 	}
 
 	function setElementTransformKey(propertyName, time, value, elementId) {
 		var element = getElementById(elementId);
-		element.transform[propertyName].setValueAtTime(time / frameRate, value);
+		element.transform[propertyName].setValueAtTime(time / frameRate, formatValue(value));
 	}
 
 	function setElementKey(propertyName, time, value, elementId) {
 		var element = getElementById(elementId);
-		element[propertyName].setValueAtTime(time / frameRate, value);
+		element[propertyName].setValueAtTime(time / frameRate, formatValue(value));
 	}
 
 	function setElementTransformTemporalKeyAtIndex(propertyName, index, inInfluences, inSpeeds, outInfluences, outSpeeds, elementId) {
@@ -160,11 +187,37 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
-
 	function createFill(elementId, containerId) {
 		var element = getElementById(containerId);
 		var property = element.property("Contents");
 		var elementProperty = property.addProperty("ADBE Vector Graphic - Fill");
+		addElement(elementId, elementProperty);
+	}
+
+	function createShape(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Shape - Group");
+		addElement(elementId, elementProperty);
+	}
+
+	function createShapePath(containerId) {
+		var sVerts= [[-4.66796875,-4.614013671875],[-4.66796875,-1.584716796875],[4.701171875,-1.584716796875],[8.44921875,1.823486328125],[8.44921875,3.798095703125],[4.701171875,7.206298828125],[-4.66796875,7.206298828125],[-8.44921875,3.798095703125],[-8.44921875,3.387939453125],[-5.3125,2.809814453125],[-5.3125,4.512939453125],[5.283203125,4.512939453125],[5.283203125,1.208251953125],[-4.048828125,1.208251953125],[-7.833984375,-2.199462890625],[-7.833984375,-3.797607421875],[-4.048828125,-7.206298828125],[4.498046875,-7.206298828125],[8.283203125,-4.072998046875],[8.283203125,-3.729248046875],[5.248046875,-3.082275390625],[5.248046875,-4.614013671875]];
+		var sITans= [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
+		var sOTans = [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
+		var sShape = new Shape(); 
+		sShape.vertices = sVerts; 
+		sShape.inTangents = sITans; 
+		sShape.outTangents = sOTans; 
+		sShape.closed = true;
+		var element = getElementById(containerId);
+		element.setValueAtTime(1, sShape);
+		element.setValue(sShape);
+	}
+
+	function assignIdToProp(propName, elementId, containerId) {
+		var element = getElementById(containerId);
+		var elementProperty = element.property(propName);
 		addElement(elementId, elementProperty);
 	}
 
@@ -178,7 +231,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createComp = createComp;
 	ob.createNull = createNull;
 	ob.createSolid = createSolid;
-	ob.createShape = createShape;
+	ob.createShapeLayer = createShapeLayer;
 	ob.addComposition = addComposition;
 	ob.setFrameRate = setFrameRate;
 	ob.setElementTransformValue = setElementTransformValue;
@@ -195,6 +248,9 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createShapeGroup = createShapeGroup;
 	ob.createRectangle = createRectangle;
 	ob.createFill = createFill;
+	ob.createShape = createShape;
+	ob.createShapePath = createShapePath;
+	ob.assignIdToProp = assignIdToProp;
     
     return ob;
 }());

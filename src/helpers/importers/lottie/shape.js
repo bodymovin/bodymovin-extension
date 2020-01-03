@@ -22,7 +22,6 @@ const rectangleHandler = (data, parentId) => {
 	processProperty('Size', data.s, rectId, [100, 100]);
 	processProperty('Position', data.p, rectId, [0, 0]);
 	processProperty('Roundness', data.r, rectId, 0);
-	console.log(data)
 }
 
 const fillHandler = (data, parentId) => {
@@ -32,6 +31,16 @@ const fillHandler = (data, parentId) => {
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Fill Rule', data.r, id);
 	// TODO: Blend mode
+}
+
+const shapeHandler = (data, parentId) => {
+	const id = random(10);
+	sendCommand('createShape', [id, parentId]);
+	// const pathId = random(10);
+	// sendCommand('assignIdToProp', ['ADBE Vector Shape', pathId, id]);
+	// sendCommand('createShapePath', [pathId]);
+	processProperty('ADBE Vector Shape', data.ks, id, null);
+	// TODO: Blend mode
 	console.log(data)
 }
 
@@ -40,6 +49,7 @@ const shapeHandlers = {
 	rc: rectangleHandler,
 	fl: fillHandler,
 	tr: transformHandler,
+	sh: shapeHandler,
 }
 const iterateShapes = (shapes, parentId) => {
 	shapes.forEach(shape => {
