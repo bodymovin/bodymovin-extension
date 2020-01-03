@@ -20,7 +20,7 @@ function sendCommand(prefix, commandName, commandArguments = []) {
 	})
 	command += ')'
 	csInterface.evalScript(command);
-	console.log(command)
+	// console.log(command)
 }
 
 export default csInterface

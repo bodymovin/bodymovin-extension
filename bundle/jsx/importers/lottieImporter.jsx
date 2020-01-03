@@ -192,6 +192,20 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
+	function createRepeater(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Filter - Repeater");
+		addElement(elementId, elementProperty);
+	}
+
+	function createRoundedCorners(elementId, containerId) {
+		var element = getElementById(containerId);
+		var property = element.property("Contents");
+		var elementProperty = property.addProperty("ADBE Vector Filter - RC");
+		addElement(elementId, elementProperty);
+	}
+
 	function createShape(elementId, containerId) {
 		var element = getElementById(containerId);
 		var property = element.property("Contents");
@@ -247,6 +261,8 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createFill = createFill;
 	ob.createStroke = createStroke;
 	ob.createShape = createShape;
+	ob.createRepeater = createRepeater;
+	ob.createRoundedCorners = createRoundedCorners;
 	ob.createShapePath = createShapePath;
 	ob.assignIdToProp = assignIdToProp;
     

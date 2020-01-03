@@ -27,6 +27,14 @@ function processTransform(transformData, elementId) {
 		if (transformData.o) {
 			processProperty('Opacity', transformData.o, transformId);
 		}
+
+		if (transformData.so) {
+			processProperty('Start Opacity', transformData.so, transformId);
+		}
+
+		if (transformData.eo) {
+			processProperty('End Opacity', transformData.eo, transformId);
+		}
 	}
 }
 

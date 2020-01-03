@@ -20,6 +20,7 @@ const rectangleHandler = (data, parentId) => {
 	processProperty('Size', data.s, rectId, [100, 100]);
 	processProperty('Position', data.p, rectId, [0, 0]);
 	processProperty('Roundness', data.r, rectId, 0);
+	processProperty('name', data.nm, rectId);
 }
 
 const fillHandler = (data, parentId) => {
@@ -28,6 +29,7 @@ const fillHandler = (data, parentId) => {
 	processProperty('Color', data.c, id);
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Fill Rule', data.r, id);
+	processProperty('name', data.nm, id);
 	// TODO: Blend mode
 }
 
@@ -42,6 +44,7 @@ const strokeHandler = (data, parentId) => {
 	if (data.lj === 1) {
 		processProperty('Miter Limit', data.ml, id, 4);
 	}
+	processProperty('name', data.nm, id);
 }
 
 const ellipseHandler = (data, parentId) => {
@@ -50,6 +53,7 @@ const ellipseHandler = (data, parentId) => {
 	processProperty('Shape Direction', data.d, id);
 	processProperty('Size', data.s, id, [100, 100]);
 	processProperty('Position', data.p, id, [0, 0]);
+	processProperty('name', data.nm, id);
 }
 
 const starHandler = (data, parentId) => {
@@ -67,7 +71,6 @@ const starHandler = (data, parentId) => {
 	processProperty('Outer Radius', data.or, id, 100);
 	processProperty('Outer Roundness', data.os, id, 0);
 	processProperty('name', data.nm, id);
-	console.log(data)
 	
 }
 
@@ -81,6 +84,23 @@ const shapeHandler = (data, parentId) => {
 	// TODO: Blend mode
 }
 
+const repeaterHandler = (data, parentId) => {
+	const id = random(10);
+	sendCommand('createRepeater', [id, parentId]);
+	processProperty('Copies', data.c, id);
+	processProperty('Offset', data.o, id, 0);
+	processProperty('Composite', data.m, id);
+	processProperty('name', data.nm, id);
+	processTransform(data.tr, id);
+}
+
+const roundedCornersHandler = (data, parentId) => {
+	const id = random(10);
+	sendCommand('createRoundedCorners', [id, parentId]);
+	processProperty('Radius', data.r, id);
+	processProperty('name', data.nm, id);
+}
+
 const shapeHandlers = {
 	gr: groupHandler,
 	rc: rectangleHandler,
@@ -90,6 +110,8 @@ const shapeHandlers = {
 	st: strokeHandler,
 	el: ellipseHandler,
 	sr: starHandler,
+	rp: repeaterHandler,
+	rd: roundedCornersHandler,
 }
 const iterateShapes = (shapes, parentId) => {
 	shapes.forEach(shape => {
