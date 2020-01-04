@@ -7,8 +7,6 @@ function processTransform(transformData, elementId) {
 	const transformId = random(10);
 	sendCommand('assignIdToProp', ['transform', transformId, elementId])
 
-	console.log('transformData', transformData)
-
 	if (transformData.p) {
 		if (transformData.p.s) {
 			sendCommand('separateDimensions', [elementId]);

@@ -72,9 +72,6 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         if(limitIndex === -1){
             limitIndex = Number.MAX_VALUE;
         }
-        bm_eventDispatcher.log('gradFillIndex' + gradFillIndex)
-        bm_eventDispatcher.log('gradStrokeIndex' + gradStrokeIndex)
-        bm_eventDispatcher.log('limitIndex' + limitIndex)
         //var regEx = /<prop.map>/g;
         var currentKey = 0, keyframes = [], hasOpacity = false, maxOpacities = 0, maxColors = 0;
         while(currentKey < numKeys){

@@ -110,10 +110,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function setSpatialTangentsAtKey(propertyName, index, inTangents, outTangents, elementId) {
 		var element = getElementById(elementId);
 		var property = element.property(propertyName);
-		bm_eventDispatcher.log('inTangents')
-		bm_eventDispatcher.log(inTangents)
-		bm_eventDispatcher.log('outTangents')
-		bm_eventDispatcher.log(outTangents)
 		property.setSpatialTangentsAtKey(index, inTangents, outTangents);
 	}
 
