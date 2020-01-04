@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, Shape, app*/
+/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -234,6 +234,28 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
+	var maskModes = {
+		a: MaskMode.ADD,
+		s: MaskMode.SUBTRACT,
+		i: MaskMode.INTERSECT,
+		l: MaskMode.LIGHTEN,
+		d: MaskMode.DARKEN,
+		f: MaskMode.DIFFERENCE,
+	}
+
+
+	function getMaskMode(mode) {
+		return maskModes[mode] || maskModes.a
+	}
+
+	function createMask(maskId, layerId, maskMode, isInverted) {
+		var element = getElementById(layerId);
+		var mask = element.Masks.addProperty("Mask");
+		addElement(maskId, mask);
+		mask.maskMode = getMaskMode(maskMode);
+		mask.inverted = isInverted;
+	}
+
 	function assignIdToProp(propName, elementId, containerId) {
 		var element = getElementById(containerId);
 		var elementProperty = element.property(propName);
@@ -273,6 +295,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createRepeater = createRepeater;
 	ob.createRoundedCorners = createRoundedCorners;
 	ob.createTrimPath = createTrimPath;
+	ob.createMask = createMask;
 	ob.assignIdToProp = assignIdToProp;
     
     return ob;

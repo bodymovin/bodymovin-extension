@@ -5,6 +5,7 @@ import sendCommand from './commandHelper'
 import {reset as resetAlerts} from './alertsHelper'
 import processTransform from './transform'
 import processShape from './shape'
+import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
 
 function createFolder(name = '') {
@@ -30,6 +31,7 @@ function createSolid(layerData, compId) {
 	]);
 	processLayerExtraProps(layerData, layerId);
 	processTransform(layerData.ks, layerId);
+	processMasks(layerData.masksProperties, layerId);
 }
 
 function createNull(layerData, compId) {

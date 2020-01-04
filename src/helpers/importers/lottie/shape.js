@@ -46,6 +46,7 @@ const strokeHandler = (data, parentId) => {
 		processProperty('Miter Limit', data.ml, id, 4);
 	}
 	processProperty('name', data.nm, id);
+	//TODO: dashes
 }
 
 const ellipseHandler = (data, parentId) => {
@@ -130,7 +131,6 @@ const gradientFillHandler = (data, parentId) => {
 }
 
 const gradientStrokeHandler = (data, parentId) => {
-	console.log(' data', data)
 	const id = random(10);
 	sendCommand('createGradientStroke', [id, parentId]);
 	processProperty('Opacity', data.o, id, 100);
@@ -149,11 +149,10 @@ const gradientStrokeHandler = (data, parentId) => {
 	if (data.lj === 1) {
 		processProperty('Miter Limit', data.ml2, id, 4);
 	}
-
-	//
-	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
-	//
 	processProperty('name', data.nm, id);
+
+	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
+	//TODO: dashes
 
 }
 
