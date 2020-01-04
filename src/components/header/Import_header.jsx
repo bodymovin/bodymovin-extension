@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
-import BodymovinRefresh from '../bodymovin/bodymovin_refresh'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
@@ -47,20 +46,20 @@ const styles = StyleSheet.create({
     }
 })
 
-function Main_header(props) {
+function Import_header(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
-					<div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
-						<BodymovinRefresh />
-					</div>
-					<BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
-					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
+                    {props.state !== 'processing' && 
+                        <BaseButton text='Import Lottie' type='green' classes={styles.button} onClick={props.onSelect} />
+                    }
+					{props.state === 'processing' && 
+                        <BaseButton text='Cancel Import' type='green' classes={styles.button} onClick={props.onCancel} />
+                    }
                     <div className={css(styles.buttons_separator)}></div>
-                    <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-					<BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+					<BaseButton text='Back' type='gray' classes={styles.right} onClick={props.onBack}/>
 				</div>
 				<div className={css(styles.separator)}></div>
 			</div>)
 }
 
-export default Main_header
+export default Import_header

@@ -1,12 +1,36 @@
 import loadLottieData from '../../FileLoader'
 import random from '../../randomGenerator'
 import {hexToRgbAsNormalizedArray} from '../../colorConverter'
-import sendCommand from './commandHelper'
+import sendCommand, {registerUpdate, registerEnd, clear as clearCommands} from './commandHelper'
 import {reset as resetAlerts} from './alertsHelper'
 import processTransform from './transform'
 import processShape from './shape'
 import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
+
+const _updateListeners = [];
+const _endListeners = [];
+const _failedListeners = [];
+
+function _onUpdate(pendingCommands) {
+	_updateListeners.forEach(listener => listener({
+		state: 'processing',
+		pendingCommands: pendingCommands,
+	}))
+}
+
+function _onEnd() {
+	_endListeners.forEach(listener => listener({
+		state: 'ended'
+	}))
+}
+
+function _onFailed(error) {
+	_endListeners.forEach(listener => listener({
+		state: 'failed',
+		error,
+	}))
+}
 
 function createFolder(name = '') {
 	sendCommand('createFolder', [name]);
@@ -146,11 +170,29 @@ function iterateLayers(layers, compId, assets) {
 	})
 }
 
-async function convertLottieFileFromPath(path) {
+function registerHandlers(onUpdate, onEnd, onFailed) {
+
+	registerUpdate(_onUpdate);
+	registerEnd(_onEnd);
+	_updateListeners.push(onUpdate);
+	_endListeners.push(onEnd);
+	_failedListeners.push(onFailed);
+}
+
+function reset() {
+	_updateListeners.length = 0;
+	_endListeners.length = 0;
+	_failedListeners.length = 0;
+	resetAlerts();
+	clearCommands();
+}
+
+async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 	try {
-		resetAlerts();
+		reset();
+		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
-		const lottieData = await loadLottieData(path)
+		const lottieData = await loadLottieData(path);
 		setFrameRate(lottieData.fr);
 		sendCommand('setFrameRate', [lottieData.fr]);
 		createFolder(lottieData.nm)
@@ -159,11 +201,15 @@ async function convertLottieFileFromPath(path) {
 		iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
 		// csInterface.evalScript('$.__bodymovin.bm_lottieImporter.importFromPath("' + encodeURIComponent(path) + '")');
 	} catch(err) {
-		console.log('ERRR')
-		console.log(err)
+		_onFailed(err)
 	}
 }
 
+function cancelImport() {
+	reset();
+}
+
 export {
-	convertLottieFileFromPath
+	convertFromPath,
+	cancelImport,
 }

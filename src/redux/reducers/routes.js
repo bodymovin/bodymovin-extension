@@ -11,7 +11,7 @@ let routes = {
 }
 
 let initialState = {
-	route: 0
+	route: 6
 }
 
 export default function project(state = initialState, action) {

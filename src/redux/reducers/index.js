@@ -6,6 +6,7 @@ import preview from './preview'
 import alerts from './alerts'
 import paths from './paths'
 import routes from './routes'
+import importer from './importer'
 
 export default combineReducers({
   routes,
@@ -14,5 +15,6 @@ export default combineReducers({
   project,
   preview,
   alerts,
-  paths
+  paths,
+  importer,
 })

@@ -95,6 +95,8 @@ const processProperty = (propertyName, propertyData, elementId, defaultValue) =>
 				let differentIndex = propertyData.k.findIndex((value, index) => defaultValue === undefined || defaultValue[index] !== value);
 				if (differentIndex !== -1) {
 					sendCommand('setElementPropertyValue', [propertyName, propertyData.k, elementId]);
+				} else {
+					window.skipCounter = window.skipCounter ? window.skipCounter + 1 : 1;
 				}
 			} else {
 				addKeyframes(propertyData.k, propertyName, elementId)
