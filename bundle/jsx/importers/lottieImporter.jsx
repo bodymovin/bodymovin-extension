@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType*/
+/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType, KeyframeInterpolationType*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -85,19 +85,43 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	}
 
+	var keyInterpolatioTypes = {
+		1: KeyframeInterpolationType.LINEAR,
+		2: KeyframeInterpolationType.BEZIER,
+		3: KeyframeInterpolationType.HOLD,
+	}
+
+	function getKeyInterpolationType(type) {
+		return keyInterpolatioTypes[type] || keyInterpolatioTypes[1];
+	}
+
+	function setInterpolationTypeAtKey(propertyName, index, elementId, type) {
+		var element = getElementById(elementId);
+		var property = element.property(propertyName);
+		property.setInterpolationTypeAtKey(index, getKeyInterpolationType(2), getKeyInterpolationType(type));
+	}
+
+	function separateDimensions(elementId) {
+		var element = getElementById(elementId);
+		var property = element.property('Position');
+		property.dimensionsSeparated = true;
+	}
+
+	function setSpatialTangentsAtKey(propertyName, index, inTangents, outTangents, elementId) {
+		var element = getElementById(elementId);
+		var property = element.property(propertyName);
+		bm_eventDispatcher.log('inTangents')
+		bm_eventDispatcher.log(inTangents)
+		bm_eventDispatcher.log('outTangents')
+		bm_eventDispatcher.log(outTangents)
+		property.setSpatialTangentsAtKey(index, inTangents, outTangents);
+	}
+
 	function formatValue(value) {
 		if (typeof value === 'object' && value.i) {
 			var sVerts= value.v;
 			var sITans= value.i;
 			var sOTans = value.o;
-			// var sShape = new Shape(); 
-			// sShape.vertices = sVerts; 
-			// sShape.inTangents = sITans; 
-			// sShape.outTangents = sOTans; 
-			// sShape.closed = value.c;
-			// var sVerts= [[-4.66796875,-4.614013671875],[-4.66796875,-1.584716796875],[4.701171875,-1.584716796875],[8.44921875,1.823486328125],[8.44921875,3.798095703125],[4.701171875,7.206298828125],[-4.66796875,7.206298828125],[-8.44921875,3.798095703125],[-8.44921875,3.387939453125],[-5.3125,2.809814453125],[-5.3125,4.512939453125],[5.283203125,4.512939453125],[5.283203125,1.208251953125],[-4.048828125,1.208251953125],[-7.833984375,-2.199462890625],[-7.833984375,-3.797607421875],[-4.048828125,-7.206298828125],[4.498046875,-7.206298828125],[8.283203125,-4.072998046875],[8.283203125,-3.729248046875],[5.248046875,-3.082275390625],[5.248046875,-4.614013671875]];
-			// var sITans= [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
-			// var sOTans = [[0,0],[0,0],[0,0],[0,-2.7265625],[0,0],[2.86328125,0],[0,0],[0,2.693359375],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,2.728515625],[0,0],[-2.83203125,0],[0,0],[0,-2.51806640625],[0,0],[0,0],[0,0]];
 			var sShape = new Shape(); 
 			sShape.vertices = sVerts; 
 			sShape.inTangents = sITans; 
@@ -319,6 +343,9 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setElementPropertyExpression = setElementPropertyExpression;
 	ob.setElementKey = setElementKey;
 	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
+	ob.setInterpolationTypeAtKey = setInterpolationTypeAtKey;
+	ob.separateDimensions = separateDimensions;
+	ob.setSpatialTangentsAtKey = setSpatialTangentsAtKey;
 	ob.setLayerParent = setLayerParent;
 	ob.setLayerStartTime = setLayerStartTime;
 	ob.setLayerStretch = setLayerStretch;

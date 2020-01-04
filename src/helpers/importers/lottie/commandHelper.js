@@ -37,6 +37,8 @@ const commandsTimeout = {
 	createGradientFill: 50,
 	createGradientStroke: 50,
 	assignIdToProp: 50,
+	setInterpolationTypeAtKey: 50,
+	setSpatialTangentsAtKey: 50,
 }
 
 const getTimeout = (command) => {

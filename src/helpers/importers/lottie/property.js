@@ -10,12 +10,13 @@ function formatProperty(property) {
 }
 
 function addKeyframes(keyframes, propertyName, elementId) {
-	keyframes.forEach(keyframe => {
+	keyframes.forEach((keyframe, index) => {
+		const value = 's' in keyframe ? keyframe.s : keyframes[index - 1].e
 		sendCommand('setElementKey', 
 			[
 				propertyName, 
 				keyframe.t,
-				formatProperty(keyframe.s), 
+				formatProperty(value), 
 				elementId
 			]
 		);
@@ -33,6 +34,7 @@ function addKeyframes(keyframes, propertyName, elementId) {
 			inInfluences[index + 1] = []
 			const inX = Array.isArray(keyframe.i.x) ? keyframe.i.x : [keyframe.i.x]
 			inX.forEach((arrayElement, dimension) => {
+				const nextValue = 'e' in keyframe ? keyframe.e : keyframes[index + 1].s
 				const inXDimension = Array.isArray(keyframe.i.x) ? keyframe.i.x[dimension] : keyframe.i.x;
 				const inYDimension = Array.isArray(keyframe.i.y) ? keyframe.i.y[dimension] : keyframe.i.y;
 				const outXDimension = Array.isArray(keyframe.o.x) ? keyframe.o.x[dimension] : keyframe.o.x;
@@ -41,7 +43,7 @@ function addKeyframes(keyframes, propertyName, elementId) {
 				var keyInInfluence = (inXDimension - 1) * -100;
 				var lastKeyOutInfluence = (outXDimension) * 100;
 				var duration = (nextKeyframe.t - keyframe.t) / getFrameRate();
-				var yNormal = keyframes[index + 1].s[dimension] - keyframe.s[dimension];
+				var yNormal = nextValue[dimension] - keyframe.s[dimension];
 
 				var bezierInY = -(inYDimension - 1) * yNormal / duration;
 				var bezierY = outYDimension * yNormal / duration;
@@ -79,6 +81,36 @@ function addKeyframes(keyframes, propertyName, elementId) {
 				elementId
 			]
 		);
+	})
+
+	keyframes.forEach((keyframe, index) => {
+		if (keyframe.h) {
+			sendCommand('setInterpolationTypeAtKey', 
+				[
+					propertyName, 
+					index + 1,
+					elementId,
+					3,
+				]
+			);
+		}
+
+		if (keyframe.to || (index > 0 && keyframes[index - 1].to)){
+			const outTangents = (index === keyframes.length - 1) ? keyframes[index - 1].to.map(value => 0) :  keyframe.to;
+			const inTangents = (index === 0) ? keyframe.ti.map(value => 0) : keyframes[index - 1].ti;
+			sendCommand('setSpatialTangentsAtKey', 
+				[
+					propertyName, 
+					index + 1,
+					// keyframe.ti.filter((value, index) => index <= totalDimensions),
+					// keyframe.to.filter((value, index) => index <= totalDimensions),
+					inTangents,
+					outTangents,
+					elementId,
+				]
+			);
+		}
+			
 	})
 }
 
