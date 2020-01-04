@@ -2,6 +2,7 @@ import loadLottieData from '../../FileLoader'
 import random from '../../randomGenerator'
 import {hexToRgbAsNormalizedArray} from '../../colorConverter'
 import sendCommand from './commandHelper'
+import {reset as resetAlerts} from './alertsHelper'
 import processTransform from './transform'
 import processShape from './shape'
 import {setFrameRate} from './frameRateHelper'
@@ -145,6 +146,7 @@ function iterateLayers(layers, compId, assets) {
 
 async function convertLottieFileFromPath(path) {
 	try {
+		resetAlerts();
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path)
 		setFrameRate(lottieData.fr);

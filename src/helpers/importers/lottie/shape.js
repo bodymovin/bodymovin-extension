@@ -1,4 +1,5 @@
 import sendCommand from './commandHelper'
+import {add as addAlert} from './alertsHelper'
 import processTransform from './transform'
 import {getFrameRate} from './frameRateHelper'
 import random from '../../randomGenerator'
@@ -77,9 +78,6 @@ const starHandler = (data, parentId) => {
 const shapeHandler = (data, parentId) => {
 	const id = random(10);
 	sendCommand('createShape', [id, parentId]);
-	// const pathId = random(10);
-	// sendCommand('assignIdToProp', ['ADBE Vector Shape', pathId, id]);
-	// sendCommand('createShapePath', [pathId]);
 	processProperty('ADBE Vector Shape', data.ks, id, null);
 	// TODO: Blend mode
 }
@@ -101,6 +99,64 @@ const roundedCornersHandler = (data, parentId) => {
 	processProperty('name', data.nm, id);
 }
 
+const trimPathHandler = (data, parentId) => {
+	const id = random(10);
+	sendCommand('createTrimPath', [id, parentId]);
+	processProperty('Start', data.s, id, 0);
+	processProperty('End', data.e, id, 100);
+	processProperty('Offset', data.o, id, 0);
+	processProperty('Trim Multiple Shapes', data.m, id);
+	processProperty('name', data.nm, id);
+
+}
+
+const gradientFillHandler = (data, parentId) => {
+	const id = random(10);
+	sendCommand('createGradientFill', [id, parentId]);
+	processProperty('Opacity', data.o, id, 100);
+	processProperty('Fill Rule', data.r, id, 1);
+	processProperty('Blend Mode', data.bm, id, 0);
+	processProperty('Start Point', data.s, id, [0,0]);
+	processProperty('End Point', data.e, id, [100,0]);
+	processProperty('Type', data.t, id, 1);
+	if(data.t === 2){
+		processProperty('Highlight Length', data.h, id, 0);
+		processProperty('Highlight Angle', data.a, id, 0);
+	}
+	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
+	//
+	processProperty('name', data.nm, id);
+
+}
+
+const gradientStrokeHandler = (data, parentId) => {
+	console.log(' data', data)
+	const id = random(10);
+	sendCommand('createGradientStroke', [id, parentId]);
+	processProperty('Opacity', data.o, id, 100);
+	processProperty('Stroke Width', data.w, id, 2);
+	processProperty('Fill Rule', data.r, id, 1);
+	processProperty('Blend Mode', data.bm, id, 0);
+	processProperty('Start Point', data.s, id, [0,0]);
+	processProperty('End Point', data.e, id, [100,0]);
+	processProperty('Type', data.t, id, 1);
+	if (data.t === 2){
+		processProperty('Highlight Length', data.h, id, 0);
+		processProperty('Highlight Angle', data.a, id, 0);
+	}
+	processProperty('Line Cap', data.lc, id, 1);
+	processProperty('Line Join', data.lj, id, 1);
+	if (data.lj === 1) {
+		processProperty('Miter Limit', data.ml2, id, 4);
+	}
+
+	//
+	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
+	//
+	processProperty('name', data.nm, id);
+
+}
+
 const shapeHandlers = {
 	gr: groupHandler,
 	rc: rectangleHandler,
@@ -112,6 +168,9 @@ const shapeHandlers = {
 	sr: starHandler,
 	rp: repeaterHandler,
 	rd: roundedCornersHandler,
+	tm: trimPathHandler,
+	gf: gradientFillHandler,
+	gs: gradientStrokeHandler,
 }
 const iterateShapes = (shapes, parentId) => {
 	shapes.forEach(shape => {
