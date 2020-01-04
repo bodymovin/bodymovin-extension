@@ -150,7 +150,7 @@ function createLayer(layerData, compId, assets) {
 	}
 }
 
-function findLayerByIndex(layers, index) {
+function findLayerByIndexProperty(layers, index) {
 	return layers.find(layer => layer.ind === index)
 }
 
@@ -164,8 +164,12 @@ function iterateLayers(layers, compId, assets) {
 	layers
 	.forEach(layer => {
 		if ('parent' in layer) {
-			const parentLayer = findLayerByIndex(layers, layer.parent);
+			const parentLayer = findLayerByIndexProperty(layers, layer.parent);
 			sendCommand('setLayerParent', [layer.__importId, parentLayer.__importId]);
+		}
+
+		if ('tt' in layer) {
+			sendCommand('setTrackMatte', [layer.__importId, layer.tt]);
 		}
 	})
 }

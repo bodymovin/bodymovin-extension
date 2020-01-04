@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode*/
+/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType*/
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -267,9 +267,20 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		f: MaskMode.DIFFERENCE,
 	}
 
+	var trackMatteModes = {
+		1: TrackMatteType.ALPHA,
+		2: TrackMatteType.ALPHA_INVERTED,
+		3: TrackMatteType.LUMA,
+		4: TrackMatteType.LUMA_INVERTED,
+	}
+
 
 	function getMaskMode(mode) {
-		return maskModes[mode] || maskModes.a
+		return maskModes[mode] || maskModes.a;
+	}
+
+	function getTrackMatteMode(mode) {
+		return trackMatteModes[mode] || trackMatteModes[1];
 	}
 
 	function createMask(maskId, layerId, maskMode, isInverted) {
@@ -278,6 +289,11 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(maskId, mask);
 		mask.maskMode = getMaskMode(maskMode);
 		mask.inverted = isInverted;
+	}
+
+	function setTrackMatte(layerId, trackMatteMode) {
+		var element = getElementById(layerId);
+		element.trackMatteType = getTrackMatteMode(trackMatteMode);
 	}
 
 	function assignIdToProp(propName, elementId, containerId) {
@@ -321,6 +337,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createRoundedCorners = createRoundedCorners;
 	ob.createTrimPath = createTrimPath;
 	ob.createMask = createMask;
+	ob.setTrackMatte = setTrackMatte;
 	ob.assignIdToProp = assignIdToProp;
     
     return ob;

@@ -18,7 +18,7 @@ const commandsTimeout = {
 	setLayerOutPoint: 50,
 	setLayerParent: 50,
 	reset: 1,
-	setFrameRate: 50,
+	setFrameRate: 1,
 	createMask: 50,
 	setElementKey: 50,
 	setElementTemporalKeyAtIndex: 50,
