@@ -59,6 +59,21 @@ function createSolid(layerData, compId) {
 	processMasks(layerData.masksProperties, layerId);
 }
 
+function createImageLayer(layerData, compId, assets) {
+	console.log(layerData)
+	const imageSourceData = assets.find(asset => asset.id === layerData.refId)
+	const layerId = random(10);
+	layerData.__importId = layerId;
+	sendCommand('addImageLayer', [
+		imageSourceData.__sourceId,
+		compId,
+		layerId
+	]);
+	processLayerExtraProps(layerData, layerId);
+	processTransform(layerData.ks, layerId);
+	processMasks(layerData.masksProperties, layerId);
+}
+
 function createNull(layerData, compId) {
 	const layerId = random(10);
 	layerData.__importId = layerId;
@@ -138,16 +153,19 @@ function createLayer(layerData, compId, assets) {
 		createCompositionLayer(layerData, compId, assets);
 		break;
 		case 1:
-		createSolid(layerData, compId)
+		createSolid(layerData, compId);
+		break;
+		case 2:
+		createImageLayer(layerData, compId, assets);
 		break;
 		case 3:
-		createNull(layerData, compId)
+		createNull(layerData, compId);
 		break;
 		case 4:
-		createShapeLayer(layerData, compId)
+		createShapeLayer(layerData, compId);
 		break;
 		default:
-		skipLayer(layerData, compId)
+		skipLayer(layerData, compId);
 	}
 }
 
@@ -186,8 +204,8 @@ function registerHandlers(onUpdate, onEnd, onFailed) {
 
 function addFootageToMainFolder(assets) {
 	var footageIds = (assets || [])
-	.filter(asset => asset.id && asset.w && asset.__importId)
-	.map(asset => asset.__importId)
+	.filter(asset => asset.id && asset.w && asset.__sourceId)
+	.map(asset => asset.__sourceId)
 
 	if (footageIds.length) {
 		sendCommand('addFootageToMainFolder', [footageIds]);

@@ -8,7 +8,7 @@ function importLottieAssetsFromPath(assets, path) {
 		.forEach(asset => {
 			const assetId = random(10);
 			sendCommand('importFile', [encodeURIComponent(path),encodeURIComponent(asset.u + asset.p), assetId]);
-			asset.__importId = assetId;
+			asset.__sourceId = assetId;
 		})
 	}
 }

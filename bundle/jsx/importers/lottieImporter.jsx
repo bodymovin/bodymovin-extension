@@ -66,6 +66,13 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, compLayer);
 	}
 
+	function addImageLayer(imageSourceId, parentCompId, elementId) {
+		var image = getElementById(imageSourceId);
+		var parentComp = getElementById(parentCompId);
+		var imageLayer = parentComp.layers.add(image);
+		addElement(elementId, imageLayer);
+	}
+
 	function setFrameRate(value) {
 		frameRate = value;
 	}
@@ -354,6 +361,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createSolid = createSolid;
 	ob.createShapeLayer = createShapeLayer;
 	ob.addComposition = addComposition;
+	ob.addImageLayer = addImageLayer;
 	ob.setFrameRate = setFrameRate;
 	ob.setElementPropertyValue = setElementPropertyValue;
 	ob.setElementPropertyExpression = setElementPropertyExpression;

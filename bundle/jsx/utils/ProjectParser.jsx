@@ -161,8 +161,6 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             currentKey += 1;
         }
         i = 0;
-        bm_eventDispatcher.log('length: ' + keyframes.length)
-        bm_eventDispatcher.log(JSON.stringify(keyframes))
         var arr, arrayLength,count,lastValue,offsetValue, mergedKeys = [], mergedArr, j;
         while(i<numKeys){
             mergedArr = [];
