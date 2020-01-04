@@ -57,6 +57,15 @@ function processTransform(transformData, elementId) {
 	if (transformData.eo) {
 		processProperty('End Opacity', transformData.eo, transformId);
 	}
+
+	if (transformData.sk) {
+		processProperty('Skew', transformData.sk, transformId, 0);
+	}
+
+	if (transformData.sa) {
+		processProperty('Skew Axis', transformData.sa, transformId, 0);
+	}
+
 }
 
 export default processTransform;
