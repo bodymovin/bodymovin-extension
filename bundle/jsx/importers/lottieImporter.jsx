@@ -109,13 +109,37 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		}
 	}
 
-	function setElementPropertValue(propertyName, value, elementId) {
+	function setElementPropertyValue(propertyName, value, elementId) {
 		var element = getElementById(elementId);
 		if (propertyName === 'name') {
 			element[propertyName] = value
 		} else {
 			element[propertyName].setValue(formatValue(value));
 		}
+	}
+
+	function atob(string) {
+		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		string = String(string).replace(/[\t\n\f\r ]+/g, "");
+
+        // Adding the padding if missing, for semplicity
+        string += "==".slice(2 - (string.length & 3));
+        var bitmap, result = "", r1, r2, i = 0;
+        for (; i < string.length;) {
+            bitmap = b64.indexOf(string.charAt(i++)) << 18 | b64.indexOf(string.charAt(i++)) << 12
+                    | (r1 = b64.indexOf(string.charAt(i++))) << 6 | (r2 = b64.indexOf(string.charAt(i++)));
+
+            result += r1 === 64 ? String.fromCharCode(bitmap >> 16 & 255)
+                    : r2 === 64 ? String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255)
+                    : String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
+        }
+        return result;
+	}
+
+	function setElementPropertyExpression(propertyName, value, elementId) {
+		var element = getElementById(elementId);
+		// element[propertyName].expression = 'time';
+		element[propertyName].expression = atob(value);
 	}
 
 	function setElementKey(propertyName, time, value, elementId) {
@@ -275,7 +299,8 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createShapeLayer = createShapeLayer;
 	ob.addComposition = addComposition;
 	ob.setFrameRate = setFrameRate;
-	ob.setElementPropertValue = setElementPropertValue;
+	ob.setElementPropertyValue = setElementPropertyValue;
+	ob.setElementPropertyExpression = setElementPropertyExpression;
 	ob.setElementKey = setElementKey;
 	ob.setElementTemporalKeyAtIndex = setElementTemporalKeyAtIndex;
 	ob.setLayerParent = setLayerParent;

@@ -84,19 +84,24 @@ function addKeyframes(keyframes, propertyName, elementId) {
 
 const processProperty = (propertyName, propertyData, elementId, defaultValue) => {
 	if (typeof propertyData === 'number' || typeof propertyData === 'string') {
-		sendCommand('setElementPropertValue', [propertyName, propertyData, elementId]);
-	} else if (propertyData && 'k' in propertyData) {
-		if (typeof propertyData.k === 'number' || !Array.isArray(propertyData.k)) {
-			if (defaultValue !== propertyData.k) {
-				sendCommand('setElementPropertValue', [propertyName, formatProperty(propertyData.k), elementId]);
+		sendCommand('setElementPropertyValue', [propertyName, propertyData, elementId]);
+	} else if (propertyData) {
+		if ('k' in propertyData) {
+			if (typeof propertyData.k === 'number' || !Array.isArray(propertyData.k)) {
+				if (defaultValue !== propertyData.k) {
+					sendCommand('setElementPropertyValue', [propertyName, formatProperty(propertyData.k), elementId]);
+				}
+			} else if (Array.isArray(propertyData.k) && typeof propertyData.k[0] === 'number') {
+				let differentIndex = propertyData.k.findIndex((value, index) => defaultValue === undefined || defaultValue[index] !== value);
+				if (differentIndex !== -1) {
+					sendCommand('setElementPropertyValue', [propertyName, propertyData.k, elementId]);
+				}
+			} else {
+				addKeyframes(propertyData.k, propertyName, elementId)
 			}
-		} else if (Array.isArray(propertyData.k) && typeof propertyData.k[0] === 'number') {
-			let differentIndex = propertyData.k.findIndex((value, index) => defaultValue === undefined || defaultValue[index] !== value);
-			if (differentIndex !== -1) {
-				sendCommand('setElementPropertValue', [propertyName, propertyData.k, elementId]);
-			}
-		} else {
-			addKeyframes(propertyData.k, propertyName, elementId)
+		}
+		if ('x' in propertyData) {
+			sendCommand('setElementPropertyExpression', [propertyName, btoa(propertyData.x), elementId]);
 		}
 	}
 }
