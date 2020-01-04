@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType, KeyframeInterpolationType*/
+/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType, KeyframeInterpolationType, ImportOptions */
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -322,6 +322,26 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
+	function importFile(jsonPath, fileRelativePath, assetId) {
+		var importFileOptions = new ImportOptions();
+		var file = new File(decodeURIComponent(jsonPath));
+		file = file.parent;
+		file.changePath(decodeURIComponent(fileRelativePath));
+		if (file.exists) {
+			importFileOptions.file = file;
+		}
+		var footage = app.project.importFile(importFileOptions);
+		addElement(assetId, footage);
+	}
+
+	function addFootageToMainFolder(footageList) {
+		var i, len = footageList.length;
+		for (i = 0; i < len; i += 1) {
+			var footage = getElementById(footageList[i]);
+			footage.parentFolder = mainFolder;
+		}
+	}
+
 	function reset() {
 		elements = {};
 		mainFolder = null;
@@ -362,6 +382,8 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createMask = createMask;
 	ob.setTrackMatte = setTrackMatte;
 	ob.assignIdToProp = assignIdToProp;
+	ob.importFile = importFile;
+	ob.addFootageToMainFolder = addFootageToMainFolder;
     
     return ob;
 }());

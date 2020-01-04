@@ -1,7 +1,6 @@
 import sendCommand from './commandHelper'
 import {add as addAlert} from './alertsHelper'
 import processTransform from './transform'
-import {getFrameRate} from './frameRateHelper'
 import random from '../../randomGenerator'
 import processProperty from './property'
 

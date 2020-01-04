@@ -6,6 +6,7 @@ import {
 } from '../actions/importActions'
 import {
 	convertFromPath as convertLottieFileFromPath,
+	convertFromUrl as convertLottieFileFromURL,
 	cancelImport as cancelLottieImport,
 } from '../../helpers/importers/lottie/importer'
 
@@ -24,6 +25,21 @@ function handleImportLottieSuccess(action, store) {
 	convertLottieFileFromPath(action.path, onUpdate, onEnd, onFailed);
 }
 
+function handleImportLottieFromUrlSuccess(action, store) {
+
+	const onUpdate = (data) => {
+		store.dispatch(lottieProcessUpdate(data))
+	}
+	const onEnd = (data) => {
+		store.dispatch(lottieProcessEnd(data))
+	}
+	const onFailed = (error) => {
+		store.dispatch(lottieProcessFailed(error))
+	}
+
+	convertLottieFileFromURL(action.path, onUpdate, onEnd, onFailed);
+}
+
 function handleImportLeave(action, store) {
 	cancelLottieImport();
 }
@@ -34,6 +50,7 @@ function handleImportCancel(action, store) {
 
 const actionHandlers = {}
 actionHandlers[actionTypes.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS] = handleImportLottieSuccess
+actionHandlers[actionTypes.IMPORT_LOTTIE_LOAD_URL_SUCCESS] = handleImportLottieFromUrlSuccess
 actionHandlers[actionTypes.IMPORT_LEAVE] = handleImportLeave
 actionHandlers[actionTypes.IMPORT_LOTTIE_PROCESS_CANCEL] = handleImportCancel
 

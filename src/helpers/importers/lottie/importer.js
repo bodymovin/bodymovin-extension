@@ -7,6 +7,7 @@ import processTransform from './transform'
 import processShape from './shape'
 import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
+import {importLottieAssetsFromPath} from './assets'
 
 const _updateListeners = [];
 const _endListeners = [];
@@ -183,6 +184,16 @@ function registerHandlers(onUpdate, onEnd, onFailed) {
 	_failedListeners.push(onFailed);
 }
 
+function addFootageToMainFolder(assets) {
+	var footageIds = (assets || [])
+	.filter(asset => asset.id && asset.w && asset.__importId)
+	.map(asset => asset.__importId)
+
+	if (footageIds.length) {
+		sendCommand('addFootageToMainFolder', [footageIds]);
+	}
+}
+
 function reset() {
 	_updateListeners.length = 0;
 	_endListeners.length = 0;
@@ -191,16 +202,23 @@ function reset() {
 	clearCommands();
 }
 
+async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
+
+}
+
 async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 	try {
 		reset();
 		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path);
+		await importLottieAssetsFromPath(lottieData.assets, path);
+		// console.log(lottieData)
 		setFrameRate(lottieData.fr);
 		sendCommand('setFrameRate', [lottieData.fr]);
 		createFolder(lottieData.nm)
 		const mainCompId = random(10);
+		addFootageToMainFolder(lottieData.assets)
 		createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);
 		iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
 		// csInterface.evalScript('$.__bodymovin.bm_lottieImporter.importFromPath("' + encodeURIComponent(path) + '")');
@@ -215,5 +233,6 @@ function cancelImport() {
 
 export {
 	convertFromPath,
+	convertFromUrl,
 	cancelImport,
 }
