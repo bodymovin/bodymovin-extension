@@ -40,8 +40,10 @@ class FileImport extends React.Component {
     this.buildIdleMessage = this.buildIdleMessage.bind(this)
     this.state = {
       // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp1.json'
+      urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp2.json'
       // urlImportValue: 'https://assets7.lottiefiles.com/packages/lf20_uexbYU.json'
       // urlImportValue: 'https://assets10.lottiefiles.com/packages/lf20_KAeP3q.json'
+      // urlImportValue: '',
     }
   }
 

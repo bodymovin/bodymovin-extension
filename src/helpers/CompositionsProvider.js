@@ -114,6 +114,18 @@ csInterface.addEventListener('bm:project:id', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:project:path', function (ev) {
+
+	if (ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		let path = data.path
+		dispatcher({ 
+				type: actions.PROJECT_SET_PATH,
+				path: path
+		})
+	}
+})
+
 csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	if(ev.data) {
 		let compositionData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -216,6 +228,16 @@ function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
 			csInterface.evalScript('$.__bodymovin.bm_compsManager.updateData()');
+			resolve();
+		})
+	})
+	return prom
+}
+
+function getProjectPath() {
+	let prom = new Promise(function(resolve, reject){
+		extensionLoader.then(function(){
+			csInterface.evalScript('$.__bodymovin.bm_projectManager.getProjectPath()');
 			resolve();
 		})
 	})
@@ -378,4 +400,5 @@ export {
 	initializeServer,
 	riveFileSaveSuccess,
 	riveFileSaveFailed,
+	getProjectPath,
 }

@@ -233,10 +233,8 @@ function reset() {
 }
 
 async function convert(lottieData, onUpdate, onEnd, onFailed) {
-	reset();
-	registerHandlers(onUpdate, onEnd, onFailed);
-	sendCommand('reset');
 	// console.log(lottieData)
+	registerHandlers(onUpdate, onEnd, onFailed);
 	setFrameRate(lottieData.fr);
 	sendCommand('setFrameRate', [lottieData.fr]);
 	createFolder(lottieData.nm)
@@ -261,6 +259,8 @@ async function loadLottieDataFromUrl(path) {
 
 async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 	try {
+		reset();
+		sendCommand('reset');
 		const lottieData = await loadLottieDataFromUrl(path);
 		await importLottieAssetsFromUrl(lottieData.assets, path);
 		await convert(lottieData, onUpdate, onEnd, onFailed);
@@ -271,6 +271,8 @@ async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 
 async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 	try {
+		reset();
+		sendCommand('reset');
 		const lottieData = await loadLottieData(path);
 		await importLottieAssetsFromPath(lottieData.assets, path);
 		await convert(lottieData, onUpdate, onEnd, onFailed);

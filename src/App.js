@@ -8,6 +8,7 @@ import reducer  from './redux/reducers/index'
 import createSagaMiddleware from 'redux-saga'
 import rootSaga from './redux/sagas'
 import extendScriptMiddleware from './redux/middlewares/extendScriptMiddleware'
+import generalMiddleware from './redux/middlewares/generalMiddleware'
 import './App.css';
 import './reset.css';
 import {setDispatcher} from './helpers/storeDispatcher'
@@ -19,6 +20,7 @@ let composeStore = compose(
   applyMiddleware(
     sagaMiddleware,
     extendScriptMiddleware,
+    generalMiddleware,
   )
 )(createStore)
 

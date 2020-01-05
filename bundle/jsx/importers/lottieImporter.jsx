@@ -337,7 +337,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function importFile(jsonPath, fileRelativePath, assetId) {
 		var importFileOptions = new ImportOptions();
 		var file = new File(decodeURIComponent(jsonPath));
-		file = file.parent;
 		file.changePath(decodeURIComponent(fileRelativePath));
 		if (file.exists) {
 			importFileOptions.file = file;

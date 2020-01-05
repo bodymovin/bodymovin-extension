@@ -1,7 +1,7 @@
 import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveSettingsToLocalStorage, getSettingsFromLocalStorage} from '../../helpers/localStorageHelper'
-import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions} from '../../helpers/CompositionsProvider'
+import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions, getProjectPath} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import settingsSelector from '../selectors/settings_selector'
@@ -11,6 +11,7 @@ function *getCSCompositions(action) {
 	while(true) {
 		yield take([actions.COMPOSITIONS_GET_COMPS, actions.APP_INITIALIZED, actions.APP_FOCUSED])
 		yield call(getCompositions)
+		yield call(getProjectPath)
 	}
 }
 

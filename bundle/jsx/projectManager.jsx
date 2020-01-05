@@ -99,6 +99,11 @@ $.__bodymovin.bm_projectManager = (function () {
         var file = new File(folder.absoluteURI + '/' + path)
         return file;
     }
+
+    function getProjectPath() {
+        var projectFolder = app.project.file.parent;
+        bm_eventDispatcher.sendEvent('bm:project:path', {path: projectFolder.fsName});
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -107,6 +112,7 @@ $.__bodymovin.bm_projectManager = (function () {
         searchCommands: searchCommands,
         getCommandID: getCommandID,
         getFile: getFile, 
+        getProjectPath: getProjectPath, 
     };
     return ob;
 }());
