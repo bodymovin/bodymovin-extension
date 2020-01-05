@@ -166,7 +166,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function setElementPropertyExpression(propertyName, value, elementId) {
 		var element = getElementById(elementId);
 		// element[propertyName].expression = 'time';
-		element[propertyName].expression = atob(value);
+		element[propertyName].expression = decodeURIComponent(value);
 	}
 
 	function setElementKey(propertyName, time, value, elementId) {

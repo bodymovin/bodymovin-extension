@@ -123,6 +123,17 @@ function addKeyframes(keyframes, propertyName, elementId) {
 	})
 }
 
+const formatExpression = (expression) => {
+	expression = expression
+		.replace(/\$bm_sum/g, 'add')
+		.replace(/\$bm_sub/g, 'sub')
+		.replace(/\$bm_mul/g, 'mul')
+		.replace(/\$bm_div/g, 'div')
+		.replace(/\$bm_mod/g, 'mod')
+		.replace(/ sum\(/g, ' add(')
+	return encodeURIComponent(expression)
+}
+
 const processProperty = (propertyName, propertyData, elementId, defaultValue) => {
 	if (typeof propertyData === 'number' || typeof propertyData === 'string') {
 		sendCommand('setElementPropertyValue', [propertyName, propertyData, elementId]);
@@ -144,7 +155,7 @@ const processProperty = (propertyName, propertyData, elementId, defaultValue) =>
 			}
 		}
 		if ('x' in propertyData) {
-			sendCommand('setElementPropertyExpression', [propertyName, btoa(propertyData.x), elementId]);
+			sendCommand('setElementPropertyExpression', [propertyName, formatExpression(propertyData.x), elementId]);
 		}
 	}
 }
