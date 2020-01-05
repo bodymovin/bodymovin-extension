@@ -25,7 +25,7 @@ function handleImportLottieSuccess(action, store) {
 	convertLottieFileFromPath(action.path, onUpdate, onEnd, onFailed);
 }
 
-function handleImportLottieFromUrlSuccess(action, store) {
+function handleImportLottieLoadUrl(action, store) {
 
 	const onUpdate = (data) => {
 		store.dispatch(lottieProcessUpdate(data))
@@ -50,7 +50,7 @@ function handleImportCancel(action, store) {
 
 const actionHandlers = {}
 actionHandlers[actionTypes.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS] = handleImportLottieSuccess
-actionHandlers[actionTypes.IMPORT_LOTTIE_LOAD_URL_SUCCESS] = handleImportLottieFromUrlSuccess
+actionHandlers[actionTypes.IMPORT_LOTTIE_LOAD_URL] = handleImportLottieLoadUrl
 actionHandlers[actionTypes.IMPORT_LEAVE] = handleImportLeave
 actionHandlers[actionTypes.IMPORT_LOTTIE_PROCESS_CANCEL] = handleImportCancel
 

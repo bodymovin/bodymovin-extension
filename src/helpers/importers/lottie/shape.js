@@ -7,6 +7,8 @@ import processProperty from './property'
 const groupHandler = (data, parentId) => {
 	const groupId = random(10);
 	sendCommand('createShapeGroup', [groupId, parentId]);
+
+	processProperty('name', encodeURIComponent(data.nm), groupId);
 	iterateShapes(data.it, groupId); // eslint-disable-line no-use-before-define
 }
 
@@ -20,7 +22,7 @@ const rectangleHandler = (data, parentId) => {
 	processProperty('Size', data.s, rectId, [100, 100]);
 	processProperty('Position', data.p, rectId, [0, 0]);
 	processProperty('Roundness', data.r, rectId, 0);
-	processProperty('name', data.nm, rectId);
+	processProperty('name', encodeURIComponent(data.nm), rectId);
 }
 
 const fillHandler = (data, parentId) => {
@@ -29,7 +31,7 @@ const fillHandler = (data, parentId) => {
 	processProperty('Color', data.c, id);
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Fill Rule', data.r, id);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 	// TODO: Blend mode
 }
 
@@ -44,7 +46,7 @@ const strokeHandler = (data, parentId) => {
 	if (data.lj === 1) {
 		processProperty('Miter Limit', data.ml, id, 4);
 	}
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 	//TODO: dashes
 }
 
@@ -54,7 +56,7 @@ const ellipseHandler = (data, parentId) => {
 	processProperty('Shape Direction', data.d, id);
 	processProperty('Size', data.s, id, [100, 100]);
 	processProperty('Position', data.p, id, [0, 0]);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 }
 
 const starHandler = (data, parentId) => {
@@ -71,7 +73,7 @@ const starHandler = (data, parentId) => {
 	}
 	processProperty('Outer Radius', data.or, id, 100);
 	processProperty('Outer Roundness', data.os, id, 0);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 	
 }
 
@@ -88,7 +90,7 @@ const repeaterHandler = (data, parentId) => {
 	processProperty('Copies', data.c, id);
 	processProperty('Offset', data.o, id, 0);
 	processProperty('Composite', data.m, id);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 	processTransform(data.tr, id);
 }
 
@@ -96,7 +98,7 @@ const roundedCornersHandler = (data, parentId) => {
 	const id = random(10);
 	sendCommand('createRoundedCorners', [id, parentId]);
 	processProperty('Radius', data.r, id);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 }
 
 const trimPathHandler = (data, parentId) => {
@@ -106,7 +108,7 @@ const trimPathHandler = (data, parentId) => {
 	processProperty('End', data.e, id, 100);
 	processProperty('Offset', data.o, id, 0);
 	processProperty('Trim Multiple Shapes', data.m, id);
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 
 }
 
@@ -148,7 +150,7 @@ const gradientStrokeHandler = (data, parentId) => {
 	if (data.lj === 1) {
 		processProperty('Miter Limit', data.ml2, id, 4);
 	}
-	processProperty('name', data.nm, id);
+	processProperty('name', encodeURIComponent(data.nm), id);
 
 	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
 	//TODO: dashes

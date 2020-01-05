@@ -6,6 +6,13 @@ function importLottieFile() {
 	}
 }
 
+function importLottieFileFromUrl(path) {
+	return {
+		type: actionTypes.IMPORT_LOTTIE_LOAD_URL,
+		path
+	}
+}
+
 function importLeave() {
 	return {
 		type: actionTypes.IMPORT_LEAVE
@@ -47,6 +54,7 @@ function lottieProcessCancel() {
 
 export {
 	importLottieFile,
+	importLottieFileFromUrl,
 	importLeave,
 	lottieProcessStart,
 	lottieProcessUpdate,

@@ -25,7 +25,19 @@ function addKeyframes(keyframes, propertyName, elementId) {
 	const inInfluences = []
 	const outSpeeds = []
 	const outInfluences = []
-	const totalDimensions = Array.isArray(keyframes[0].i.x) ? keyframes[0].i.x.length : 1;
+	if (!keyframes[0].i) {
+		console.log(keyframes)
+		console.log(propertyName)
+	}
+	const totalDimensions = keyframes[0].i 
+		? 
+		Array.isArray(keyframes[0].i.x) 
+			? 
+			keyframes[0].i.x.length 
+			: 
+			1
+		: 
+		keyframes[0].s.length;
 	keyframes.forEach((keyframe, index) => {
 		if (keyframe.i && keyframe.o) {
 			outSpeeds[index] = []

@@ -44,6 +44,7 @@ function handleCancel(state, action) {
 export default function project(state = initialState, action) {
   switch (action.type) {
     case actionTypes.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS:
+    case actionTypes.IMPORT_LOTTIE_LOAD_URL:
       return handleProcessStart(state, action);
     case actionTypes.IMPORT_LOTTIE_PROCESS_UPDATE:
       return handleProcessUpdate(state, action);

@@ -120,7 +120,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		property.setSpatialTangentsAtKey(index, inTangents, outTangents);
 	}
 
-	function formatValue(value) {
+	function formatValue(propertyName, value) {
 		if (typeof value === 'object' && value.i) {
 			var sVerts= value.v;
 			var sITans= value.i;
@@ -139,9 +139,9 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function setElementPropertyValue(propertyName, value, elementId) {
 		var element = getElementById(elementId);
 		if (propertyName === 'name') {
-			element[propertyName] = value
+			element[propertyName] = decodeURIComponent(value);
 		} else {
-			element[propertyName].setValue(formatValue(value));
+			element[propertyName].setValue(formatValue(propertyName, value));
 		}
 	}
 
@@ -171,7 +171,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	function setElementKey(propertyName, time, value, elementId) {
 		var element = getElementById(elementId);
-		element[propertyName].setValueAtTime(time / frameRate, formatValue(value));
+		element[propertyName].setValueAtTime(time / frameRate, formatValue(propertyName, value));
 	}
 
 
@@ -189,6 +189,11 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	function setLayerInPoint(layerId, time) {
 		var layer = getElementById(layerId);
 		layer.inPoint = time / frameRate;
+	}
+
+	function setLayerName(layerId, name) {
+		var layer = getElementById(layerId);
+		layer.name = decodeURIComponent(name);
 	}
 
 	function setLayerOutPoint(layerId, time) {
@@ -374,6 +379,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setLayerStartTime = setLayerStartTime;
 	ob.setLayerStretch = setLayerStretch;
 	ob.setLayerInPoint = setLayerInPoint;
+	ob.setLayerName = setLayerName;
 	ob.setLayerOutPoint = setLayerOutPoint;
 	ob.createShapeGroup = createShapeGroup;
 	ob.createRectangle = createRectangle;

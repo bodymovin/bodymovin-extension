@@ -5,6 +5,7 @@ import ImportHeader from '../../components/header/Import_header'
 import {goToComps} from '../../redux/actions/compositionActions'
 import {
   importLottieFile,
+  importLottieFileFromUrl,
   lottieProcessCancel,
   importLeave,
 } from '../../redux/actions/importActions'
@@ -37,6 +38,21 @@ class FileImport extends React.Component {
     super(props)
     this.buildProcessingMessage = this.buildProcessingMessage.bind(this)
     this.buildIdleMessage = this.buildIdleMessage.bind(this)
+    this.state = {
+      // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp1.json'
+      // urlImportValue: 'https://assets7.lottiefiles.com/packages/lf20_uexbYU.json'
+      // urlImportValue: 'https://assets10.lottiefiles.com/packages/lf20_KAeP3q.json'
+    }
+  }
+
+  handleUrlImportChange = (value) => {
+    this.setState({
+      urlImportValue: value
+    })
+  }
+
+  handleUrlImportSubmit = () => {
+    this.props.importLottieFileFromUrl(this.state.urlImportValue)
   }
 
   onLottieSelect = () => {
@@ -86,6 +102,9 @@ class FileImport extends React.Component {
           onBack={this.props.goToComps}
           onCancel={this.props.lottieProcessCancel}
           state={this.props.state}
+          urlImportValue={this.state.urlImportValue}
+          handleUrlImportChange={this.handleUrlImportChange}
+          onUrlImportSubmit={this.handleUrlImportSubmit}
         />
         <div className={css(styles.body)}>
           <div className={css(styles.body_message)}>
@@ -110,6 +129,7 @@ const mapStateToProps = (state) => fileImportSelector(state)
 
 const mapDispatchToProps = {
   importLottieFile: importLottieFile,
+  importLottieFileFromUrl: importLottieFileFromUrl,
   lottieProcessCancel: lottieProcessCancel,
   importLeave: importLeave,
   goToComps: goToComps,

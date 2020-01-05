@@ -42,6 +42,7 @@ const commandsTimeout = {
 }
 
 const getTimeout = (command) => {
+	return 25;
 	return commandsTimeout[command] || 50;
 }
 

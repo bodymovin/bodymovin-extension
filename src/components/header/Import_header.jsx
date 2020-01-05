@@ -12,12 +12,28 @@ const styles = StyleSheet.create({
       marginRight:'7px',
     },
     buttons_container: {
-    	width: '100%',
-    	height: '50px',
+        width: '100%',
+        height: '50px',
         display: 'flex',
         alignItems:'center'
     },
-    button: {
+    buttons_subgroup: {
+        width: '100%',
+        flex: '1 1 auto',
+        alignItems:'center'
+    },
+    input_container: {
+        paddingTop: '10px',
+        width: '100%',
+        display: 'flex',
+    },
+    input_element: {
+        flex: '1 1 auto',
+    },
+    button_input: {
+        flex: '0 0 auto',
+    },
+    button_flex: {
         marginRight:'7px',
         flex: '0 0 auto',
     },
@@ -48,15 +64,33 @@ const styles = StyleSheet.create({
 
 function Import_header(props) {
 	return (<div className={css(styles.container)}>
+                <div className={css(styles.buttons_container)}>
+                    <div className={css(styles.buttons_separator)}></div>
+                    <BaseButton text='Back' type='gray' classes={styles.right} onClick={props.onBack}/>
+                </div>
 				<div className={css(styles.buttons_container)}>
                     {props.state !== 'processing' && 
-                        <BaseButton text='Import Lottie' type='green' classes={styles.button} onClick={props.onSelect} />
+                        <div className={css(styles.buttons_subgroup)}>
+                            <BaseButton text='Import Local File' type='green' classes={styles.button_flex} onClick={props.onSelect} />
+                            <div className={css(styles.input_container)}>
+                                <input 
+                                    className={css(styles.input_element)}
+                                    value={props.urlImportValue}
+                                    onChange={(ev) => props.handleUrlImportChange(ev.target.value)}
+                                    type="text" 
+                                />
+                                <BaseButton 
+                                    text='Import From Url' 
+                                    type='green' 
+                                    classes={styles.button_input} 
+                                    onClick={props.onUrlImportSubmit}
+                                />
+                            </div>
+                        </div>
                     }
 					{props.state === 'processing' && 
-                        <BaseButton text='Cancel Import' type='green' classes={styles.button} onClick={props.onCancel} />
+                        <BaseButton text='Cancel Import' type='green' classes={styles.button_flex} onClick={props.onCancel} />
                     }
-                    <div className={css(styles.buttons_separator)}></div>
-					<BaseButton text='Back' type='gray' classes={styles.right} onClick={props.onBack}/>
 				</div>
 				<div className={css(styles.separator)}></div>
 			</div>)

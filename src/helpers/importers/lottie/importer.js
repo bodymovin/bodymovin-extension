@@ -7,7 +7,10 @@ import processTransform from './transform'
 import processShape from './shape'
 import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
-import {importLottieAssetsFromPath} from './assets'
+import {
+	importLottieAssetsFromPath,
+	importLottieAssetsFromUrl,
+} from './assets'
 
 const _updateListeners = [];
 const _endListeners = [];
@@ -60,7 +63,6 @@ function createSolid(layerData, compId) {
 }
 
 function createImageLayer(layerData, compId, assets) {
-	console.log(layerData)
 	const imageSourceData = assets.find(asset => asset.id === layerData.refId)
 	const layerId = random(10);
 	layerData.__importId = layerId;
@@ -96,6 +98,7 @@ function createShapeLayer(layerData, compId) {
 	processLayerExtraProps(layerData, layerId);
 	processShape(layerData, layerId);
 	processTransform(layerData.ks, layerId);
+	processMasks(layerData.masksProperties, layerId);
 }
 
 function createCompositionLayer(layerData, parentCompId, assets) {
@@ -108,6 +111,7 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 		iterateLayers(compositionSourceData.layers, sourceCompId, assets);
 	}
 	const layerId = random(10);
+	layerData.__importId = layerId;
 	sendCommand('addComposition', [
 		compositionSourceData.__sourceId, 
 		parentCompId,
@@ -115,10 +119,17 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 	]);
 	processLayerExtraProps(layerData, layerId);
 	processTransform(layerData.ks, layerId);
+	processMasks(layerData.masksProperties, layerId);
 }
 
 function processLayerExtraProps(layerData, layerId) {
 
+	if (layerData.ip - layerData.st !== 0) {
+		sendCommand('setLayerInPoint', [
+			layerId,
+			layerData.ip - layerData.st, 
+		]);
+	}
 	if (layerData.st !== 0) {
 		sendCommand('setLayerStartTime', [
 			layerId,
@@ -131,10 +142,10 @@ function processLayerExtraProps(layerData, layerId) {
 			layerData.sr * 100, 
 		]);
 	}
-	if (layerData.ip !== 0) {
-		sendCommand('setLayerInPoint', [
+	if (layerData.nm) {
+		sendCommand('setLayerName', [
 			layerId,
-			layerData.ip, 
+			encodeURIComponent(layerData.nm), 
 		]);
 	}
 	sendCommand('setLayerOutPoint', [
@@ -179,6 +190,7 @@ function iterateLayers(layers, compId, assets) {
 	.forEach(layer => {
 		createLayer(layer, compId, assets)
 	})
+
 	// Iterating twice so all layers have been created
 	layers
 	.forEach(layer => {
@@ -220,27 +232,51 @@ function reset() {
 	clearCommands();
 }
 
-async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
+async function convert(lottieData, onUpdate, onEnd, onFailed) {
+	reset();
+	registerHandlers(onUpdate, onEnd, onFailed);
+	sendCommand('reset');
+	// console.log(lottieData)
+	setFrameRate(lottieData.fr);
+	sendCommand('setFrameRate', [lottieData.fr]);
+	createFolder(lottieData.nm)
+	const mainCompId = random(10);
+	addFootageToMainFolder(lottieData.assets)
+	createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);
+	iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
+}
 
+async function loadLottieDataFromUrl(path) {
+	const jsonDataResonse = await fetch(path, 
+	{
+		method: 'get',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
+	})
+	const jsonData = await jsonDataResonse.json()
+	return jsonData;
+}
+
+async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
+	try {
+		const lottieData = await loadLottieDataFromUrl(path);
+		await importLottieAssetsFromUrl(lottieData.assets, path);
+		await convert(lottieData, onUpdate, onEnd, onFailed);
+	} catch(err) {
+		_onFailed(err)
+	}
 }
 
 async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 	try {
-		reset();
-		registerHandlers(onUpdate, onEnd, onFailed);
-		sendCommand('reset');
 		const lottieData = await loadLottieData(path);
 		await importLottieAssetsFromPath(lottieData.assets, path);
-		// console.log(lottieData)
-		setFrameRate(lottieData.fr);
-		sendCommand('setFrameRate', [lottieData.fr]);
-		createFolder(lottieData.nm)
-		const mainCompId = random(10);
-		addFootageToMainFolder(lottieData.assets)
-		createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);
-		iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
-		// csInterface.evalScript('$.__bodymovin.bm_lottieImporter.importFromPath("' + encodeURIComponent(path) + '")');
+		await convert(lottieData, onUpdate, onEnd, onFailed);
 	} catch(err) {
+		console.log('ERROR: ')
+		console.log(err)
 		_onFailed(err)
 	}
 }
