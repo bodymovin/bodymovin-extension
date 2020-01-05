@@ -6,7 +6,8 @@ import Variables from '../../helpers/styles/variables'
 const styles = StyleSheet.create({
     container: {
       width: '100%',
-      marginBottom: '10px'
+      marginBottom: '10px',
+      flex: '0 0 auto',
     },
     right: {
       marginRight:'7px',
@@ -82,6 +83,7 @@ function Import_header(props) {
                                 <BaseButton 
                                     text='Import From Url' 
                                     type='green' 
+                                    disabled={!props.urlImportValue}
                                     classes={styles.button_input} 
                                     onClick={props.onUrlImportSubmit}
                                 />

@@ -52,6 +52,33 @@ function lottieProcessCancel() {
 	}
 }
 
+function lottieImportFileSuccess(path) {
+	return {
+		type: actionTypes.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS,
+		path
+	}
+}
+
+function lottieImportFileFailed() {
+	return {
+		type: actionTypes.IMPORT_LOTTIE_IMPORT_FILE_FAILED,
+	}
+}
+
+function nasaImageLoaded(data) {
+	return {
+		type: actionTypes.NASA_IMAGE_LOADED,
+		data,
+	}
+}
+
+function catFactLoaded(data) {
+	return {
+		type: actionTypes.CAT_FACT_LOADED,
+		data,
+	}
+}
+
 export {
 	importLottieFile,
 	importLottieFileFromUrl,
@@ -61,4 +88,8 @@ export {
 	lottieProcessEnd,
 	lottieProcessCancel,
 	lottieProcessFailed,
+	lottieImportFileSuccess,
+	lottieImportFileFailed,
+	nasaImageLoaded,
+	catFactLoaded,
 }

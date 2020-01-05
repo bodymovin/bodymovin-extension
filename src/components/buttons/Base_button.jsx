@@ -28,11 +28,6 @@ const styles = StyleSheet.create({
       ':hover': {
         backgroundColor: Variables.colors.green2,
         color: Variables.colors.white
-      },
-      disabled:{
-        color: Variables.colors.gray2,
-        backgroundColor: Variables.colors.gray,
-        cursor: 'default'
       }
     },
     gray: {
@@ -48,6 +43,9 @@ const styles = StyleSheet.create({
           color: Variables.colors.white,
           border: '1px solid ' + Variables.colors.white
       }
+    },
+    disabled:{
+      opacity: '0.8'
     },
     icon: {
       display: 'inline-block',
@@ -88,11 +86,21 @@ class BaseButton extends React.Component{
       this.props.classes
     )
 
-    return (<button title={this.props.text} className={containerClasses} onClick={this.props.onClick} onMouseEnter={this.mouseEnterHandler} onMouseLeave={this.mouseLeaveHandler}>
-      {this.props.icon && <Bodymovin animationData={this.props.icon} ref={(elem)=>this.bm_instance = elem} autoplay={false} loop={false}>
-        <div className={css(styles.icon)}></div>
-      </Bodymovin>}
-      {this.props.text}
+    return (
+      <button 
+        disabled={this.props.disabled}
+        title={this.props.text} 
+        className={containerClasses} 
+        onClick={this.props.onClick} 
+        onMouseEnter={this.mouseEnterHandler} 
+        onMouseLeave={this.mouseLeaveHandler}
+      >
+        {this.props.icon && 
+          <Bodymovin animationData={this.props.icon} ref={(elem)=>this.bm_instance = elem} autoplay={false} loop={false}>
+            <div className={css(styles.icon)}></div>
+          </Bodymovin>
+        }
+        {this.props.text}
       </button>)
   }
 	
