@@ -29,6 +29,13 @@ const styles = StyleSheet.create({
       color: '#ffffff',
       padding: '10px',
       width: '100%',
+    },
+    alert_message: {
+      color: '#ffffff',
+      marginTop: '10px',
+      padding: '10px',
+      width: '100%',
+      border: '1px solid #ffffff',
     }
 })
 
@@ -38,12 +45,21 @@ class FileImport extends React.Component {
     super(props)
     this.buildProcessingMessage = this.buildProcessingMessage.bind(this)
     this.buildIdleMessage = this.buildIdleMessage.bind(this)
+    this.buildEndMessage = this.buildEndMessage.bind(this)
+    this.buildFailedMessage = this.buildFailedMessage.bind(this)
     this.state = {
       // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp1.json'
-      urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp2.json'
+      // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp2.json'
+      // urlImportValue: 'https://regexr.com/'
       // urlImportValue: 'https://assets7.lottiefiles.com/packages/lf20_uexbYU.json'
       // urlImportValue: 'https://assets10.lottiefiles.com/packages/lf20_KAeP3q.json'
-      // urlImportValue: '',
+      urlImportValue: '',
+    }
+    this.message = {
+      idle: this.buildIdleMessage,
+      processing: this.buildProcessingMessage,
+      ended: this.buildEndMessage,
+      failed: this.buildFailedMessage,
     }
   }
 
@@ -61,16 +77,53 @@ class FileImport extends React.Component {
     this.props.importLottieFile()
   }
 
-  message = {
-    idle: this.buildIdleMessage,
-    processing: this.buildProcessingMessage,
-    ended: this.buildEndMessage,
+  buildAlert(alert) {
+    return (
+      <div className={css(styles.alert_message)}>
+        {alert.message}
+      </div>
+     )
+  }
+
+  buildAlertMessages(messages) {
+    if(messages) {
+      return (
+        <div>
+          <div>Alerts</div>
+          <div>
+          {messages.map((message, index) => {
+            return (
+              <div
+                key={index}
+              >
+                {this.buildAlert(message)}
+              </div>
+            )
+          })}
+          </div>
+        </div>
+       )
+    } else {
+      return null;
+    }
   }
 
   buildEndMessage(props) {
     return (
       <div>
-        ENDED
+        <div>Render Finished</div>
+        {this.buildAlertMessages(props.messages)}
+        
+      </div>
+    )
+  }
+
+  buildFailedMessage(props) {
+    return (
+      <div>
+        <div>Render Failed</div>
+        {this.buildAlertMessages(props.messages)}
+        
       </div>
     )
   }
@@ -86,7 +139,7 @@ class FileImport extends React.Component {
   buildIdleMessage(props) {
     return (
       <div>
-        IDLE
+        To import a lottie animation choose one of the two options above.
       </div>
     )
   }

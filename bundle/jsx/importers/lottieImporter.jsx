@@ -59,6 +59,13 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, element);
 	}
 
+	function createTextLayer(elementId, parentCompId, sourceText) {
+		var comp = getElementById(parentCompId);
+
+		var element = comp.layers.addText(decodeURIComponent(sourceText));
+		addElement(elementId, element);
+	}
+
 	function addComposition(compSourceId, parentCompId, elementId) {
 		var comp = getElementById(compSourceId);
 		var parentComp = getElementById(parentCompId);
@@ -145,24 +152,6 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		}
 	}
 
-	function atob(string) {
-		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-		string = String(string).replace(/[\t\n\f\r ]+/g, "");
-
-        // Adding the padding if missing, for semplicity
-        string += "==".slice(2 - (string.length & 3));
-        var bitmap, result = "", r1, r2, i = 0;
-        for (; i < string.length;) {
-            bitmap = b64.indexOf(string.charAt(i++)) << 18 | b64.indexOf(string.charAt(i++)) << 12
-                    | (r1 = b64.indexOf(string.charAt(i++))) << 6 | (r2 = b64.indexOf(string.charAt(i++)));
-
-            result += r1 === 64 ? String.fromCharCode(bitmap >> 16 & 255)
-                    : r2 === 64 ? String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255)
-                    : String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
-        }
-        return result;
-	}
-
 	function setElementPropertyExpression(propertyName, value, elementId) {
 		var element = getElementById(elementId);
 		// element[propertyName].expression = 'time';
@@ -171,7 +160,12 @@ $.__bodymovin.bm_lottieImporter = (function () {
 
 	function setElementKey(propertyName, time, value, elementId) {
 		var element = getElementById(elementId);
-		element[propertyName].setValueAtTime(time / frameRate, formatValue(propertyName, value));
+		// This case covers Grandients that can't be set via scripting
+		if (propertyName === 'Colors') {
+			element[propertyName].addKey(time / frameRate);
+		} else {
+			element[propertyName].setValueAtTime(time / frameRate, formatValue(propertyName, value));
+		}
 	}
 
 
@@ -364,6 +358,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.createNull = createNull;
 	ob.createSolid = createSolid;
 	ob.createShapeLayer = createShapeLayer;
+	ob.createTextLayer = createTextLayer;
 	ob.addComposition = addComposition;
 	ob.addImageLayer = addImageLayer;
 	ob.setFrameRate = setFrameRate;

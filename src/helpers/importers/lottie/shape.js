@@ -115,6 +115,7 @@ const trimPathHandler = (data, parentId) => {
 const gradientFillHandler = (data, parentId) => {
 	const id = random(10);
 	sendCommand('createGradientFill', [id, parentId]);
+	processProperty('Colors', data.g.k, id, 100);
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Fill Rule', data.r, id, 1);
 	processProperty('Blend Mode', data.bm, id, 0);
@@ -125,7 +126,10 @@ const gradientFillHandler = (data, parentId) => {
 		processProperty('Highlight Length', data.h, id, 0);
 		processProperty('Highlight Angle', data.a, id, 0);
 	}
-	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
+	addAlert({
+		type: 'message',
+		message: 'Gradient data can\'t be imported. You will need to fill it manually.',
+	});
 	//
 	processProperty('name', data.nm, id);
 
@@ -134,6 +138,7 @@ const gradientFillHandler = (data, parentId) => {
 const gradientStrokeHandler = (data, parentId) => {
 	const id = random(10);
 	sendCommand('createGradientStroke', [id, parentId]);
+	processProperty('Colors', data.g.k, id, 100);
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Stroke Width', data.w, id, 2);
 	processProperty('Fill Rule', data.r, id, 1);
@@ -152,7 +157,10 @@ const gradientStrokeHandler = (data, parentId) => {
 	}
 	processProperty('name', encodeURIComponent(data.nm), id);
 
-	addAlert('Gradient data can\'t be imported. You will need to fill it manually.')
+	addAlert({
+		type: 'message',
+		message: 'Gradient data can\'t be imported. You will need to fill it manually.',
+	});
 	//TODO: dashes
 
 }

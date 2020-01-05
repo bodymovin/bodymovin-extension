@@ -7,6 +7,7 @@ const getFontsViewData = createSelector(
   (importData) => {
   	return {
   		pendingCommands: importData.pendingCommands,
+  		messages: importData.messages,
   		state: importData.state,
   	}
   }

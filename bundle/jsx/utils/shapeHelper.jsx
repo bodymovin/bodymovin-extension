@@ -340,6 +340,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
             } else if (itemType === shapeItemTypes.gStroke) {
                 ob = {};
                 ob.ty = itemType;
+                // bm_generalUtils.iterateProperty(prop);
                 ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                 ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
                 navigationShapeTree.push(prop.name);

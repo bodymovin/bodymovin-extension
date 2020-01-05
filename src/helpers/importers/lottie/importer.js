@@ -8,6 +8,10 @@ import processShape from './shape'
 import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
 import {
+	add as addAlert,
+	get as getAlerts,
+} from './alertsHelper'
+import {
 	importLottieAssetsFromPath,
 	importLottieAssetsFromUrl,
 } from './assets'
@@ -24,15 +28,17 @@ function _onUpdate(pendingCommands) {
 }
 
 function _onEnd() {
+	const alerts = getAlerts()
 	_endListeners.forEach(listener => listener({
-		state: 'ended'
+		state: 'ended',
+		alerts
 	}))
 }
 
 function _onFailed(error) {
-	_endListeners.forEach(listener => listener({
+	_failedListeners.forEach(listener => listener({
 		state: 'failed',
-		error,
+		message: (error && error.message) ? error.message : 'There has been an error' ,
 	}))
 }
 
@@ -99,6 +105,20 @@ function createShapeLayer(layerData, compId) {
 	processShape(layerData, layerId);
 	processTransform(layerData.ks, layerId);
 	processMasks(layerData.masksProperties, layerId);
+}
+
+function createTextLayer(layerData, compId) {
+	const layerId = random(10);
+	layerData.__importId = layerId;
+	sendCommand('createTextLayer', [
+		layerId, 
+		compId,
+		encodeURIComponent(layerData.t.d.k[0].s.t)
+	]);
+	processLayerExtraProps(layerData, layerId);
+	processTransform(layerData.ks, layerId);
+	processMasks(layerData.masksProperties, layerId);
+	addAlert({type: 'message', message: 'Text layers are not fully supported'});
 }
 
 function createCompositionLayer(layerData, parentCompId, assets) {
@@ -175,6 +195,9 @@ function createLayer(layerData, compId, assets) {
 		case 4:
 		createShapeLayer(layerData, compId);
 		break;
+		case 5:
+		createTextLayer(layerData, compId);
+		break;
 		default:
 		skipLayer(layerData, compId);
 	}
@@ -234,7 +257,6 @@ function reset() {
 
 async function convert(lottieData, onUpdate, onEnd, onFailed) {
 	// console.log(lottieData)
-	registerHandlers(onUpdate, onEnd, onFailed);
 	setFrameRate(lottieData.fr);
 	sendCommand('setFrameRate', [lottieData.fr]);
 	createFolder(lottieData.nm)
@@ -260,6 +282,7 @@ async function loadLottieDataFromUrl(path) {
 async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 	try {
 		reset();
+		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
 		const lottieData = await loadLottieDataFromUrl(path);
 		await importLottieAssetsFromUrl(lottieData.assets, path);
@@ -272,13 +295,12 @@ async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 	try {
 		reset();
+		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path);
 		await importLottieAssetsFromPath(lottieData.assets, path);
 		await convert(lottieData, onUpdate, onEnd, onFailed);
 	} catch(err) {
-		console.log('ERROR: ')
-		console.log(err)
 		_onFailed(err)
 	}
 }
