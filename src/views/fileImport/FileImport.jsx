@@ -12,6 +12,8 @@ import {
 import fileImportSelector from '../../redux/selectors/file_import_selector'
 import Variables from '../../helpers/styles/variables'
 import {openInBrowser} from '../../helpers/CompositionsProvider'
+import GradientAlert from './alerts/GradientAlert'
+import RegularAlert from './alerts/RegularAlert'
 // import BaseButton from '../../components/buttons/Base_button'
 
 const styles = StyleSheet.create({
@@ -50,6 +52,12 @@ const styles = StyleSheet.create({
       padding: '10px',
       width: '100%',
       border: '1px solid #ffffff',
+    },
+    alert_message_text: {
+      marginBottom: '4px',
+    },
+    alert_message_label: {
+      fontSize: '14px',
     },
     idle_message: {
       color: '#ffffff',
@@ -124,6 +132,10 @@ class FileImport extends React.Component {
       ended: this.buildEndMessage,
       failed: this.buildFailedMessage,
     }
+    this.alertTypes = {
+      message: this.buildAlert,
+      gradient: this.buildGradientAlert,
+    }
   }
 
   openInBrowser(){
@@ -144,26 +156,26 @@ class FileImport extends React.Component {
     this.props.importLottieFile()
   }
 
-  buildAlert(alert) {
-    return (
-      <div className={css(styles.alert_message)}>
-        {alert.message}
-      </div>
-     )
+  buildGradientAlert(alertData) {
+    return <GradientAlert data={alertData} />
   }
 
-  buildAlertMessages(messages) {
-    if(messages && messages.length) {
+  buildAlert(alertData) {
+    return <RegularAlert data={alertData} />
+  }
+
+  buildAlertMessages(alerts) {
+    if(alerts && alerts.length) {
       return (
         <div className={css(styles.alerts)}>
           <div className={css(styles.alert_title)}>Alerts</div>
           <div>
-          {messages.map((message, index) => {
+          {alerts.map((message, index) => {
             return (
               <div
                 key={index}
               >
-                {this.buildAlert(message)}
+                {this.alertTypes[message.type](message)}
               </div>
             )
           })}
@@ -249,8 +261,7 @@ class FileImport extends React.Component {
           Hi! this is a first version of the Lottie importer.<br/>
           Some things are not fully supported but most of them are working.<br/>
           If you see anything missing, please email me the json to hernantorrisi@gmail.com<br/>
-          Or open an issue in 
-          <a className={css(styles.link)} href='#' onClick={this.openInBrowser}> Lottie on github</a>
+          Or create an issue in <a className={css(styles.link)} href='#' onClick={this.openInBrowser}>Lottie on github</a>
         </div>
       </div>
     )

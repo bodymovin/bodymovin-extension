@@ -10,6 +10,9 @@ import {setFrameRate} from './frameRateHelper'
 import {
 	add as addAlert,
 	get as getAlerts,
+	setLayer,
+	pushComp,
+	popComp,
 } from './alertsHelper'
 import {
 	importLottieAssetsFromPath,
@@ -128,7 +131,9 @@ function createCompositionLayer(layerData, parentCompId, assets) {
 		const sourceCompId = random(10);
 		compositionSourceData.__sourceId = sourceCompId;
 		createComp(layerData.nm, layerData.w, layerData.h, 9999, sourceCompId);
+		pushComp(layerData.nm);
 		iterateLayers(compositionSourceData.layers, sourceCompId, assets);
+		popComp(layerData.nm);
 	}
 	const layerId = random(10);
 	layerData.__importId = layerId;
@@ -179,6 +184,7 @@ function skipLayer(layerData) {
 }
 
 function createLayer(layerData, compId, assets) {
+	setLayer(layerData.nm);
 	switch (layerData.ty) {
 		case 0:
 		createCompositionLayer(layerData, compId, assets);
@@ -259,9 +265,10 @@ async function convert(lottieData, onUpdate, onEnd, onFailed) {
 	// console.log(lottieData)
 	setFrameRate(lottieData.fr);
 	sendCommand('setFrameRate', [lottieData.fr]);
-	createFolder(lottieData.nm)
+	pushComp(lottieData.nm || 'Main Comp');
+	createFolder(lottieData.nm);
 	const mainCompId = random(10);
-	addFootageToMainFolder(lottieData.assets)
+	addFootageToMainFolder(lottieData.assets);
 	createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);
 	iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
 }

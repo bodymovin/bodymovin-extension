@@ -1,14 +1,14 @@
 import { call, put, takeEvery, select,take ,fork } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {
-	nasaImageLoaded,
+	// nasaImageLoaded,
 	catFactLoaded,
 	lottieImportFileSuccess,
 	lottieImportFileFailed,
 } from '../actions/importActions'
 import fileBrowser from '../../helpers/FileBrowser'
 import storingPathsSelector from '../selectors/storing_paths_selector'
-import nasaHelper from '../../helpers/nasaHelper'
+// import nasaHelper from '../../helpers/nasaHelper'
 import catFactHelper from '../../helpers/catFactHelper'
 
 function *importLottieFile(action) {
@@ -21,10 +21,10 @@ function *importLottieFile(action) {
 	}
 }
 
-function *loadRandomAsset() {
-	const nasaImage = yield call(nasaHelper)
-	yield put(nasaImageLoaded(nasaImage))
-}
+// function *loadRandomAsset() {
+// 	const nasaImage = yield call(nasaHelper)
+// 	yield put(nasaImageLoaded(nasaImage))
+// }
 
 function *loadCatFact() {
 	const catFact = yield call(catFactHelper)

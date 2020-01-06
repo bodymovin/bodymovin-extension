@@ -3,6 +3,7 @@ import {add as addAlert} from './alertsHelper'
 import processTransform from './transform'
 import random from '../../randomGenerator'
 import processProperty from './property'
+import gradientAlert from './alerts/gradientAlert'
 
 const groupHandler = (data, parentId) => {
 	const groupId = random(10);
@@ -126,10 +127,7 @@ const gradientFillHandler = (data, parentId) => {
 		processProperty('Highlight Length', data.h, id, 0);
 		processProperty('Highlight Angle', data.a, id, 0);
 	}
-	addAlert({
-		type: 'message',
-		message: 'Gradient data can\'t be imported. You will need to fill it manually.',
-	});
+	addAlert(gradientAlert(data));
 	//
 	processProperty('name', data.nm, id);
 
@@ -157,10 +155,7 @@ const gradientStrokeHandler = (data, parentId) => {
 	}
 	processProperty('name', encodeURIComponent(data.nm), id);
 
-	addAlert({
-		type: 'message',
-		message: 'Gradient data can\'t be imported. You will need to fill it manually.',
-	});
+	addAlert(gradientAlert(data));
 	//TODO: dashes
 
 }
