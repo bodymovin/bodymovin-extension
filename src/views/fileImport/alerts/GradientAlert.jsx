@@ -44,17 +44,18 @@ function GradientAlert(props) {
 
 			{!!alertData.layer &&
 				<div className={css(styles.alert_message_label)}>
-					Layer: {alertData.layer}
+					<span className={css(styles.alert_message_label_span)}>Layer:</span> {alertData.layer}
 				</div>
 			}
 			{!!alertData.comp &&
 				<div className={css(styles.alert_message_label)}>
-					Composition: {alertData.comp}
+					<span className={css(styles.alert_message_label_span)}>Composition:</span> {alertData.comp}
 				</div>
 			}
 			<div className={css(styles.alert_message_text, styles.gradient_message_text)}>
 				For each keyframe you need to insert this values:
 			</div>
+			{/* COLORS START */}
 			<div className={css(styles.gradient_title)}>COLORS:</div>
 			{
 				alertData.colorData.colors.map((colorList, index) => {
@@ -98,6 +99,44 @@ function GradientAlert(props) {
 					)
 				})
 			}
+			{/* COLORS END */}
+			{/* ALPHAS START */}
+			{!!alertData.colorData.alphas.length && <div className={css(styles.gradient_title)}>ALPHAS:</div>}
+			{!!alertData.colorData.alphas.length && 
+				alertData.colorData.alphas.map((colorList, index) => {
+					return (
+						<div className={css(styles.gradient_keyframe)}
+							key={index}
+						>
+							<div 
+								className={css(styles.gradient_keyframe_title)}
+							>
+								At Keyframe {index + 1}
+							</div>
+							{
+								colorList.map((colorItem, colorItemIndex) => 
+									(
+										<div 
+											key={colorItemIndex}
+											 className={css(styles.gradient_position)}
+										>
+											<div className={css(styles.gradient_item)}>Handler position: 
+												<span> {colorItem.p} %</span>
+											</div>
+											<div className={css(styles.gradient_item)}>
+												Alpha Value: 
+												<span> {colorItem.a}</span>
+											</div>
+										</div>
+									)
+								)
+							}
+							
+						</div>
+					)
+				})
+			}
+			{/* COLORS END */}
 		</div>
 	)
 }

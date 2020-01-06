@@ -15,12 +15,12 @@ function RegularAlert(props) {
 			</div>
 			{!!alertData.layer &&
 				<div className={css(styles.alert_message_label)}>
-					Layer: {alertData.layer}
+					<span className={css(styles.alert_message_label_span)}>Layer:</span> {alertData.layer}
 				</div>
 			}
 			{!!alertData.comp &&
 				<div className={css(styles.alert_message_label)}>
-					Composition: {alertData.comp}
+					<span className={css(styles.alert_message_label_span)}>Composition:</span> {alertData.comp}
 				</div>
 			}
 		</div>

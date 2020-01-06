@@ -1,12 +1,12 @@
 function buildGradientKeyframes(gradientData) {
-	// console.log(gradientData)
 	const totalPositions = gradientData.p;
 	const colors = [];
 	const alphas = [];
 	gradientData.k.k.forEach(gradient => {
-		// console.log(gradient);
 		const gradientValue = gradient.s;
+		const hasAlpha = gradientValue.length / 4 !== totalPositions;
 		const colorList = [];
+		const alphaList = [];
 		let count = 0, index = 0;
 		while (count < totalPositions) {
 			index = count * 4;
@@ -19,9 +19,19 @@ function buildGradientKeyframes(gradientData) {
 			count += 1;
 		}
 		colors.push(colorList)
-
-		if (gradientValue / 4 !== totalPositions) {
-
+		if (hasAlpha) {
+			count = 0;
+			const totalAlphaPositions = ((gradientValue.length - (totalPositions * 4)) / 2);
+			index = 0;
+			while (count < totalAlphaPositions) {
+				index = totalPositions * 4 + count * 2;
+				alphaList.push({
+					p: Math.round(100 * gradientValue[index + 0] * 100) / 100,
+					a: Math.round(gradientValue[index + 1] * 255 * 100) / 100,
+				})
+				count += 1;
+			}
+			alphas.push(alphaList)
 		}
 	});
 	return {

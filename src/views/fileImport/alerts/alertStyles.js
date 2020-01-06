@@ -1,3 +1,5 @@
+import Variables from '../../../helpers/styles/variables'
+
 const baseStyles = {
 	alert_title: {
 		fontSize: '20px',
@@ -14,6 +16,9 @@ const baseStyles = {
 	},
 	alert_message_label: {
 		fontSize: '14px',
+	},
+	alert_message_label_span: {
+		color: Variables.colors.blue,
 	},
 }
 
