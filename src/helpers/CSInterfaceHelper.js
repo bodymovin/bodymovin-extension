@@ -19,7 +19,7 @@ function sendCommand(prefix, commandName, commandArguments = []) {
 		}
 	})
 	command += ')'
-	// csInterface.evalScript(command);
+	csInterface.evalScript(command);
 	// console.log(command)
 }
 

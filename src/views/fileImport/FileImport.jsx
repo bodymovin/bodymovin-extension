@@ -124,7 +124,7 @@ class FileImport extends React.Component {
       // urlImportValue: 'https://regexr.com/'
       // urlImportValue: 'https://assets7.lottiefiles.com/packages/lf20_uexbYU.json'
       // urlImportValue: 'https://assets10.lottiefiles.com/packages/lf20_KAeP3q.json'
-      urlImportValue: '',
+      urlImportValue: 'https://',
     }
     this.message = {
       idle: this.buildIdleMessage,

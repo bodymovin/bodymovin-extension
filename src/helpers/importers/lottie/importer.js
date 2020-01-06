@@ -22,6 +22,7 @@ import {
 const _updateListeners = [];
 const _endListeners = [];
 const _failedListeners = [];
+let _hasEnded = false;
 
 function _onUpdate(pendingCommands) {
 	_updateListeners.forEach(listener => listener({
@@ -31,11 +32,13 @@ function _onUpdate(pendingCommands) {
 }
 
 function _onEnd() {
-	const alerts = getAlerts()
-	_endListeners.forEach(listener => listener({
-		state: 'ended',
-		alerts
-	}))
+	if (_hasEnded) {
+		const alerts = getAlerts()
+		_endListeners.forEach(listener => listener({
+			state: 'ended',
+			alerts
+		}))
+	}
 }
 
 function _onFailed(error) {
@@ -254,6 +257,7 @@ function addFootageToMainFolder(assets) {
 }
 
 function reset() {
+	_hasEnded = false;
 	_updateListeners.length = 0;
 	_endListeners.length = 0;
 	_failedListeners.length = 0;
@@ -294,6 +298,7 @@ async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 		const lottieData = await loadLottieDataFromUrl(path);
 		await importLottieAssetsFromUrl(lottieData.assets, path);
 		await convert(lottieData, onUpdate, onEnd, onFailed);
+		_hasEnded = true;
 	} catch(err) {
 		_onFailed(err)
 	}
@@ -307,6 +312,7 @@ async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 		const lottieData = await loadLottieData(path);
 		await importLottieAssetsFromPath(lottieData.assets, path);
 		await convert(lottieData, onUpdate, onEnd, onFailed);
+		_hasEnded = true;
 	} catch(err) {
 		_onFailed(err)
 	}

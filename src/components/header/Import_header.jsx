@@ -79,6 +79,7 @@ function Import_header(props) {
                                     value={props.urlImportValue}
                                     onChange={(ev) => props.handleUrlImportChange(ev.target.value)}
                                     type="text" 
+                                    onFocus={(ev) => ev.target.select()}
                                 />
                                 <BaseButton 
                                     text='Import From Url' 
