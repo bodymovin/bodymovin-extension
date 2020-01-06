@@ -27,7 +27,7 @@ function buildGradientKeyframes(gradientData) {
 				index = totalPositions * 4 + count * 2;
 				alphaList.push({
 					p: Math.round(100 * gradientValue[index + 0] * 100) / 100,
-					a: Math.round(gradientValue[index + 1] * 255 * 100) / 100,
+					a: Math.round(gradientValue[index + 1] * 100 * 100) / 100,
 				})
 				count += 1;
 			}

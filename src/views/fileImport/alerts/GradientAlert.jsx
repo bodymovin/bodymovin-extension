@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import {baseStyles} from './alertStyles'
 import Variables from '../../../helpers/styles/variables'
+import {rgbToHex} from '../../../helpers/colorConverter'
 
 const styles = StyleSheet.create({
 	...baseStyles,
@@ -89,6 +90,10 @@ function GradientAlert(props) {
 											<div className={css(styles.gradient_item)}>
 												Blue: 
 												<span> {colorItem.b}</span>
+											</div>
+											<div className={css(styles.gradient_item)}>
+												HEX: 
+												<span> {rgbToHex(Math.round(colorItem.r), Math.round(colorItem.g), Math.round(colorItem.b))}</span>
 											</div>
 										</div>
 									)
