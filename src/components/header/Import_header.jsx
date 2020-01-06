@@ -63,6 +63,14 @@ const styles = StyleSheet.create({
     }
 })
 
+function getHeaderType(importState) {
+    if (importState === 'processing' || importState === 'loading') {
+        return 'processing'
+    } else {
+        return 'idle'
+    }
+}
+
 function Import_header(props) {
 	return (<div className={css(styles.container)}>
                 <div className={css(styles.buttons_container)}>
@@ -70,7 +78,7 @@ function Import_header(props) {
                     <BaseButton text='Back' type='gray' classes={styles.right} onClick={props.onBack}/>
                 </div>
 				<div className={css(styles.buttons_container)}>
-                    {props.state !== 'processing' && 
+                    {getHeaderType(props.state) !== 'processing' && 
                         <div className={css(styles.buttons_subgroup)}>
                             <BaseButton text='Import Local File' type='green' classes={styles.button_flex} onClick={props.onSelect} />
                             <div className={css(styles.input_container)}>
@@ -91,7 +99,7 @@ function Import_header(props) {
                             </div>
                         </div>
                     }
-					{props.state === 'processing' && 
+					{getHeaderType(props.state) === 'processing' && 
                         <BaseButton text='Cancel Import' type='green' classes={styles.button_flex} onClick={props.onCancel} />
                     }
 				</div>

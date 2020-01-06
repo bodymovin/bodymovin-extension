@@ -120,15 +120,16 @@ class FileImport extends React.Component {
     this.buildFailedMessage = this.buildFailedMessage.bind(this)
     this.state = {
       // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp1.json'
-      // urlImportValue: 'http://lab.nearpod.com/bodymovin/demo/imports/1/acomp2.json'
+      urlImportValue: 'https://lab.nearpod.com/bodymovin/demo/imports/1/acomp2.json'
       // urlImportValue: 'https://regexr.com/'
       // urlImportValue: 'https://assets7.lottiefiles.com/packages/lf20_uexbYU.json'
       // urlImportValue: 'https://assets10.lottiefiles.com/packages/lf20_KAeP3q.json'
-      urlImportValue: 'https://',
+      // urlImportValue: 'https://',
     }
     this.message = {
       idle: this.buildIdleMessage,
       processing: this.buildProcessingMessage,
+      loading: this.buildLoadingMessage,
       ended: this.buildEndMessage,
       failed: this.buildFailedMessage,
     }
@@ -190,7 +191,7 @@ class FileImport extends React.Component {
   buildEndMessage(props) {
     return (
       <div>
-        <div>Render Finished</div>
+        <div>Import Finished</div>
         {this.buildAlertMessages(props.messages)}
         
       </div>
@@ -200,7 +201,7 @@ class FileImport extends React.Component {
   buildFailedMessage(props) {
     return (
       <div>
-        <div>Render Failed</div>
+        <div>Import Failed</div>
         {this.buildAlertMessages(props.messages)}
         
       </div>
@@ -246,6 +247,18 @@ class FileImport extends React.Component {
               </div>
             </div>
           }
+        </div>
+      </div>
+    )
+  }
+
+  buildLoadingMessage(props) {
+    return (
+      <div>
+        <div className={css(styles.alert_message)}>
+          <span>
+            Loading File
+          </span>
         </div>
       </div>
     )

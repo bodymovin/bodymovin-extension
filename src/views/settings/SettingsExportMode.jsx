@@ -7,7 +7,6 @@ import SettingsAVD from './SettingsExportModeAVD'
 import SettingsFlare from './SettingsExportModeFlare'
 import SettingsDemo from './SettingsExportModeDemo'
 import SettingsStandalone from './SettingsExportModeStandalone'
-import ExportModes from '../../helpers/ExportModes'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
@@ -35,16 +34,6 @@ const styles = StyleSheet.create({
 })
 
 class SettingsExportMode extends React.PureComponent {
-
-  descriptions = {
-    [ExportModes.STANDARD]: 'Exports animation as a json file',
-    [ExportModes.STANDALONE]: 'Exports animation and player bundled in a single file',
-    [ExportModes.BANNER]: 'Exports a bundle of files for banner usage',
-  }
-
-  getDescription() {
-
-  }
 
 	render(){ 
 		return (

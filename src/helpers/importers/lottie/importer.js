@@ -23,6 +23,7 @@ const _updateListeners = [];
 const _endListeners = [];
 const _failedListeners = [];
 let _hasEnded = false;
+let currentConversionId;
 
 function _onUpdate(pendingCommands) {
 	_updateListeners.forEach(listener => listener({
@@ -42,6 +43,7 @@ function _onEnd() {
 }
 
 function _onFailed(error) {
+	console.log('_onFailed', error)
 	_failedListeners.forEach(listener => listener({
 		state: 'failed',
 		message: (error && error.message) ? error.message : 'There has been an error' ,
@@ -261,6 +263,7 @@ function reset() {
 	_updateListeners.length = 0;
 	_endListeners.length = 0;
 	_failedListeners.length = 0;
+	currentConversionId = '';
 	resetAlerts();
 	clearCommands();
 }
@@ -291,8 +294,10 @@ async function loadLottieDataFromUrl(path) {
 }
 
 async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
+	let _localConversionId = random(10);
 	try {
 		reset();
+		currentConversionId = _localConversionId;
 		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
 		const lottieData = await loadLottieDataFromUrl(path);
@@ -300,13 +305,17 @@ async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 		await convert(lottieData, onUpdate, onEnd, onFailed);
 		_hasEnded = true;
 	} catch(err) {
-		_onFailed(err)
+		if (currentConversionId === _localConversionId) {
+			_onFailed(err)
+		}
 	}
 }
 
 async function convertFromPath(path, onUpdate, onEnd, onFailed) {
+	let _localConversionId = random(10);
 	try {
 		reset();
+		currentConversionId = _localConversionId;
 		registerHandlers(onUpdate, onEnd, onFailed);
 		sendCommand('reset');
 		const lottieData = await loadLottieData(path);
@@ -314,7 +323,9 @@ async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 		await convert(lottieData, onUpdate, onEnd, onFailed);
 		_hasEnded = true;
 	} catch(err) {
-		_onFailed(err)
+		if (currentConversionId === _localConversionId) {
+			_onFailed(err)
+		}
 	}
 }
 

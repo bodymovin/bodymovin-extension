@@ -4,6 +4,7 @@ const _commands = [];
 let _onUpdate = () =>{};
 let _onEnd = () =>{};
 let _commandTimeout = null;
+const prefix = '$.__bodymovin.bm_lottieImporter.';
 
 const commandsTimeout = {
 	createFolder: 50,
@@ -50,9 +51,11 @@ const sendNextCommand = () => {
 	_commandTimeout = null;
 	if (_commands.length) {
 		const nextCommand = _commands.shift();
-		const prefix = '$.__bodymovin.bm_lottieImporter.';
 		sendCommand(prefix, nextCommand.name, nextCommand.arguments);
-		_onUpdate(_commands.length);
+		// This is to prevent an onUpdate state when animation has not been loaded yet
+		if (nextCommand.name !== 'reset') {
+			_onUpdate(_commands.length);
+		}
 		_commandTimeout = setTimeout(sendNextCommand, getTimeout(nextCommand.name));
 	} else {
 		_onEnd();
