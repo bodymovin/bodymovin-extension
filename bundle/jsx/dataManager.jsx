@@ -55,6 +55,16 @@ $.__bodymovin.bm_dataManager = (function () {
             }
         }
     }
+
+    function deleteAssetParams(assets) {
+        if (!assets) {
+            return;
+        }
+        var i, len = assets.length;
+        for (i = 0; i < len; i += 1) {
+            assets[i].fileId = undefined;
+        }
+    }
     
     function deleteLayerParams(layers) {
         var i, len = layers.length;
@@ -78,6 +88,7 @@ $.__bodymovin.bm_dataManager = (function () {
                 delete data.chars;
             }
         }
+        deleteAssetParams(data.assets);
         deleteLayerParams(data.layers);
     }
 

@@ -77,7 +77,7 @@ function *saveStoredData() {
 
 function *savePathsData() {
 	while(true) {
-		yield take([actions.COMPOSITION_SET_DESTINATION, actions.PREVIEW_FILE_BROWSED])
+		yield take([actions.COMPOSITION_SET_DESTINATION, actions.PREVIEW_FILE_BROWSED, actions.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS])
 		const storingData = yield select(storingPathsSelector)
 		yield call(savePathsToLocalStorage, storingData)
 	}

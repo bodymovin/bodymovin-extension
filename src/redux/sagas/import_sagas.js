@@ -14,7 +14,7 @@ import catFactHelper from '../../helpers/catFactHelper'
 function *importLottieFile(action) {
 	try{
 		let paths = yield select(storingPathsSelector)
-		let filePath = yield call(fileBrowser, paths.previewPath)
+		let filePath = yield call(fileBrowser, paths.importPath)
 		yield put(lottieImportFileSuccess(filePath))
 	} catch(err) {
 		yield put(lottieImportFileFailed())
@@ -32,11 +32,6 @@ function *loadCatFact() {
 }
 
 function *loopRandomAsset() {
-	yield call(loadCatFact)
-	yield take([
-		actions.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS,
-		actions.IMPORT_LOTTIE_LOAD_URL,
-	])
 	while(true) {
 		yield take([
 			actions.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS,
