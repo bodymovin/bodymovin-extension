@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "express": "^2.4.6",
+    "express": "^4.17.1",
     "imagemin": "^7.0.1",
     "imagemin-jpegoptim": "^6.0.0",
     "imagemin-jpegtran": "^6.0.0",
