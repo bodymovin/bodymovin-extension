@@ -101,8 +101,10 @@ $.__bodymovin.bm_projectManager = (function () {
     }
 
     function getProjectPath() {
-        var projectFolder = app.project.file.parent;
-        bm_eventDispatcher.sendEvent('bm:project:path', {path: projectFolder.fsName});
+        if (app.project && app.project.file && app.project.file.parent) {
+            var projectFolder = app.project.file.parent;
+            bm_eventDispatcher.sendEvent('bm:project:path', {path: projectFolder.fsName});
+        }
     }
     
     var ob = {
