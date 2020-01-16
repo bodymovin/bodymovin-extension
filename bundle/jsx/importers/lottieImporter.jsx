@@ -190,6 +190,11 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		layer.name = decodeURIComponent(name);
 	}
 
+	function setElementAsDisabled(elementId, name) {
+		var element = getElementById(elementId);
+		element.enabled = false;
+	}
+
 	function setLayerOutPoint(layerId, time) {
 		var layer = getElementById(layerId);
 		layer.outPoint = time / frameRate;
@@ -374,6 +379,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.setLayerStretch = setLayerStretch;
 	ob.setLayerInPoint = setLayerInPoint;
 	ob.setLayerName = setLayerName;
+	ob.setElementAsDisabled = setElementAsDisabled;
 	ob.setLayerOutPoint = setLayerOutPoint;
 	ob.createShapeGroup = createShapeGroup;
 	ob.createRectangle = createRectangle;

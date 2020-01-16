@@ -1,8 +1,19 @@
+function getKeyframes(gradientKeys) {
+	if (typeof gradientKeys[0] === 'number') {
+		return [{
+			s: gradientKeys
+		}]
+	} else {
+		return gradientKeys
+	}
+}
+
 function buildGradientKeyframes(gradientData) {
 	const totalPositions = gradientData.p;
 	const colors = [];
 	const alphas = [];
-	gradientData.k.k.forEach(gradient => {
+	const keyframes = getKeyframes(gradientData.k.k);
+	keyframes.forEach(gradient => {
 		const gradientValue = gradient.s;
 		const hasAlpha = gradientValue.length / 4 !== totalPositions;
 		const colorList = [];

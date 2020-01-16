@@ -43,7 +43,6 @@ function _onEnd() {
 }
 
 function _onFailed(error) {
-	console.log('_onFailed', error)
 	_failedListeners.forEach(listener => listener({
 		state: 'failed',
 		message: (error && error.message) ? error.message : 'There has been an error' ,
@@ -178,6 +177,11 @@ function processLayerExtraProps(layerData, layerId) {
 			encodeURIComponent(layerData.nm), 
 		]);
 	}
+	if (layerData.hd === true) {
+		sendCommand('setElementAsDisabled', [
+			layerId,
+		]);
+	}
 	sendCommand('setLayerOutPoint', [
 		layerId,
 		layerData.op, 
@@ -306,7 +310,8 @@ async function convertFromUrl(path, onUpdate, onEnd, onFailed) {
 		_hasEnded = true;
 	} catch(err) {
 		if (currentConversionId === _localConversionId) {
-			_onFailed(err)
+			_onFailed(err);
+			reset();
 		}
 	}
 }
@@ -324,7 +329,8 @@ async function convertFromPath(path, onUpdate, onEnd, onFailed) {
 		_hasEnded = true;
 	} catch(err) {
 		if (currentConversionId === _localConversionId) {
-			_onFailed(err)
+			_onFailed(err);
+			reset();
 		}
 	}
 }

@@ -5,12 +5,21 @@ import random from '../../randomGenerator'
 import processProperty from './property'
 import gradientAlert from './alerts/gradientAlert'
 
+const processCommonProperties = (data, id) => {
+	if (data.hd === true) {
+		sendCommand('setElementAsDisabled', [
+			id,
+		]);
+	}
+}
+
 const groupHandler = (data, parentId) => {
 	const groupId = random(10);
 	sendCommand('createShapeGroup', [groupId, parentId]);
 
 	processProperty('name', encodeURIComponent(data.nm), groupId);
 	iterateShapes(data.it, groupId); // eslint-disable-line no-use-before-define
+	processCommonProperties(data, groupId);
 }
 
 const transformHandler = (data, parentId) => {
@@ -24,6 +33,7 @@ const rectangleHandler = (data, parentId) => {
 	processProperty('Position', data.p, rectId, [0, 0]);
 	processProperty('Roundness', data.r, rectId, 0);
 	processProperty('name', encodeURIComponent(data.nm), rectId);
+	processCommonProperties(data, rectId);
 }
 
 const fillHandler = (data, parentId) => {
@@ -33,6 +43,7 @@ const fillHandler = (data, parentId) => {
 	processProperty('Opacity', data.o, id, 100);
 	processProperty('Fill Rule', data.r, id);
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 	// TODO: Blend mode
 }
 
@@ -48,6 +59,7 @@ const strokeHandler = (data, parentId) => {
 		processProperty('Miter Limit', data.ml, id, 4);
 	}
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 	//TODO: dashes
 }
 
@@ -58,6 +70,7 @@ const ellipseHandler = (data, parentId) => {
 	processProperty('Size', data.s, id, [100, 100]);
 	processProperty('Position', data.p, id, [0, 0]);
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 }
 
 const starHandler = (data, parentId) => {
@@ -75,6 +88,7 @@ const starHandler = (data, parentId) => {
 	processProperty('Outer Radius', data.or, id, 100);
 	processProperty('Outer Roundness', data.os, id, 0);
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 	
 }
 
@@ -82,6 +96,7 @@ const shapeHandler = (data, parentId) => {
 	const id = random(10);
 	sendCommand('createShape', [id, parentId]);
 	processProperty('ADBE Vector Shape', data.ks, id, null);
+	processCommonProperties(data, id);
 	// TODO: Blend mode
 }
 
@@ -93,6 +108,7 @@ const repeaterHandler = (data, parentId) => {
 	processProperty('Composite', data.m, id);
 	processProperty('name', encodeURIComponent(data.nm), id);
 	processTransform(data.tr, id);
+	processCommonProperties(data, id);
 }
 
 const roundedCornersHandler = (data, parentId) => {
@@ -100,6 +116,7 @@ const roundedCornersHandler = (data, parentId) => {
 	sendCommand('createRoundedCorners', [id, parentId]);
 	processProperty('Radius', data.r, id);
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 }
 
 const trimPathHandler = (data, parentId) => {
@@ -110,6 +127,7 @@ const trimPathHandler = (data, parentId) => {
 	processProperty('Offset', data.o, id, 0);
 	processProperty('Trim Multiple Shapes', data.m, id);
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 
 }
 
@@ -130,6 +148,7 @@ const gradientFillHandler = (data, parentId) => {
 	addAlert(gradientAlert(data));
 	//
 	processProperty('name', data.nm, id);
+	processCommonProperties(data, id);
 
 }
 
@@ -154,6 +173,7 @@ const gradientStrokeHandler = (data, parentId) => {
 		processProperty('Miter Limit', data.ml2, id, 4);
 	}
 	processProperty('name', encodeURIComponent(data.nm), id);
+	processCommonProperties(data, id);
 
 	addAlert(gradientAlert(data));
 	//TODO: dashes
