@@ -5,6 +5,7 @@ import sendCommand, {registerUpdate, registerEnd, clear as clearCommands} from '
 import {reset as resetAlerts} from './alertsHelper'
 import processTransform from './transform'
 import processShape from './shape'
+import processText from './text'
 import processMasks from './mask'
 import {setFrameRate} from './frameRateHelper'
 import {
@@ -120,9 +121,9 @@ function createTextLayer(layerData, compId) {
 	sendCommand('createTextLayer', [
 		layerId, 
 		compId,
-		encodeURIComponent(layerData.t.d.k[0].s.t)
 	]);
 	processLayerExtraProps(layerData, layerId);
+	processText(layerData.t, layerId)
 	processTransform(layerData.ks, layerId);
 	processMasks(layerData.masksProperties, layerId);
 	addAlert({type: 'message', message: 'Text layers are not fully supported'});
@@ -273,7 +274,6 @@ function reset() {
 }
 
 async function convert(lottieData, onUpdate, onEnd, onFailed) {
-	// console.log(lottieData)
 	setFrameRate(lottieData.fr);
 	sendCommand('setFrameRate', [lottieData.fr]);
 	pushComp(lottieData.nm || 'Main Comp');

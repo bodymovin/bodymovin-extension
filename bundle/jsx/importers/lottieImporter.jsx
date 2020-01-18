@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType, KeyframeInterpolationType, ImportOptions */
+/*global File, Folder, $, KeyframeEase, Shape, app, MaskMode, TrackMatteType, KeyframeInterpolationType, ImportOptions, TextDocument, ParagraphJustification */
 
 $.__bodymovin.bm_lottieImporter = (function () {
 
@@ -59,10 +59,10 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, element);
 	}
 
-	function createTextLayer(elementId, parentCompId, sourceText) {
+	function createTextLayer(elementId, parentCompId) {
 		var comp = getElementById(parentCompId);
 
-		var element = comp.layers.addText(decodeURIComponent(sourceText));
+		var element = comp.layers.addText('');
 		addElement(elementId, element);
 	}
 
@@ -289,6 +289,59 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		addElement(elementId, elementProperty);
 	}
 
+	function getJustification(value) {
+        switch (value) {
+        case 0:
+            return ParagraphJustification.LEFT_JUSTIFY;
+        case 1:
+            return ParagraphJustification.RIGHT_JUSTIFY;
+        case 2:
+            return ParagraphJustification.CENTER_JUSTIFY;
+        case 3:
+            return ParagraphJustification.FULL_JUSTIFY_LASTLINE_LEFT;
+        case 4:
+            return ParagraphJustification.FULL_JUSTIFY_LASTLINE_RIGHT;
+        case 5:
+            return ParagraphJustification.FULL_JUSTIFY_LASTLINE_CENTER;
+        case 6:
+            return ParagraphJustification.FULL_JUSTIFY_LASTLINE_FULL;
+        default:
+            return ParagraphJustification.LEFT_JUSTIFY;
+        }
+    }
+
+    function buildTextDocument(textDocument, text, fontSize, font, fillColor, tracking, justification, baselineShift) {
+    	try {
+    		textDocument.text = text;
+    		textDocument.justification = getJustification(justification);
+    		textDocument.font = decodeURIComponent(font);
+    		textDocument.baselineShift = baselineShift;
+    		textDocument.fontSize = fontSize;
+    		textDocument.fillColor = fillColor;
+    		textDocument.tracking = tracking;
+    	} catch(error) {
+    		bm_eventDispatcher.log(error.message)
+    	}
+    }
+
+	function setTextDocumentValue(sourceTextId, text, fontSize, font, fillColor, tracking, justification, baselineShift) {
+		var layer = getElementById(sourceTextId);
+		var textDocument = new TextDocument(text);
+		layer.property("Source Text").setValue(textDocument);
+		textDocument = layer.property("Source Text").value;
+		buildTextDocument(textDocument, text, fontSize, font, fillColor, tracking, justification, baselineShift)
+		layer.property("Source Text").setValue(textDocument);
+	}
+
+    function setTextDocumentValueAtTime(sourceTextId, time, text, fontSize, font, fillColor, tracking, justification, baselineShift) {
+    	var layer = getElementById(sourceTextId);
+    	var textDocument = new TextDocument(text);
+    	layer.property("Source Text").setValueAtTime(time / frameRate, textDocument);
+    	textDocument = layer.property("Source Text").value;
+    	buildTextDocument(textDocument, text, fontSize, font, fillColor, tracking, justification, baselineShift)
+    	layer.property("Source Text").setValueAtTime(time / frameRate, textDocument);
+    }
+
 	var maskModes = {
 		a: MaskMode.ADD,
 		s: MaskMode.SUBTRACT,
@@ -398,6 +451,8 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.assignIdToProp = assignIdToProp;
 	ob.importFile = importFile;
 	ob.addFootageToMainFolder = addFootageToMainFolder;
+	ob.setTextDocumentValue = setTextDocumentValue;
+	ob.setTextDocumentValueAtTime = setTextDocumentValueAtTime;
     
     return ob;
 }());

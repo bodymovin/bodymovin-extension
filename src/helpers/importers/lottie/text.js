@@ -5,7 +5,6 @@ const getTextDocumentData = (textDocumentData) => {
 	if ('k' in textDocumentData) {
 		return textDocumentData.k
 	} else {
-		console.log('textDocumentData', textDocumentData)
 		return [
 			{
 				s: textDocumentData
@@ -50,7 +49,6 @@ const processText = (textData, layerId) => {
 			);
 		})
 	}
-	// encodeURIComponent(textData.d.k[0].s.t)
 }
 
 export default processText
