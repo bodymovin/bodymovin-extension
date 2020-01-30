@@ -64,7 +64,7 @@ $.__bodymovin.bm_fileManager = (function () {
             i += 1;
         }
         var file = new File(fileFolder.absoluteURI);
-        file.changePath(fileName);
+        file.changePath(decodeURIComponent(fileName));
         
         var renderFile = {
             name: fileName,
@@ -72,7 +72,7 @@ $.__bodymovin.bm_fileManager = (function () {
             id: bm_generalUtils.random(10),
             file: file
         }
-        renderFiles.push(renderFile)
+        renderFiles.push(renderFile);
         return renderFile;
     }
 
