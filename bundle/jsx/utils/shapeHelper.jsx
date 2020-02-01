@@ -625,7 +625,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         navigationShapeTree.push(containingComp.name);
         // Suffix LIST is at the end of layer names, 
         // so it guarantees to correctly find the full layer name when searching the gradient tree path
-        navigationShapeTree.push(layerInfo.name + 'LIST');
+        navigationShapeTree.push(layerInfo.name);
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
         iterateProperties(contents, shapes, frameRate, stretch, isText, true, includeHiddenData);
