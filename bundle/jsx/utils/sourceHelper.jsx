@@ -276,8 +276,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
         assetsArray.push(currentSavingAsset);
 
 
-        helperSequenceComp.workAreaStart = currentStillIndex / currentSourceData.source.frameRate;
-        helperSequenceComp.workAreaDuration = 1 / currentSourceData.source.frameRate;
+        helperSequenceComp.workAreaStart = Math.max(0, Math.min(totalFrames - 3, currentStillIndex - 1)) / currentSourceData.source.frameRate;
+        helperSequenceComp.workAreaDuration = 3 / currentSourceData.source.frameRate;
 
         // Add composition item to render queue and set to render.
         var item = app.project.renderQueue.items.add(helperSequenceComp);

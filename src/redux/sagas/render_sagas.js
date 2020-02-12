@@ -50,8 +50,12 @@ function *storeFontData() {
 }
 
 function *processImage(action) {
-	let response = yield call(imageProcessor, action.data)
-	imageProcessed(response)
+	try{
+		let response = yield call(imageProcessor, action.data)
+		imageProcessed(response)
+	} catch (err) {
+		console.log(err)
+	}
 }
 
 function *saveRiveFile(action) {
@@ -59,7 +63,6 @@ function *saveRiveFile(action) {
 		yield call(riveSaveFile, action.origin, action.destination, action.fileName)
 		yield call(riveFileSaveSuccess)
 	} catch(err) {
-		console.log('NOT SUCCEESSS')
 		console.log(err)
 		yield call(riveFileSaveFailed)
 	}

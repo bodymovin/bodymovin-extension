@@ -89,15 +89,25 @@ function checkImageTransparency(imagePath) {
 
 app.post('/encode', async function(req, res){
 	if (req.body.path) {
-		const fs = require('fs');
-		const decodedPath = decodeURIComponent(req.body.path)
+		try {
+			const fs = require('fs');
+			const decodedPath = decodeURIComponent(req.body.path)
 
-		const buff = fs.readFileSync(decodedPath);
-		const base64data = buff.toString('base64');
-		res.send({
-			status: 'success',
-			data: base64data,
+			const buff = fs.readFileSync(decodedPath);
+			const base64data = buff.toString('base64');
+			res.send({
+				status: 'success',
+				test: 'test3',
+				data: base64data,
+			})
+		} catch(err) {
+			res.send({
+			status: 'error',
+			message: 'failed decoding',
+			error: err,
+			errorMessage: err.message,
 		})
+		}
 	} else {
 		res.send({
 			status: 'error',
@@ -307,8 +317,6 @@ function getJsonPath(items, originPath) {
 	return new Promise((resolve, reject) => {
 		let jsonFilePath = '';
 		for (var i=0; i<items.length; i++) {
-			console.log(items[i])
-			console.log(items[i].indexOf('.json'))
 			if (items[i].indexOf('.json') !== -1) {
 				jsonFilePath = originPath + nodePath.sep + items[i];
 				break;
@@ -487,7 +495,6 @@ const segment = async(req, res) => {
 	const jsonData = await getJsonData(originFile)
 	const jsonObject = JSON.parse(jsonData);
 	const animationPieces = await animationSegmenter(jsonObject)
-	console.log(animationPieces)
 	res.send({
 		status: 'success'
 	})
