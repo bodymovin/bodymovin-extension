@@ -311,7 +311,7 @@ $.__bodymovin.bm_renderManager = (function () {
             }*/
         } else {
             removeExtraData();
-            $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
+            $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
         }
     }
     
@@ -389,7 +389,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function shouldCompressImages() {
-        return currentCompSettings.should_compress;
+        return currentCompSettings.should_compress && !currentCompSettings.original_assets;
     }
 
     function getCompressionQuality() {

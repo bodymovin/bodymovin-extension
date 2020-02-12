@@ -5,41 +5,6 @@ path.parse = function(_path){
 	}
 }
 
-function ImageObject(_canvas, _img) {
-	this.canvas = _canvas;
-	this._img = _img;
-	this.updateBitmap();
-}
-
-ImageObject.prototype.updateBitmap = function() {
-	var context = this.canvas.getContext('2d');
-	var imageData = context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-	this.bitmap = imageData;
-}
-
-ImageObject.prototype.clone = function() {
-	return new ImageObject(this.copyCanvas(), this._img);
-}
-
-
-ImageObject.prototype.opaque = function() {
-	var canvasCtx = this.canvas.getContext('2d');
-	canvasCtx.fillStyle = 'white';
-	canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	canvasCtx.drawImage(this._img, 0, 0);
-	this.updateBitmap();
-	return this;
-}
-
-ImageObject.prototype.copyCanvas = function() {
-	var clonedCanvas = document.createElement('canvas');
-	clonedCanvas.width = this.canvas.width;
-	clonedCanvas.height = this.canvas.height;
-	var clonedCanvasCtx = clonedCanvas.getContext('2d');
-	clonedCanvasCtx.drawImage(this._img, 0, 0);
-	return clonedCanvas;
-}
-
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
 	return new Promise((resolve, reject) => {

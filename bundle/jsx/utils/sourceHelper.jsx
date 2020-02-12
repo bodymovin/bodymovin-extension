@@ -7,7 +7,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var compSources = [], imageSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
-    , originalNamesFlag, imageCount = 0, imageName = 0;
+    , originalNamesFlag, originalAssetsFlag, imageCount = 0, imageNameIndex = 0;
     var currentSavingAsset;
     var queue, playSound, autoSave, canEditPrefs = true;
     var _lastSecond = -1;
@@ -47,7 +47,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
             height: item.source.height,
             source_name: item.source.name,
             name: item.name,
-            id: 'image_' + imageCount
+            id: 'image_' + imageCount,
         });
         imageCount += 1;
         return arr[arr.length - 1].id;
@@ -89,7 +89,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function incrementSanizitedName(name) {
-        return name + '_' + imageName++
+        return name + '_' + imageNameIndex++
     }
 
     function formatImageName(name) {
@@ -111,6 +111,24 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
         }
         return sanitizedName + '.png';
+    }
+
+    function getImageName(originalName, generatedName) {
+        
+        var imageName;
+
+        if (originalNamesFlag) {
+            imageName = formatImageName(originalName);
+        } else {
+            imageName = generatedName;
+            if (originalAssetsFlag) {
+                imageName += originalName.substr(originalName.lastIndexOf('.')) || '.png'
+            } else {
+                imageName += '.png';
+            }
+        }
+
+        return imageName;
     }
 
     function saveFilesToFolder() {
@@ -211,7 +229,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         var now = new Date();
         var newSecond = now.getSeconds();
         var newMilliSeconds = now.getMilliseconds();
-        if (newSecond !== _lastSecond) {
+        if (newSecond !== _lastSecond || originalAssetsFlag) {
             _lastSecond = newSecond;
             _lastMilliseconds = newMilliSeconds;
             saveNextStillInSequence();
@@ -235,11 +253,19 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
     }
 
+    function updateCurrentSecond() {
+        var now = new Date();
+        var newSecond = now.getSeconds();
+        _lastSecond = newSecond;
+    }
+
     function saveNextStillInSequence() {
 
         if (currentStillIndex === currentSequenceTotalFrames) {
             currentExportingImageSequenceIndex += 1;
-            helperSequenceComp.remove();
+            if (helperSequenceComp) {
+                helperSequenceComp.remove();
+            }
             saveNextImageSequence();
             return;
         }
@@ -255,10 +281,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 progress: currentStillIndex / totalFrames
             }
         );
-        var imageName = originalNamesFlag ? 
-            formatImageName(currentSourceData.source_name) 
-            : 
-            'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex + '.png';
+
+        var imageName = getImageName(currentSourceData.source_name, 'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex);
 
         var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
         var file = renderFileData.file;
@@ -275,59 +299,117 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         assetsArray.push(currentSavingAsset);
 
+        if (!originalAssetsFlag) {
 
-        helperSequenceComp.workAreaStart = Math.max(0, Math.min(totalFrames - 3, currentStillIndex - 1)) / currentSourceData.source.frameRate;
-        helperSequenceComp.workAreaDuration = 3 / currentSourceData.source.frameRate;
+            helperSequenceComp.workAreaStart = Math.max(0, Math.min(totalFrames - 3, currentStillIndex - 1)) / currentSourceData.source.frameRate;
+            helperSequenceComp.workAreaDuration = 3 / currentSourceData.source.frameRate;
 
-        // Add composition item to render queue and set to render.
-        var item = app.project.renderQueue.items.add(helperSequenceComp);
-        item.render = true;
+            // Add composition item to render queue and set to render.
+            var item = app.project.renderQueue.items.add(helperSequenceComp);
+            item.render = true;
 
-        // Set output parameters.
-        // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
-        var outputModule = item.outputModule(1);
-        outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
-        outputModule.file = file;
+            // Set output parameters.
+            // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
+            var outputModule = item.outputModule(1);
+            outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
+            outputModule.file = file;
 
-        // Set cleanup.
-        item.onStatusChanged = function() {
-            if (item.status === RQItemStatus.DONE) {
-                // Due to an apparent bug, "00000" is appended to the file extension.
-                // NOTE: This appears to be related to the "File Template" setting's
-                //       frame number parameter ('[#####]').
-                //       However, attempts to fix this by setting the "File Template"
-                //       and/or "File Name" parameter of the output module's "Output
-                //       File Info" setting had no effect.
-                // NOTE: Also tried setting output module's "Use Comp Frame Number"
-                //       setting to false.
-                // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
+            // Set cleanup.
+            item.onStatusChanged = function() {
+                if (item.status === RQItemStatus.DONE) {
+                    updateCurrentSecond();
+                    // Due to an apparent bug, "00000" is appended to the file extension.
+                    // NOTE: This appears to be related to the "File Template" setting's
+                    //       frame number parameter ('[#####]').
+                    //       However, attempts to fix this by setting the "File Template"
+                    //       and/or "File Name" parameter of the output module's "Output
+                    //       File Info" setting had no effect.
+                    // NOTE: Also tried setting output module's "Use Comp Frame Number"
+                    //       setting to false.
+                    // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
 
-                var imgIndex = currentStillIndex.toString();
-                while(imgIndex.length < 5) {
-                    imgIndex = '0' + imgIndex;
+
+                    var imgIndex = currentStillIndex.toString();
+                    while(imgIndex.length < 5) {
+                        imgIndex = '0' + imgIndex;
+                    }
+
+                    var bug = new File(file.fsName + imgIndex);
+                    if (bug.exists) {
+                        bug.rename(imageName);
+                    }
+
+                    bm_eventDispatcher.sendEvent('bm:image:process', {
+                        /***
+                        path: temporaryFolder.fsName + '/' + imageName, 
+                        ***/
+                        path: file.fsName, 
+                        should_compress: bm_renderManager.shouldCompressImages(), 
+                        compression_rate: bm_renderManager.getCompressionQuality()/100,
+                        should_encode_images: bm_renderManager.shouldEncodeImages()
+                    })
+
                 }
+            };
 
-                var bug = new File(file.fsName + imgIndex);
-                if (bug.exists) {
-                    bug.rename(imageName);
-                }
+            // Render.
+            app.project.renderQueue.render();
+        } else {
 
-                bm_eventDispatcher.sendEvent('bm:image:process', {
-                    /***
-                    path: temporaryFolder.fsName + '/' + imageName, 
-                    ***/
-                    path: file.fsName, 
-                    should_compress: bm_renderManager.shouldCompressImages(), 
-                    compression_rate: bm_renderManager.getCompressionQuality()/100,
-                    should_encode_images: bm_renderManager.shouldEncodeImages()
-                })
-
+            var currentSourceFile = currentSourceData.source.file;
+            var currentSourceFilePath = currentSourceFile.fsName;
+            var newName = getNextImageName(currentSourceFilePath, currentStillIndex)
+            var copyingFile = new File(newName)
+            if (copyingFile.exists) {
+                copyingFile.copy(file.fsName)
+            } else {
+                // This will copy the original file in all sequence.
+                // Adding it so nothing break for a missing file
+                // But this would mean that the sequence has not been found.
+                // TODO: inform the user about this and stop render
+                currentSourceFile.copy(file.fsName)
             }
-        };
+            updateCurrentSecond();
 
-        // Render.
-        app.project.renderQueue.render();
+            bm_eventDispatcher.sendEvent('bm:image:process', {
+                /***
+                path: temporaryFolder.fsName + '/' + imageName, 
+                ***/
+                path: file.fsName, 
+                should_compress: bm_renderManager.shouldCompressImages(), 
+                compression_rate: bm_renderManager.getCompressionQuality()/100,
+                should_encode_images: bm_renderManager.shouldEncodeImages()
+            })
+        }
         
+    }
+
+    function getNextImageName(text, index) {
+        var regex = /[0-9]+/g
+        var flag = true;
+        var lastMatch;
+        while (flag) {
+            var match = regex.exec(text)
+            if (!match) {
+                flag = false;
+            } else {
+                lastMatch = match
+            }
+        }
+        if (lastMatch) {
+            var value = lastMatch[0]
+            var num = parseInt(value) + index
+            var newValue = num.toString()
+            var count = 0;
+            while(newValue.length < value.length) {
+                newValue = value.substr(count, 1) + newValue
+            }
+            var newTexto = text.substr(0, lastMatch.index)
+            newTexto += newValue
+            newTexto += text.substr(lastMatch.index + value.length)
+            return newTexto;
+        }
+        return '';
     }
 
     function saveSequence() {
@@ -336,8 +418,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
         currentSequenceTotalFrames = currentSourceData.totalFrames;
         var frameRate = currentSourceData.source.frameRate;
 
-        helperSequenceComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSourceData.width), Math.max(4, currentSourceData.height), 1, (currentSourceData.totalFrames + 1) / frameRate, frameRate);
-        helperSequenceComp.layers.add(currentSourceData.source);
+        if (!originalAssetsFlag) {
+            helperSequenceComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSourceData.width), Math.max(4, currentSourceData.height), 1, (currentSourceData.totalFrames + 1) / frameRate, frameRate);
+            helperSequenceComp.layers.add(currentSourceData.source);
+        }
         scheduleNextSaveStilInSequence();
 
     }
@@ -375,7 +459,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
         var currentSourceData = imageSources[currentExportingImage];
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
-        var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
+        var imageName = getImageName(currentSourceData.source_name, 'img_' + currentExportingImage);
+        
         var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
         var file = renderFileData.file;
 
@@ -389,57 +474,75 @@ $.__bodymovin.bm_sourceHelper = (function () {
             fileId: renderFileData.id
         }
         assetsArray.push(currentSavingAsset);
-        var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
-        helperComp.layers.add(currentSource);
+
+        if (!originalAssetsFlag) {
+            var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
+            helperComp.layers.add(currentSource);
 
 
 
-        // Add composition item to render queue and set to render.
-        var item = app.project.renderQueue.items.add(helperComp);
-        item.render = true;
+            // Add composition item to render queue and set to render.
+            var item = app.project.renderQueue.items.add(helperComp);
+            item.render = true;
 
-        // Set output parameters.
-        // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
-        var outputModule = item.outputModule(1);
-        outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
-        outputModule.file = file;
+            // Set output parameters.
+            // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
+            var outputModule = item.outputModule(1);
+            outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
+            outputModule.file = file;
 
-        // Set cleanup.
-        item.onStatusChanged = function() {
-            if (item.status === RQItemStatus.DONE) {
-                // Due to an apparent bug, "00000" is appended to the file extension.
-                // NOTE: This appears to be related to the "File Template" setting's
-                //       frame number parameter ('[#####]').
-                //       However, attempts to fix this by setting the "File Template"
-                //       and/or "File Name" parameter of the output module's "Output
-                //       File Info" setting had no effect.
-                // NOTE: Also tried setting output module's "Use Comp Frame Number"
-                //       setting to false.
-                // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
-                /***
-                var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
-                ***/
-                var bug = new File(file.fsName + '00000');
-                if (bug.exists) {
-                    bug.rename(imageName);
-                }
-
-                bm_eventDispatcher.sendEvent('bm:image:process', {
+            // Set cleanup.
+            item.onStatusChanged = function() {
+                if (item.status === RQItemStatus.DONE) {
+                    updateCurrentSecond();
+                    // Due to an apparent bug, "00000" is appended to the file extension.
+                    // NOTE: This appears to be related to the "File Template" setting's
+                    //       frame number parameter ('[#####]').
+                    //       However, attempts to fix this by setting the "File Template"
+                    //       and/or "File Name" parameter of the output module's "Output
+                    //       File Info" setting had no effect.
+                    // NOTE: Also tried setting output module's "Use Comp Frame Number"
+                    //       setting to false.
+                    // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
                     /***
-                    path: temporaryFolder.fsName + '/' + imageName, 
+                    var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
                     ***/
-                    path: file.fsName, 
-                    should_compress: bm_renderManager.shouldCompressImages(), 
-                    compression_rate: bm_renderManager.getCompressionQuality()/100,
-                    should_encode_images: bm_renderManager.shouldEncodeImages()
-                })
-            }
-        };
+                    var bug = new File(file.fsName + '00000');
+                    if (bug.exists) {
+                        bug.rename(imageName);
+                    }
 
-        // Render.
-        app.project.renderQueue.render();
+                    bm_eventDispatcher.sendEvent('bm:image:process', {
+                        /***
+                        path: temporaryFolder.fsName + '/' + imageName, 
+                        ***/
+                        path: file.fsName, 
+                        should_compress: bm_renderManager.shouldCompressImages(), 
+                        compression_rate: bm_renderManager.getCompressionQuality()/100,
+                        should_encode_images: bm_renderManager.shouldEncodeImages()
+                    })
+                }
+            };
 
-        helperComp.remove();
+            // Render.
+            app.project.renderQueue.render();
+
+            helperComp.remove();
+        } else {
+            var currentSourceFile = currentSourceData.source.file;
+            currentSourceFile.copy(file.fsName);
+            updateCurrentSecond();
+
+            bm_eventDispatcher.sendEvent('bm:image:process', {
+                /***
+                path: temporaryFolder.fsName + '/' + imageName, 
+                ***/
+                path: file.fsName, 
+                should_compress: bm_renderManager.shouldCompressImages(), 
+                compression_rate: bm_renderManager.getCompressionQuality()/100,
+                should_encode_images: bm_renderManager.shouldEncodeImages()
+            })
+        }
     }
 
     function imageProcessed(changedFlag, encoded_data) {
@@ -491,7 +594,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
     }
 
-    function exportImages(path, assets, compId, _originalNamesFlag) {
+    function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
         if ((imageSources.length === 0 && sequenceSourcesStills.length === 0) || bm_renderManager.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
@@ -502,6 +605,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         currentCompID = compId;
         originalNamesFlag = _originalNamesFlag;
+        originalAssetsFlag = _originalAssetsFlag;
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting images', compId: currentCompID, progress: 0});
         currentExportingImage = 0;
         currentExportingImageSequenceIndex = 0;
@@ -552,7 +656,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         imageCount = 0;
         sequenceCount = 0;
         sequenceSourcesStillsCount = 0;
-        imageName = 0;
+        imageNameIndex = 0;
     }
     
     return {

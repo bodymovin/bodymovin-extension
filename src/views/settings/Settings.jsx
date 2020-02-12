@@ -127,6 +127,7 @@ class Settings extends React.PureComponent {
     this.toggleGuideds = this.toggleValue.bind(this,'guideds')
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
+    this.toggleOriginalAssets = this.toggleValue.bind(this,'original_assets')
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
     this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
@@ -189,6 +190,9 @@ class Settings extends React.PureComponent {
   }
 
   render() {
+
+    const isUsingOriginalAssets = this.props.settings.original_assets
+
     return (
     	<div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
@@ -245,14 +249,22 @@ class Settings extends React.PureComponent {
                 description='Export assets with their original project names'
                 toggleItem={this.toggleOriginalNames}
                 active={this.props.settings ? this.props.settings.original_names : false}  />
-              {this.props.canCompressAssets && <SettingsListItem 
+              <SettingsListItem 
+                title='Copy Original Assets'
+                description='Uses actual project source files (does not work with AI layers)'
+                toggleItem={this.toggleOriginalAssets}
+                active={this.props.settings ? this.props.settings.original_assets : false}  />
+              {this.props.canCompressAssets &&
+              !isUsingOriginalAssets &&  
+              <SettingsListItem 
                 title='Enable compression'
                 description='Set compression ratio for image layers (0-100)'
                 toggleItem={this.toggleCompressImages}
                 needsInput={true} 
                 inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
                 inputValueChange={this.qualityChange}
-                active={this.props.settings ? this.props.settings.should_compress : false}  />}
+                active={this.props.settings ? this.props.settings.should_compress : false}  />
+              }
               <SettingsListItem 
                 title='Include in json'
                 description='Include rasterized images encoded in the json'
