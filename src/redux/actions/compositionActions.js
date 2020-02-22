@@ -198,6 +198,12 @@ function lottieBannerCustomSizeFlagUpdated() {
 	}
 }
 
+function lottieIncludeDataInTemplateUpdated() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED,
+	}
+}
+
 function goToImportFile() {
 	return {
 		type: actionTypes.GOTO_IMPORT,
@@ -235,4 +241,5 @@ export {
 	lottieBannerClickTagUpdated,
 	lottieBannerZipFilesUpdated,
 	lottieBannerCustomSizeFlagUpdated,
+	lottieIncludeDataInTemplateUpdated,
 }

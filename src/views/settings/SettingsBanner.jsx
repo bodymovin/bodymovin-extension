@@ -12,6 +12,7 @@ import {
   lottieBannerClickTagUpdated,
   lottieBannerZipFilesUpdated,
   lottieBannerCustomSizeFlagUpdated,
+  lottieIncludeDataInTemplateUpdated,
 } from '../../redux/actions/compositionActions'
 import settings_banner_selector from '../../redux/selectors/settings_banner_selector'
 import SettingsListItem from './list/SettingsListItem'
@@ -181,6 +182,11 @@ class SettingsBanner extends React.PureComponent {
               description='Select if you want to zip banner files'
               toggleItem={this.props.handleZipFilesChange}
               active={this.props.zip_files}  />
+            <SettingsListItem 
+              title='Inline animation data in template'
+              description='Select if you want to json data be part of the template'
+              toggleItem={this.props.handleIncludeDataInTemplateChange}
+              active={this.props.shouldIncludeAnimationDataInTemplate}  />
           </ul>
         }
       </div>
@@ -203,6 +209,7 @@ const mapDispatchToProps = {
   handleBannerLibraryClickTagChange: lottieBannerClickTagUpdated,
   handleCustomSizeFlagChange: lottieBannerCustomSizeFlagUpdated,
   handleZipFilesChange: lottieBannerZipFilesUpdated,
+  handleIncludeDataInTemplateChange: lottieIncludeDataInTemplateUpdated,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsBanner)

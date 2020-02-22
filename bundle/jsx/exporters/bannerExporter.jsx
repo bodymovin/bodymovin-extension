@@ -35,7 +35,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		}
 	}
 
-	function createTemplate(config, filePathName) {
+	function createTemplate(config, filePathName, animationStringData) {
 		var bannerConfig = config.banner
 		var templateData = bm_downloadManager.getTemplateData()
 		var sizes = getSizes(bannerConfig)
@@ -46,7 +46,15 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		.replace(/__LOTTIE_RENDERER__/g, bannerConfig.lottie_renderer)
 		.replace(/__CLICK_TAG__/g, bannerConfig.click_tag)
 		.replace(/__LOTTIE_SOURCE__/g, getLottiePath(bannerConfig))
-		.replace(/__FILE_PATH__/g, filePathName)
+
+		if (bannerConfig.shouldIncludeAnimationDataInTemplate) {
+			templateData = templateData
+			.replace(/__DATA_LOAD__/g, 'animationData: JSON.parse(\'' + animationStringData + '\')')
+		} else {
+			templateData = templateData
+			.replace(/__DATA_LOAD__/g, 'path: \'' + filePathName + '\'')
+			
+		}
 
 		var indexFile = bm_fileManager.addFile('index.html', ['banner'], templateData)
 
@@ -158,11 +166,13 @@ $.__bodymovin.bm_bannerExporter = (function () {
 
 
 			var bannerFiles = [];
-			bannerFiles = bannerFiles.concat(createTemplate(config, destinationData.fileName + '.json'));
+			bannerFiles = bannerFiles.concat(createTemplate(config, destinationData.fileName + '.json', animationStringData));
 			bannerFiles = bannerFiles.concat(includeAdditionalFiles(config));
 
-			var jsonFile =  bm_fileManager.addFile(destinationData.fileName + '.json', ['banner'], animationStringData);
-			bannerFiles.push(jsonFile);
+			if(!bannerConfig.shouldIncludeAnimationDataInTemplate) {
+				var jsonFile =  bm_fileManager.addFile(destinationData.fileName + '.json', ['banner'], animationStringData);
+				bannerFiles.push(jsonFile);
+			}
 			
 			if (bannerConfig.zip_files) {
 				var temporaryFolder = bm_fileManager.getTemporaryFolder();

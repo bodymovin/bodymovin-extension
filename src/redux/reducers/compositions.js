@@ -63,6 +63,7 @@ let defaultComposition = {
           original_height: 500,
           click_tag: 'https://',
           zip_files: true,
+          shouldIncludeAnimationDataInTemplate: false,
         }
     }
   }
@@ -535,6 +536,8 @@ function updateBanner(state, action) {
     newBanner.click_tag = action.value
   } else if (action.type === actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED) {
     newBanner.zip_files = !newBanner.zip_files
+  } else if (action.type === actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED) {
+    newBanner.shouldIncludeAnimationDataInTemplate = !newBanner.shouldIncludeAnimationDataInTemplate
   } else if (action.type === actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED) {
     newBanner.use_original_sizes = !newBanner.use_original_sizes
   }
@@ -609,6 +612,7 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_RENDERER_UPDATED:
     case actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED:
     case actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED:
+    case actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED:
     case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
