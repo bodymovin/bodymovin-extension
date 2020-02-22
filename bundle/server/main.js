@@ -167,7 +167,7 @@ app.post('/createBanner/', async function(req, res){
 						await traverseDirToZip(absolutePath, fileRelativePath)
 					} else {
 						const fileData = await getFile(absolutePath + fileRelativePath)
-						zip.file(fileRelativePath, fileData);
+						zip.file(fileRelativePath.substr(1), fileData);
 					}
 				}))
 				return 'ENDED'
