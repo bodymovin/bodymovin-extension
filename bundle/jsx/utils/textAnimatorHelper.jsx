@@ -165,6 +165,9 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
                 case 'ADBE Text Skew Axis':
                     ob.sa = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
+                case 'ADBE Text Blur':
+                    ob.bl = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
+                    break;
                 }
             }
         }
