@@ -118,6 +118,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
+        bm_eventDispatcher.log('NAME:' + effect.name)
+        bm_eventDispatcher.log('effect' + effect.value)
         ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
