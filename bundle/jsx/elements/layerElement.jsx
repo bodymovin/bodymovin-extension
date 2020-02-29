@@ -25,7 +25,7 @@ $.__bodymovin.bm_layerElement = (function () {
         var layerData = {};
         var layerType = getLayerType(layerInfo);
 
-        if (layerType === layerTypes.audio || layerType === layerTypes.light || layerType === layerTypes.adjustment || layerType === layerTypes.pholderStill || layerType === layerTypes.pholderVideo) {
+        if (layerType === layerTypes.audio || layerType === layerTypes.light || layerType === layerTypes.pholderStill || layerType === layerTypes.pholderVideo) {
             layerData.isValid = false;
             layerData.render = false;
         }
@@ -49,7 +49,8 @@ $.__bodymovin.bm_layerElement = (function () {
             layerData.ddd = 0;
         }
         layerData.ind = layerInfo.index;
-        layerData.ty = layerType;
+        layerData.ty = layerType === layerTypes.adjustment ? layerTypes.nullLayer : layerType;
+        layerData.isAdjustment = layerType === layerTypes.adjustment;
         layerData.nm = layerInfo.name;
         var layerAttributes = bm_generalUtils.findAttributes(layerInfo.name);
         if(layerAttributes.ln){

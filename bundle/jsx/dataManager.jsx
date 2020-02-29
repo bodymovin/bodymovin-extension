@@ -71,6 +71,7 @@ $.__bodymovin.bm_dataManager = (function () {
         for (i = 0; i < len; i += 1) {
             delete layers[i].isValid;
             delete layers[i].isGuide;
+            delete layers[i].isAdjustment;
             delete layers[i].render;
             delete layers[i].enabled;
             if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
@@ -78,7 +79,7 @@ $.__bodymovin.bm_dataManager = (function () {
             }
         }
     }
-    
+
     function deleteExtraParams(data, settings) {
         if (data.fonts.length === 0) {
             delete data.fonts;
