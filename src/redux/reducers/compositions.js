@@ -64,6 +64,8 @@ let defaultComposition = {
           click_tag: 'https://',
           zip_files: true,
           shouldIncludeAnimationDataInTemplate: false,
+          shouldLoop: false,
+          loopCount: 0,
         }
     }
   }
@@ -108,7 +110,17 @@ function setStoredData(state, action) {
   for(var comp in compositions) {
     if(compositions.hasOwnProperty(comp)){
       item = compositions[comp]
-      compositions[comp] = {...item, settings:{...defaultComposition.settings, ...item.settings}}
+      compositions[comp] = {
+        ...item, 
+        settings:{
+          ...defaultComposition.settings, 
+          ...item.settings,
+          banner: {
+            ...defaultComposition.settings.banner,
+            ...item.settings.banner,
+          }
+        }
+      }
     }
   }
   let newState = {...state}
@@ -540,6 +552,10 @@ function updateBanner(state, action) {
     newBanner.shouldIncludeAnimationDataInTemplate = !newBanner.shouldIncludeAnimationDataInTemplate
   } else if (action.type === actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED) {
     newBanner.use_original_sizes = !newBanner.use_original_sizes
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LOOP_TOGGLE) {
+    newBanner.shouldLoop = !newBanner.shouldLoop
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE) {
+    newBanner.loopCount = action.value
   }
   if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
     || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
@@ -614,6 +630,8 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED:
     case actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED:
     case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
+    case actionTypes.SETTINGS_BANNER_LOOP_TOGGLE:
+    case actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE:
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
       return toggleMode(state, action)

@@ -70,6 +70,8 @@ function *saveStoredData() {
 			actions.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED,
 			actions.SETTINGS_APPLY_FROM_CACHE,
 			actions.SETTINGS_MODE_TOGGLE,
+			actions.SETTINGS_BANNER_LOOP_TOGGLE,
+			actions.SETTINGS_BANNER_LOOP_COUNT_CHANGE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)

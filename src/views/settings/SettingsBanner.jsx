@@ -13,6 +13,8 @@ import {
   lottieBannerZipFilesUpdated,
   lottieBannerCustomSizeFlagUpdated,
   lottieIncludeDataInTemplateUpdated,
+  lottieHandleLoopToggleChange,
+  lottieHandleLoopCountChange,
 } from '../../redux/actions/compositionActions'
 import settings_banner_selector from '../../redux/selectors/settings_banner_selector'
 import SettingsListItem from './list/SettingsListItem'
@@ -54,6 +56,10 @@ class SettingsBanner extends React.PureComponent {
 
   handleBannerHeightChange = (ev) => {
     this.props.handleBannerHeightChange(ev.target.value)
+  }
+
+  handleLoopCountChange = (ev) => {
+    this.props.handleLoopCountChange(ev.target.value)
   }
 
   buildLottieOptions = () => {
@@ -187,6 +193,23 @@ class SettingsBanner extends React.PureComponent {
               description='Select if you want to json data be part of the template'
               toggleItem={this.props.handleIncludeDataInTemplateChange}
               active={this.props.shouldIncludeAnimationDataInTemplate}  />
+            <SettingsListItem 
+              title='Loop'
+              description='Select if you want the animation to loop indefinitely'
+              toggleItem={this.props.handleLoopToggleChange}
+              active={this.props.shouldLoop}  />
+              { !this.props.shouldLoop &&
+
+                <SettingsListItem 
+                  title='Loop Count'
+                  description='Select number of loops'
+                  active={true} 
+                  needsInput={true} 
+                  inputValue={this.props.loopCount} 
+                  inputValueChange={this.handleLoopCountChange} 
+                />
+
+              }
           </ul>
         }
       </div>
@@ -210,6 +233,8 @@ const mapDispatchToProps = {
   handleCustomSizeFlagChange: lottieBannerCustomSizeFlagUpdated,
   handleZipFilesChange: lottieBannerZipFilesUpdated,
   handleIncludeDataInTemplateChange: lottieIncludeDataInTemplateUpdated,
+  handleLoopToggleChange: lottieHandleLoopToggleChange,
+  handleLoopCountChange: lottieHandleLoopCountChange,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsBanner)

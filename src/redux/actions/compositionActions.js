@@ -204,6 +204,19 @@ function lottieIncludeDataInTemplateUpdated() {
 	}
 }
 
+function lottieHandleLoopToggleChange() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LOOP_TOGGLE,
+	}
+}
+
+function lottieHandleLoopCountChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE,
+		value
+	}
+}
+
 function goToImportFile() {
 	return {
 		type: actionTypes.GOTO_IMPORT,
@@ -242,4 +255,6 @@ export {
 	lottieBannerZipFilesUpdated,
 	lottieBannerCustomSizeFlagUpdated,
 	lottieIncludeDataInTemplateUpdated,
+	lottieHandleLoopToggleChange,
+	lottieHandleLoopCountChange,
 }

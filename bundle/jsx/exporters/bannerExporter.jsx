@@ -56,6 +56,17 @@ $.__bodymovin.bm_bannerExporter = (function () {
 			
 		}
 
+		if (bannerConfig.shouldLoop) {
+			templateData = templateData
+			.replace(/__LOOP__/g, 'true')
+		} else if (bannerConfig.loopCount === 0 || bannerConfig.loopCount === '0') {
+			templateData = templateData
+			.replace(/__LOOP__/g, 'false')
+		} else {
+			templateData = templateData
+			.replace(/__LOOP__/g, bannerConfig.loopCount)
+		}
+
 		var indexFile = bm_fileManager.addFile('index.html', ['banner'], templateData)
 
 		return [indexFile];
