@@ -90,8 +90,10 @@ async function processImage(actionData) {
 				:
 				imageCompressedData.path.substr(0, imageCompressedData.path.lastIndexOf('.png')) + '.jpg'
 
+			var fileExtension = imagePath.substr(imagePath.lastIndexOf('.') + 1)
+
 			let encodedImage = await getEncodedFile(imagePath)
-			encodedImage = `data:image/${imageCompressedData.extension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+			encodedImage = `data:image/${fileExtension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
 			return {
 				encoded_data: encodedImage,
 				encoded: true,
