@@ -87,7 +87,6 @@ function processTransform(transformData, layerId) {
 				sendCommand('setElementTransformValue', ['rotation', transformData.r.k, layerId]);
 			} else {
 				const keyframes = transformData.r.k;
-				console.log(keyframes)
 				keyframes.forEach(keyframe => {
 					sendCommand('setElementTransformKey', 
 						[
@@ -100,9 +99,7 @@ function processTransform(transformData, layerId) {
 				})
 				const easings = []
 				keyframes.forEach((keyframe, index) => {
-					console.log('=========')
 					var nextKeyIndex = index === keyframes.length - 1 ? 0 : index + 1
-					console.log('nextKeyIndex', nextKeyIndex)
 					if (!easings[index]) {
 						easings[index] = []
 					}
@@ -120,12 +117,10 @@ function processTransform(transformData, layerId) {
 						var keyInInfluence = (keyframe.i.x[0] - 1) * -100;
 						var lastKeyOutInfluence = (keyframe.o.x[0]) * 100;
 						var duration = (nextKeyframe.t - keyframe.t) / _frameRate;
-						console.log('index', index)
 						// console.log('duration', duration)
 						// console.log('duration by FR', duration / _frameRate)
 						// yNormal = (key.value[k] - lastKey.value[k]);
 						var yNormal = keyframes[index + 1].s[0] - keyframe.s[0];
-						console.log(yNormal)
 
 						var bezierInY = -(keyframe.i.y[0] - 1) * yNormal / duration;
 						var bezierY = keyframe.o.y[0] * yNormal / duration;
@@ -134,10 +129,6 @@ function processTransform(transformData, layerId) {
 
 						var lastKeyOutSpeed = bezierY / lastKeyOutInfluence * 100;
 						var keyInSpeed = bezierInY / keyInInfluence * 100;
-						console.log('lastKeyOutInfluence', lastKeyOutInfluence)
-						console.log('lastKeyOutSpeed', lastKeyOutSpeed)
-						console.log('keyInInfluence', keyInInfluence)
-						console.log('keyInSpeed', keyInSpeed)
 
 
 						// var bezierY = (lastKey.easeOut[k].speed*lastKey.easeOut[k].influence/100);
@@ -161,12 +152,10 @@ function processTransform(transformData, layerId) {
 						// 	]
 						// );
 					}
-					console.log(keyframe)
 				})
 				easings.pop()
 				easings[0][1] = [62, 16]
 				easings[easings.length - 1][0] = [14, 16]
-				console.log(easings);
 				easings.forEach((easing, index) => {
 					sendCommand('setElementTemporalKeyAtIndex', 
 						[

@@ -49,7 +49,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 
 		if (bannerConfig.shouldIncludeAnimationDataInTemplate) {
 			templateData = templateData
-			.replace(/__DATA_LOAD__/g, 'animationData: JSON.parse(\'' + animationStringData + '\')')
+			.replace(/__DATA_LOAD__/g, 'animationData: ' + animationStringData)
 		} else {
 			templateData = templateData
 			.replace(/__DATA_LOAD__/g, 'path: \'' + filePathName + '\'')

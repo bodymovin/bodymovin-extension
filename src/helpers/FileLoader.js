@@ -45,8 +45,6 @@ function setLocalPath(key, value) {
 }
 
 async function downloadFile(url, path) {
-    console.log(url)
-    console.log(path)
     const res = await fetch(url);
 
     const arrayBuf = await res.arrayBuffer()
