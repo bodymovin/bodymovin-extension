@@ -223,6 +223,12 @@ function goToImportFile() {
 	}
 }
 
+function toggleCompNameAsDefault() {
+	return {
+		type: actionTypes.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -257,4 +263,5 @@ export {
 	lottieIncludeDataInTemplateUpdated,
 	lottieHandleLoopToggleChange,
 	lottieHandleLoopCountChange,
+	toggleCompNameAsDefault,
 }

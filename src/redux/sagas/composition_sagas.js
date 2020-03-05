@@ -5,6 +5,7 @@ import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCo
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import settingsSelector from '../selectors/settings_selector'
+import compositionsSelector from '../selectors/compositions_selector'
 import {applySettingsFromCache} from '../actions/compositionActions'
 
 function *getCSCompositions(action) {
@@ -20,7 +21,8 @@ function *getCompositionDestination() {
 		let action = yield take(actions.COMPOSITION_GET_DESTINATION)
 		try{
 			let paths = yield select(storingPathsSelector)
-			const compositions = yield call(getDestinationPath, action.comp, paths.destinationPath)
+			let {shouldUseCompNameAsDefault} = yield select(compositionsSelector)
+			const compositions = yield call(getDestinationPath, action.comp, paths.destinationPath, shouldUseCompNameAsDefault)
 			if (compositions) {
 				yield put({ 
 						type: actions.COMPOSITIONS_UPDATED,

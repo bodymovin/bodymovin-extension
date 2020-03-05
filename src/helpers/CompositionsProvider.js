@@ -255,18 +255,20 @@ function setLottiePaths(paths) {
 	})
 }
 
-function getDestinationPath(comp, alternatePath) {
+function getDestinationPath(comp, alternatePath, shouldUseCompNameAsDefault) {
 	let destinationPath = ''
 	if(comp.absoluteURI) { 
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
+		const fileName = shouldUseCompNameAsDefault ? comp.name : 'data'
 		alternatePath = alternatePath.split('\\').join('\\\\')
+		alternatePath += fileName
 		if(comp.settings.export_modes.standalone) {
-			alternatePath += 'data.js'
+			alternatePath += '.js'
 		} else if (comp.settings.export_modes.banner && comp.settings.banner.zip_files) {
-			alternatePath += 'data.zip'
+			alternatePath += '.zip'
 		} else {
-			alternatePath += 'data.json'
+			alternatePath += '.json'
 		}
 		destinationPath = alternatePath
 	}

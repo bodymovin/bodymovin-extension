@@ -1,14 +1,22 @@
 import { createSelector } from 'reselect'
 
-const getCompositions = (state) => state.compositions.items
+const getCompositionState = (state) => state.compositions
 const getID = (state) => state.project.id
 
 const storingDataSelector = createSelector(
-  [ getCompositions, getID ],
-  (compositions, id) => {
+  [ getCompositionState, getID ],
+  (compositionState, id) => {
+
+  	const compositions = compositionState.items
+
   	return {
   		data: {
-  			compositions: compositions
+  			compositions: compositions,
+  			extraState: {
+				filter: compositionState.filter,
+				show_only_selected: compositionState.show_only_selected,
+				shouldUseCompNameAsDefault: compositionState.shouldUseCompNameAsDefault,
+  			}
   		},
   		id: id
   	}

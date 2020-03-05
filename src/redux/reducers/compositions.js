@@ -9,6 +9,7 @@ let initialState = {
   items:{},
   current: 0,
   show_only_selected: false,
+  shouldUseCompNameAsDefault: false,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -125,6 +126,13 @@ function setStoredData(state, action) {
   }
   let newState = {...state}
   newState.items = compositions
+  if (action.projectData.extraState) {
+    console.log('action.projectData.extraState', action.projectData.extraState)
+    newState = {
+      ...newState,
+      ...action.projectData.extraState,
+    }
+  }
   return newState
 }
 
@@ -589,6 +597,13 @@ function updateBanner(state, action) {
 
 }
 
+function toggleCompNameAsDefault(state, action) {
+  return {
+    ...state,
+    shouldUseCompNameAsDefault: !state.shouldUseCompNameAsDefault,
+  }
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -616,6 +631,8 @@ export default function compositions(state = initialState, action) {
       return toggleExtraComp(state, action)
     case actionTypes.SETTINGS_UPDATE_VALUE:
       return updateSettingsValue(state, action)
+    case actionTypes.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE:
+      return toggleCompNameAsDefault(state, action)
     case actionTypes.SETTINGS_TOGGLE_SELECTED:
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:

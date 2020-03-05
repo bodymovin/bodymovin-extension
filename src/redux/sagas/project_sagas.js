@@ -72,6 +72,9 @@ function *saveStoredData() {
 			actions.SETTINGS_MODE_TOGGLE,
 			actions.SETTINGS_BANNER_LOOP_TOGGLE,
 			actions.SETTINGS_BANNER_LOOP_COUNT_CHANGE,
+			actions.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE,
+			actions.COMPOSITIONS_FILTER_CHANGE,
+			actions.SETTINGS_TOGGLE_SELECTED,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
