@@ -81,7 +81,6 @@ async function processImage(actionData) {
 				encoded: false,
 			}
 		}
-
 		const imageCompressedData = await handleImageCompression(path, actionData)
 
 		if (actionData.should_encode_images) {

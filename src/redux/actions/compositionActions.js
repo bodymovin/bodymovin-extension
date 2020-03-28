@@ -165,6 +165,13 @@ function handleBannerLibraryPathChange(value) {
 	}
 }
 
+function handleBannerLibraryFileChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LIBRARY_FILE_UPDATE,
+		value,
+	}
+}
+
 function handleModeToggle(value) {
 	return {
 		type: actionTypes.SETTINGS_MODE_TOGGLE,
@@ -229,6 +236,13 @@ function toggleCompNameAsDefault() {
 	}
 }
 
+function settingsBannerLibraryFileSelected(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED,
+		value,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -256,6 +270,7 @@ export {
 	handleModeToggle,
 	handleBannerOriginChange,
 	handleBannerLibraryPathChange,
+	handleBannerLibraryFileChange,
 	lottieBannerRendererUpdated,
 	lottieBannerClickTagUpdated,
 	lottieBannerZipFilesUpdated,
@@ -264,4 +279,5 @@ export {
 	lottieHandleLoopToggleChange,
 	lottieHandleLoopCountChange,
 	toggleCompNameAsDefault,
+	settingsBannerLibraryFileSelected,
 }

@@ -7,6 +7,7 @@ import {
   handleBannerVersionChange, 
   handleBannerOriginChange,
   handleBannerLibraryPathChange,
+  handleBannerLibraryFileChange,
   handleModeToggle,
   lottieBannerRendererUpdated,
   lottieBannerClickTagUpdated,
@@ -18,6 +19,7 @@ import {
 } from '../../redux/actions/compositionActions'
 import settings_banner_selector from '../../redux/selectors/settings_banner_selector'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsListFile from './list/SettingsListFile'
 import SettingsListInput from './list/SettingsListInput'
 import SettingsListDropdown from './list/SettingsListDropdown'
 import LottieVersions from '../../helpers/LottieVersions'
@@ -123,11 +125,20 @@ class SettingsBanner extends React.PureComponent {
               onChange={this.handleLottieOriginChange}
               current={this.props.lottie_origin}
               options={[
-                {value:LottieLibraryOrigins.LOCAL, text: 'Locally'}, 
+                {value:LottieLibraryOrigins.LOCAL, text: 'Default'}, 
                 {value:LottieLibraryOrigins.CDNJS, text: 'cdnjs'}, 
-                {value:LottieLibraryOrigins.CUSTOM, text: 'Custom'}
+                {value:LottieLibraryOrigins.CUSTOM, text: 'Custom URL'}, 
+                {value:LottieLibraryOrigins.FILE_SYSTEM, text: 'Local File'}
               ]}  
             />
+            {this.props.lottie_origin === LottieLibraryOrigins.FILE_SYSTEM &&
+              <SettingsListFile
+                title='Set Location of lottie library'
+                description='Set the custom path of the lottie library'
+                value={this.props.localPath}
+                onChange={this.props.handleBannerLibraryFileChange}
+              />
+            }
             {this.props.lottie_origin === LottieLibraryOrigins.CUSTOM &&
               <SettingsListInput
                 title='Set Location of lottie library'
@@ -136,7 +147,7 @@ class SettingsBanner extends React.PureComponent {
                 onChange={this.props.handleBannerLibraryPathChange}
               />
             }
-            {this.props.lottie_origin !== LottieLibraryOrigins.CUSTOM &&
+            {[LottieLibraryOrigins.LOCAL, LottieLibraryOrigins.CDNJS].includes(this.props.lottie_origin) &&
               <SettingsListDropdown 
                 title='Lottie Library Version'
                 description='Select what version of the library you want to export'
@@ -227,6 +238,7 @@ const mapDispatchToProps = {
   handleBannerVersionChange: handleBannerVersionChange,
   handleBannerOriginChange: handleBannerOriginChange,
   handleBannerLibraryPathChange: handleBannerLibraryPathChange,
+  handleBannerLibraryFileChange: handleBannerLibraryFileChange,
   handleModeToggle: handleModeToggle,
   lottieBannerRendererUpdated: lottieBannerRendererUpdated,
   handleBannerLibraryClickTagChange: lottieBannerClickTagUpdated,

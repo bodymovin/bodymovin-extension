@@ -257,10 +257,10 @@ function setLottiePaths(paths) {
 
 function getDestinationPath(comp, alternatePath, shouldUseCompNameAsDefault) {
 	let destinationPath = ''
+	const fileName = shouldUseCompNameAsDefault ? comp.name : 'data'
 	if(comp.absoluteURI) { 
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
-		const fileName = shouldUseCompNameAsDefault ? comp.name : 'data'
 		alternatePath = alternatePath.split('\\').join('\\\\')
 		alternatePath += fileName
 		if(comp.settings.export_modes.standalone) {
@@ -279,7 +279,7 @@ function getDestinationPath(comp, alternatePath, shouldUseCompNameAsDefault) {
 		extension = 'zip'
 	}
 	extensionLoader.then(function(){
-		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '","' + extension + '")'
+		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '","' + (fileName + '.' + extension) + '")'
 		csInterface.evalScript(eScript)
 	})
 	let prom = new Promise(function(resolve, reject){

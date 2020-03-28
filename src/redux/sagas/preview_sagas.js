@@ -7,10 +7,10 @@ import storingPathsSelector from '../selectors/storing_paths_selector'
 function *browseFile() {
 	try{
 		let paths = yield select(storingPathsSelector)
-		let filePath = yield call(fileBrowser, paths.previewPath)
+		let fileData = yield call(fileBrowser, paths.previewPath)
 		yield put({ 
 				type: actions.PREVIEW_FILE_BROWSED,
-				path: filePath
+				path: fileData.fsName
 		})
 	} catch(err) {
 

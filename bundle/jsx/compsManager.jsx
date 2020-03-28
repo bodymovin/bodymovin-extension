@@ -31,7 +31,7 @@ $.__bodymovin.bm_compsManager = (function () {
         return compData;
     }
     
-    function searchCompositionDestination(id, absoluteURI, extension) {
+    function searchCompositionDestination(id, absoluteURI, fileName) {
         /*var i = 0, len = compositions.length, compData;
         while (i < len) {
             if (compositions[i].id === id) {
@@ -44,8 +44,7 @@ $.__bodymovin.bm_compsManager = (function () {
         if (absoluteURI) {
             uri = absoluteURI;
         } else {
-            uri = Folder.desktop.absoluteURI + '/data';
-            uri += '.' + extension;
+            uri = Folder.desktop.absoluteURI + '/' + fileName;
         }
 
         var f = new File(uri);

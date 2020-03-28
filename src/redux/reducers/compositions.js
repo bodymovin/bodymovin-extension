@@ -67,6 +67,7 @@ let defaultComposition = {
           shouldIncludeAnimationDataInTemplate: false,
           shouldLoop: false,
           loopCount: 0,
+          localPath: null,
         }
     }
   }
@@ -127,7 +128,6 @@ function setStoredData(state, action) {
   let newState = {...state}
   newState.items = compositions
   if (action.projectData.extraState) {
-    console.log('action.projectData.extraState', action.projectData.extraState)
     newState = {
       ...newState,
       ...action.projectData.extraState,
@@ -564,11 +564,13 @@ function updateBanner(state, action) {
     newBanner.shouldLoop = !newBanner.shouldLoop
   } else if (action.type === actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE) {
     newBanner.loopCount = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED) {
+    newBanner.localPath = action.value
   }
   if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
     || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
   {
-    if (newBanner.lottie_origin !== LottieLibraryOrigins.CUSTOM) {
+    if ([LottieLibraryOrigins.LOCAL, LottieLibraryOrigins.CDNJS].includes(newBanner.lottie_origin)) {
       const lottieVersion = findLottieVersion(newBanner.lottie_library)
       if (!lottieVersion.renderers.includes(newBanner.lottie_renderer)) {
         newBanner.lottie_renderer = lottieVersion.renderers[0]
@@ -649,6 +651,7 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
     case actionTypes.SETTINGS_BANNER_LOOP_TOGGLE:
     case actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE:
+    case actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED:
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
       return toggleMode(state, action)

@@ -22,6 +22,8 @@ $.__bodymovin.bm_bannerExporter = (function () {
 				}
 				i += 1;
 			}
+		} else if (bannerConfig.lottie_origin === 'file system') {
+			sourcePath = 'lottie.js'
 		} else {
 			sourcePath = bannerConfig.lottie_path
 		}
@@ -96,6 +98,22 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		return [lottieFileData];
 	}
 
+	function includeLocalFilePlayer(bannerConfig) {
+
+		if (bannerConfig.localPath) {
+
+			var file = new File(bannerConfig.localPath.absoluteURI)
+
+			var lottieFileData = bm_fileManager.createFile('lottie.js', ['banner'])
+
+			file.copy(lottieFileData.file.fsName);
+
+			return [lottieFileData];
+		} else {
+			return [];
+		}
+	}
+
 	function copyAssets() {
 
 		var rawFiles = bm_fileManager.getFilesOnPath(['raw']);
@@ -131,6 +149,8 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		var bannerConfig = config.banner
 		if (bannerConfig.lottie_origin === 'local') {
 			additionalFiles = additionalFiles.concat(includeLottiePlayer(bannerConfig));
+		} else if (bannerConfig.lottie_origin === 'file system') {
+			additionalFiles = additionalFiles.concat(includeLocalFilePlayer(bannerConfig));
 		}
 		additionalFiles = additionalFiles.concat(copyAssets());
 

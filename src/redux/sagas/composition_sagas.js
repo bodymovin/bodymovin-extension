@@ -6,7 +6,11 @@ import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import settingsSelector from '../selectors/settings_selector'
 import compositionsSelector from '../selectors/compositions_selector'
-import {applySettingsFromCache} from '../actions/compositionActions'
+import {
+	applySettingsFromCache,
+	settingsBannerLibraryFileSelected,
+} from '../actions/compositionActions'
+import fileBrowser from '../../helpers/FileBrowser'
 
 function *getCSCompositions(action) {
 	while(true) {
@@ -72,6 +76,17 @@ function *applySettings(action) {
 	}
 }
 
+function *searchLottiePath(action) {
+	try{
+		let paths = yield select(storingPathsSelector)
+		const initialPath = action.value ? action.value.path : paths.destinationPath
+		let filePath = yield call(fileBrowser, initialPath)
+		yield put(settingsBannerLibraryFileSelected(filePath))
+	} catch(err) {
+
+	}
+}
+
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
@@ -80,4 +95,5 @@ export default [
   takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
   takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
   takeEvery(actions.SETTINGS_APPLY, applySettings),
+  takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
 ]
