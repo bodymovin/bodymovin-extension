@@ -33,6 +33,7 @@ let defaultComposition = {
         should_encode_images: false,
         should_compress: true,
         should_skip_images: false,
+        should_include_av_assets: false,
         compression_rate: 80,
         extraComps: {
             active: false,

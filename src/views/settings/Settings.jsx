@@ -5,6 +5,7 @@ import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
 import SettingsExportMode from './SettingsExportMode'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
+import SettingsAssets from './SettingsAssets'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
@@ -131,6 +132,7 @@ class Settings extends React.PureComponent {
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
     this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
+    this.toggleIncludeVideo = this.toggleValue.bind(this,'should_include_av_assets')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
@@ -191,8 +193,6 @@ class Settings extends React.PureComponent {
 
   render() {
 
-    const isUsingOriginalAssets = this.props.settings.original_assets
-
     return (
     	<div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
@@ -240,42 +240,17 @@ class Settings extends React.PureComponent {
                 {this.getExtraComps()}
               </div>
             </li>}
-            <SettingsCollapsableItem 
-              title={'Assets'}
-              description={'Rasterized assets settings (jpg, png)'}
-              >
-              <SettingsListItem 
-                title='Original Asset Names'
-                description='Export assets with their original project names'
-                toggleItem={this.toggleOriginalNames}
-                active={this.props.settings ? this.props.settings.original_names : false}  />
-              <SettingsListItem 
-                title='Copy Original Assets'
-                description='Uses actual project source files (does not work with AI layers)'
-                toggleItem={this.toggleOriginalAssets}
-                active={this.props.settings ? this.props.settings.original_assets : false}  />
-              {this.props.canCompressAssets &&
-              !isUsingOriginalAssets &&  
-              <SettingsListItem 
-                title='Enable compression'
-                description='Set compression ratio for image layers (0-100)'
-                toggleItem={this.toggleCompressImages}
-                needsInput={true} 
-                inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
-                inputValueChange={this.qualityChange}
-                active={this.props.settings ? this.props.settings.should_compress : false}  />
-              }
-              <SettingsListItem 
-                title='Include in json'
-                description='Include rasterized images encoded in the json'
-                toggleItem={this.toggleEncodeImages}
-                active={this.props.settings ? this.props.settings.should_encode_images : false}  />
-              <SettingsListItem 
-                title='Skip images export'
-                description='they have not changed since last export'
-                toggleItem={this.toggleSkipImages}
-                active={this.props.settings ? this.props.settings.should_skip_images : false}  />
-            </SettingsCollapsableItem>
+            <SettingsAssets
+              settings={this.props.settings}
+              toggleOriginalNames={this.toggleOriginalNames}
+              toggleOriginalAssets={this.toggleOriginalAssets}
+              toggleCompressImages={this.toggleCompressImages}
+              qualityChange={this.qualityChange}
+              toggleEncodeImages={this.toggleEncodeImages}
+              toggleSkipImages={this.toggleSkipImages}
+              toggleIncludeVideo={this.toggleIncludeVideo}
+            />
+            
             <SettingsExportMode />
             <SettingsCollapsableItem 
               title={'Advanced export settings'}
