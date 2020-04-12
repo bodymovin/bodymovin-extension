@@ -242,6 +242,7 @@ class Settings extends React.PureComponent {
             </li>}
             <SettingsAssets
               settings={this.props.settings}
+              canCompressAssets={this.props.canCompressAssets}
               toggleOriginalNames={this.toggleOriginalNames}
               toggleOriginalAssets={this.toggleOriginalAssets}
               toggleCompressImages={this.toggleCompressImages}
