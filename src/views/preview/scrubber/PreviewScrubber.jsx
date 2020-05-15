@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { StyleSheet, css } from 'aphrodite'
 import Range from '../../../components/range/Range'
 import BaseButton from '../../../components/buttons/Base_button'
@@ -141,17 +142,27 @@ class PreviewScrubber extends React.Component {
             <div className={css(styles.progressNumber)}>&nbsp;/ {this.props.totalFrames}</div>
           </div>
           <div className={css(styles.emptySpace)}></div>
-          <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
+          {this.props.canSaveFile &&
+            <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
+          }
         </div>
       </div>
       );
   }
 }
 
+PreviewScrubber.propTypes = {
+  totalFrames: PropTypes.number,
+  progress: PropTypes.number,
+  max: PropTypes.number,
+  canSaveFile: PropTypes.bool,
+}
+
 PreviewScrubber.defaultProps = {
   totalFrames: 0,
   progress: 0,
-  max: 1
+  max: 1,
+  canSaveFile: false,
 }
 
 export default PreviewScrubber

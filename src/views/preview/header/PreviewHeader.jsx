@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../../helpers/styles/variables'
 import BaseButton from '../../../components/buttons/Base_button'
+import {previewTypes} from '../viewer/PreviewViewer'
 
 const styles = StyleSheet.create({
     container: {
@@ -35,11 +36,23 @@ const styles = StyleSheet.create({
     	maxHeight: '100%'
     },
     separator: {
-    	width: '100%',
-    	height: '1px',
-    	backgroundColor: Variables.colors.gray2,
-    	marginTop: '20px',
-    	marginBottom: '20px'
+        width: '100%',
+        height: '1px',
+        backgroundColor: Variables.colors.gray2,
+        marginTop: '20px',
+        marginBottom: '20px'
+    },
+    renderersContainer: {
+        display: 'flex',
+        alignItems: 'baseline',
+    },
+    renderersLabel: {
+        flex: '0 0 auto',
+        marginRight: '5px',
+        color: Variables.colors.white,
+    },
+    renderersButton: {
+    	flex: '0 0 auto'
     }
 })
 
@@ -52,6 +65,22 @@ function PreviewHeader(props) {
 					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={props.goToComps}/>
 				</div>
 				<div className={css(styles.separator)}></div>
+                    <div className={css(styles.renderersContainer)}>
+                        <div className={css(styles.renderersLabel)}>Select Previewer:
+                        </div>
+                        <BaseButton 
+                            text='Browser'
+                            type={props.selectedTypes.includes(previewTypes.BROWSER) ? 'green' : 'gray'}
+                            classes={styles.renderersButton}
+                            onClick={()=>props.onRendererSelected(previewTypes.BROWSER)}
+                        />
+                        <BaseButton
+                            text='Skottie'
+                            type={props.selectedTypes.includes(previewTypes.SKOTTIE) ? 'green' : 'gray'}
+                            classes={styles.renderersButton}
+                            onClick={()=>props.onRendererSelected(previewTypes.SKOTTIE)}
+                        />
+                    </div>
 			</div>)
 }
 

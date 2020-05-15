@@ -11,6 +11,18 @@ const getSeparator = () => {
 	return sep;
 }
 
+const getSimpleSeparator = () => {
+	var sep;
+	var OSVersion = csInterface.getOSInformation();
+	if (OSVersion.indexOf("Windows") >= 0) {
+		sep = '\\';
+	} else {
+		sep = '/';
+	}
+	return sep;
+}
+
 export {
-	getSeparator
+	getSeparator,
+	getSimpleSeparator,
 }

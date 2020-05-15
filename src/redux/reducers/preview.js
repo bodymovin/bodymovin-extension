@@ -10,7 +10,11 @@ let initialState = {
 export default function project(state = initialState, action) {
   switch (action.type) {
     case actionTypes.PREVIEW_ANIMATION_LOADED:
-      return {...state, ...{animationData: action.animationData, path: action.path}}
+      return {...state, ...{
+        animationData: action.animationData,
+        assetsData: action.assetsData,
+        path: action.path}
+      }
     case actionTypes.PREVIEW_ANIMATION_PROGRESS:
       return {...state, ...{progress: action.progress}}
     case actionTypes.PREVIEW_TOTAL_FRAMES:
