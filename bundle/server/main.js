@@ -44,11 +44,24 @@ async function processImage(path, compression, hasTransparency) {
 
 const app = express.createServer();
 app.use(bodyParser.json())
+app.use(express.static('public'))
 const port = 3119
 
 app.get('/', (req, res) => {
 
-	res.send('Root 2')
+	res.send('Root 1')
+	// res.send(nodePath.join(__dirname, 'public') + nodePath.sep + 'canvaskit.wasm')
+})
+
+app.get('/canvaskit.wasm', (req, res) => {
+	const filePath = nodePath.join(__dirname, 'public') + nodePath.sep + 'canvaskit.wasm'
+	const buffer = fs.readFileSync(filePath)
+	if (buffer) {
+		res.setHeader('Content-Type', 'application/wasm');
+		res.send(buffer);
+	} else {
+		res.send('NOT FOUND')
+	}
 })
 
 function checkImageTransparency(imagePath) {

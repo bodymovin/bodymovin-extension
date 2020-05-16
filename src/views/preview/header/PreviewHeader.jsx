@@ -52,7 +52,8 @@ const styles = StyleSheet.create({
         color: Variables.colors.white,
     },
     renderersButton: {
-    	flex: '0 0 auto'
+        marginRight:'5px',
+    	flex: '0 0 auto',
     }
 })
 
