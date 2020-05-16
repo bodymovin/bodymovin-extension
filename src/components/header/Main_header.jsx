@@ -50,16 +50,19 @@ const styles = StyleSheet.create({
 function Main_header(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
-					<div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
-						<BodymovinRefresh />
-					</div>
-					<BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
 					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
                     <div className={css(styles.buttons_separator)}></div>
                     <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-					<BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
 				</div>
 				<div className={css(styles.separator)}></div>
+                <div className={css(styles.buttons_container)}>
+                    <div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
+                        <BodymovinRefresh />
+                    </div>
+                    <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
+                </div>
 			</div>)
 }
 

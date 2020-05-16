@@ -8,6 +8,7 @@ let routes = {
   fonts: 4,
   player: 5,
   importFile: 6,
+  annotations: 7,
 }
 
 let initialState = {
@@ -35,6 +36,8 @@ export default function project(state = initialState, action) {
     case actionTypes.SETTINGS_CANCEL:
     case actionTypes.GOTO_COMPS:
       return {...state, ...{route: routes.compositions}}
+    case actionTypes.GOTO_ANNOTATIONS:
+      return {...state, ...{route: routes.annotations}}
     default:
       return state
   }

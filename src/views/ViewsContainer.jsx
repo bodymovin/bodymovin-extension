@@ -9,6 +9,7 @@ import PreviewView from './preview/Preview'
 import FontsView from './fonts/Fonts'
 import PlayerView from './player/Player'
 import FileImportView from './fileImport/FileImport'
+import AnnotationsView from './annotations/Annotations'
 
 function getView(route) {
 	switch(route) {
@@ -26,6 +27,8 @@ function getView(route) {
         return <PlayerView />
       case routes.importFile:
         return <FileImportView />
+      case routes.annotations:
+        return <AnnotationsView />
       default:
         return <Compositions />
     }

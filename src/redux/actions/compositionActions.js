@@ -243,6 +243,13 @@ function settingsBannerLibraryFileSelected(value) {
 	}
 }
 
+function goToAnnotations(value) {
+	return {
+		type: actionTypes.GOTO_ANNOTATIONS,
+		value,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -280,4 +287,5 @@ export {
 	lottieHandleLoopCountChange,
 	toggleCompNameAsDefault,
 	settingsBannerLibraryFileSelected,
+	goToAnnotations,
 }

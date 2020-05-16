@@ -16,6 +16,7 @@ import {
 	applySettingsToSelectedComps,
 	toggleCompNameAsDefault,
 	goToImportFile,
+	goToAnnotations,
 } from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
@@ -86,7 +87,9 @@ class Compositions extends React.Component {
 					goToPreview={this.props.goToPreview} 
 					refresh={this.props.getCompositions} 
 					goToImportFile={this.props.goToImportFile} 
-					goToPlayer={this.props.goToPlayer} />
+					goToPlayer={this.props.goToPlayer}
+					goToAnnotations={this.props.goToAnnotations}
+				/>
 				<CompositionsListHeader 
 					filterValue={this.props.filter} 
 					filterChange={this.props.filterChange} 
@@ -132,6 +135,7 @@ const mapDispatchToProps = {
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
 	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
+	goToAnnotations: goToAnnotations,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)
