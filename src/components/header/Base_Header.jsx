@@ -1,8 +1,18 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
-import BodymovinRefresh from '../bodymovin/bodymovin_refresh'
 import Variables from '../../helpers/styles/variables'
+import {
+    goToPreview, 
+    goToPlayer, 
+    goToImportFile,
+    goToAnnotations,
+    goToComps,
+} from '../../redux/actions/compositionActions'
+import {connect} from 'react-redux'
+import {routes} from '../../redux/reducers/routes'
+
+console.log('routes', routes)
 
 const styles = StyleSheet.create({
     container: {
@@ -47,23 +57,36 @@ const styles = StyleSheet.create({
     }
 })
 
-function Main_header(props) {
+function BaseHeader(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
+                    {props.currentRoute !== routes.compositions &&
+                        <BaseButton text='Compositions' type='gray' classes={styles.right} onClick={props.goToComps}/>
+                    }
 					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
                     <div className={css(styles.buttons_separator)}></div>
                     <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
                     <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
-					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
+					{props.currentRoute !== routes.annotations &&
+                        <BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
+                    }
 				</div>
-				<div className={css(styles.separator)}></div>
-                <div className={css(styles.buttons_container)}>
-                    <div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
-                        <BodymovinRefresh />
-                    </div>
-                    <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
-                </div>
+                <div className={css(styles.separator)} />
 			</div>)
 }
 
-export default Main_header
+function mapStateToProps(state) {
+    return {
+        currentRoute: state.routes.route
+    }
+}
+
+const mapDispatchToProps = {
+    goToComps: goToComps,
+    goToPreview: goToPreview,
+    goToPlayer: goToPlayer,
+    goToImportFile: goToImportFile,
+    goToAnnotations: goToAnnotations,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseHeader)

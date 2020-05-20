@@ -59,11 +59,17 @@ $.__bodymovin.bm_downloadManager = (function () {
         var str = bmFile.read();
         return str;
     }
+
+    function getExtensionFolder() {
+        var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
+        return new Folder(extensionPath).parent;
+    }
     
     ob.getPlayer = getPlayer;
     ob.getStandaloneData = getStandaloneData;
     ob.getDemoData = getDemoData;
     ob.getTemplateData = getTemplateData;
+    ob.getExtensionFolder = getExtensionFolder;
 
     return ob;
 }());

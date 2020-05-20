@@ -9,7 +9,8 @@ const styles = StyleSheet.create({
       width: '100%',
       fontSize: '12px',
       color: '#eee',
-      marginBottom: '10px'
+      marginBottom: '10px',
+      flex: '0 0 auto',
     },
     item: {
       display: 'inline-block',

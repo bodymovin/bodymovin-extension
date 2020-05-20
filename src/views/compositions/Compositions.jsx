@@ -27,7 +27,9 @@ const styles = StyleSheet.create({
 		width: '100%',
 		height: '100%',
 		padding: '10px',
-		backgroundColor: '#474747'
+		backgroundColor: '#474747',
+		display: 'flex',
+      	flexDirection:'column',
 	},
 	toggleButton: {
 			fontSize: '12px',
@@ -38,7 +40,16 @@ const styles = StyleSheet.create({
 			':hover': {
 				color: Variables.colors.green,
 			}
-	}
+	},
+	header: {
+		flex: '0 0 auto',
+	},
+	content: {
+		flex: '1 1 auto',
+		height: '100%',
+		display: 'flex',
+      	flexDirection:'column',
+	},
 })
 
 class Compositions extends React.Component {
@@ -81,36 +92,40 @@ class Compositions extends React.Component {
 	render() {
 		return (
 			<div className={css(styles.wrapper)}>
-				<MainHeader 
-					canRender={this.props.canRender}
-					startRender={this.renderComps} 
-					goToPreview={this.props.goToPreview} 
-					refresh={this.props.getCompositions} 
-					goToImportFile={this.props.goToImportFile} 
-					goToPlayer={this.props.goToPlayer}
-					goToAnnotations={this.props.goToAnnotations}
-				/>
-				<CompositionsListHeader 
-					filterValue={this.props.filter} 
-					filterChange={this.props.filterChange} 
-					shouldUseCompNameAsDefault={this.props.shouldUseCompNameAsDefault} 
-					onCompNameAsDefaultToggle={this.props.onCompNameAsDefaultToggle} 
-
-				/>
-				<CompositionsList 
-					items={this.props.visibleItems} 
-					selectDestination={this.selectDestination}
-					showSettings={this.showSettings}
-					toggleItem={this.props.toggleItem}/>
-				<div 
-					className={css(styles.toggleButton)} 
-					onClick={this.props.toggleShowSelected}>
-						{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
+				<div className={css(styles.header)} >
+					<MainHeader 
+						canRender={this.props.canRender}
+						startRender={this.renderComps} 
+						goToPreview={this.props.goToPreview} 
+						refresh={this.props.getCompositions} 
+						goToImportFile={this.props.goToImportFile} 
+						goToPlayer={this.props.goToPlayer}
+						goToAnnotations={this.props.goToAnnotations}
+					/>
 				</div>
-				<div 
-					className={css(styles.toggleButton)} 
-					onClick={this.props.applySettingsToSelectedComps}>
-						{'Apply Stored Settings to Selected Comps'}
+				<div className={css(styles.content)} >
+					<CompositionsListHeader 
+						filterValue={this.props.filter} 
+						filterChange={this.props.filterChange} 
+						shouldUseCompNameAsDefault={this.props.shouldUseCompNameAsDefault} 
+						onCompNameAsDefaultToggle={this.props.onCompNameAsDefaultToggle} 
+
+					/>
+					<CompositionsList 
+						items={this.props.visibleItems} 
+						selectDestination={this.selectDestination}
+						showSettings={this.showSettings}
+						toggleItem={this.props.toggleItem}/>
+					<div 
+						className={css(styles.toggleButton)} 
+						onClick={this.props.toggleShowSelected}>
+							{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
+					</div>
+					<div 
+						className={css(styles.toggleButton)} 
+						onClick={this.props.applySettingsToSelectedComps}>
+							{'Apply Stored Settings to Selected Comps'}
+					</div>
 				</div>
 			</div>
 			)
