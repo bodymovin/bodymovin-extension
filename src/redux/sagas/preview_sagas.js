@@ -63,5 +63,9 @@ function *loadBodymovinFile(action) {
 
 export default [
   takeEvery(actions.PREVIEW_BROWSE_FILE, browseFile),
-  takeEvery(actions.PREVIEW_FILE_BROWSED, loadBodymovinFile)
+  takeEvery([
+  	actions.PREVIEW_FILE_BROWSED,
+  	actions.PREVIEW_ANIMATION,
+  ]
+  , loadBodymovinFile)
 ]

@@ -24,6 +24,7 @@ export default function project(state = initialState, action) {
     case actionTypes.RENDER_START:
       return {...state, ...{route: routes.render}}
     case actionTypes.GOTO_PREVIEW:
+    case actionTypes.PREVIEW_ANIMATION:
       return {...state, ...{route: routes.preview}}
     case actionTypes.GOTO_PLAYER:
       return {...state, ...{route: routes.player}}

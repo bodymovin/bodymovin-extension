@@ -42,11 +42,19 @@ function showRenderBlock(pars) {
 	}
 }
 
+function previewAnimation(path) {
+	return {
+		type: actionTypes.PREVIEW_ANIMATION,
+		path,
+	}
+}
+
 export {
 	startRender,
 	stopRender,
 	updateFontOrigin,
 	updateInput,
 	setFonts,
-	showRenderBlock
+	showRenderBlock,
+	previewAnimation,
 }

@@ -1,13 +1,18 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
-import {stopRender} from '../../redux/actions/renderActions'
+import {
+  stopRender,
+  previewAnimation,
+} from '../../redux/actions/renderActions'
 import {goToComps} from '../../redux/actions/compositionActions'
 import render_selector from '../../redux/selectors/render_selector'
 import RenderItem from './list/RenderItem'
 import BaseButton from '../../components/buttons/Base_button'
 import Variables from '../../helpers/styles/variables'
-import {goToFolder} from '../../helpers/CompositionsProvider'
+import {
+  goToFolder,
+} from '../../helpers/CompositionsProvider'
 import Bodymovin from '../../components/bodymovin/bodymovin'
 import fluido from '../../assets/animations/fluido.json'
 
@@ -108,10 +113,13 @@ class Render extends React.Component {
   }
 
   getItem(item) {
-    return (<RenderItem 
+    return (
+      <RenderItem 
         key={item.id} 
         item={item}
-        navigateToFolder={this.navigateToFolder} />)
+        navigateToFolder={this.navigateToFolder}
+        preview={this.preview} 
+      />)
   }
 
 	getItems() {
@@ -129,6 +137,10 @@ class Render extends React.Component {
 
   navigateToFolder(item) {
     goToFolder(item.destination)
+  }
+
+  preview = (item) => {
+    this.props.previewAnimation(item.destination)
   }
 
 
@@ -169,7 +181,8 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   stopRender: stopRender,
-  goToComps: goToComps
+  goToComps: goToComps,
+  previewAnimation: previewAnimation,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Render)

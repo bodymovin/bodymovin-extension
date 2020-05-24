@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
     	width: '30px',
     	height: '100%',
     	flexGrow: 0,
-    	padding: '5px'
+    	padding: '5px',
+        cursor: 'pointer',
     },
     compElementContentToggleImage: {
     	width: '100%',
@@ -72,14 +73,21 @@ let RenderItem = (props) => {
 				<div className={css(styles.compElementProgress)}></div>
 				<div className={css(styles.compElementContent)}>
 				<div className={css(styles.compElementContentName)}>{props.item.name}</div>
-				{props.item.renderStatus === 0 && <div className={css(styles.compElementContentToggle)}>
+				{props.item.renderStatus === 0 && 
+                <div className={css(styles.compElementContentToggle)}>
                     <button className={css(styles.compElementContentFolder__button)}>
 					   <img src={status_button}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                     </button>
 				</div>}
-                {props.item.renderStatus === 1 && <div className={css(styles.compElementContentToggle)}>
-                   <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
-                </div>}
+                {props.item.renderStatus === 1 && 
+                    <div
+                        onClick={()=>props.preview(props.item)}
+                        className={css(styles.compElementContentToggle)}
+                        title={'Preview'}
+                    >
+                       <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
+                    </div>
+                }
 				<div className={css(styles.compElementContentFolder)}>
                     <div className={css(styles.compElementContentFolder__button)} onClick={()=>props.navigateToFolder(props.item)}>
                         <BodymovinFolder />
