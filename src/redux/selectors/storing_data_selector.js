@@ -1,11 +1,12 @@
 import { createSelector } from 'reselect'
 
 const getCompositionState = (state) => state.compositions
+const getPreviewState = (state) => state.preview
 const getID = (state) => state.project.id
 
 const storingDataSelector = createSelector(
-  [ getCompositionState, getID ],
-  (compositionState, id) => {
+  [ getCompositionState, getPreviewState, getID ],
+  (compositionState, previewState, id) => {
 
   	const compositions = compositionState.items
 
@@ -16,7 +17,10 @@ const storingDataSelector = createSelector(
 				filter: compositionState.filter,
 				show_only_selected: compositionState.show_only_selected,
 				shouldUseCompNameAsDefault: compositionState.shouldUseCompNameAsDefault,
-  			}
+  			},
+        preview: {
+          backgroundColor: previewState.backgroundColor,
+        }
   		},
   		id: id
   	}
