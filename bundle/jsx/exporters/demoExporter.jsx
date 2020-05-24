@@ -33,6 +33,9 @@ $.__bodymovin.bm_demoExporter = (function () {
 			} else {
 			    demoStr = demoStr.replace('__[[RENDERER]]__', "svg");
 			}
+			var color = config.demoData.backgroundColor || '#FFF';
+			demoStr = demoStr.replace('__[[BODY_BACKGROUND_COLOR]]__', color);
+			demoStr = demoStr.replace('__[[LOTTIE_BACKGROUND_COLOR]]__', color);
 
 			var demoDestinationFile = new File(destinationData.folder.fsName);
 			demoDestinationFile.changePath(destinationData.fileName + '.html');

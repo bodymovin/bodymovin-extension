@@ -2,6 +2,7 @@ import actionTypes from '../actions/actionTypes'
 import ExportModes from '../../helpers/ExportModes'
 import LottieVersions, {findLottieVersion} from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
+import Variables from '../../helpers/styles/variables'
 
 let initialState = {
 	list: [],
@@ -24,7 +25,6 @@ let defaultComposition = {
         segmented: false,
         segmentedTime: 10,
         standalone: false,
-        demo: false,
         avd: false,
         glyphs: true,
         hiddens: false,
@@ -52,6 +52,9 @@ let defaultComposition = {
           banner: false,
           avd: false,
           rive: false,
+        },
+        demoData: {
+          backgroundColor: Variables.colors.white,
         },
         banner: {
           lottie_origin: LottieLibraryOrigins.LOCAL,
@@ -102,6 +105,9 @@ function createComp(comp) {
         height: comp.height || 500,
         original_width: comp.width || 500,
         original_height: comp.height || 500,
+      },
+      demoData: {
+        ...defaultComposition.settings.demoData,
       }
     }
   }
@@ -600,6 +606,22 @@ function updateBanner(state, action) {
 
 }
 
+function updateDemo(state, action) {
+
+  let newItem = {...state.items[state.current]}
+  let newSettings = {...newItem.settings}
+  const newDemoData = {...newSettings.demoData}
+  newDemoData.backgroundColor = action.value
+  newSettings.demoData = newDemoData
+  newItem.settings = newSettings 
+  let newItems = {...state.items}
+  newItems[state.current] = newItem
+  return {
+    ...state,
+    items: newItems
+  }
+}
+
 function toggleCompNameAsDefault(state, action) {
   return {
     ...state,
@@ -656,6 +678,8 @@ export default function compositions(state = initialState, action) {
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
       return toggleMode(state, action)
+    case actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE:
+      return updateDemo(state, action)
     default:
       return state
   }

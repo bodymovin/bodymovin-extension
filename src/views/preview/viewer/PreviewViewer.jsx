@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
       height: '100%',
       borderRadius:'2px',
       position: 'absolute',
-      backgroundColor: Variables.colors.gray,
       display: 'flex',
     },
     rendererWrapper: {
@@ -24,7 +23,6 @@ const styles = StyleSheet.create({
       height: '100%',
       borderRadius:'2px',
       position: 'absolute',
-      backgroundColor: Variables.colors.gray,
     }
 })
 
@@ -117,8 +115,12 @@ class PreviewViewer extends React.PureComponent {
   }
 
   render() {
+    
     return (
-      <div className={css(styles.wrapper)}>      
+      <div
+        className={css(styles.wrapper)}
+        style={{backgroundColor: this.props.backgroundColor}}
+      >
         {this.renderPreviewers(this.props.previewerTypes)}
       </div>      
       )
@@ -127,10 +129,12 @@ class PreviewViewer extends React.PureComponent {
 
 PreviewViewer.propTypes = {
   previewerTypes: PropTypes.array,
+  backgroundColor: PropTypes.string,
 }
 
 PreviewViewer.defaultProps = {
   previewerTypes: [],
+  backgroundColor: Variables.colors.gray,
 }
 
 export default PreviewViewer

@@ -243,6 +243,13 @@ function settingsBannerLibraryFileSelected(value) {
 	}
 }
 
+function handleDemoBackgroundColorChange(value) {
+	return {
+		type: actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE,
+		value,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -280,4 +287,5 @@ export {
 	lottieHandleLoopCountChange,
 	toggleCompNameAsDefault,
 	settingsBannerLibraryFileSelected,
+	handleDemoBackgroundColorChange,
 }

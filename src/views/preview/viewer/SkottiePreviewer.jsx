@@ -9,7 +9,6 @@ const styles = StyleSheet.create({
       height: '100%',
       borderRadius:'2px',
       position: 'absolute',
-      backgroundColor:'#333'
     },
     canvas: {
       width: '100%',

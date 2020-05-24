@@ -39,11 +39,19 @@ function previewFromPath(path) {
 	}
 }
 
+function updateColor(color) {
+	return {
+		type: actionTypes.PREVIEW_COLOR_UPDATE,
+		color
+	}
+}
+
 export {
 	browsePreviewFile,
 	previewFileBrowsed,
 	updateProgress,
 	setTotalFrames,
 	showNoCurrentRenders,
-	previewFromPath
+	previewFromPath,
+	updateColor,
 }

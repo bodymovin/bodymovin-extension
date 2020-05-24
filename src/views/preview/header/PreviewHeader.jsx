@@ -1,10 +1,11 @@
-import React from 'react'
+import React, {PureComponent} from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../../helpers/styles/variables'
 import BaseButton from '../../../components/buttons/Base_button'
 import {previewTypes} from '../viewer/PreviewViewer'
 import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
 import checkbox from '../../../assets/animations/checkbox.json'
+import { SketchPicker } from 'react-color'
 
 const styles = StyleSheet.create({
     container: {
@@ -58,29 +59,74 @@ const styles = StyleSheet.create({
     	flex: '0 0 auto',
     },
     previewOption: {
-        marginRight: '20px',
+        fontSize: '14px',
+        marginRight: '10px',
         cursor: 'pointer',
         color: Variables.colors.white,
     },
     'previewOption-checkbox': {
-        width: '25px',
+        width: '20px',
         display: 'inline-block',
         verticalAlign: 'middle',
         marginRight: '4px',
+    },
+    flexExtender: {
+        flex: '1 1 auto',
+    },
+    colorPicker: {
+        position: 'relative',
+    },
+    'colorPicker-box': {
+        position: 'absolute',
+        zIndex: 10,
+        right: 0,
+        top: '30px',
+    },
+    'colorPicker-thumb': {
+        display: 'inline-block',
+        width: '20px',
+        height: '20px',
+        border: `1px solid ${Variables.colors.white}`,
+        outline: `1px solid ${Variables.colors.gray}`,
+        verticalAlign: 'middle',
+        cursor: 'pointer',
+    },
+    'colorPicker-label': {
+        color: Variables.colors.white,
+        fontSize: '14px',
+        paddingRight: '4px',
     }
 })
 
-function PreviewHeader(props) {
-	return (<div className={css(styles.container)}>
+class PreviewHeader extends PureComponent {
+
+    state = {
+        isColorPickerEnabled: false,
+    }
+
+    toggleColorPicker = () => {
+        this.setState({
+            isColorPickerEnabled: !this.state.isColorPickerEnabled,
+        })
+    }
+
+    updateColor = colorData => {
+        this.props.updateColor(colorData.hex)
+    }
+
+    render() {
+        const props = this.props
+    	return (
+            <div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
                     <BaseButton text='Browse Local Files' type='green' classes={styles.button} onClick={props.browseFiles}/>
                     <BaseButton text='Current Renders' type='green' classes={styles.button} onClick={props.selectCurrentRenders}/>
                     <div className={css(styles.buttons_separator)}></div>
 					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={props.goToComps}/>
 				</div>
-				<div className={css(styles.separator)}></div>
+                <div className={css(styles.separator)}></div>
                     <div className={css(styles.renderersContainer)}>
-                        <div className={css(styles.renderersLabel)}>Select Previewer:
+                        <div className={css(styles.renderersLabel)}>Previewer:
                         </div>
                         <div
                             className={css(styles.previewOption)}
@@ -112,8 +158,31 @@ function PreviewHeader(props) {
                             </BodymovinCheckbox>
                             <span>Skottie</span>
                         </div>
+                        <div
+                            className={css(styles.flexExtender)}
+                        />
+
+                        <div className={css(styles.colorPicker)}>
+                            <span
+                                className={css(styles['colorPicker-label'])}
+                            >Background color</span>
+                            <div
+                                onClick={this.toggleColorPicker}
+                                className={css(styles['colorPicker-thumb'])}
+                                style={{backgroundColor: props.backgroundColor}}
+                            />
+                            {this.state.isColorPickerEnabled && 
+                                <div className={css(styles['colorPicker-box'])}>
+                                    <SketchPicker 
+                                        color={ props.backgroundColor }
+                                        onChangeComplete={ this.updateColor }
+                                    />
+                                </div>
+                            }
+                        </div>
                     </div>
-			</div>)
+            </div>)
+    }
 }
 
 export default PreviewHeader

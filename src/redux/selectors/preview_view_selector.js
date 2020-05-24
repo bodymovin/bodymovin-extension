@@ -37,7 +37,8 @@ const previewViewSelector = createSelector(
   		preview: preview,
       totalFrames: totalFrames,
       renderer: renderer,
-  		previewableItems: previewableItems
+      previewableItems: previewableItems,
+  		backgroundColor: preview.backgroundColor,
   	}
   }
 )

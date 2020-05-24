@@ -5,7 +5,14 @@ import PreviewViewer, {previewTypes} from './viewer/PreviewViewer'
 import PreviewScrubber from './scrubber/PreviewScrubber'
 import PreviewHeader from './header/PreviewHeader'
 import CurrentRenders from './current_renders/CurrentRenders'
-import {browsePreviewFile, updateProgress, setTotalFrames, showNoCurrentRenders, previewFromPath} from '../../redux/actions/previewActions'
+import {
+  browsePreviewFile,
+  updateProgress,
+  setTotalFrames,
+  showNoCurrentRenders,
+  previewFromPath,
+  updateColor,
+} from '../../redux/actions/previewActions'
 import {goToComps} from '../../redux/actions/compositionActions'
 import preview_view_selector from '../../redux/selectors/preview_view_selector'
 import FileSaver from '../../helpers/FileSaver'
@@ -121,6 +128,8 @@ class Preview extends React.Component {
               onRendererSelected={this.onRendedereSelected}
               selectCurrentRenders={this.selectCurrentRenders} 
               selectedTypes={this.state.previewerTypes}
+              updateColor={this.props.updateColor}
+              backgroundColor={this.props.backgroundColor}
             />
           </div>
           <div className={css(styles.animation)}> 
@@ -132,7 +141,9 @@ class Preview extends React.Component {
               progress={this.props.preview.progress} 
               setTotalFrames={this.props.setTotalFrames} 
               previewerTypes={this.state.previewerTypes}
-              ref={(elem => this.previewViewer = elem)} />
+              ref={(elem => this.previewViewer = elem)}
+              backgroundColor={this.props.backgroundColor}
+            />
           </div>
           <div className={css(styles.scrubber)}> 
             <PreviewScrubber 
@@ -163,7 +174,8 @@ const mapDispatchToProps = {
   updateProgress: updateProgress,
   setTotalFrames: setTotalFrames,
   goToComps: goToComps,
-  showNoCurrentRenders: showNoCurrentRenders
+  showNoCurrentRenders: showNoCurrentRenders,
+  updateColor: updateColor,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Preview)
