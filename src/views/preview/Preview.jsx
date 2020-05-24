@@ -110,6 +110,7 @@ class Preview extends React.Component {
   }
 
   render() {
+
     return (
       <div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
@@ -137,7 +138,7 @@ class Preview extends React.Component {
             <PreviewScrubber 
               updateProgress={this.updateProgress} 
               changeStart={this.changeStart} 
-              totalFrames={this.props.preview.totalFrames} 
+              totalFrames={this.props.totalFrames} 
               saveFile={this.saveFile} 
               canSaveFile={this.state.previewerTypes.includes(previewTypes.BROWSER)} 
               progress={this.props.preview.progress}/>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { StyleSheet, css } from 'aphrodite'
 import Bodymovin from '../../../components/bodymovin/bodymovin'
 import SkottiePreviewer from './SkottiePreviewer'
+import Variables from '../../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -10,19 +11,20 @@ const styles = StyleSheet.create({
       height: '100%',
       borderRadius:'2px',
       position: 'absolute',
-      backgroundColor:'#333',
+      backgroundColor: Variables.colors.gray,
       display: 'flex',
     },
     rendererWrapper: {
       flex: '1 1 0',
       position: 'relative',
+      border: `1px solid ${Variables.colors.button_gray_text}`,
     },
     container: {
       width: '100%',
       height: '100%',
       borderRadius:'2px',
       position: 'absolute',
-      backgroundColor:'#333'
+      backgroundColor: Variables.colors.gray,
     }
 })
 

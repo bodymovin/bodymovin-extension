@@ -3,6 +3,8 @@ import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../../helpers/styles/variables'
 import BaseButton from '../../../components/buttons/Base_button'
 import {previewTypes} from '../viewer/PreviewViewer'
+import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
+import checkbox from '../../../assets/animations/checkbox.json'
 
 const styles = StyleSheet.create({
     container: {
@@ -39,8 +41,8 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '1px',
         backgroundColor: Variables.colors.gray2,
-        marginTop: '20px',
-        marginBottom: '20px'
+        marginTop: '10px',
+        marginBottom: '10px'
     },
     renderersContainer: {
         display: 'flex',
@@ -54,13 +56,24 @@ const styles = StyleSheet.create({
     renderersButton: {
         marginRight:'5px',
     	flex: '0 0 auto',
+    },
+    previewOption: {
+        marginRight: '20px',
+        cursor: 'pointer',
+        color: Variables.colors.white,
+    },
+    'previewOption-checkbox': {
+        width: '25px',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        marginRight: '4px',
     }
 })
 
 function PreviewHeader(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
-                    <BaseButton text='Browse' type='green' classes={styles.button} onClick={props.browseFiles}/>
+                    <BaseButton text='Browse Local Files' type='green' classes={styles.button} onClick={props.browseFiles}/>
                     <BaseButton text='Current Renders' type='green' classes={styles.button} onClick={props.selectCurrentRenders}/>
                     <div className={css(styles.buttons_separator)}></div>
 					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={props.goToComps}/>
@@ -69,18 +82,36 @@ function PreviewHeader(props) {
                     <div className={css(styles.renderersContainer)}>
                         <div className={css(styles.renderersLabel)}>Select Previewer:
                         </div>
-                        <BaseButton 
-                            text='Browser'
-                            type={props.selectedTypes.includes(previewTypes.BROWSER) ? 'green' : 'gray'}
-                            classes={styles.renderersButton}
+                        <div
+                            className={css(styles.previewOption)}
                             onClick={()=>props.onRendererSelected(previewTypes.BROWSER)}
-                        />
-                        <BaseButton
-                            text='Skottie'
-                            type={props.selectedTypes.includes(previewTypes.SKOTTIE) ? 'green' : 'gray'}
-                            classes={styles.renderersButton}
+                        >
+                            <BodymovinCheckbox
+                                animationData={checkbox}
+                                animate={props.selectedTypes.includes(previewTypes.BROWSER)}
+                            >
+                                <div
+                                    className={css(styles['previewOption-checkbox'])}
+                                    
+                                />
+                            </BodymovinCheckbox>
+                            <span>Browser</span>
+                        </div>
+                        <div
+                            className={css(styles.previewOption)}
                             onClick={()=>props.onRendererSelected(previewTypes.SKOTTIE)}
-                        />
+                        >
+                            <BodymovinCheckbox
+                                animationData={checkbox}
+                                animate={props.selectedTypes.includes(previewTypes.SKOTTIE)}
+                            >
+                                <div
+                                    className={css(styles['previewOption-checkbox'])}
+                                    
+                                />
+                            </BodymovinCheckbox>
+                            <span>Skottie</span>
+                        </div>
                     </div>
 			</div>)
 }

@@ -105,9 +105,14 @@ class SkottiePreviewer extends React.PureComponent {
 }
 
 SkottiePreviewer.propTypes = {
+  animationData: PropTypes.object,
+  assetsData: PropTypes.object,
+  progress: PropTypes.number.isRequired,
 }
 
 SkottiePreviewer.defaultProps = {
+  animationData: null,
+  assetsData: null,
 }
 
 export default SkottiePreviewer
