@@ -38,7 +38,9 @@ const previewViewSelector = createSelector(
       totalFrames: totalFrames,
       renderer: renderer,
       previewableItems: previewableItems,
-  		backgroundColor: preview.backgroundColor,
+      backgroundColor: preview.backgroundColor,
+      timelineData: preview.timelineData,
+  		shouldLockTimelineToComposition: preview.shouldLockTimelineToComposition,
   	}
   }
 )

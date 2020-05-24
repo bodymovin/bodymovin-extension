@@ -12,6 +12,9 @@ import {
   showNoCurrentRenders,
   previewFromPath,
   updateColor,
+  toggleLockTimeline,
+  initialize,
+  finalize,
 } from '../../redux/actions/previewActions'
 import {goToComps} from '../../redux/actions/compositionActions'
 import preview_view_selector from '../../redux/selectors/preview_view_selector'
@@ -61,6 +64,14 @@ class Preview extends React.Component {
       showingCurrentRenders: false,
       previewerTypes: [previewTypes.BROWSER],
     }
+  }
+
+  componentDidMount() {
+    this.props.initialize()
+  }
+
+  componentWillUnmount() {
+    this.props.finalize()
   }
 
   changeStart() {
@@ -152,7 +163,10 @@ class Preview extends React.Component {
               totalFrames={this.props.totalFrames} 
               saveFile={this.saveFile} 
               canSaveFile={this.state.previewerTypes.includes(previewTypes.BROWSER)} 
-              progress={this.props.preview.progress}/>
+              progress={this.props.preview.progress}
+              shouldLockTimelineToComposition={this.props.shouldLockTimelineToComposition}
+              toggleLockTimeline={this.props.toggleLockTimeline}
+            />
           </div>
         </div>
         {this.state.showingCurrentRenders && <CurrentRenders 
@@ -176,6 +190,9 @@ const mapDispatchToProps = {
   goToComps: goToComps,
   showNoCurrentRenders: showNoCurrentRenders,
   updateColor: updateColor,
+  toggleLockTimeline: toggleLockTimeline,
+  initialize: initialize,
+  finalize: finalize,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Preview)

@@ -5,6 +5,8 @@ import Range from '../../../components/range/Range'
 import BaseButton from '../../../components/buttons/Base_button'
 import Variables from '../../../helpers/styles/variables'
 import snapshot from '../../../assets/animations/snapshot.json'
+import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
+import checkbox from '../../../assets/animations/checkbox.json'
 
 const styles = StyleSheet.create({
     container: {
@@ -14,7 +16,8 @@ const styles = StyleSheet.create({
     navContainer: {
       width: '100%',
       height: '36px',
-      display: 'flex'
+      display: 'flex',
+      alignItems: 'center',
     },
     progressNumberContainer: {
       fontSize: '20px',
@@ -43,7 +46,19 @@ const styles = StyleSheet.create({
     },
     button: {
       flexGrow: 0
-    }
+    },
+    previewOption: {
+        fontSize: '14px',
+        marginRight: '10px',
+        cursor: 'pointer',
+        color: Variables.colors.white,
+    },
+    'previewOption-checkbox': {
+        width: '20px',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        marginRight: '4px',
+    },
 })
 
 class PreviewScrubber extends React.Component {
@@ -140,6 +155,21 @@ class PreviewScrubber extends React.Component {
                     onKeyDown={this.handleKey} 
                     onChange={this.updateValue}/>}
             <div className={css(styles.progressNumber)}>&nbsp;/ {this.props.totalFrames}</div>
+          </div>
+          <div
+              className={css(styles.previewOption)}
+              onClick={this.props.toggleLockTimeline}
+          >
+              <BodymovinCheckbox
+                  animationData={checkbox}
+                  animate={this.props.shouldLockTimelineToComposition}
+              >
+                  <div
+                      className={css(styles['previewOption-checkbox'])}
+                      
+                  />
+              </BodymovinCheckbox>
+              <span>Lock to Composition Timeline</span>
           </div>
           <div className={css(styles.emptySpace)}></div>
           {this.props.canSaveFile &&

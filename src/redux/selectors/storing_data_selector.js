@@ -20,6 +20,7 @@ const storingDataSelector = createSelector(
   			},
         preview: {
           backgroundColor: previewState.backgroundColor,
+          shouldLockTimelineToComposition: previewState.shouldLockTimelineToComposition,
         }
   		},
   		id: id

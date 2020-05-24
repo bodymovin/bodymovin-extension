@@ -387,6 +387,31 @@ function initializeServer() {
 	csInterface.requestOpenExtension("com.bodymovin.bodymovin_server", "");
 }
 
+async function getCompositionTimelinePosition() {
+	return new Promise(async function(resolve, reject) {
+		function handleTimelineUpdate(ev) {
+			if (ev.data) {
+				const timelineData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+				resolve(timelineData)
+			}
+			csInterface.removeEventListener('bm:composition:timelinePosition', handleTimelineUpdate)
+		}
+		csInterface.addEventListener('bm:composition:timelinePosition', handleTimelineUpdate)
+
+		await extensionLoader;
+		var eScript = '$.__bodymovin.bm_compsManager.getTimelinePosition()';
+	    csInterface.evalScript(eScript);
+	})
+	
+}
+
+async function setCompositionTimelinePosition(progress) {
+	await extensionLoader;
+	var eScript = '$.__bodymovin.bm_compsManager.setTimelinePosition(' + progress + ')';
+    csInterface.evalScript(eScript);
+	
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -403,4 +428,6 @@ export {
 	riveFileSaveSuccess,
 	riveFileSaveFailed,
 	getProjectPath,
+	getCompositionTimelinePosition,
+	setCompositionTimelinePosition,
 }
