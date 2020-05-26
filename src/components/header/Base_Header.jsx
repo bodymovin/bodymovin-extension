@@ -8,6 +8,7 @@ import {
     goToImportFile,
     goToAnnotations,
     goToComps,
+    goToReports,
 } from '../../redux/actions/compositionActions'
 import {connect} from 'react-redux'
 import {routes} from '../../redux/reducers/routes'
@@ -63,13 +64,16 @@ function BaseHeader(props) {
                     {props.currentRoute !== routes.compositions &&
                         <BaseButton text='Compositions' type='gray' classes={styles.right} onClick={props.goToComps}/>
                     }
+                    {props.currentRoute !== routes.reports &&
+                        <BaseButton text='Reports' type='gray' classes={styles.right} onClick={props.goToReports}/>
+                    }
 					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
-                    <div className={css(styles.buttons_separator)}></div>
                     <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
-					{props.currentRoute !== routes.annotations &&
+                    {props.currentRoute !== routes.annotations &&
                         <BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
                     }
+                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+                    <div className={css(styles.buttons_separator)}></div>
 				</div>
                 <div className={css(styles.separator)} />
 			</div>)
@@ -87,6 +91,7 @@ const mapDispatchToProps = {
     goToPlayer: goToPlayer,
     goToImportFile: goToImportFile,
     goToAnnotations: goToAnnotations,
+    goToReports: goToReports,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseHeader)

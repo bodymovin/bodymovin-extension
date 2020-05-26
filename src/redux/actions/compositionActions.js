@@ -250,6 +250,12 @@ function goToAnnotations(value) {
 	}
 }
 
+function goToReports() {
+	return {
+		type: actionTypes.GOTO_REPORTS,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -288,4 +294,5 @@ export {
 	toggleCompNameAsDefault,
 	settingsBannerLibraryFileSelected,
 	goToAnnotations,
+	goToReports,
 }

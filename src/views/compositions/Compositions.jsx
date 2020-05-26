@@ -17,6 +17,7 @@ import {
 	toggleCompNameAsDefault,
 	goToImportFile,
 	goToAnnotations,
+	goToReports,
 } from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
@@ -101,6 +102,7 @@ class Compositions extends React.Component {
 						goToImportFile={this.props.goToImportFile} 
 						goToPlayer={this.props.goToPlayer}
 						goToAnnotations={this.props.goToAnnotations}
+						goToReports={this.props.goToReports}
 					/>
 				</div>
 				<div className={css(styles.content)} >
@@ -151,6 +153,7 @@ const mapDispatchToProps = {
 	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	goToAnnotations: goToAnnotations,
+	goToReports: goToReports,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

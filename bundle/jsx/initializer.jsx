@@ -16,6 +16,8 @@ $.evalFile(extensionPath + 'utils/expressions/variableDeclarationHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressionHelper.jsx');
 $.evalFile(extensionPath + 'helpers/fileManager.jsx');
 $.evalFile(extensionPath + 'helpers/presetHelper.jsx');
+$.evalFile(extensionPath + 'reports/layerReport.jsx');
+$.evalFile(extensionPath + 'reports/reportsManager.jsx');
 $.evalFile(extensionPath + 'exporters/exporterHelpers.jsx');
 $.evalFile(extensionPath + 'exporters/bannerExporter.jsx');
 $.evalFile(extensionPath + 'exporters/standardExporter.jsx');

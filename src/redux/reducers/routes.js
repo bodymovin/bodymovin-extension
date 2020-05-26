@@ -9,6 +9,7 @@ let routes = {
   player: 5,
   importFile: 6,
   annotations: 7,
+  reports: 8,
 }
 
 let initialState = {
@@ -38,6 +39,8 @@ export default function project(state = initialState, action) {
       return {...state, ...{route: routes.compositions}}
     case actionTypes.GOTO_ANNOTATIONS:
       return {...state, ...{route: routes.annotations}}
+    case actionTypes.GOTO_REPORTS:
+      return {...state, ...{route: routes.reports}}
     default:
       return state
   }

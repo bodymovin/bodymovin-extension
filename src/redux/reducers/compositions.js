@@ -52,6 +52,7 @@ let defaultComposition = {
           banner: false,
           avd: false,
           rive: false,
+          reports: false,
         },
         banner: {
           lottie_origin: LottieLibraryOrigins.LOCAL,

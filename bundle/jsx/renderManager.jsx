@@ -11,6 +11,7 @@ $.__bodymovin.bm_renderManager = (function () {
     var bm_layerElement = $.__bodymovin.bm_layerElement;
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var reportManager = $.__bodymovin.bm_reportsManager;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
