@@ -2,7 +2,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import {stopRender} from '../../redux/actions/renderActions'
-import {goToComps} from '../../redux/actions/compositionActions'
+import {goToComps, goToReports} from '../../redux/actions/compositionActions'
 import render_selector from '../../redux/selectors/render_selector'
 import RenderItem from './list/RenderItem'
 import BaseButton from '../../components/buttons/Base_button'
@@ -111,7 +111,9 @@ class Render extends React.Component {
     return (<RenderItem 
         key={item.id} 
         item={item}
-        navigateToFolder={this.navigateToFolder} />)
+        navigateToFolder={this.navigateToFolder} 
+        navigateToReports={this.props.goToReports} 
+      />)
   }
 
 	getItems() {
@@ -128,6 +130,10 @@ class Render extends React.Component {
   }
 
   navigateToFolder(item) {
+    goToFolder(item.destination)
+  }
+
+  navigateToReports(item) {
     goToFolder(item.destination)
   }
 
@@ -169,7 +175,8 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   stopRender: stopRender,
-  goToComps: goToComps
+  goToComps: goToComps,
+  goToReports: goToReports,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Render)

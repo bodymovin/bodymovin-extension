@@ -10,7 +10,7 @@ import FontsView from './fonts/Fonts'
 import PlayerView from './player/Player'
 import FileImportView from './fileImport/FileImport'
 import AnnotationsView from './annotations/Annotations'
-import ReportView from './report/Report'
+import ReportsView from './report/Reports'
 
 function getView(route) {
 	switch(route) {
@@ -31,7 +31,7 @@ function getView(route) {
       case routes.annotations:
         return <AnnotationsView />
       case routes.reports:
-        return <ReportView />
+        return <ReportsView />
       default:
         return <Compositions />
     }

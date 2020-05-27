@@ -8,6 +8,7 @@ import paths from './paths'
 import routes from './routes'
 import importer from './importer'
 import annotations from './annotations'
+import reports from './reports'
 
 export default combineReducers({
   routes,
@@ -19,4 +20,5 @@ export default combineReducers({
   paths,
   importer,
   annotations,
+  reports,
 })
