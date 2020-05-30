@@ -5,6 +5,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
     , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0, imageNameIndex = 0;
@@ -367,9 +368,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         path: temporaryFolder.fsName + '/' + imageName, 
                         ***/
                         path: file.fsName, 
-                        should_compress: bm_renderManager.shouldCompressImages(), 
-                        compression_rate: bm_renderManager.getCompressionQuality()/100,
-                        should_encode_images: bm_renderManager.shouldEncodeImages()
+                        should_compress: settingsHelper.shouldCompressImages(), 
+                        compression_rate: settingsHelper.getCompressionQuality()/100,
+                        should_encode_images: settingsHelper.shouldEncodeImages()
                     })
 
                 }
@@ -399,9 +400,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 path: temporaryFolder.fsName + '/' + imageName, 
                 ***/
                 path: file.fsName, 
-                should_compress: bm_renderManager.shouldCompressImages(), 
-                compression_rate: bm_renderManager.getCompressionQuality()/100,
-                should_encode_images: bm_renderManager.shouldEncodeImages()
+                should_compress: settingsHelper.shouldCompressImages(), 
+                compression_rate: settingsHelper.getCompressionQuality()/100,
+                should_encode_images: settingsHelper.shouldEncodeImages()
             })
         }
         
@@ -572,9 +573,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         path: temporaryFolder.fsName + '/' + imageName, 
                         ***/
                         path: file.fsName, 
-                        should_compress: bm_renderManager.shouldCompressImages(), 
-                        compression_rate: bm_renderManager.getCompressionQuality()/100,
-                        should_encode_images: bm_renderManager.shouldEncodeImages()
+                        should_compress: settingsHelper.shouldCompressImages(), 
+                        compression_rate: settingsHelper.getCompressionQuality()/100,
+                        should_encode_images: settingsHelper.shouldEncodeImages()
                     })
                 }
             };
@@ -593,9 +594,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 path: temporaryFolder.fsName + '/' + imageName, 
                 ***/
                 path: file.fsName, 
-                should_compress: bm_renderManager.shouldCompressImages(), 
-                compression_rate: bm_renderManager.getCompressionQuality()/100,
-                should_encode_images: bm_renderManager.shouldEncodeImages()
+                should_compress: settingsHelper.shouldCompressImages(), 
+                compression_rate: settingsHelper.getCompressionQuality()/100,
+                should_encode_images: settingsHelper.shouldEncodeImages()
             })
         }
     }
@@ -650,7 +651,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
-        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0) || bm_renderManager.shouldSkipImages()) {
+        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0) || settingsHelper.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }

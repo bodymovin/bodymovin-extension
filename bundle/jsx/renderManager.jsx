@@ -12,8 +12,9 @@ $.__bodymovin.bm_renderManager = (function () {
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var reportManager = $.__bodymovin.bm_reportsManager;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     
-    var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
+    var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentExportedComps = [];
     var version_number = '4.8.0';
 
@@ -74,6 +75,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }*/
     
     function createLayers(comp, layers, framerate, deepTraversing) {
+        var currentCompSettings = settingsHelper.get();
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
@@ -142,7 +144,7 @@ $.__bodymovin.bm_renderManager = (function () {
         currentExportedComps = [];
         hasExpressionsFlag = false;
         currentCompID = comp.id;
-        currentCompSettings = compSettings;
+        settingsHelper.set(compSettings)
 
         bm_ProjectHelper.init();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
@@ -180,7 +182,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function exportMotionBlur(exportData, comp) {
-        if (comp.motionBlur && shouldIncludeNotSupportedProperties()) {
+        if (comp.motionBlur && settingsHelper.shouldIncludeNotSupportedProperties()) {
             exportData.mb = {
               sa : comp.shutterAngle,
               sp : comp.shutterPhase,
@@ -209,6 +211,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function exportExtraComps(exportData){
+        var currentCompSettings = settingsHelper.get();
         if(currentCompSettings.extraComps.active) {
             var list = currentCompSettings.extraComps.list;
             var i, len = list.length, compData;
@@ -241,7 +244,8 @@ $.__bodymovin.bm_renderManager = (function () {
     function reset() {
         pendingLayers.length = 0;
         pendingComps.length = 0;
-        currentCompSettings = null;
+
+        settingsHelper.set(null)
         bm_ProjectHelper.end();
     }
 
@@ -254,6 +258,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
     
     function saveData() {
+        var currentCompSettings = settingsHelper.get();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
         try {
             bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
@@ -302,6 +307,7 @@ $.__bodymovin.bm_renderManager = (function () {
         if (bm_compsManager.cancelled) {
             return;
         }
+        var currentCompSettings = settingsHelper.get();
         if (pendingLayers.length) {
             var nextLayerData = pendingLayers.pop();
             currentLayer += 1;
@@ -322,6 +328,7 @@ $.__bodymovin.bm_renderManager = (function () {
         if (fonts.length === 0) {
             saveData();
         } else {
+            var currentCompSettings = settingsHelper.get();
             if (currentCompSettings.glyphs) {
                 var fontsInfo = {
                     list: []
@@ -388,38 +395,6 @@ $.__bodymovin.bm_renderManager = (function () {
         bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
         bm_eventDispatcher.sendEvent('app:version', {value: app.version});
     }
-
-    function shouldCompressImages() {
-        return currentCompSettings.should_compress && !currentCompSettings.original_assets;
-    }
-
-    function getCompressionQuality() {
-        return currentCompSettings.compression_rate;
-    }
-
-    function shouldEncodeImages() {
-        return currentCompSettings.should_encode_images;
-    }
-
-    function shouldSkipImages() {
-        return currentCompSettings.should_skip_images && !currentCompSettings.should_encode_images;
-    }
-
-    function shouldIgnoreExpressionProperties() {
-        return currentCompSettings.ignore_expression_properties;
-    }
-
-    function shouldExportOldFormat() {
-        return currentCompSettings.export_old_format;
-    }
-
-    function shouldSkipDefaultProperties() {
-        return currentCompSettings.skip_default_properties;
-    }
-
-    function shouldIncludeNotSupportedProperties() {
-        return currentCompSettings.not_supported_properties;
-    }
     
     ob.renderData = {
         exportData : {
@@ -434,14 +409,6 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
     ob.getVersion = getVersion;
-    ob.shouldCompressImages = shouldCompressImages;
-    ob.getCompressionQuality = getCompressionQuality;
-    ob.shouldEncodeImages = shouldEncodeImages;
-    ob.shouldSkipImages = shouldSkipImages;
-    ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
-    ob.shouldExportOldFormat = shouldExportOldFormat;
-    ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
-    ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
     
     return ob;
 }());

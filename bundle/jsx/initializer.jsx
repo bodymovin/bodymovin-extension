@@ -6,6 +6,7 @@ $.__bodymovin = $.__bodymovin || {esprima:{}}
 var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
 
 $.evalFile(extensionPath + 'JSON.jsx');
+$.evalFile(extensionPath + 'helpers/settingsHelper.jsx');
 $.evalFile(extensionPath + 'enums/layerTypes.jsx');
 $.evalFile(extensionPath + 'eventManager.jsx');
 $.evalFile(extensionPath + 'downloadManager.jsx');
@@ -17,6 +18,7 @@ $.evalFile(extensionPath + 'utils/expressionHelper.jsx');
 $.evalFile(extensionPath + 'helpers/fileManager.jsx');
 $.evalFile(extensionPath + 'helpers/presetHelper.jsx');
 $.evalFile(extensionPath + 'reports/layerReport.jsx');
+$.evalFile(extensionPath + 'reports/propertyReport.jsx');
 $.evalFile(extensionPath + 'reports/reportsManager.jsx');
 $.evalFile(extensionPath + 'exporters/exporterHelpers.jsx');
 $.evalFile(extensionPath + 'exporters/bannerExporter.jsx');

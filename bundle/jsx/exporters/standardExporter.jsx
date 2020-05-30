@@ -62,7 +62,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 		_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
 	}
 	
-	function save(destinationPath, config, callback, data) {
+	function save(destinationPath, config, callback) {
 
 		_callback = callback;
 

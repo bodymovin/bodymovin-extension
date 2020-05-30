@@ -4,15 +4,15 @@
 $.__bodymovin.bm_reportsManager = (function () {
     
     var ob;
-    var reportData
+    var propertyReport = $.__bodymovin.bm_propertyReport
 
-    function startReport() {
-        reportData = {}
+    function deleteParams(data) {
+
     }
 
-
     ob = {
-        startReport: startReport
+        deleteParams: deleteParams,
+        createPropertyReport: propertyReport.create,
     };
     
     return ob;
