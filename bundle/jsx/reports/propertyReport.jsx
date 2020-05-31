@@ -3,16 +3,23 @@
 
 $.__bodymovin.bm_propertyReport = (function () {
     
-    var ob;
+    var reportMessageFactory = $.__bodymovin.bm_reportMessageFactory;
 
-    function create(layer, layerData) {
-        
+    function Property(property) {
+        var report = reportMessageFactory();
+        if (property.expressionEnabled && !property.expressionError) {
+        	report.addMessage('a', []);
+        }
+        this.report = report
+    }
+
+    Property.prototype.serialize = function() {
+    	return this.report.serialize();
     }
 
 
-    ob = {
-        create: create,
-    };
+    return function(property) {
+    	return new Property(property);
+    }
     
-    return ob;
 }());

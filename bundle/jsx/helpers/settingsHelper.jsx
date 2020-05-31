@@ -44,6 +44,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.not_supported_properties;
     }
 
+    function shouldIncludeReport() {
+        return _settings.export_modes.reports;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -54,6 +58,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldExportOldFormat = shouldExportOldFormat;
     ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
     ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
+    ob.shouldIncludeReport = shouldIncludeReport;
 
     return ob;
 }());

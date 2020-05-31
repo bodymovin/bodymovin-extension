@@ -4,14 +4,25 @@
 $.__bodymovin.bm_layerReport = (function () {
     
     var ob;
+    var getLayerType = $.__bodymovin.getLayerType;
+    var layerTypes = $.__bodymovin.layerTypes;
+    var solidLayerReport = $.__bodymovin.bm_solidLayerReport;
 
-    function create(layer, layerData) {
+    function createSolidReport(layer) {
+    	return solidLayerReport(layer);
+    }
+
+    function processLayer(layer) {
         
+        var layerType = getLayerType(layer);
+        if (layerType === layerTypes.solid) {
+        	return createSolidReport(layer);
+        }
     }
 
 
     ob = {
-        create: create,
+        processLayer: processLayer,
     };
     
     return ob;

@@ -179,6 +179,13 @@ $.__bodymovin.bm_renderManager = (function () {
         totalLayers = pendingLayers.length;
         currentLayer = 0;
         app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
+
+        if (settingsHelper.shouldIncludeReport()) {
+            var report = reportManager.createReport(comp);
+            var reportData = report.serialize();
+            bm_eventDispatcher.log('REPORT');
+            bm_eventDispatcher.log(reportData);
+        }
     }
 
     function exportMotionBlur(exportData, comp) {

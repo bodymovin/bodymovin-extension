@@ -4,15 +4,18 @@
 $.__bodymovin.bm_reportsManager = (function () {
     
     var ob;
-    var propertyReport = $.__bodymovin.bm_propertyReport
+    var animationReportFactory = $.__bodymovin.bm_animationReport;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
-    function deleteParams(data) {
-
+    function createReport(animation) {
+    	bm_eventDispatcher.log('CREATE 1')
+    	var animationReport = animationReportFactory(animation);
+    	bm_eventDispatcher.log('CREATE 2')
+    	return animationReport;
     }
 
     ob = {
-        deleteParams: deleteParams,
-        createPropertyReport: propertyReport.create,
+        createReport: createReport,
     };
     
     return ob;
