@@ -19,13 +19,9 @@ $.__bodymovin.bm_compositionReport = (function () {
     }
 
     Composition.prototype.processTransform = function() {
-        bm_eventDispatcher.log('processTransform')
         generalUtils.iterateProperty(this.composition)
         generalUtils.iterateOwnProperties(this.composition)
-        bm_eventDispatcher.log(typeof this.composition.transform)
-        bm_eventDispatcher.log(typeof transformFactory)
         this.transform = transformFactory(this.composition.transform);
-        bm_eventDispatcher.log('processTransform end')
     }
 
     Composition.prototype.process = function() {

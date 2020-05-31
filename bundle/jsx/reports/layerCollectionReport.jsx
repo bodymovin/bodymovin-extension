@@ -4,6 +4,7 @@
 $.__bodymovin.bm_layerCollectionReport = (function () {
     
     var layerReport = $.__bodymovin.bm_layerReport;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
     function LayerCollection(layers) {
         this.layers = layers;

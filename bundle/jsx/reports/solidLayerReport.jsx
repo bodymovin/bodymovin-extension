@@ -4,6 +4,7 @@
 $.__bodymovin.bm_solidLayerReport = (function () {
     
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
     function SolidLayer(layer) {
         this.layer = layer;
@@ -12,7 +13,7 @@ $.__bodymovin.bm_solidLayerReport = (function () {
     }
 
     SolidLayer.prototype.processTransform = function() {
-        this.transform = transformFactory(this.layer.transform);
+        this.transform = transformFactory(this.layer.transform, this.layer.threeDLayer);
     }
 
     SolidLayer.prototype.process = function() {

@@ -3,7 +3,7 @@
 
 $.__bodymovin.bm_reportMessageFactory = (function () {
 
-    function ReportMessage(renderers, type, builder) {
+    function ReportMessage(type, renderers, builder) {
         this._type = type || 'warning';
         this._renderers = renderers;
         this._builder = builder;
@@ -17,8 +17,8 @@ $.__bodymovin.bm_reportMessageFactory = (function () {
         }
     }
 
-    function factory() {
-        return new ReportMessage()
+    function factory(type, renderers, builder) {
+        return new ReportMessage(type, renderers, builder)
     };
     
     return factory;

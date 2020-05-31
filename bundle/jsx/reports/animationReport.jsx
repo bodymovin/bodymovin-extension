@@ -15,6 +15,7 @@ $.__bodymovin.bm_animationReport = (function () {
     }
 
     Animation.prototype.serialize = function() {
+        bm_eventDispatcher.log('ANIMATION SERIALIZE')
         var layerCollection = this.layerCollection.serialize();
         var serializedData = {
             layers: layerCollection.layers,
@@ -25,6 +26,7 @@ $.__bodymovin.bm_animationReport = (function () {
             messages.push(this.messages[i].serialize());
         }
         serializedData.messages = messages;
+        bm_eventDispatcher.log('ANIMATION SERIALIZE END')
         return serializedData;
     }
 

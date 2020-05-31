@@ -8,9 +8,7 @@ $.__bodymovin.bm_reportsManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
     function createReport(animation) {
-    	bm_eventDispatcher.log('CREATE 1')
     	var animationReport = animationReportFactory(animation);
-    	bm_eventDispatcher.log('CREATE 2')
     	return animationReport;
     }
 

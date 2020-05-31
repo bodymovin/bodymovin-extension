@@ -138,6 +138,14 @@ $.__bodymovin.bm_generalUtils = (function () {
         return ob;
     }
 
+    function extendPrototype(destination, origin) {
+        for (var s in origin.prototype) {
+            if (origin.prototype.hasOwnProperty(s)) {
+                destination.prototype[s] = origin.prototype[s];
+            }
+        }
+    }
+
     ob.random = random;
     ob.roundNumber = roundNumber;
     ob.setTimeout = setTimeout;
@@ -146,6 +154,7 @@ $.__bodymovin.bm_generalUtils = (function () {
     ob.iterateOwnProperties = iterateOwnProperties;
     ob.convertPathsToAbsoluteValues = convertPathsToAbsoluteValues;
     ob.findAttributes = findAttributes;
+    ob.extendPrototype = extendPrototype;
     
     return ob;
     
