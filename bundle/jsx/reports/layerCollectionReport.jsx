@@ -24,7 +24,7 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
 
     LayerCollection.prototype.serialize = function() {
         var layers = [];
-        for(var i = 0; i < this.collection.length; i += 1) {
+        for (var i = 0; i < this.collection.length; i += 1) {
             layers.push(this.collection[i].serialize());
         }
         return {

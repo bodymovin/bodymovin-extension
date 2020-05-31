@@ -25,10 +25,17 @@ $.__bodymovin.bm_solidLayerReport = (function () {
     SolidLayer.prototype.serialize = function() {
         var layerReportData = this.layerReport.serialize();
         var localMessages = this.serializeMessages();
-        return {
-            messages: localMessages.concat(layerReportData.messages),
-            transform: layerReportData.transform,
+        var serializedData = {}
+        for (var s in layerReportData) {
+            if (layerReportData.hasOwnProperty(s)) {
+                if (s === 'messages') {
+                    serializedData[s] = localMessages.concat(layerReportData[s]);
+                } else {
+                    serializedData[s] = layerReportData[s];
+                }
+            }
         }
+        return serializedData;
     }
 
 

@@ -48,6 +48,14 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.export_modes.reports;
     }
 
+    function shouldIncludeHiddenLayers() {
+        return _settings.hiddens;
+    }
+
+    function shouldIncludeGuidedLayers() {
+        return _settings.guideds;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -59,6 +67,8 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
     ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
     ob.shouldIncludeReport = shouldIncludeReport;
+    ob.shouldIncludeHiddenLayers = shouldIncludeHiddenLayers;
+    ob.shouldIncludeGuidedLayers = shouldIncludeGuidedLayers;
 
     return ob;
 }());

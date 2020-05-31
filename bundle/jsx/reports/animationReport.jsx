@@ -35,6 +35,7 @@ $.__bodymovin.bm_animationReport = (function () {
                 messages.push(this.messages[i].serialize());
             }
             serializedData.messages = messages;
+            serializedData.id = this.animation.id;
             return serializedData;
         } catch(error) {
             bm_eventDispatcher.log('ERROR SERIALIZE');
