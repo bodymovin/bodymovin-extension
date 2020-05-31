@@ -9,25 +9,41 @@ $.__bodymovin.bm_animationReport = (function () {
     function Animation(animation) {
         this.animation = animation;
         this.messages = [];
-        bm_eventDispatcher.log('ANIMATION CONSTRUCT')
-        this.layerCollection = layerCollectionFactory(animation.layers);
-        bm_eventDispatcher.log('ANIMATION CONSTRUCT END')
+        bm_eventDispatcher.log('ANIMATION CONSTRUCT');
+        try {
+            this.layerCollection = layerCollectionFactory(animation.layers);
+        } catch(error) {
+            bm_eventDispatcher.log('ERROR CONSTRUCT');
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+            bm_eventDispatcher.log($.stack);
+        }
+        bm_eventDispatcher.log('ANIMATION CONSTRUCT END');
     }
 
     Animation.prototype.serialize = function() {
-        bm_eventDispatcher.log('ANIMATION SERIALIZE')
-        var layerCollection = this.layerCollection.serialize();
-        var serializedData = {
-            layers: layerCollection.layers,
-        };
+        try {
+            bm_eventDispatcher.log('ANIMATION SERIALIZE');
+            var layerCollection = this.layerCollection.serialize();
+            var serializedData = {
+                layers: layerCollection.layers,
+            };
 
-        var messages = [];
-        for (var i = 0; i < this.messages.length; i += 1) {
-            messages.push(this.messages[i].serialize());
+            var messages = [];
+            for (var i = 0; i < this.messages.length; i += 1) {
+                messages.push(this.messages[i].serialize());
+            }
+            serializedData.messages = messages;
+            return serializedData;
+        } catch(error) {
+            bm_eventDispatcher.log('ERROR SERIALIZE');
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+            bm_eventDispatcher.log($.stack);
+            return null;
         }
-        serializedData.messages = messages;
-        bm_eventDispatcher.log('ANIMATION SERIALIZE END')
-        return serializedData;
     }
 
 

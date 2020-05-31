@@ -5,5 +5,7 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
 
     return {
         EXPRESSIONS: 'expressions',
+        WIGGLE: 'wiggle',
+        UNHANDLED_LAYER: 'unhnadled layer',
     };
 }());

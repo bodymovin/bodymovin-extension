@@ -3,8 +3,7 @@
 
 $.__bodymovin.bm_layerCollectionReport = (function () {
     
-    var layerReport = $.__bodymovin.bm_layerReport;
-    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var layerReportHelper = $.__bodymovin.bm_layerReportHelper;
 
     function LayerCollection(layers) {
         this.layers = layers;
@@ -19,12 +18,12 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
         var layer;
         for (i = 0; i < len; i += 1) {
             layer = layers[i + 1];
-            collection.push(layerReport.processLayer(layer));
+            collection.push(layerReportHelper.processLayer(layer));
         }
     }
 
     LayerCollection.prototype.serialize = function() {
-    	var layers = [];
+        var layers = [];
         for(var i = 0; i < this.collection.length; i += 1) {
             layers.push(this.collection[i].serialize());
         }

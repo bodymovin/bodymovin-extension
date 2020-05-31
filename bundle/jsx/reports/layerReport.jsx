@@ -3,27 +3,35 @@
 
 $.__bodymovin.bm_layerReport = (function () {
     
-    var ob;
-    var getLayerType = $.__bodymovin.getLayerType;
-    var layerTypes = $.__bodymovin.layerTypes;
-    var solidLayerReport = $.__bodymovin.bm_solidLayerReport;
+    var MessageClass = $.__bodymovin.bm_messageClassReport;
+    var generalUtils = $.__bodymovin.bm_generalUtils;
+    var transformFactory = $.__bodymovin.bm_transformReportFactory;
 
-    function createSolidReport(layer) {
-    	return solidLayerReport(layer);
+    function Layer(layer) {
+        this.layer = layer;
+        this.process();
     }
 
-    function processLayer(layer) {
-        
-        var layerType = getLayerType(layer);
-        if (layerType === layerTypes.solid) {
-        	return createSolidReport(layer);
+    generalUtils.extendPrototype(Layer, MessageClass);
+
+    Layer.prototype.process = function() {
+        this.processTransform();
+    }
+
+    Layer.prototype.processTransform = function() {
+        this.transform = transformFactory(this.layer.transform, this.layer.threeDLayer);
+    }
+
+    Layer.prototype.serialize = function() {
+    	return {
+            messages: this.serializeMessages(),
+            transform: this.transform.serialize(),
         }
     }
 
 
-    ob = {
-        processLayer: processLayer,
-    };
+    return function(layer) {
+    	return new Layer(layer);
+    }
     
-    return ob;
 }());

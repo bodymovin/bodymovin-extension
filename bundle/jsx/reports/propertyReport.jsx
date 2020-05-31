@@ -3,7 +3,6 @@
 
 $.__bodymovin.bm_propertyReport = (function () {
     
-    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var rendererTypes = $.__bodymovin.bm_reportRendererTypes;
     var builderTypes = $.__bodymovin.bm_reportBuilderTypes;
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
@@ -27,11 +26,20 @@ $.__bodymovin.bm_propertyReport = (function () {
                 rendererTypes.ANDROID,
             ],
             builderTypes.EXPRESSIONS);
+            if (property.expression.indexOf('wiggle(') !== -1) {
+                this.addMessage(messageTypes.ERROR,
+                [
+                    rendererTypes.WEB,
+                    rendererTypes.SKOTTIE,
+                    rendererTypes.IOS,
+                    rendererTypes.ANDROID,
+                ],
+                builderTypes.WIGGLE);
+            }
         }
     }
 
     Property.prototype.process = function() {
-        this.initializeMessages();
         this.processExpressions();
     }
 

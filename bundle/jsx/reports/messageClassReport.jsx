@@ -9,18 +9,24 @@ $.__bodymovin.bm_messageClassReport = (function () {
     }
     
     MessageClass.prototype.initializeMessages = function() {
-        this.messages = [];
+        this.__messages = [];
     }
 
     MessageClass.prototype.addMessage = function(type, renderers, builder) {
+        if(!this.__messages) {
+            this.initializeMessages();
+        }
         var reportMessage = reportMessageFactory(type, renderers, builder);
-        this.messages.push(reportMessage);
+        this.__messages.push(reportMessage);
     }
 
     MessageClass.prototype.serializeMessages = function() {
+        if(!this.__messages) {
+            this.initializeMessages();
+        }
         var messages = [];
-        for(var i = 0; i < this.messages.length; i += 1) {
-            messages.push(this.messages[i].serialize());
+        for(var i = 0; i < this.__messages.length; i += 1) {
+            messages.push(this.__messages[i].serialize());
         }
         return messages;
     }
