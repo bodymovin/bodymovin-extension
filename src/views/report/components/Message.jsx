@@ -83,6 +83,10 @@ class Message extends React.Component {
     <div>Expressions are not supported</div>
   )
 
+  buildWiggleMessage = () => (
+    <div>wiggle expressions is not supported</div>
+  )
+
   buildSepareteDimensionsMessage = () => (
     <div>Separate dimensions are not supported</div>
   )
@@ -91,16 +95,33 @@ class Message extends React.Component {
     <div>Orient along path is not supported</div>
   )
 
+  buildUnhandleLayer = () => (
+    <div>This layer doesn't have reports yet</div>
+  )
+
+  buildThreeDLayer = () => (
+    <div>3D layers have partial or no support</div>
+  )
+
+  buildMotionBlur = () => (
+    <div>Motion blur is not supported</div>
+  )
+
   builders = {
-    expression: this.buildExpressionMessage,
+    expressions: this.buildExpressionMessage,
+    wiggle: this.buildWiggleMessage,
     separateDimensions: this.buildSepareteDimensionsMessage,
     orientAlongPath: this.buildOrientAlongPathMessage,
+    'unhandled layer': this.buildUnhandleLayer,
+    'three d layer': this.buildThreeDLayer,
+    'motion blur': this.buildMotionBlur,
   }
 
   buildMessage = builder => {
     if (this.builders[builder]) {
       return this.builders[builder]()
     } else {
+      console.log('builder', builder)
       return null
     }
   }
@@ -112,7 +133,6 @@ class Message extends React.Component {
   )
 
   render() {
-    console.log(this.props.message)
     return (
       <div className={css(styles.wrapper)}>
         {this.buildHeader()}

@@ -10,6 +10,7 @@ $.__bodymovin.bm_layerReport = (function () {
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var getLayerType = $.__bodymovin.getLayerType;
 
     function Layer(layer) {
         this.layer = layer;
@@ -37,7 +38,7 @@ $.__bodymovin.bm_layerReport = (function () {
         if (this.layer.motionBlur) {
             this.addMessage(messageTypes.WARNING,
             [
-                rendererTypes.WEB,
+                rendererTypes.BROWSER,
                 rendererTypes.IOS,
                 rendererTypes.ANDROID,
             ],
@@ -46,7 +47,7 @@ $.__bodymovin.bm_layerReport = (function () {
         if (this.layer.preserveTransparency) {
             this.addMessage(messageTypes.WARNING,
             [
-                rendererTypes.WEB,
+                rendererTypes.BROWSER,
                 rendererTypes.SKOTTIE,
                 rendererTypes.IOS,
                 rendererTypes.ANDROID,
@@ -65,7 +66,7 @@ $.__bodymovin.bm_layerReport = (function () {
         if (this.layer.threeDLayer) {
             this.addMessage(messageTypes.WARNING,
             [
-                rendererTypes.WEB,
+                rendererTypes.BROWSER,
             ],
             builderTypes.THREE_D_LAYER);
         }
@@ -79,6 +80,7 @@ $.__bodymovin.bm_layerReport = (function () {
     	return {
             name: this.layer.name,
             index: this.layer.index,
+            type: getLayerType(this.layer),
             messages: this.serializeMessages(),
             transform: this.transform.serialize(),
         }

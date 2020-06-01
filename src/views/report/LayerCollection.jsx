@@ -2,45 +2,64 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../helpers/styles/variables'
 import {
-  getPropertyMessageCount,
+  getLayerCollectionMessagesCount,
   getTotalMessagesCount,
 } from '../../helpers/reports/counter'
 import RowHeader from './components/RowHeader'
-import Message from './components/Message'
+import Layer from './Layer'
 
 const styles = StyleSheet.create({
     wrapper: {
       width: '100%',
       backgroundColor: Variables.colors.gray,
-      padding: '6px 0',
+      padding: '6px 2px',
       overflow: 'hidden',
-      borderBottom: `1px solid ${Variables.colors.gray_lighter}`,
     },
     content: {
-
-    }
+      paddingLeft: '4px',
+    },
 })
 
-class Layer extends React.Component {
+class LayerCollection extends React.Component {
 
   state = {
     isCollapsed: false,
   }
 
   toggleCollapse = () => {
-    if (this.props.messages
-      && this.props.messages.length
-    )
     this.setState({
       isCollapsed: !this.state.isCollapsed,
     })
   }
 
+  buildLayers = () => {
+    return this.props.layers.map((layer, index) => (
+      <Layer
+        key={index}
+        layer={layer}
+        assets={this.props.assets}
+        renderers={this.props.renderers}
+        messageTypes={this.props.messageTypes}
+      />
+    ))
+  }
+
+  buildContent = () => {
+    if (!this.state.isCollapsed) {
+      return null
+    }
+    return (
+      <div className={css(styles.content)}>
+        {this.buildLayers()}
+      </div>
+    )
+  }
+
   buildHeader = () => {
-    const messageCount = getPropertyMessageCount(this.props.messages, this.props.renderers, this.props.messageTypes)
+    const messageCount = getLayerCollectionMessagesCount(this.props.layers, this.props.renderers, this.props.messageTypes)
     return (
       <RowHeader
-        name={this.props.name}
+        name={'Composition Layers'}
         isCollapsed={this.state.isCollapsed}
         toggleCollapse={this.toggleCollapse}
         messages={messageCount}
@@ -48,28 +67,10 @@ class Layer extends React.Component {
     )
   }
 
-  buildContent = () => {
-    if (!this.state.isCollapsed) {
-      return null
-    } else {
-      const messages = this.props.messages
-      return (
-        <div className={css(styles.content)}>
-        {messages.map((message, index) => (
-          <Message 
-            key={index}
-            message={message}
-          />
-        ))}
-        </div>
-      )
-    }
-  }
-
   render() {
-    const messageCount = getPropertyMessageCount(this.props.messages, this.props.renderers, this.props.messageTypes)
+    const messageCount = getLayerCollectionMessagesCount(this.props.layers, this.props.renderers, this.props.messageTypes)
     const totalMessages = getTotalMessagesCount(messageCount)
-    if (!totalMessages) {
+    if (totalMessages === 0) {
       return null
     }
     return (
@@ -81,4 +82,4 @@ class Layer extends React.Component {
   }
 }
 
-export default Layer
+export default LayerCollection

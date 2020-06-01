@@ -2,9 +2,12 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../helpers/styles/variables'
 import {
-  getTransformMessageCount
+  getTransformMessageCount,
+  getTotalMessagesCount,
 } from '../../helpers/reports/counter'
 import Property from './Property'
+import PositionProperty from './components/PositionProperty'
+import RotationProperty from './components/RotationProperty'
 import RowHeader from './components/RowHeader'
 
 const styles = StyleSheet.create({
@@ -51,31 +54,29 @@ class Layer extends React.Component {
       <div className={css(styles.content)}>
         <Property
           name={'Anchor Point'}
-          property={this.props.transform.a}
+          messages={this.props.transform.anchorPoint}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />
-        <Property
-          name={'Position'}
-          property={this.props.transform.p}
+        <PositionProperty
+          property={this.props.transform.position}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />
         <Property
           name={'Scale'}
-          property={this.props.transform.s}
+          messages={this.props.transform.scale}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />
-        <Property
-          name={'Rotation'}
-          property={this.props.transform.r}
+        <RotationProperty
+          property={this.props.transform.rotation}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />
         <Property
           name={'Opacity'}
-          property={this.props.transform.o}
+          messages={this.props.transform.opacity}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />
@@ -84,6 +85,11 @@ class Layer extends React.Component {
   }
 
   render() {
+    const messageCount = getTransformMessageCount(this.props.transform, this.props.renderers, this.props.messageTypes)
+    const totalMessages = getTotalMessagesCount(messageCount)
+    if (!totalMessages) {
+      return null
+    }
     return (
       <div className={css(styles.wrapper)}>
         {this.buildHeader()}

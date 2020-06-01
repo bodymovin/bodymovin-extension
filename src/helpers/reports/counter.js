@@ -20,23 +20,25 @@ const memoizeHelper = function(_fnct) {
 }
 
 
-const buildMessageCounterObject = () => ({
-  error: 0,
-  warning: 0,
+const buildMessageCounterObject = (error = 0, warning = 0) => ({
+  error,
+  warning,
 })
 
+const addMessageCount = (destination, origin) => {
+  const message = buildMessageCounterObject(destination.error, destination.warning);
+  Object.keys(origin).map(key => message[key] += origin[key]);
+  return message;
+}
+
 const addMessagesCount = (...messageCounters) => {
-  const counter = buildMessageCounterObject()
-  return messageCounters.reduce((accumulator, messageCounter) => {
-    Object.keys(messageCounter).map(key => accumulator[key] += messageCounter[key])
-    return accumulator
-  }, counter)
+  return messageCounters.reduce(addMessageCount, buildMessageCounterObject())
 }
 
 const countMessageByTypeAndRenderer = (message, renderers, messageTypes) => {
   if (!message.renderers || message.renderers.length === 0) {
     return 1
-  } else if(renderers.find(availableRendererId => availableRendererId === 'all')) {
+  } else if (renderers.find(availableRendererId => availableRendererId === 'all')) {
       return 1
   } else {
     return message.renderers.find(rendererId => {
@@ -47,16 +49,49 @@ const countMessageByTypeAndRenderer = (message, renderers, messageTypes) => {
   }
 }
 
-const countMessages = memoizeHelper((messages, renderers, messageTypes) => {
+const countMessages = memoizeHelper((messages = [], renderers, messageTypes) => {
   return messages.reduce((accumulator, message) => {
     accumulator[message.type] += countMessageByTypeAndRenderer(message, renderers, messageTypes)
     return accumulator
   }, buildMessageCounterObject())
 })
 
-const getPropertyMessageCount = memoizeHelper((property, renderers, messageTypes) => {
-  if (property && property.__report) {
-    return countMessages(property.__report.messages, renderers, messageTypes)
+const getPropertyMessageCount = memoizeHelper((messages, renderers, messageTypes) => {
+  if (messages) {
+    return countMessages(messages, renderers, messageTypes)
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getPositionMessageCount = memoizeHelper((positionData, renderers, messageTypes) => {
+  if (positionData) {
+    if (!positionData.dimensionsSeparated) {
+      return countMessages(positionData.position, renderers, messageTypes)
+    } else {
+      return addMessagesCount(
+        getPropertyMessageCount(positionData.positionX, renderers, messageTypes),
+        getPropertyMessageCount(positionData.positionY, renderers, messageTypes),
+        getPropertyMessageCount(positionData.positionZ, renderers, messageTypes),
+      )
+    } 
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getRotationMessageCount = memoizeHelper((rotationData, renderers, messageTypes) => {
+  if (rotationData) {
+    if (!rotationData.isThreeD) {
+      return countMessages(rotationData.rotation, renderers, messageTypes)
+    } else {
+      return addMessagesCount(
+        getPropertyMessageCount(rotationData.rotationX, renderers, messageTypes),
+        getPropertyMessageCount(rotationData.rotationY, renderers, messageTypes),
+        getPropertyMessageCount(rotationData.rotationZ, renderers, messageTypes),
+        getPropertyMessageCount(rotationData.orientation, renderers, messageTypes),
+      )
+    } 
   } else {
     return buildMessageCounterObject()
   }
@@ -64,17 +99,34 @@ const getPropertyMessageCount = memoizeHelper((property, renderers, messageTypes
 
 const getTransformMessageCount = memoizeHelper((transform, renderers, messageTypes) => {
   return addMessagesCount(
-    getPropertyMessageCount(transform.a, renderers, messageTypes),
-    getPropertyMessageCount(transform.p, renderers, messageTypes),
-    getPropertyMessageCount(transform.r, renderers, messageTypes),
-    getPropertyMessageCount(transform.s, renderers, messageTypes),
-    getPropertyMessageCount(transform.o, renderers, messageTypes),
+    getPropertyMessageCount(transform.anchorPoint, renderers, messageTypes),
+    getPositionMessageCount(transform.position, renderers, messageTypes),
+    getRotationMessageCount(transform.rotation, renderers, messageTypes),
+    getPropertyMessageCount(transform.sscale, renderers, messageTypes),
+    getPropertyMessageCount(transform.opacity, renderers, messageTypes),
   )
 })
 
 const getLayerMessageCount = memoizeHelper((layer, renderers, messageTypes) => {
-  const transformMessages = getTransformMessageCount(layer.ks, renderers, messageTypes)
-  return transformMessages
+  return addMessagesCount(
+    getTransformMessageCount(layer.transform, renderers, messageTypes),
+    countMessages(layer.messages, renderers, messageTypes),
+    countLayerMessagesByType(layer, renderers, messageTypes),
+  )
+})
+
+const getLayerCollectionMessagesCount = memoizeHelper((layers, renderers, messageTypes) => {
+  return layers
+  .map(layer => getLayerMessageCount(layer, renderers, messageTypes))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
+const countLayerMessagesByType = memoizeHelper((layer, renderers, messageTypes) => {
+  if (layer.type === 0) {
+    return getLayerCollectionMessagesCount(layer.layers, renderers, messageTypes)
+  } else {
+    return buildMessageCounterObject()
+  }
 })
 
 const getAnimationMessageCount = memoizeHelper((report, renderers, messageTypes) => {
@@ -84,9 +136,14 @@ const getAnimationMessageCount = memoizeHelper((report, renderers, messageTypes)
   return messages
 })
 
+const getTotalMessagesCount = messages => messages.error + messages.warning
+
 export {
   getAnimationMessageCount,
   getLayerMessageCount,
   getTransformMessageCount,
   getPropertyMessageCount,
+  getPositionMessageCount,
+  getTotalMessagesCount,
+  getLayerCollectionMessagesCount,
 }

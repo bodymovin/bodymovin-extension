@@ -4,7 +4,7 @@
 $.__bodymovin.bm_reportRendererTypes = (function () {
 
     return {
-        WEB: 'web',
+        BROWSER: 'browser',
         IOS: 'ios',
         ANDROID: 'android',
         SKOTTIE: 'skottie',

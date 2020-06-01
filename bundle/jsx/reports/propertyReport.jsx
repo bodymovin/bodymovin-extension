@@ -29,7 +29,7 @@ $.__bodymovin.bm_propertyReport = (function () {
             if (property.expression.indexOf('wiggle(') !== -1) {
                 this.addMessage(messageTypes.ERROR,
                 [
-                    rendererTypes.WEB,
+                    rendererTypes.BROWSER,
                     rendererTypes.SKOTTIE,
                     rendererTypes.IOS,
                     rendererTypes.ANDROID,
