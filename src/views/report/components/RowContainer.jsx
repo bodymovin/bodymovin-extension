@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     wrapper: {
       width: '100%',
       backgroundColor: Variables.colors.gray,
-      padding: '6px 2px',
+      padding: '6px 0 6px 2px',
       overflow: 'hidden',
     },
     content: {

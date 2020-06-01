@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
     },
     renderers: {
       padding: '0 0 10px 0',
+    },
+    report: {
+      padding: '0 4px 0 0',
+      backgroundColor: '#333333',
     }
 })
 
@@ -64,12 +68,14 @@ class Reports extends React.Component {
               onUpdate={this.onSelectedRenderers}
             />
           </div>
-          <Report
-            renderers={this.state.renderers}
-            messageTypes={this.state.messageTypes}
-            report={mockReport}
-            onLayerNavigation={this.props.onLayerNavigation}
-          />
+          <div className={css(styles.report)}>
+            <Report
+              renderers={this.state.renderers}
+              messageTypes={this.state.messageTypes}
+              report={mockReport}
+              onLayerNavigation={this.props.onLayerNavigation}
+            />
+          </div>
         </div>
       </div>
       );
