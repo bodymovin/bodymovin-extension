@@ -33,10 +33,12 @@ class Layer extends React.Component {
       return (
         <LayerCollection
           key={'content'}
+          compositionId={this.props.layer.id}
           layers={this.props.layer.layers}
           assets={this.props.assets}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          onLayerNavigation={this.props.onLayerNavigation}
         />
       )
     } else {
@@ -54,6 +56,10 @@ class Layer extends React.Component {
     )
   }
 
+  onLayerNavigation = () => {
+    this.props.onLayerNavigation(this.props.layer.index, this.props.compositionId)
+  }
+
   render() {
     const messageCount = getLayerMessageCount(this.props.layer, this.props.renderers, this.props.messageTypes)
     return (
@@ -61,6 +67,7 @@ class Layer extends React.Component {
         name={this.props.layer.name}
         content={this.buildContent}
         messageCount={messageCount}
+        onHeaderSelect={this.onLayerNavigation}
       />
     );
   }

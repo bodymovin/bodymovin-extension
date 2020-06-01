@@ -10,11 +10,17 @@ const styles = StyleSheet.create({
     title: {
       alignItems: 'center',
       color: Variables.colors.white,
+      cursor: 'pointer',
       display: 'flex',
       fontSize: '12px',
     },
     'title-label': {
       flex: '0 0 auto',
+    },
+    'title-link': {
+      color: Variables.colors.green,
+      flex: '0 0 auto',
+      paddingLeft: '4px',
     },
     'title-arrow': {
       flex: '0 0 auto',
@@ -58,6 +64,13 @@ const styles = StyleSheet.create({
 
 class RowHeader extends React.Component {
 
+  handleOnSelect = (ev) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    this.props.onSelect();
+    return false;
+  }
+
   render() {
 
     const messageCount = this.props.messages
@@ -72,6 +85,13 @@ class RowHeader extends React.Component {
         <div className={css(styles['title-label'])}>
           {this.props.name}
         </div>
+        {this.props.onSelect &&
+          <div
+          onClick={this.handleOnSelect}
+          className={css(styles['title-link'])} >
+          go >
+          </div>
+        }
         <div className={css(styles['title-space'])} />
         <div className={css(styles['title-items'], this.props.isCollapsed && styles['title-items--softened'])}>
           {!!messageCount.error && 

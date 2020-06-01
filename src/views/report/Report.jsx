@@ -2,26 +2,24 @@ import React from 'react'
 import {
   getAnimationMessageCount
 } from '../../helpers/reports/counter'
-import Layer from './Layer'
+import LayerCollection from './LayerCollection'
 import RowContainer from './components/RowContainer'
 
 class Report extends React.Component {
 
-  buildContent = () => {
-    const layers = this.props.report.layers
-    const assets = this.props.report.assets
-    return (
-      layers.map((layer, index) => (
-        <Layer
-          key={index}
-          layer={layer}
-          assets={assets}
-          renderers={this.props.renderers}
-          messageTypes={this.props.messageTypes}
-        />
-      ))
-    )
-  }
+  buildLayers = () => (
+    <LayerCollection
+      key={'content'}
+      compositionId={this.props.report.id}
+      layers={this.props.report.layers}
+      assets={this.props.report.assets}
+      renderers={this.props.renderers}
+      messageTypes={this.props.messageTypes}
+      onLayerNavigation={this.props.onLayerNavigation}
+    />
+  )
+
+  buildContent = () => this.buildLayers()
 
   render() {
     const messageCount = getAnimationMessageCount(this.props.report, this.props.renderers, this.props.messageTypes)

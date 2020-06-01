@@ -6,6 +6,9 @@ import BaseHeader from '../../components/header/Base_Header'
 import ReportsRenderers from './ReportsRenderers'
 import Report from './Report'
 import mockReport from '../../helpers/mockReport'
+import {
+  navigateToLayer,
+} from '../../redux/actions/reportsActions'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -52,7 +55,7 @@ class Reports extends React.Component {
   render() {
     return (
       <div className={css(styles.wrapper)}>
-        <div className={css(styles.header)} >
+        <div className={css(styles.header)}>
           <BaseHeader />
         </div>
         <div className={css(styles.content)} >
@@ -65,6 +68,7 @@ class Reports extends React.Component {
             renderers={this.state.renderers}
             messageTypes={this.state.messageTypes}
             report={mockReport}
+            onLayerNavigation={this.props.onLayerNavigation}
           />
         </div>
       </div>
@@ -77,6 +81,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+  onLayerNavigation: navigateToLayer,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Reports)

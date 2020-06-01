@@ -46,6 +46,7 @@ class RowContainer extends React.Component {
         isCollapsed={this.state.isCollapsed}
         toggleCollapse={this.toggleCollapse}
         messages={this.props.messageCount}
+        onSelect={this.props.onHeaderSelect}
       />
     )
   }

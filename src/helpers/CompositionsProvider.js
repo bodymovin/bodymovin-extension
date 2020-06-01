@@ -387,6 +387,15 @@ function initializeServer() {
 	csInterface.requestOpenExtension("com.bodymovin.bodymovin_server", "");
 }
 
+function navigateToLayer(compositionId, layerIndex) {
+	extensionLoader.then(function(){
+		var eScript = `
+		$.__bodymovin.bm_compsManager.navigateToLayer(${compositionId},${layerIndex})
+	    `
+	    csInterface.evalScript(eScript);
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -403,4 +412,5 @@ export {
 	riveFileSaveSuccess,
 	riveFileSaveFailed,
 	getProjectPath,
+	navigateToLayer,
 }

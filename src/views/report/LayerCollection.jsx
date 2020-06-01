@@ -11,10 +11,12 @@ class LayerCollection extends React.Component {
     return this.props.layers.map((layer, index) => (
       <Layer
         key={index}
+        compositionId={this.props.compositionId}
         layer={layer}
         assets={this.props.assets}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        onLayerNavigation={this.props.onLayerNavigation}
       />
     ))
   }
