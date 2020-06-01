@@ -102,7 +102,7 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
     getPropertyMessageCount(transform.anchorPoint, renderers, messageTypes),
     getPositionMessageCount(transform.position, renderers, messageTypes),
     getRotationMessageCount(transform.rotation, renderers, messageTypes),
-    getPropertyMessageCount(transform.sscale, renderers, messageTypes),
+    getPropertyMessageCount(transform.scale, renderers, messageTypes),
     getPropertyMessageCount(transform.opacity, renderers, messageTypes),
   )
 })
