@@ -49,7 +49,7 @@ class Message extends React.Component {
   renderers = {
     android: 'Android',
     ios: 'iOS',
-    web: 'web',
+    browser: 'Browser',
     skottie: 'Skottie',
   }
 
@@ -107,6 +107,10 @@ class Message extends React.Component {
     <div>Motion blur is not supported</div>
   )
 
+  buildDisabledLayer = () => (
+    <div>Hidden and Guided layers are not supported in this renderers</div>
+  )
+
   builders = {
     expressions: this.buildExpressionMessage,
     wiggle: this.buildWiggleMessage,
@@ -115,13 +119,13 @@ class Message extends React.Component {
     'unhandled layer': this.buildUnhandleLayer,
     'three d layer': this.buildThreeDLayer,
     'motion blur': this.buildMotionBlur,
+    'disabled layer': this.buildDisabledLayer,
   }
 
   buildMessage = builder => {
     if (this.builders[builder]) {
       return this.builders[builder]()
     } else {
-      console.log('builder', builder)
       return null
     }
   }
