@@ -11,5 +11,6 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         MOTION_BLUR: 'motion blur',
         PRESERVE_TRANSPARENCY: 'preserve transparency',
         THREE_D_LAYER: 'three d layer',
+        EFFECTS: 'effects',
     };
 }());

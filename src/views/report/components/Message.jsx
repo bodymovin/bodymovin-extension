@@ -111,6 +111,19 @@ class Message extends React.Component {
     <div>Hidden and Guided layers are not supported in this renderers</div>
   )
 
+  buildEffects = (payload) => {
+    const effects = payload.effects;
+    return (
+      <div>This effects are not supported:
+        <div>
+          {effects.map(effect => (
+            <div key={effect}>{effect}</div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   builders = {
     expressions: this.buildExpressionMessage,
     wiggle: this.buildWiggleMessage,
@@ -120,11 +133,12 @@ class Message extends React.Component {
     'three d layer': this.buildThreeDLayer,
     'motion blur': this.buildMotionBlur,
     'disabled layer': this.buildDisabledLayer,
+    'effects': this.buildEffects,
   }
 
-  buildMessage = builder => {
+  buildMessage = (builder, payload) => {
     if (this.builders[builder]) {
-      return this.builders[builder]()
+      return this.builders[builder](payload)
     } else {
       return null
     }
@@ -132,7 +146,7 @@ class Message extends React.Component {
 
   buildContent = () => (
     <div className={css(styles.content)}>
-      {this.buildMessage(this.props.message.builder)}
+      {this.buildMessage(this.props.message.builder, this.props.message.payload)}
     </div>
   )
 

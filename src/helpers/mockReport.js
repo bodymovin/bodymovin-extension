@@ -14,6 +14,15 @@ const mockReport = {
             "android"
           ],
           "builder": "unhandled layer"
+        },
+        {
+          "type": "warning",
+          "renderers": [
+            "skottie",
+            "ios",
+            "android"
+          ],
+          "builder": "disabled layer"
         }
       ],
       "transform": {
@@ -28,7 +37,25 @@ const mockReport = {
           "dimensionsSeparated": false,
           "position": []
         }
-      }
+      },
+      "effects": [
+        {
+          "type": "error",
+          "renderers": [
+            "browser",
+            "ios",
+            "android",
+            "skottie"
+          ],
+          "builder": "effects",
+          "payload": {
+            "effects": [
+              "VR Blur",
+              "Add Grain"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Medium Gray-Magenta Solid 4",

@@ -9,6 +9,7 @@ $.__bodymovin.bm_layerReport = (function () {
     var builderTypes = $.__bodymovin.bm_reportBuilderTypes;
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
+    var effectsFactory = $.__bodymovin.bm_effectsReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getLayerType = $.__bodymovin.getLayerType;
 
@@ -22,6 +23,7 @@ $.__bodymovin.bm_layerReport = (function () {
     Layer.prototype.process = function() {
         this.processProperties();
         this.processTransform();
+        this.processEffects();
     }
 
     Layer.prototype.processProperties = function() {
@@ -76,6 +78,10 @@ $.__bodymovin.bm_layerReport = (function () {
         this.transform = transformFactory(this.layer.transform, this.layer.threeDLayer);
     }
 
+    Layer.prototype.processEffects = function() {
+        this.effects = effectsFactory(this.layer.effect);
+    }
+
     Layer.prototype.serialize = function() {
     	return {
             name: this.layer.name,
@@ -83,6 +89,7 @@ $.__bodymovin.bm_layerReport = (function () {
             type: getLayerType(this.layer),
             messages: this.serializeMessages(),
             transform: this.transform.serialize(),
+            effects: this.effects.serialize(),
         }
     }
 

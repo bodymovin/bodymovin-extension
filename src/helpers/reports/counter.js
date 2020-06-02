@@ -107,10 +107,15 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
   )
 })
 
+const getEffectsMessageCount = memoizeHelper((effects, renderers, messageTypes) =>
+  countMessages(effects, renderers, messageTypes)
+)
+
 const getLayerMessageCount = memoizeHelper((layer, renderers, messageTypes) => {
   return addMessagesCount(
     getTransformMessageCount(layer.transform, renderers, messageTypes),
     countMessages(layer.messages, renderers, messageTypes),
+    getEffectsMessageCount(layer.effects, renderers, messageTypes),
     countLayerMessagesByType(layer, renderers, messageTypes),
   )
 })
@@ -146,4 +151,5 @@ export {
   getPositionMessageCount,
   getTotalMessagesCount,
   getLayerCollectionMessagesCount,
+  getEffectsMessageCount,
 }

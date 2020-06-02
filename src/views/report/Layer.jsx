@@ -3,6 +3,7 @@ import {
   getLayerMessageCount,
 } from '../../helpers/reports/counter'
 import Transform from './Transform'
+import Effects from './Effects'
 import RowContainer from './components/RowContainer'
 import Property from './Property'
 import LayerCollection from './LayerCollection'
@@ -11,7 +12,7 @@ class Layer extends React.Component {
 
   buildMessages = () => (
     <Property
-      name={'Layer Messages'}
+      name={'General Messages'}
       key={'layer'}
       messages={this.props.layer.messages}
       renderers={this.props.renderers}
@@ -23,6 +24,15 @@ class Layer extends React.Component {
     <Transform
       key={'transform'}
       transform={this.props.layer.transform}
+      renderers={this.props.renderers}
+      messageTypes={this.props.messageTypes}
+    />
+  )
+
+  buildEffects = () => (
+    <Effects
+      key={'effects'}
+      effects={this.props.layer.effects}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
     />
@@ -51,7 +61,8 @@ class Layer extends React.Component {
       [
         this.buildMessages(),
         this.buildTransform(),
-        this.buildLayerContent()
+        this.buildEffects(),
+        this.buildLayerContent(),
       ]
     )
   }

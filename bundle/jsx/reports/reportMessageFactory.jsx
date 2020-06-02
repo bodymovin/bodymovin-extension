@@ -5,8 +5,8 @@ $.__bodymovin.bm_reportMessageFactory = (function () {
 
     function ReportMessage(type, renderers, builder) {
         this._type = type || 'warning';
-        this._renderers = renderers;
-        this._builder = builder;
+        this._renderers = renderers || [];
+        this._builder = builder || '';
     }
 
     ReportMessage.prototype.serialize = function() {
