@@ -126,9 +126,31 @@ const getLayerCollectionMessagesCount = memoizeHelper((layers, renderers, messag
   .reduce(addMessageCount, buildMessageCounterObject())
 })
 
+const getDictionaryMessageCount = memoizeHelper((dictionary, renderers, messageTypes) => {
+  return Object.keys(dictionary)
+  .map(key => countMessages(dictionary[key], renderers, messageTypes))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
+const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes) => {
+  if (['rc', 'sh'].includes(shape.type)) {
+    return getDictionaryMessageCount(shape.properties, renderers, messageTypes)
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getShapeCollectionMessagesCount = memoizeHelper((shapes, renderers, messageTypes) => {
+  return shapes
+  .map(shape => getShapeMessageCount(shape, renderers, messageTypes))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
 const countLayerMessagesByType = memoizeHelper((layer, renderers, messageTypes) => {
   if (layer.type === 0) {
     return getLayerCollectionMessagesCount(layer.layers, renderers, messageTypes)
+  } else if (layer.type === 4) {
+    return getShapeCollectionMessagesCount(layer.shapes, renderers, messageTypes)
   } else {
     return buildMessageCounterObject()
   }
@@ -152,4 +174,6 @@ export {
   getTotalMessagesCount,
   getLayerCollectionMessagesCount,
   getEffectsMessageCount,
+  getShapeCollectionMessagesCount,
+  getDictionaryMessageCount,
 }

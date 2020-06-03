@@ -4,27 +4,7 @@ const mockReport = {
       "name": "Shape Layer 1",
       "index": 1,
       "type": 4,
-      "messages": [
-        {
-          "type": "warning",
-          "renderers": [
-            "browser",
-            "skottie",
-            "ios",
-            "android"
-          ],
-          "builder": "unhandled layer"
-        },
-        {
-          "type": "warning",
-          "renderers": [
-            "skottie",
-            "ios",
-            "android"
-          ],
-          "builder": "disabled layer"
-        }
-      ],
+      "messages": [],
       "transform": {
         "anchorPoint": [],
         "scale": [],
@@ -38,20 +18,60 @@ const mockReport = {
           "position": []
         }
       },
-      "effects": [
+      "shapes": [
         {
-          "type": "error",
-          "renderers": [
-            "browser",
-            "ios",
-            "android",
-            "skottie"
-          ],
-          "builder": "effects",
-          "payload": {
-            "effects": [
-              "VR Blur",
-              "Add Grain"
+          "name": "Rectangle Path 1",
+          "type": "rc",
+          "properties": {
+            "size": [
+              {
+                "type": "error",
+                "renderers": [
+                  "skottie",
+                  "ios",
+                  "android"
+                ],
+                "builder": "expressions"
+              }
+            ],
+            "position": [
+              {
+                "type": "error",
+                "renderers": [
+                  "skottie",
+                  "ios",
+                  "android"
+                ],
+                "builder": "expressions"
+              }
+            ],
+            "roundness": [
+              {
+                "type": "error",
+                "renderers": [
+                  "skottie",
+                  "ios",
+                  "android"
+                ],
+                "builder": "expressions"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Path 1",
+          "type": "sh",
+          "properties": {
+            "path": [
+              {
+                "type": "error",
+                "renderers": [
+                  "skottie",
+                  "ios",
+                  "android"
+                ],
+                "builder": "expressions"
+              }
             ]
           }
         }
