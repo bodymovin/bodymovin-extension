@@ -12,5 +12,6 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         PRESERVE_TRANSPARENCY: 'preserve transparency',
         THREE_D_LAYER: 'three d layer',
         EFFECTS: 'effects',
+        UNHANDLED_SHAPE_PROPERTY: 'unhandled shape',
     };
 }());

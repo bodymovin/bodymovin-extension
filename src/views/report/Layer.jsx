@@ -56,7 +56,6 @@ class Layer extends React.Component {
       return (
         <ShapeCollection
           key={'content'}
-          compositionId={this.props.layer.id}
           shapes={this.props.layer.shapes}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}

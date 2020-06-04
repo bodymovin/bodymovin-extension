@@ -111,6 +111,10 @@ class Message extends React.Component {
     <div>Hidden and Guided layers are not supported in this renderers</div>
   )
 
+  buildUnhandledShape = () => (
+    <div>This shape property is not supported</div>
+  )
+
   buildEffects = (payload) => {
     const effects = payload.effects;
     return (
@@ -134,6 +138,7 @@ class Message extends React.Component {
     'motion blur': this.buildMotionBlur,
     'disabled layer': this.buildDisabledLayer,
     'effects': this.buildEffects,
+    'unhandled shape': this.buildUnhandledShape,
   }
 
   buildMessage = (builder, payload) => {

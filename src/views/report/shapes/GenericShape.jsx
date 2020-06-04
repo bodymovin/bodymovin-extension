@@ -3,21 +3,9 @@ import {
   getDictionaryMessageCount,
 } from '../../../helpers/reports/counter'
 import RowContainer from '../components/RowContainer'
-import Message from '../components/Message'
 import Property from '../Property'
 
 class GenericShape extends React.Component {
-
-  buildProperty = (propertyName, messages) => {
-    return (
-      messages.map((message, index) => (
-        <Message 
-          key={index}
-          message={message}
-        />
-      ))
-    )
-  }
 
   buildContent = () => {
     const properties = this.props.properties

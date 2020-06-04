@@ -43,6 +43,20 @@ class Transform extends React.Component {
           messages={this.props.transform.opacity}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+        />,
+        <Property
+          key={'skew'}
+          name={'Skew'}
+          messages={this.props.transform.skew}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
+        />,
+        <Property
+          key={'skewAxis'}
+          name={'Skew Axis'}
+          messages={this.props.transform.skewAxis}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
         />
       ]
     )

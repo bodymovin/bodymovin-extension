@@ -104,6 +104,8 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
     getRotationMessageCount(transform.rotation, renderers, messageTypes),
     getPropertyMessageCount(transform.scale, renderers, messageTypes),
     getPropertyMessageCount(transform.opacity, renderers, messageTypes),
+    getPropertyMessageCount(transform.skew, renderers, messageTypes),
+    getPropertyMessageCount(transform.skewAxis, renderers, messageTypes),
   )
 })
 
@@ -132,9 +134,20 @@ const getDictionaryMessageCount = memoizeHelper((dictionary, renderers, messageT
   .reduce(addMessageCount, buildMessageCounterObject())
 })
 
+const getShapeGroupMessagesCount = memoizeHelper((group, renderers, messageTypes) => {
+  return addMessagesCount(
+    getTransformMessageCount(group.transform, renderers, messageTypes),
+    getShapeCollectionMessagesCount(group.shapes, renderers, messageTypes),
+  )
+})
+
 const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes) => {
-  if (['rc', 'sh'].includes(shape.type)) {
+  if (['rc', 'sh', 'el', 'st'].includes(shape.type)) {
     return getDictionaryMessageCount(shape.properties, renderers, messageTypes)
+  } else if(shape.type === 'un') {
+    return countMessages(shape.messages, renderers, messageTypes)
+  } else if(shape.type === 'gr') {
+    return getShapeGroupMessagesCount(shape, renderers, messageTypes)
   } else {
     return buildMessageCounterObject()
   }
@@ -176,4 +189,5 @@ export {
   getEffectsMessageCount,
   getShapeCollectionMessagesCount,
   getDictionaryMessageCount,
+  getShapeGroupMessagesCount,
 }

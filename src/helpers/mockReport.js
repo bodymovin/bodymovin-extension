@@ -6,7 +6,17 @@ const mockReport = {
       "type": 4,
       "messages": [],
       "transform": {
-        "anchorPoint": [],
+        "anchorPoint": [
+          {
+            "type": "error",
+            "renderers": [
+              "skottie",
+              "ios",
+              "android"
+            ],
+            "builder": "expressions"
+          }
+        ],
         "scale": [],
         "opacity": [],
         "rotation": {
@@ -20,10 +30,107 @@ const mockReport = {
       },
       "shapes": [
         {
-          "name": "Rectangle Path 1",
-          "type": "rc",
-          "properties": {
-            "size": [
+          "name": "Group 1",
+          "type": "gr",
+          "shapes": [
+            {
+              "name": "Rectangle Path 1",
+              "type": "rc",
+              "properties": {
+                "Size": [
+                  {
+                    "type": "error",
+                    "renderers": [
+                      "skottie",
+                      "ios",
+                      "android"
+                    ],
+                    "builder": "expressions"
+                  }
+                ],
+                "Position": [
+                  {
+                    "type": "error",
+                    "renderers": [
+                      "skottie",
+                      "ios",
+                      "android"
+                    ],
+                    "builder": "expressions"
+                  }
+                ],
+                "Roundness": []
+              }
+            },
+            {
+              "name": "Group 1 inner",
+              "type": "gr",
+              "shapes": [
+                {
+                  "type": "un",
+                  "name": "Pucker & Bloat 1",
+                  "messages": [
+                    {
+                      "type": "warning",
+                      "renderers": [
+                        "browser",
+                        "ios",
+                        "android",
+                        "skottie"
+                      ],
+                      "builder": "unhandled shape"
+                    }
+                  ]
+                },
+                {
+                  "name": "Stroke 1",
+                  "type": "st",
+                  "properties": {
+                    "Color": [],
+                    "Opacity": [
+                      {
+                        "type": "error",
+                        "renderers": [
+                          "skottie",
+                          "ios",
+                          "android"
+                        ],
+                        "builder": "expressions"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "transform": {
+                "anchorPoint": [],
+                "scale": [],
+                "opacity": [],
+                "rotation": {
+                  "isThreeD": false,
+                  "rotation": []
+                },
+                "position": {
+                  "dimensionsSeparated": false,
+                  "position": []
+                },
+                "skew": [],
+                "skewAxis": []
+              }
+            }
+          ],
+          "transform": {
+            "anchorPoint": [],
+            "scale": [],
+            "opacity": [],
+            "rotation": {
+              "isThreeD": false,
+              "rotation": []
+            },
+            "position": {
+              "dimensionsSeparated": false,
+              "position": []
+            },
+            "skew": [
               {
                 "type": "error",
                 "renderers": [
@@ -34,35 +141,7 @@ const mockReport = {
                 "builder": "expressions"
               }
             ],
-            "position": [
-              {
-                "type": "error",
-                "renderers": [
-                  "skottie",
-                  "ios",
-                  "android"
-                ],
-                "builder": "expressions"
-              }
-            ],
-            "roundness": [
-              {
-                "type": "error",
-                "renderers": [
-                  "skottie",
-                  "ios",
-                  "android"
-                ],
-                "builder": "expressions"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Path 1",
-          "type": "sh",
-          "properties": {
-            "path": [
+            "skewAxis": [
               {
                 "type": "error",
                 "renderers": [
