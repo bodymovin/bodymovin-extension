@@ -6,12 +6,13 @@ import RowContainer from '../components/RowContainer'
 import GenericShape from './GenericShape'
 import UnhandledShape from './UnhandledShape'
 import GroupShape from './GroupShape'
+import RepeaterShape from './RepeaterShape'
 
 class ShapeCollection extends React.Component {
 
   buildShapes = () => {
     return this.props.shapes.map((shape, index) => {
-      if (['rc', 'sh', 'el', 'st'].includes(shape.type)) {
+      if (['rc', 'sh', 'el', 'st', 'sr', 'fl'].includes(shape.type)) {
         return (
           <GenericShape
             key={index}
@@ -33,6 +34,14 @@ class ShapeCollection extends React.Component {
           key={index}
           name={shape.name}
           shape={shape}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
+        />
+      } else if(shape.type === 'rp') {
+        return <RepeaterShape
+          key={index}
+          name={shape.name}
+          repeater={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />

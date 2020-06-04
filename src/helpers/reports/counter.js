@@ -106,6 +106,8 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
     getPropertyMessageCount(transform.opacity, renderers, messageTypes),
     getPropertyMessageCount(transform.skew, renderers, messageTypes),
     getPropertyMessageCount(transform.skewAxis, renderers, messageTypes),
+    getPropertyMessageCount(transform.startOpacity, renderers, messageTypes),
+    getPropertyMessageCount(transform.endOpacity, renderers, messageTypes),
   )
 })
 
@@ -141,13 +143,23 @@ const getShapeGroupMessagesCount = memoizeHelper((group, renderers, messageTypes
   )
 })
 
+const getShapeRepeaterMessagesCount = memoizeHelper((repeater, renderers, messageTypes) => {
+  return addMessagesCount(
+    getTransformMessageCount(repeater.transform, renderers, messageTypes),
+    getPropertyMessageCount(repeater.copies, renderers, messageTypes),
+    getPropertyMessageCount(repeater.offset, renderers, messageTypes),
+  )
+})
+
 const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes) => {
-  if (['rc', 'sh', 'el', 'st'].includes(shape.type)) {
+  if (['rc', 'sh', 'el', 'st', 'sr', 'fl'].includes(shape.type)) {
     return getDictionaryMessageCount(shape.properties, renderers, messageTypes)
   } else if(shape.type === 'un') {
     return countMessages(shape.messages, renderers, messageTypes)
   } else if(shape.type === 'gr') {
     return getShapeGroupMessagesCount(shape, renderers, messageTypes)
+  } else if(shape.type === 'rp') {
+    return getShapeRepeaterMessagesCount(shape, renderers, messageTypes)
   } else {
     return buildMessageCounterObject()
   }
@@ -190,4 +202,5 @@ export {
   getShapeCollectionMessagesCount,
   getDictionaryMessageCount,
   getShapeGroupMessagesCount,
+  getShapeRepeaterMessagesCount,
 }

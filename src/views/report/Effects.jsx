@@ -2,7 +2,6 @@ import React from 'react'
 import {
   getEffectsMessageCount,
 } from '../../helpers/reports/counter'
-import Property from './Property'
 import RowContainer from './components/RowContainer'
 import Message from './components/Message'
 

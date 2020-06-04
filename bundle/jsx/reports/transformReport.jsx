@@ -21,6 +21,12 @@ $.__bodymovin.bm_transformReportFactory = (function () {
         if (this.transform.Opacity) {
             this.opacity = propertyReport(this.transform.Opacity);
         }
+        if (this.transform.property('Start Opacity')) {
+            this.startOpacity = propertyReport(this.transform.property('Start Opacity'));
+        }
+        if (this.transform.property('End Opacity')) {
+            this.endOpacity = propertyReport(this.transform.property('End Opacity'));
+        }
         if (this.transform.property('Anchor Point')) {
             this.anchorPoint = propertyReport(this.transform.property('Anchor Point'));
         }
@@ -47,6 +53,8 @@ $.__bodymovin.bm_transformReportFactory = (function () {
             position: this.position.serialize(),
             skew: this.skew ? this.skew.serialize() : undefined,
             skewAxis: this.skewAxis ? this.skewAxis.serialize() : undefined,
+            startOpacity: this.startOpacity ? this.startOpacity.serialize() : undefined,
+            endOpacity: this.endOpacity ? this.endOpacity.serialize() : undefined,
         }
     }
 
