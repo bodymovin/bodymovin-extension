@@ -1,7 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $, Folder, File, app */
 
-$.__bodymovin.bm_shapeFillReport = (function () {
+$.__bodymovin.bm_shapeTrimPathsReport = (function () {
     
     var MessageClass = $.__bodymovin.bm_messageClassReport;
     var generalUtils = $.__bodymovin.bm_generalUtils;
@@ -9,36 +9,38 @@ $.__bodymovin.bm_shapeFillReport = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var propertyReport = $.__bodymovin.bm_propertyReport;
 
-    function Fill(element) {
+    function TrimPaths(element) {
         this.element = element;
         this.process();
     }
     
-    generalUtils.extendPrototype(Fill, MessageClass);
+    generalUtils.extendPrototype(TrimPaths, MessageClass);
 
-    Fill.prototype.processProperties = function() {
-        this.color = propertyReport(this.element.property('Color'));
-        this.opacity = propertyReport(this.element.property('Opacity'));
+    TrimPaths.prototype.processProperties = function() {
+        this.start = propertyReport(this.element.property('Start'));
+        this.end = propertyReport(this.element.property('End'));
+        this.offset = propertyReport(this.element.property('Offset'));
     }
 
-    Fill.prototype.process = function() {
+    TrimPaths.prototype.process = function() {
         this.processProperties();
     }
 
-    Fill.prototype.serialize = function() {
+    TrimPaths.prototype.serialize = function() {
         return {
             name: this.element.name,
-            type: shapeTypes.fill,
+            type: shapeTypes.trim,
             properties: {
-                Color: this.color.serialize(),
-                Opacity: this.opacity.serialize(),
+                Start: this.start.serialize(),
+                End: this.end.serialize(),
+                Offset: this.offset.serialize(),
             },
             messages: this.serializeMessages(),
         };
     }
 
     return function(element) {
-        return new Fill(element);
+        return new TrimPaths(element);
     }
     
 }());

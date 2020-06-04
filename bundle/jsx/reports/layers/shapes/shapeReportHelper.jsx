@@ -7,18 +7,23 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
     var shapeTypes = $.__bodymovin.shapeTypes;
     var getShapeType = $.__bodymovin.getShapeType;
     var shapeUnhandled = $.__bodymovin.bm_shapeUnhandledReport;
+    var shapeGroup = $.__bodymovin.bm_shapeGroupReport;
     var shapeRect = $.__bodymovin.bm_shapeRectReport;
-    var shapeShape = $.__bodymovin.bm_shapeShapeReport;
     var shapeEllipse = $.__bodymovin.bm_shapeEllipseReport;
+    var shapeStar = $.__bodymovin.bm_shapeStarReport;
+    var shapeShape = $.__bodymovin.bm_shapeShapeReport;
     var shapeStroke = $.__bodymovin.bm_shapeStrokeReport;
     var shapeFill = $.__bodymovin.bm_shapeFillReport;
-    var shapeGroup = $.__bodymovin.bm_shapeGroupReport;
+    var shapeGradientFill = $.__bodymovin.bm_shapeGradientFillReport;
+    var shapeGradientStroke = $.__bodymovin.bm_shapeGradientStrokeReport;
+    var shapeMergePaths = $.__bodymovin.bm_shapeMergePathsReport;
     var shapeRepeater = $.__bodymovin.bm_shapeRepeaterReport;
-    var shapeStar = $.__bodymovin.bm_shapeStarReport;
+    var roundCorners = $.__bodymovin.bm_shapeRoundCornersReport;
+    var trimPaths = $.__bodymovin.bm_shapeTrimPathsReport;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
-    function buildShape(element) {
-        return shapeShape(element)
+    function buildGroup(element) {
+        return shapeGroup(element)
     }
 
     function buildRect(element) {
@@ -29,25 +34,44 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
         return shapeEllipse(element)
     }
 
-    function buildStroke(element) {
-        return shapeStroke(element)
+    function buildStar(element) {
+        return shapeStar(element)
     }
 
+    function buildShape(element) {
+        return shapeShape(element)
+    }
 
     function buildFill(element) {
         return shapeFill(element)
     }
 
-    function buildGroup(element) {
-        return shapeGroup(element)
+    function buildStroke(element) {
+        return shapeStroke(element)
+    }
+    
+    function buildGradientFill(element) {
+        return shapeGradientFill(element)
+    }
+
+    function buildGradientStroke(element) {
+        return shapeGradientStroke(element)
+    }
+
+    function buildMergePaths(element) {
+        return shapeMergePaths(element)
     }
 
     function buildRepeater(element) {
         return shapeRepeater(element)
     }
 
-    function buildStar(element) {
-        return shapeStar(element)
+    function buildRoundCorners(element) {
+        return roundCorners(element)
+    }
+
+    function buildTrimPaths(element) {
+        return trimPaths(element)
     }
 
     function buildUnhandled(element) {
@@ -63,6 +87,11 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
     builders[shapeTypes.group] = buildGroup
     builders[shapeTypes.repeater] = buildRepeater
     builders[shapeTypes.star] = buildStar
+    builders[shapeTypes.gfill] = buildGradientFill
+    builders[shapeTypes.gStroke] = buildGradientStroke
+    builders[shapeTypes.merge] = buildMergePaths
+    builders[shapeTypes.roundedCorners] = buildRoundCorners
+    builders[shapeTypes.trim] = buildTrimPaths
 
     function processShape(element) {
         bm_eventDispatcher.log(element.matchName);

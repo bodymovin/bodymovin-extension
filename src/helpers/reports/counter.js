@@ -151,14 +151,21 @@ const getShapeRepeaterMessagesCount = memoizeHelper((repeater, renderers, messag
   )
 })
 
+const getGenericShapeMessagesCount = memoizeHelper((shape, renderers, messageTypes) => {
+  return addMessagesCount(
+    getDictionaryMessageCount(shape.properties, renderers, messageTypes),
+    countMessages(shape.messages, renderers, messageTypes),
+  )
+})
+
 const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes) => {
-  if (['rc', 'sh', 'el', 'st', 'sr', 'fl'].includes(shape.type)) {
-    return getDictionaryMessageCount(shape.properties, renderers, messageTypes)
+  if(shape.type === 'gr') {
+    return getShapeGroupMessagesCount(shape, renderers, messageTypes)
+  } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
+    return getGenericShapeMessagesCount(shape, renderers, messageTypes)
   } else if(shape.type === 'un') {
     return countMessages(shape.messages, renderers, messageTypes)
-  } else if(shape.type === 'gr') {
-    return getShapeGroupMessagesCount(shape, renderers, messageTypes)
-  } else if(shape.type === 'rp') {
+  }  else if(shape.type === 'rp') {
     return getShapeRepeaterMessagesCount(shape, renderers, messageTypes)
   } else {
     return buildMessageCounterObject()
@@ -200,7 +207,7 @@ export {
   getLayerCollectionMessagesCount,
   getEffectsMessageCount,
   getShapeCollectionMessagesCount,
-  getDictionaryMessageCount,
   getShapeGroupMessagesCount,
   getShapeRepeaterMessagesCount,
+  getGenericShapeMessagesCount,
 }

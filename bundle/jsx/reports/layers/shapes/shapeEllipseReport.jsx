@@ -32,7 +32,8 @@ $.__bodymovin.bm_shapeEllipseReport = (function () {
             properties: {
                 Size: this.size.serialize(),
                 Position: this.position.serialize(),
-            }
+            },
+            messages: this.serializeMessages(),
         };
     }
 

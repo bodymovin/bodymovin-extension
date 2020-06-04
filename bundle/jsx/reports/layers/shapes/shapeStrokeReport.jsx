@@ -34,7 +34,8 @@ $.__bodymovin.bm_shapeStrokeReport = (function () {
                 Color: this.color.serialize(),
                 Opacity: this.opacity.serialize(),
                 'Stroke Width': this.strokeWidth.serialize(),
-            }
+            },
+            messages: this.serializeMessages(),
         };
     }
 

@@ -88,13 +88,97 @@ const mockReport = {
             "Rotation": [],
             "Outer Radius": [],
             "Outer Roundness": []
-          }
+          },
+          "messages": []
         },
         {
-          "name": "Fill 1",
-          "type": "fl",
+          "name": "Merge Paths Add",
+          "type": "mm",
+          "messages": [
+            {
+              "type": "error",
+              "renderers": [
+                "browser",
+                "ios",
+                "android",
+                "skottie"
+              ],
+              "builder": "merge paths"
+            }
+          ],
+          "properties": {}
+        },
+        {
+          "name": "Merge Paths Sub",
+          "type": "mm",
+          "messages": [
+            {
+              "type": "error",
+              "renderers": [
+                "browser",
+                "ios",
+                "android",
+                "skottie"
+              ],
+              "builder": "merge paths"
+            }
+          ],
+          "properties": {}
+        },
+        {
+          "name": "Merge Paths Exclude",
+          "type": "mm",
+          "messages": [],
+          "properties": {}
+        },
+        {
+          "name": "Round Corners 1",
+          "type": "rd",
           "properties": {
-            "Color": [
+            "Radius": []
+          },
+          "messages": []
+        },
+        {
+          "name": "Trim Paths 1",
+          "type": "tm",
+          "properties": {
+            "Start": [],
+            "End": [],
+            "Offset": []
+          },
+          "messages": []
+        },
+        {
+          "name": "Gradient Stroke 1",
+          "type": "gs",
+          "properties": {
+            "Stroke Width": [],
+            "Miter Limit": [],
+            "Start Point": [],
+            "End Point": [],
+            "Highlight Length": [
+              {
+                "type": "error",
+                "renderers": [
+                  "skottie",
+                  "ios",
+                  "android"
+                ],
+                "builder": "expressions"
+              }
+            ],
+            "Highlight Angle": [],
+            "Opacity": []
+          },
+          "messages": []
+        },
+        {
+          "name": "Gradient Fill 1",
+          "type": "gf",
+          "properties": {
+            "Start Point": [],
+            "End Point": [
               {
                 "type": "error",
                 "renderers": [
@@ -116,7 +200,8 @@ const mockReport = {
                 "builder": "expressions"
               }
             ]
-          }
+          },
+          "messages": []
         }
       ]
     }

@@ -1,7 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $, Folder, File, app */
 
-$.__bodymovin.bm_shapeFillReport = (function () {
+$.__bodymovin.bm_shapeRoundCornersReport = (function () {
     
     var MessageClass = $.__bodymovin.bm_messageClassReport;
     var generalUtils = $.__bodymovin.bm_generalUtils;
@@ -9,36 +9,34 @@ $.__bodymovin.bm_shapeFillReport = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var propertyReport = $.__bodymovin.bm_propertyReport;
 
-    function Fill(element) {
+    function RoundCorners(element) {
         this.element = element;
         this.process();
     }
     
-    generalUtils.extendPrototype(Fill, MessageClass);
+    generalUtils.extendPrototype(RoundCorners, MessageClass);
 
-    Fill.prototype.processProperties = function() {
-        this.color = propertyReport(this.element.property('Color'));
-        this.opacity = propertyReport(this.element.property('Opacity'));
+    RoundCorners.prototype.processProperties = function() {
+        this.radius = propertyReport(this.element.property('Radius'));
     }
 
-    Fill.prototype.process = function() {
+    RoundCorners.prototype.process = function() {
         this.processProperties();
     }
 
-    Fill.prototype.serialize = function() {
+    RoundCorners.prototype.serialize = function() {
         return {
             name: this.element.name,
-            type: shapeTypes.fill,
+            type: shapeTypes.roundedCorners,
             properties: {
-                Color: this.color.serialize(),
-                Opacity: this.opacity.serialize(),
+                Radius: this.radius.serialize(),
             },
             messages: this.serializeMessages(),
         };
     }
 
     return function(element) {
-        return new Fill(element);
+        return new RoundCorners(element);
     }
     
 }());

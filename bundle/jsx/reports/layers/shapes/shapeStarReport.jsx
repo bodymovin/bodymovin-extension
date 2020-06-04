@@ -46,7 +46,8 @@ $.__bodymovin.bm_shapeStarReport = (function () {
                 'Outer Roundness': this.outerRoundness.serialize(),
                 'Inner Radius': this.innerRadius ? this.innerRadius.serialize() : undefined,
                 'Inner Roundness': this.innerRoundness ? this.innerRoundness.serialize() : undefined,
-            }
+            },
+            messages: this.serializeMessages(),
         };
     }
 

@@ -28,8 +28,9 @@ $.__bodymovin.bm_shapeShapeReport = (function () {
             name: this.element.name,
             type: shapeTypes.shape,
             properties: {
-                path: this.path.serialize(),
-            }
+                Path: this.path.serialize(),
+            },
+            messages: this.serializeMessages(),
         };
     }
 

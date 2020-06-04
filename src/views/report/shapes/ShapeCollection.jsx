@@ -12,12 +12,20 @@ class ShapeCollection extends React.Component {
 
   buildShapes = () => {
     return this.props.shapes.map((shape, index) => {
-      if (['rc', 'sh', 'el', 'st', 'sr', 'fl'].includes(shape.type)) {
+      if(shape.type === 'gr') {
+        return <GroupShape
+          key={index}
+          name={shape.name}
+          shape={shape}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
+        />
+      } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
         return (
           <GenericShape
             key={index}
             name={shape.name}
-            properties={shape.properties}
+            shape={shape}
             renderers={this.props.renderers}
             messageTypes={this.props.messageTypes}
           />)
@@ -26,14 +34,6 @@ class ShapeCollection extends React.Component {
           key={index}
           name={shape.name}
           messages={shape.messages}
-          renderers={this.props.renderers}
-          messageTypes={this.props.messageTypes}
-        />
-      } else if(shape.type === 'gr') {
-        return <GroupShape
-          key={index}
-          name={shape.name}
-          shape={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />

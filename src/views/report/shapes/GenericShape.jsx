@@ -1,16 +1,32 @@
 import React from 'react'
 import {
-  getDictionaryMessageCount,
+  getGenericShapeMessagesCount,
 } from '../../../helpers/reports/counter'
 import RowContainer from '../components/RowContainer'
 import Property from '../Property'
 
 class GenericShape extends React.Component {
 
-  buildContent = () => {
-    const properties = this.props.properties
+
+
+  buildMessages = () => {
     return (
-      <div>
+      <Property
+        name={'General Messages'}
+        key={'messages'}
+        messages={this.props.shape.messages}
+        renderers={this.props.renderers}
+        messageTypes={this.props.messageTypes}
+      />
+    )
+  }
+
+  buildProperties = () => {
+    const properties = this.props.shape.properties
+    return (
+      <div
+        key={'properties'}
+      >
         {
           Object.keys(properties)
           .map(propertyKey => {
@@ -27,9 +43,16 @@ class GenericShape extends React.Component {
     )
   }
 
+  buildContent = () => {
+    return([
+      this.buildMessages(),
+      this.buildProperties(),
+    ])
+  }
+
   render() {
-    const messageCount = getDictionaryMessageCount(
-      this.props.properties,
+    const messageCount = getGenericShapeMessagesCount(
+      this.props.shape,
       this.props.renderers,
       this.props.messageTypes
     )

@@ -13,5 +13,6 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         THREE_D_LAYER: 'three d layer',
         EFFECTS: 'effects',
         UNHANDLED_SHAPE_PROPERTY: 'unhandled shape',
+        MERGE_PATHS: 'merge paths',
     };
 }());

@@ -34,7 +34,8 @@ $.__bodymovin.bm_shapeRectReport = (function () {
                 Size: this.size.serialize(),
                 Position: this.position.serialize(),
                 Roundness: this.roundness.serialize(),
-            }
+            },
+            messages: this.serializeMessages(),
         };
     }
 

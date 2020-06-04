@@ -128,6 +128,10 @@ class Message extends React.Component {
     )
   }
 
+  buildMergePaths = () => (
+    <div>Merge paths are not supported</div>
+  )
+
   builders = {
     expressions: this.buildExpressionMessage,
     wiggle: this.buildWiggleMessage,
@@ -139,6 +143,7 @@ class Message extends React.Component {
     'disabled layer': this.buildDisabledLayer,
     'effects': this.buildEffects,
     'unhandled shape': this.buildUnhandledShape,
+    'merge paths': this.buildMergePaths,
   }
 
   buildMessage = (builder, payload) => {
