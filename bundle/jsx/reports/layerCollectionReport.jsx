@@ -4,11 +4,17 @@
 $.__bodymovin.bm_layerCollectionReport = (function () {
     
     var layerReportHelper = $.__bodymovin.bm_layerReportHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
-    function LayerCollection(layers) {
+    function LayerCollection(layers, onComplete, onFail) {
         this.layers = layers;
         this.collection = [];
-        this.process();
+        this.currentLayerIndex = 0;
+        this._onComplete = onComplete;
+        this._onFail = onFail;
+        this.onLayerComplete = this.onLayerComplete.bm_bind(this);
+        this.onLayerFailed = this.onLayerFailed.bm_bind(this);
+        this.processCurrentLayer = this.processCurrentLayer.bm_bind(this);
     }
 
     LayerCollection.prototype.process = function() {
@@ -18,8 +24,37 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
         var layer;
         for (i = 0; i < len; i += 1) {
             layer = layers[i + 1];
-            collection.push(layerReportHelper.processLayer(layer));
+            collection.push(layerReportHelper.createLayer(layer, this.onLayerComplete, this.onLayerFailed));
         }
+        this.asynchronouslyProcessCurrentLayer();
+    }
+    
+    LayerCollection.prototype.processCurrentLayer = function() {
+        bm_eventDispatcher.log('LayerCollection.prototype.processCurrentLayer: ' + this.currentLayerIndex);
+        try {
+            var currentLayer = this.collection[this.currentLayerIndex];
+            if (currentLayer) {
+                currentLayer.process();
+            } else {
+                this._onComplete();
+            }
+        } catch(error) {
+            this._onFail(error);
+        }
+    }
+
+    LayerCollection.prototype.asynchronouslyProcessCurrentLayer = function() {
+        $.__bodymovin.reportScheduledMethod = this.processCurrentLayer;
+        app.scheduleTask('$.__bodymovin.reportScheduledMethod();', 20, false);
+    }
+
+    LayerCollection.prototype.onLayerFailed = function() {
+        this._onFail();
+    }
+
+    LayerCollection.prototype.onLayerComplete = function() {
+        this.currentLayerIndex += 1;
+        this.asynchronouslyProcessCurrentLayer();
     }
 
     LayerCollection.prototype.serialize = function() {
@@ -33,8 +68,8 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
     }
 
 
-    return function(layers) {
-    	return new LayerCollection(layers);
+    return function(layers, onComplete, onFail) {
+    	return new LayerCollection(layers, onComplete, onFail);
     }
     
 }());

@@ -6,6 +6,7 @@ const reportsViewSelector = createSelector(
   [ getReports ],
   (reports) => {
   	return {
+  		data: reports.data,
   	}
   }
 )

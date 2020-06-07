@@ -22,7 +22,7 @@ gulp.task('copy-extension', function() {
         .pipe(gulp.dest(extensionDestination));
 });
 
-gulp.task('copy-extension-bundle', gulpSequence('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-renderManager','copy-debug'))
+gulp.task('copy-extension-bundle', gulpSequence('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-versionHelper','copy-debug'))
 
 gulp.task('copy-all', function() {
     return gulp.src(extensionSource+'/**/*')
@@ -64,11 +64,11 @@ gulp.task('copy-debug', function() {
         .pipe(gulp.dest('build/'));
 });
 
-gulp.task('copy-renderManager', function() {
-    return gulp.src('bundle/jsx/renderManager.jsx')
+gulp.task('copy-versionHelper', function() {
+    return gulp.src('bundle/jsx/helpers/versionHelper.jsx')
         //.pipe(replace(/(v : ')(.+)(',)/g,'$1'+version+'$3'))
     	.pipe(replace(/(version_number = ')(.+)(';)/g,'$1'+version+'$3'))
-        .pipe(gulp.dest('build/jsx/'));
+        .pipe(gulp.dest('build/jsx/helpers/'));
 });
 
 var demoBuiltData = '';

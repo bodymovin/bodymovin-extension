@@ -3,6 +3,7 @@ import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
+import {reportsSaved} from '../redux/actions/reportsActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
 import {splitAnimation} from './splitAnimationHelper'
@@ -216,6 +217,20 @@ csInterface.addEventListener('bm:split:animation', async function (ev) {
 			////
 			const splitResponse = await splitAnimation(data.origin, data.destination, decodeURIComponent(data.fileName), data.time);
 			csInterface.evalScript('$.__bodymovin.bm_standardExporter.splitSuccess(' + splitResponse + ')');
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
+	}
+})
+
+csInterface.addEventListener('bm:report:saved', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			dispatcher(reportsSaved(data.compId, data.reportPath));
 		} else {
 			throw new Error('Missing data')
 		}

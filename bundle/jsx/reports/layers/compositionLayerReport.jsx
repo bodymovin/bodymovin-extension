@@ -9,19 +9,20 @@ $.__bodymovin.bm_compositionLayerReport = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var layerCollectionFactory;
 
-    function CompositionLayer(composition) {
+    function CompositionLayer(composition, onComplete, onFail) {
         this.composition = composition;
-        this.process();
+        this._onComplete = onComplete;
+        this._onFail = onFail;
     }
     
     generalUtils.extendPrototype(CompositionLayer, MessageClass);
 
-    CompositionLayer.prototype.processLayers = function() {
+    CompositionLayer.prototype.createLayers = function() {
         // Circular dependency since compositions contain collection of layers and are at the same time layers of a collection
         if (!layerCollectionFactory) {
             layerCollectionFactory = $.__bodymovin.bm_layerCollectionReport;
         }
-        this.layerCollection = layerCollectionFactory(this.composition.source.layers);
+        this.layerCollection = layerCollectionFactory(this.composition.source.layers, this._onComplete, this._onFail);
     }
 
     CompositionLayer.prototype.processLayer = function() {
@@ -29,8 +30,13 @@ $.__bodymovin.bm_compositionLayerReport = (function () {
     }
 
     CompositionLayer.prototype.process = function() {
-        this.processLayers();
-        this.processLayer();
+        try {
+            this.createLayers();
+            this.processLayer();
+            this.layerCollection.process();
+        } catch(error) {
+            this._onFail(error);
+        }
     }
 
     CompositionLayer.prototype.serialize = function() {
@@ -52,8 +58,8 @@ $.__bodymovin.bm_compositionLayerReport = (function () {
         return serializedData;
     }
 
-    return function(composition) {
-        return new CompositionLayer(composition);
+    return function(composition, onComplete, onFail) {
+        return new CompositionLayer(composition, onComplete, onFail);
     }
     
 }());

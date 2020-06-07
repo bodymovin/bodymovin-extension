@@ -64,11 +64,15 @@ class Compositions extends React.Component {
 	}
 
 	selectDestination(comp) {
-		this.props.getDestination(comp)
+		this.props.getDestination(comp);
 	}
 
 	showSettings(item) {
-		this.props.displaySettings(item.id)
+		this.props.displaySettings(item.id);
+	}
+
+	goToReports = path => {
+		this.props.goToReports(path);
 	}
 
 
@@ -117,7 +121,9 @@ class Compositions extends React.Component {
 						items={this.props.visibleItems} 
 						selectDestination={this.selectDestination}
 						showSettings={this.showSettings}
-						toggleItem={this.props.toggleItem}/>
+						toggleItem={this.props.toggleItem}
+						goToReports={this.props.goToReports}
+					/>
 					<div 
 						className={css(styles.toggleButton)} 
 						onClick={this.props.toggleShowSelected}>

@@ -11,39 +11,39 @@ $.__bodymovin.bm_layerReportHelper = (function () {
     var shapeLayerReport = $.__bodymovin.bm_shapeLayerReport;
     var unhandledLayerReport = $.__bodymovin.bm_unhandledLayerReport;
 
-    function createSolidReport(layer) {
-        return solidLayerReport(layer);
+    function createSolidReport(layer, onComplete, onFail) {
+        return solidLayerReport(layer, onComplete, onFail);
     }
 
-    function createCompositionReport(layer) {
-        return compositionLayerReport(layer);
+    function createCompositionReport(layer, onComplete, onFail) {
+        return compositionLayerReport(layer, onComplete, onFail);
     }
 
-    function createShapeReport(layer) {
-        return shapeLayerReport(layer);
+    function createShapeReport(layer, onComplete, onFail) {
+        return shapeLayerReport(layer, onComplete, onFail);
     }
 
-    function createUnhandledLayerReport(layer) {
-    	return unhandledLayerReport(layer);
+    function createUnhandledLayerReport(layer, onComplete, onFail) {
+    	return unhandledLayerReport(layer, onComplete, onFail);
     }
 
-    function processLayer(layer) {
+    function createLayer(layer, onComplete, onFail) {
         
         var layerType = getLayerType(layer);
         if (layerType === layerTypes.solid) {
-            return createSolidReport(layer);
+            return createSolidReport(layer, onComplete, onFail);
         } else if (layerType === layerTypes.precomp) {
-            return createCompositionReport(layer);
+            return createCompositionReport(layer, onComplete, onFail);
         } else if (layerType === layerTypes.shape) {
-            return createShapeReport(layer);
+            return createShapeReport(layer, onComplete, onFail);
         } else {
-            return createUnhandledLayerReport(layer);
+            return createUnhandledLayerReport(layer, onComplete, onFail);
         }
     }
 
 
     ob = {
-        processLayer: processLayer,
+        createLayer: createLayer,
     };
     
     return ob;

@@ -3,7 +3,27 @@
 
 
 $.__bodymovin = $.__bodymovin || {esprima:{}}
+
 var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
+
+//  Does not work with `new funcA.bind(thisArg, args)`
+if (!Function.prototype.bm_bind) (function(){
+  var slice = Array.prototype.slice;
+  Function.prototype.bm_bind = function() {
+    var thatFunc = this, thatArg = arguments[0];
+    var args = slice.call(arguments, 1);
+    if (typeof thatFunc !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bm_bind - ' +
+             'what is trying to be bound is not callable');
+    }
+    return function(){
+      var funcArgs = args.concat(slice.call(arguments))
+      return thatFunc.apply(thatArg, funcArgs);
+    };
+  };
+})();
 
 $.evalFile(extensionPath + 'JSON.jsx');
 $.evalFile(extensionPath + 'eventManager.jsx');
@@ -12,6 +32,7 @@ $.evalFile(extensionPath + 'enums/shapeTypes.jsx');
 $.evalFile(extensionPath + 'helpers/layerResolver.jsx');
 $.evalFile(extensionPath + 'helpers/shapeTypeResolver.jsx');
 $.evalFile(extensionPath + 'helpers/settingsHelper.jsx');
+$.evalFile(extensionPath + 'helpers/versionHelper.jsx');
 $.evalFile(extensionPath + 'utils/generalUtils.jsx');
 $.evalFile(extensionPath + 'reports/rendererTypes.jsx');
 $.evalFile(extensionPath + 'reports/builderTypes.jsx');

@@ -7,9 +7,10 @@ $.__bodymovin.bm_solidLayerReport = (function () {
     var MessageClass = $.__bodymovin.bm_messageClassReport;
     var generalUtils = $.__bodymovin.bm_generalUtils;
 
-    function SolidLayer(layer) {
+    function SolidLayer(layer, onComplete, onFail) {
         this.layer = layer;
-        this.process();
+        this._onComplete = onComplete;
+        this._onFail = onFail;
     }
     
     generalUtils.extendPrototype(SolidLayer, MessageClass);
@@ -19,7 +20,12 @@ $.__bodymovin.bm_solidLayerReport = (function () {
     }
 
     SolidLayer.prototype.process = function() {
-        this.processLayer();
+        try {
+            this.processLayer();
+            this._onComplete();
+        } catch(error) {
+            this._onFail(error);
+        }
     }
 
     SolidLayer.prototype.serialize = function() {
@@ -40,8 +46,8 @@ $.__bodymovin.bm_solidLayerReport = (function () {
 
 
 
-    return function(layer) {
-        return new SolidLayer(layer);
+    return function(layer, onComplete, onFail) {
+        return new SolidLayer(layer, onComplete, onFail);
     }
     
 }());

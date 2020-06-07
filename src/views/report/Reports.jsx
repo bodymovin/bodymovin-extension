@@ -5,7 +5,6 @@ import reports_view_selector from '../../redux/selectors/reports_view_selector'
 import BaseHeader from '../../components/header/Base_Header'
 import ReportsRenderers from './ReportsRenderers'
 import Report from './Report'
-import mockReport from '../../helpers/mockReport'
 import {
   navigateToLayer,
 } from '../../redux/actions/reportsActions'
@@ -72,7 +71,7 @@ class Reports extends React.Component {
             <Report
               renderers={this.state.renderers}
               messageTypes={this.state.messageTypes}
-              report={mockReport}
+              report={this.props.data}
               onLayerNavigation={this.props.onLayerNavigation}
             />
           </div>

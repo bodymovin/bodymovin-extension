@@ -16,6 +16,7 @@ class CompositionsList extends React.PureComponent {
               item={item} 
               toggleItem={this.props.toggleItem} 
               showSettings={this.props.showSettings} 
+              goToReports={this.props.goToReports} 
               selectDestination={this.props.selectDestination} 
               key={item.id} />
   }

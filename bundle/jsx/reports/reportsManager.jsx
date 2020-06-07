@@ -6,14 +6,19 @@ $.__bodymovin.bm_reportsManager = (function () {
     var ob;
     var animationReportFactory = $.__bodymovin.bm_animationReport;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var compsManager = $.__bodymovin.bm_compsManager;
 
-    function createReport(animation) {
-    	var animationReport = animationReportFactory(animation);
-    	return animationReport;
+    function createReport(animation, onReportComplete, onReportFail) {
+    	var animationReport = animationReportFactory(animation, onReportComplete, onReportFail);
+    }
+
+    function createReportFromCompositionId(compositionId) {
+
     }
 
     ob = {
         createReport: createReport,
+        createReportFromCompositionId: createReportFromCompositionId,
     };
     
     return ob;

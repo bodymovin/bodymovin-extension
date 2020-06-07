@@ -9,10 +9,12 @@ $.__bodymovin.bm_unhandledLayerReport = (function () {
     var rendererTypes = $.__bodymovin.bm_reportRendererTypes;
     var builderTypes = $.__bodymovin.bm_reportBuilderTypes;
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
-    function UnhandledLayer(layer) {
+    function UnhandledLayer(layer, onComplete, onFail) {
         this.layer = layer;
-        this.process();
+        this._onComplete = onComplete;
+        this._onFail = onFail;
     }
 
     generalUtils.extendPrototype(UnhandledLayer, MessageClass);
@@ -33,8 +35,13 @@ $.__bodymovin.bm_unhandledLayerReport = (function () {
     }
 
     UnhandledLayer.prototype.process = function() {
-        this.processData();
-        this.processLayer();
+        try {
+            this.processData();
+            this.processLayer();
+            this._onComplete();
+        } catch(error) {
+            this._onFail(error);
+        }
     }
 
     UnhandledLayer.prototype.serialize = function() {
@@ -55,8 +62,8 @@ $.__bodymovin.bm_unhandledLayerReport = (function () {
 
 
 
-    return function(layer) {
-        return new UnhandledLayer(layer);
+    return function(layer, onComplete, onFail) {
+        return new UnhandledLayer(layer, onComplete, onFail);
     }
     
 }());

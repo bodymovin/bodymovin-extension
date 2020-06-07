@@ -250,9 +250,10 @@ function goToAnnotations(value) {
 	}
 }
 
-function goToReports() {
+function goToReports(path) {
 	return {
 		type: actionTypes.GOTO_REPORTS,
+		path,
 	}
 }
 

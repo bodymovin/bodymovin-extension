@@ -94,8 +94,6 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
     builders[shapeTypes.trim] = buildTrimPaths
 
     function processShape(element) {
-        bm_eventDispatcher.log(element.matchName);
-        bm_eventDispatcher.log(getShapeType(element.matchName));
         var shapeType = getShapeType(element.matchName);
         if (builders[shapeType]) {
             return builders[shapeType](element);

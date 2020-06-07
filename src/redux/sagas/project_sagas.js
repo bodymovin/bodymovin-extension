@@ -76,6 +76,7 @@ function *saveStoredData() {
 			actions.COMPOSITIONS_FILTER_CHANGE,
 			actions.SETTINGS_TOGGLE_SELECTED,
 			actions.SETTINGS_BANNER_LIBRARY_FILE_SELECTED,
+			actions.REPORTS_SAVED,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)

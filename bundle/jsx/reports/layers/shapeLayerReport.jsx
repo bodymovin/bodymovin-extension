@@ -10,9 +10,10 @@ $.__bodymovin.bm_shapeLayerReport = (function () {
     var shapeCollectionFactory = $.__bodymovin.bm_shapeCollectionReport;
 
 
-    function ShapeLayer(shape) {
+    function ShapeLayer(shape, onComplete, onFail) {
         this.shape = shape;
-        this.process();
+        this._onComplete = onComplete;
+        this._onFail = onFail;
     }
     
     generalUtils.extendPrototype(ShapeLayer, MessageClass);
@@ -28,8 +29,13 @@ $.__bodymovin.bm_shapeLayerReport = (function () {
     }
 
     ShapeLayer.prototype.process = function() {
-        this.processLayer();
-        this.processShapes();
+        try {
+            this.processLayer();
+            this.processShapes();
+            this._onComplete();
+        } catch(error) {
+            this._onFail(error);
+        }
     }
 
     ShapeLayer.prototype.serialize = function() {
@@ -50,8 +56,8 @@ $.__bodymovin.bm_shapeLayerReport = (function () {
         return serializedData;
     }
 
-    return function(shape) {
-        return new ShapeLayer(shape);
+    return function(shape, onComplete, onFail) {
+        return new ShapeLayer(shape, onComplete, onFail);
     }
     
 }());

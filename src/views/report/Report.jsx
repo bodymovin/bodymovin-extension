@@ -22,6 +22,9 @@ class Report extends React.Component {
   buildContent = () => this.buildLayers()
 
   render() {
+    if (!this.props.report || !this.props.report.version) {
+      return null;
+    }
     const messageCount = getAnimationMessageCount(this.props.report, this.props.renderers, this.props.messageTypes)
     return (
       <RowContainer

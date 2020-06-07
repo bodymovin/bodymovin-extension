@@ -13,10 +13,14 @@ $.__bodymovin.bm_renderManager = (function () {
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var reportManager = $.__bodymovin.bm_reportsManager;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var versionHelper = $.__bodymovin.bm_versionHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentExportedComps = [];
-    var version_number = '4.8.0';
+    var processesState = {
+        render: 'idle',
+        report: 'idle',
+    }
 
     function getParentData(layers, id) {
         var i = 0, len = layers.length;
@@ -139,6 +143,9 @@ $.__bodymovin.bm_renderManager = (function () {
             return;
         };
 
+        processesState.render = 'working';
+        processesState.report = 'working';
+
         ////
         app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
@@ -154,7 +161,7 @@ $.__bodymovin.bm_renderManager = (function () {
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
-            v : version_number,
+            v : versionHelper.get(),
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
@@ -178,13 +185,52 @@ $.__bodymovin.bm_renderManager = (function () {
         exportMotionBlur(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
+        createReport();
         app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
+    }
 
+    function onReportFail(error) {
+        bm_eventDispatcher.log('REPORT FAILED');
+        if (error) {
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+        }
+        processesState.report = 'ended';
+        bm_eventDispatcher.log($.stack);
+        checkProcesses();
+    }
+
+    function onReportComplete(report) {
+        var reportData = report.serialize();
+        var currentCompSettings = settingsHelper.get();
+        var reportPath = bm_dataManager.saveReport(reportData, destinationPath);
+        bm_eventDispatcher.log();
+        bm_eventDispatcher.sendEvent('bm:report:saved',
+            {
+                compId: currentCompID,
+                reportPath: reportPath,
+            });
+        processesState.report = 'ended';
+        checkProcesses();
+    }
+
+    function createReport() {
         if (settingsHelper.shouldIncludeReport()) {
-            var report = reportManager.createReport(comp);
-            var reportData = report.serialize();
-            bm_eventDispatcher.log('REPORT');
-            bm_eventDispatcher.log(reportData);
+            var comp = bm_projectManager.getCompositionById(currentCompID);
+            reportManager.createReport(comp, onReportComplete, onReportFail);
+        } else {
+            processesState.report = 'ended';
+            checkProcesses();
+        }
+    }
+
+    function checkProcesses() {
+        if (processesState.report === 'ended' && processesState.render === 'ended') {
+            clearData();
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
+        } else if(processesState.render === 'ended') {
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Finishing Report', compId: currentCompID, progress: 1});
         }
     }
 
@@ -257,7 +303,11 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function dataSaved() {
-        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
+        processesState.render = 'ended';
+        checkProcesses();
+    }
+
+    function clearData() {
         reset();
         $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_compsManager.renderComplete();
@@ -399,7 +449,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function getVersion() {
-        bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+        bm_eventDispatcher.sendEvent('bm:version', {value: versionHelper.get()});
         bm_eventDispatcher.sendEvent('app:version', {value: app.version});
     }
     

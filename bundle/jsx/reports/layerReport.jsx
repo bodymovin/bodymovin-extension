@@ -12,6 +12,7 @@ $.__bodymovin.bm_layerReport = (function () {
     var effectsFactory = $.__bodymovin.bm_effectsReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getLayerType = $.__bodymovin.getLayerType;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
     function Layer(layer) {
         this.layer = layer;
