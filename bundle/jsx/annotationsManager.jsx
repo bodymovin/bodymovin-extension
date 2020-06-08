@@ -8,20 +8,14 @@ $.__bodymovin.bm_annotationsManager = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var presetHelper = $.__bodymovin.presetHelper;
-    var layers = []
+    var layers = [];
+    var textPropertyMatchName = 'Pseudo/Bodymovin Text Props 3'
 
     var pseudoEffects = [
         {
             path: '/assets/annotations/bodymovin_text_props.ffx',
-            matchName: 'Pseudo/Bodymovin Text Props',
+            matchName: textPropertyMatchName,
             name: 'Text Properties',
-            id: 'ann/1',
-        },
-        {
-            path: '/assets/annotations/bodymovin_secondary_color.ffx',
-            matchName: 'Pseudo/Bodymovin Sec Color',
-            name: 'Secondary Color',
-            id: 'ann/2',
         }
     ]
 
@@ -112,6 +106,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
 
     function activateAnnotations(layerId, annotationId) {
 
+        // Comment lines when applying new preset
         var layer = findLayerById(layerId);
         var pseudoEffect = findPseudoEffectByMatchName(annotationId) || pseudoEffects[0];
         if (layer) {
@@ -119,11 +114,49 @@ $.__bodymovin.bm_annotationsManager = (function () {
         }
 
         // DO NOT DELETE. USE WHEN ADDING NEW PSEUDO EFFECT TO SAVE AS FFX
-        // layer.property("Effects").addProperty('Pseudo/Bodymovin Sec Color');
+        // var layer = findLayerById(layerId);
+        // if (layer) {
+        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 3');
+        // }
     }
 
     function getAvailableAnnotation() {
         bm_eventDispatcher.sendEvent('bm:annotations:annotationsList', pseudoEffects)
+    }
+
+    function addTextProperties(effect, data) {
+        // matchnames are not working for inner elements
+        // Pseudo/Bodymovin Text Props 3-0001 -> Pseudo/BM Vert Alignment
+        // Pseudo/Bodymovin Text Props 3-0002 -> Pseudo/BM Resize Behavior
+        var i, len = effect.numProperties, prop;
+        for (i = 0; i < len; i += 1) {
+            prop = effect.property(i + 1);
+            bm_eventDispatcher.log('prop: ' + prop.matchName);
+            if (prop.matchName === 'Pseudo/Bodymovin Text Props 3-0001') {
+                data.vj = prop.value - 1;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 3-0002') {
+                data.rs = prop.value - 1;
+            }
+        }
+    }
+
+    function searchTextProperties(layerInfo) {
+        bm_eventDispatcher.log('searchTextProperties')
+        var textDocumentData = {};
+        if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
+            return textDocumentData;
+        }
+        var effects = layerInfo.effect;
+        
+        var i, len = effects.numProperties, effectElement;
+        for (i = 0; i < len; i += 1) {
+            effectElement = effects(i + 1);
+            if (effectElement.enabled && effectElement.matchName === textPropertyMatchName) {
+                bm_eventDispatcher.log('effectElement.numProperties' + effectElement.numProperties)
+                addTextProperties(effectElement, textDocumentData);
+            }
+        }
+        return textDocumentData;
     }
 
     ob = {
@@ -131,6 +164,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
         activateAnnotations: activateAnnotations,
         getAvailableAnnotation: getAvailableAnnotation,
         findAnnotationEffectByMatchName: findPseudoEffectByMatchName,
+        searchTextProperties: searchTextProperties,
     };
     
     return ob;
