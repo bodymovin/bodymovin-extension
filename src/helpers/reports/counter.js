@@ -178,11 +178,33 @@ const getShapeCollectionMessagesCount = memoizeHelper((shapes, renderers, messag
   .reduce(addMessageCount, buildMessageCounterObject())
 })
 
+const getAnimatorMessageCount = memoizeHelper((animator, renderers, messageTypes) => {
+  if (animator.messages) {
+    return countMessages(animator.messages, renderers, messageTypes)
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getAnimatorsMessageCount = memoizeHelper((animators, renderers, messageTypes) => {
+  return animators
+  .map(animator => getAnimatorMessageCount(animator, renderers, messageTypes))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
+const getTextMessagesCount = memoizeHelper((text, renderers, messageTypes) => {
+  return addMessagesCount(
+    getAnimatorsMessageCount(text.animators, renderers, messageTypes),
+  )
+})
+
 const countLayerMessagesByType = memoizeHelper((layer, renderers, messageTypes) => {
   if (layer.type === 0) {
     return getLayerCollectionMessagesCount(layer.layers, renderers, messageTypes)
   } else if (layer.type === 4) {
     return getShapeCollectionMessagesCount(layer.shapes, renderers, messageTypes)
+  } else if (layer.type === 5) {
+    return getTextMessagesCount(layer.text, renderers, messageTypes)
   } else {
     return buildMessageCounterObject()
   }
@@ -210,4 +232,6 @@ export {
   getShapeGroupMessagesCount,
   getShapeRepeaterMessagesCount,
   getGenericShapeMessagesCount,
+  getTextMessagesCount,
+  getAnimatorMessageCount,
 }

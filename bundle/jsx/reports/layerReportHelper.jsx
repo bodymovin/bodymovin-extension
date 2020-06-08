@@ -9,6 +9,7 @@ $.__bodymovin.bm_layerReportHelper = (function () {
     var solidLayerReport = $.__bodymovin.bm_solidLayerReport;
     var compositionLayerReport = $.__bodymovin.bm_compositionLayerReport;
     var shapeLayerReport = $.__bodymovin.bm_shapeLayerReport;
+    var textLayerReport = $.__bodymovin.bm_textLayerReport;
     var unhandledLayerReport = $.__bodymovin.bm_unhandledLayerReport;
 
     function createSolidReport(layer, onComplete, onFail) {
@@ -21,6 +22,10 @@ $.__bodymovin.bm_layerReportHelper = (function () {
 
     function createShapeReport(layer, onComplete, onFail) {
         return shapeLayerReport(layer, onComplete, onFail);
+    }
+
+    function createTextLayerReport(layer, onComplete, onFail) {
+        return textLayerReport(layer, onComplete, onFail);
     }
 
     function createUnhandledLayerReport(layer, onComplete, onFail) {
@@ -36,6 +41,8 @@ $.__bodymovin.bm_layerReportHelper = (function () {
             return createCompositionReport(layer, onComplete, onFail);
         } else if (layerType === layerTypes.shape) {
             return createShapeReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.text) {
+            return createTextLayerReport(layer, onComplete, onFail);
         } else {
             return createUnhandledLayerReport(layer, onComplete, onFail);
         }

@@ -118,7 +118,7 @@ class Message extends React.Component {
   buildEffects = (payload) => {
     const effects = payload.effects;
     return (
-      <div>This effects are not supported:
+      <div>These effects are not supported:
         <div>
           {effects.map(effect => (
             <div key={effect}>{effect}</div>
@@ -128,8 +128,25 @@ class Message extends React.Component {
     )
   }
 
+  buildAnimatorProperties = (payload) => {
+    const properties = payload.properties;
+    return (
+      <div>These text animator properties are not supported:
+        <div>
+          {properties.map(animator => (
+            <div key={animator}>{animator}</div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   buildMergePaths = () => (
     <div>Merge paths are not supported</div>
+  )
+
+  buildTextAnimators = () => (
+    <div>Text animators are not supported</div>
   )
 
   builders = {
@@ -144,6 +161,8 @@ class Message extends React.Component {
     'effects': this.buildEffects,
     'unhandled shape': this.buildUnhandledShape,
     'merge paths': this.buildMergePaths,
+    'text animators': this.buildTextAnimators,
+    'animator properties': this.buildAnimatorProperties,
   }
 
   buildMessage = (builder, payload) => {

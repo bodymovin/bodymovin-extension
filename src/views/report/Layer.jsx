@@ -8,6 +8,7 @@ import RowContainer from './components/RowContainer'
 import Property from './Property'
 import LayerCollection from './LayerCollection'
 import ShapeCollection from './shapes/ShapeCollection'
+import TextLayer from './TextLayer'
 
 class Layer extends React.Component {
 
@@ -57,6 +58,15 @@ class Layer extends React.Component {
         <ShapeCollection
           key={'content'}
           shapes={this.props.layer.shapes}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
+        />
+      )
+    } else if (this.props.layer.type === 5) {
+      return (
+        <TextLayer
+          key={'content'}
+          text={this.props.layer.text}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
         />

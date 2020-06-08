@@ -14,5 +14,7 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         EFFECTS: 'effects',
         UNHANDLED_SHAPE_PROPERTY: 'unhandled shape',
         MERGE_PATHS: 'merge paths',
+        TEXT_ANIMATORS: 'text animators',
+        ANIMATOR_PROPERTIES: 'animator properties',
     };
 }());

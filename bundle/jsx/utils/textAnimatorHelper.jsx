@@ -92,7 +92,7 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
 
         return export_array ? selectors : selectors[0];
     }
-    
+
     function exportAnimationSelector(layerInfo, frameRate, stretch) {
         var ob = {};
         var i, len, property, propertyName;
