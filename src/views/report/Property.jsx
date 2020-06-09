@@ -28,6 +28,7 @@ class Property extends React.Component {
         name={this.props.name}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

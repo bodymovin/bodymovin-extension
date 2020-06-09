@@ -7,20 +7,22 @@ import TextAnimator from './text/TextAnimator'
 
 class TextLayer extends React.Component {
 
-  buildAnimators = animators => {
+  buildAnimators = shouldAutoExpand => {
+    const animators = this.props.text.animators
     return animators.map((animator, index) => 
       <TextAnimator
         key={index}
         animator={animator}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        shouldAutoExpand={shouldAutoExpand}
       />
     )
   }
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return [
-      this.buildAnimators(this.props.text.animators)
+      this.buildAnimators(shouldAutoExpand)
     ]
   }
 
@@ -31,6 +33,7 @@ class TextLayer extends React.Component {
         name={'Text Properties'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

@@ -71,13 +71,24 @@ class RowHeader extends React.Component {
     return false;
   }
 
+  handleOnIconSelect = (ev) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    this.props.toggleCollapse(true);
+    return false;
+  }
+
+  handleOnHeaderSelect = (ev) => {
+    this.props.toggleCollapse(false);
+  }
+
   render() {
 
     const messageCount = this.props.messages
 
     return (
       <div className={css(styles.title)}
-        onClick={this.props.toggleCollapse}
+        onClick={this.handleOnHeaderSelect}
       >
         <BodymovinToggle animationData={expander} toggle={this.props.isCollapsed ? 'on' : 'off'}>
           <div className={css(styles['title-icon'])} />
@@ -103,6 +114,7 @@ class RowHeader extends React.Component {
                 className={css(styles['title-image'])}
                 src={errorIcon}
                 alt={'error'}
+                onClick={this.handleOnIconSelect}
               />
             </div>
           }
@@ -115,6 +127,7 @@ class RowHeader extends React.Component {
                 className={css(styles['title-image'])}
                 src={warningIcon}
                 alt={'warning'}
+                onClick={this.handleOnIconSelect}
               />
             </div>
           }

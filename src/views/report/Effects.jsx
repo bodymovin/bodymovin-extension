@@ -7,7 +7,7 @@ import Message from './components/Message'
 
 class Effects extends React.Component {
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return this.props.effects
     .map((effect, index) => {
       return <Message
@@ -24,6 +24,7 @@ class Effects extends React.Component {
         name={'Effects'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

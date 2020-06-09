@@ -7,7 +7,7 @@ import RowContainer from './components/RowContainer'
 
 class LayerCollection extends React.Component {
 
-  buildLayers = () => {
+  buildLayers = shouldAutoExpand => {
     return this.props.layers.map((layer, index) => (
       <Layer
         key={index}
@@ -17,12 +17,13 @@ class LayerCollection extends React.Component {
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
         onLayerNavigation={this.props.onLayerNavigation}
+        shouldAutoExpand={shouldAutoExpand}
       />
     ))
   }
 
-  buildContent = () => {
-    return this.buildLayers()
+  buildContent = shouldAutoExpand => {
+    return this.buildLayers(shouldAutoExpand)
   }
 
   render() {
@@ -32,6 +33,7 @@ class LayerCollection extends React.Component {
         name={'Composition Layers'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

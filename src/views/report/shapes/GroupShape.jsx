@@ -8,29 +8,31 @@ import ShapeCollection from './ShapeCollection'
 
 class GroupShape extends React.Component {
 
-  buildTransform = () => (
+  buildTransform = shouldAutoExpand => (
     <Transform
       key={'transform'}
       transform={this.props.shape.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildShapes = () => (
+  buildShapes = shouldAutoExpand => (
     <ShapeCollection
       key={'shapes'}
       shapes={this.props.shape.shapes}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return (
       [
-        this.buildTransform(),
-        this.buildShapes(),
+        this.buildTransform(shouldAutoExpand),
+        this.buildShapes(shouldAutoExpand),
       ]
     )
   }
@@ -46,6 +48,7 @@ class GroupShape extends React.Component {
         name={this.props.name}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

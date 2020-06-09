@@ -9,7 +9,7 @@ class GenericShape extends React.Component {
 
 
 
-  buildMessages = () => {
+  buildMessages = shouldAutoExpand => {
     return (
       <Property
         name={'General Messages'}
@@ -17,11 +17,12 @@ class GenericShape extends React.Component {
         messages={this.props.shape.messages}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        shouldAutoExpand={shouldAutoExpand}
       />
     )
   }
 
-  buildProperties = () => {
+  buildProperties = shouldAutoExpand => {
     const properties = this.props.shape.properties
     return (
       <div
@@ -36,6 +37,7 @@ class GenericShape extends React.Component {
               messages={properties[propertyKey]}
               renderers={this.props.renderers}
               messageTypes={this.props.messageTypes}
+              shouldAutoExpand={shouldAutoExpand}
             />
           })
         }
@@ -43,10 +45,10 @@ class GenericShape extends React.Component {
     )
   }
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return([
-      this.buildMessages(),
-      this.buildProperties(),
+      this.buildMessages(shouldAutoExpand),
+      this.buildProperties(shouldAutoExpand),
     ])
   }
 
@@ -61,6 +63,7 @@ class GenericShape extends React.Component {
         name={this.props.name}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

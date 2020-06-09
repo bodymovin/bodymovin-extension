@@ -12,35 +12,38 @@ import TextLayer from './TextLayer'
 
 class Layer extends React.Component {
 
-  buildMessages = () => (
+  buildMessages = shouldAutoExpand => (
     <Property
       name={'General Messages'}
       key={'layer'}
       messages={this.props.layer.messages}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildTransform = () => (
+  buildTransform = shouldAutoExpand => (
     <Transform
       key={'transform'}
       transform={this.props.layer.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildEffects = () => (
+  buildEffects = shouldAutoExpand => (
     <Effects
       key={'effects'}
       effects={this.props.layer.effects}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildLayerContent = () => {
+  buildLayerContent = shouldAutoExpand => {
     if (this.props.layer.type === 0) {
       return (
         <LayerCollection
@@ -51,6 +54,7 @@ class Layer extends React.Component {
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
           onLayerNavigation={this.props.onLayerNavigation}
+          shouldAutoExpand={shouldAutoExpand}
         />
       )
     } else if (this.props.layer.type === 4) {
@@ -60,6 +64,7 @@ class Layer extends React.Component {
           shapes={this.props.layer.shapes}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       )
     } else if (this.props.layer.type === 5) {
@@ -69,6 +74,7 @@ class Layer extends React.Component {
           text={this.props.layer.text}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       )
     } else {
@@ -76,13 +82,13 @@ class Layer extends React.Component {
     }
   }
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return (
       [
-        this.buildMessages(),
-        this.buildTransform(),
-        this.buildEffects(),
-        this.buildLayerContent(),
+        this.buildMessages(shouldAutoExpand),
+        this.buildTransform(shouldAutoExpand),
+        this.buildEffects(shouldAutoExpand),
+        this.buildLayerContent(shouldAutoExpand),
       ]
     )
   }
@@ -99,6 +105,7 @@ class Layer extends React.Component {
         content={this.buildContent}
         messageCount={messageCount}
         onHeaderSelect={this.onLayerNavigation}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

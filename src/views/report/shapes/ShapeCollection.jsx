@@ -10,7 +10,7 @@ import RepeaterShape from './RepeaterShape'
 
 class ShapeCollection extends React.Component {
 
-  buildShapes = () => {
+  buildShapes = shouldAutoExpand => {
     return this.props.shapes.map((shape, index) => {
       if(shape.type === 'gr') {
         return <GroupShape
@@ -19,6 +19,7 @@ class ShapeCollection extends React.Component {
           shape={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
         return (
@@ -28,6 +29,7 @@ class ShapeCollection extends React.Component {
             shape={shape}
             renderers={this.props.renderers}
             messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
           />)
       } else if(shape.type === 'un') {
         return <UnhandledShape
@@ -36,6 +38,7 @@ class ShapeCollection extends React.Component {
           messages={shape.messages}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       } else if(shape.type === 'rp') {
         return <RepeaterShape
@@ -44,6 +47,7 @@ class ShapeCollection extends React.Component {
           repeater={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       } else {
         return null
@@ -51,8 +55,8 @@ class ShapeCollection extends React.Component {
     })
   }
 
-  buildContent = () => {
-    return this.buildShapes()
+  buildContent = shouldAutoExpand => {
+    return this.buildShapes(shouldAutoExpand)
   }
 
   render() {
@@ -62,6 +66,7 @@ class ShapeCollection extends React.Component {
         name={'Group Content'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

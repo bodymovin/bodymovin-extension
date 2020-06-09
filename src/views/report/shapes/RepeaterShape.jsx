@@ -8,41 +8,44 @@ import Property from '../Property'
 
 class RepeaterShape extends React.Component {
 
-  buildTransform = () => (
+  buildTransform = shouldAutoExpand => (
     <Transform
       key={'transform'}
       transform={this.props.repeater.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildCopies = () => (
+  buildCopies = shouldAutoExpand => (
     <Property
       key={'copies'}
       name={'Copies'}
       messages={this.props.repeater.copies}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildOffset = () => (
+  buildOffset = shouldAutoExpand => (
     <Property
       key={'offset'}
       name={'Offset'}
       messages={this.props.repeater.offset}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return (
       [
-        this.buildTransform(),
-        this.buildCopies(),
-        this.buildOffset(),
+        this.buildTransform(shouldAutoExpand),
+        this.buildCopies(shouldAutoExpand),
+        this.buildOffset(shouldAutoExpand),
       ]
     )
   }
@@ -58,6 +61,7 @@ class RepeaterShape extends React.Component {
         name={this.props.name}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

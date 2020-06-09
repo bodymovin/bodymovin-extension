@@ -9,7 +9,7 @@ import RowContainer from './components/RowContainer'
 
 class Transform extends React.Component {
 
-  buildContent = () => {
+  buildContent = shouldAutoExpand => {
     return ([
         <Property
           key={'anchorPoint'}
@@ -17,12 +17,14 @@ class Transform extends React.Component {
           messages={this.props.transform.anchorPoint}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <PositionProperty
           key={'position'}
           property={this.props.transform.position}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'scale'}
@@ -30,12 +32,14 @@ class Transform extends React.Component {
           messages={this.props.transform.scale}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <RotationProperty
           key={'rotation'}
           property={this.props.transform.rotation}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'opacity'}
@@ -43,6 +47,7 @@ class Transform extends React.Component {
           messages={this.props.transform.opacity}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'skew'}
@@ -50,6 +55,7 @@ class Transform extends React.Component {
           messages={this.props.transform.skew}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'skewAxis'}
@@ -57,6 +63,7 @@ class Transform extends React.Component {
           messages={this.props.transform.skewAxis}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'startOpacity'}
@@ -64,6 +71,7 @@ class Transform extends React.Component {
           messages={this.props.transform.startOpacity}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />,
         <Property
           key={'endOpacity'}
@@ -71,6 +79,7 @@ class Transform extends React.Component {
           messages={this.props.transform.endOpacity}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          shouldAutoExpand={shouldAutoExpand}
         />
       ]
     )
@@ -83,6 +92,7 @@ class Transform extends React.Component {
         name={'Transform'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

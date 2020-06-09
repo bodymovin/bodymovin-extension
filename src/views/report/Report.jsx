@@ -7,7 +7,7 @@ import RowContainer from './components/RowContainer'
 
 class Report extends React.Component {
 
-  buildLayers = () => (
+  buildLayers = shouldAutoExpand => (
     <LayerCollection
       key={'content'}
       compositionId={this.props.report.id}
@@ -16,10 +16,11 @@ class Report extends React.Component {
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
       onLayerNavigation={this.props.onLayerNavigation}
+      shouldAutoExpand={shouldAutoExpand}
     />
   )
 
-  buildContent = () => this.buildLayers()
+  buildContent = shouldAutoExpand => this.buildLayers(shouldAutoExpand)
 
   render() {
     if (!this.props.report || !this.props.report.version) {
@@ -31,6 +32,7 @@ class Report extends React.Component {
         name={'Animation Report'}
         content={this.buildContent}
         messageCount={messageCount}
+        shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );
   }

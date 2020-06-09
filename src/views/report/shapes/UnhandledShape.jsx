@@ -9,6 +9,7 @@ class UnhandledShape extends React.Component {
       messages={this.props.messages}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      shouldAutoExpand={this.props.shouldAutoExpand}
     />
   }
 }

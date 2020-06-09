@@ -20,13 +20,18 @@ const styles = StyleSheet.create({
 
 class RowContainer extends React.Component {
 
-  state = {
-    isCollapsed: false,
+  constructor(props) {
+    super(props)
+    this.state = {
+      isCollapsed: !!props.shouldAutoExpand,
+      shouldExpandAll: !!props.shouldAutoExpand,
+    }
   }
 
-  toggleCollapse = () => {
+  toggleCollapse = shouldExpandAll => {
     this.setState({
       isCollapsed: !this.state.isCollapsed,
+      shouldExpandAll: shouldExpandAll,
     })
   }
 
@@ -35,7 +40,7 @@ class RowContainer extends React.Component {
       return null
     }
     return (
-      this.props.content()
+      this.props.content(this.state.shouldExpandAll)
     )
   }
 
