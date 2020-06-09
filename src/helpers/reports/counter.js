@@ -35,7 +35,7 @@ const addMessagesCount = (...messageCounters) => {
   return messageCounters.reduce(addMessageCount, buildMessageCounterObject())
 }
 
-const countMessageByTypeAndRenderer = (message, renderers, messageTypes) => {
+const countMessageByTypeAndRenderer = memoizeHelper((message, renderers, messageTypes) => {
   let matchesRenderers = false
   let matchesType = false
   if (!message.renderers || message.renderers.length === 0) {
@@ -55,7 +55,7 @@ const countMessageByTypeAndRenderer = (message, renderers, messageTypes) => {
     matchesType = messageTypes.includes(message.type)
   }
   return (matchesRenderers && matchesType) ? 1 : 0
-}
+})
 
 const countMessages = memoizeHelper((messages = [], renderers, messageTypes) => {
   return messages.reduce((accumulator, message) => {
