@@ -54,7 +54,7 @@ function Main_header(props) {
                     <div className={css(styles.buttons_separator)}></div>
                     <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
                     <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
-                    <BaseButton text='Reports' type='gray' classes={styles.right} onClick={props.goToReports}/>
+                    <BaseButton text='Reports' type='gray' classes={styles.right} onClick={() => props.goToReports()}/>
 					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
 				</div>
 				<div className={css(styles.separator)}></div>

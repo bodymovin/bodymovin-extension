@@ -86,6 +86,27 @@ function updateMessages(state, action) {
 	}
 }
 
+function setStoredData(state, action) {
+	const reports = action.projectData.reports || {
+		renderers: [],
+		messageTypes: [],
+	}
+	return {
+		...state,
+		settings: {
+			...state.settings,
+			renderers: state.settings.renderers.map(renderer => {
+				const cachedRenderer = reports.renderers.find(cached => cached.id === renderer.id)
+				return cachedRenderer || renderer
+			}),
+			messageTypes: state.settings.messageTypes.map(messageType => {
+				const cachedMessageType = reports.messageTypes.find(cached => cached.id === messageType.id)
+				return cachedMessageType || messageType
+			}),
+		}
+	}
+}
+
 export default function project(state = initialState, action) {
 	switch (action.type) {
 		case actionTypes.GOTO_REPORTS:
@@ -96,6 +117,8 @@ export default function project(state = initialState, action) {
 		return updateRenderers(state, action);
 		case actionTypes.REPORTS_MESSAGES_UPDATED:
 		return updateMessages(state, action);
+	    case actionTypes.PROJECT_STORED_DATA:
+	      return setStoredData(state, action)
 		default:
 		return state
 	}

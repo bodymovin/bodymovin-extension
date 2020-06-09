@@ -10,9 +10,11 @@ import fileBrowser from '../../helpers/FileBrowser'
 
 function *getReportData(action) {
 	try {
-		const reportData = yield call(loadBodymovinFileData, action.path)
-		if ('version' in reportData) {
-			yield put(reportsLoaded(reportData))
+		if (action.path) {
+			const reportData = yield call(loadBodymovinFileData, action.path)
+			if ('version' in reportData) {
+				yield put(reportsLoaded(reportData))
+			}
 		}
 	} catch(err) {
 		console.log(err)
