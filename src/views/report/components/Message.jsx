@@ -3,6 +3,9 @@ import { StyleSheet, css } from 'aphrodite'
 import Variables from '../../../helpers/styles/variables'
 import errorIcon from '../../../assets/svg/error.svg'
 import warningIcon from '../../../assets/svg/warning.svg'
+import {
+  countMessageByTypeAndRenderer,
+} from '../../../helpers/reports/counter'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -180,12 +183,17 @@ class Message extends React.Component {
   )
 
   render() {
-    return (
-      <div className={css(styles.wrapper)}>
-        {this.buildHeader()}
-        {this.buildContent()}
-      </div>
+    const messageCount = countMessageByTypeAndRenderer(this.props.message, this.props.renderers, this.props.messageTypes)
+    if (messageCount === 0) {
+      return null
+    } else {
+      return (
+        <div className={css(styles.wrapper)}>
+          {this.buildHeader()}
+          {this.buildContent()}
+        </div>
       );
+    }
   }
 }
 

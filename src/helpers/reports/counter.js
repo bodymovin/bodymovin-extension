@@ -36,17 +36,25 @@ const addMessagesCount = (...messageCounters) => {
 }
 
 const countMessageByTypeAndRenderer = (message, renderers, messageTypes) => {
+  let matchesRenderers = false
+  let matchesType = false
   if (!message.renderers || message.renderers.length === 0) {
-    return 1
+    matchesRenderers = true
   } else if (renderers.find(availableRendererId => availableRendererId === 'all')) {
-      return 1
+      matchesRenderers = true
   } else {
-    return message.renderers.find(rendererId => {
+    matchesRenderers = message.renderers.find(rendererId => {
       return renderers.find(availableRendererId => availableRendererId === rendererId)
     })
-    ? 1
-    : 0
+    ? true
+    : false
   }
+  if (messageTypes.find(availableRendererId => availableRendererId === 'all')) {
+      matchesType = true
+  } else {
+    matchesType = messageTypes.includes(message.type)
+  }
+  return (matchesRenderers && matchesType) ? 1 : 0
 }
 
 const countMessages = memoizeHelper((messages = [], renderers, messageTypes) => {
@@ -234,4 +242,5 @@ export {
   getGenericShapeMessagesCount,
   getTextMessagesCount,
   getAnimatorMessageCount,
+  countMessageByTypeAndRenderer,
 }

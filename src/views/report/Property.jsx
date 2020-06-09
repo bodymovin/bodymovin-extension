@@ -15,6 +15,8 @@ class Property extends React.Component {
         <Message 
           key={index}
           message={message}
+          renderers={this.props.renderers}
+          messageTypes={this.props.messageTypes}
         />
       ))}
       </div>

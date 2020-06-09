@@ -29,9 +29,25 @@ function reportsLoadFailed() {
 	}
 }
 
+function renderersUpdated(renderers) {
+	return {
+		type: actionTypes.REPORTS_RENDERERS_UPDATED,
+		renderers,
+	}
+}
+
+function messagesUpdated(messageTypes) {
+	return {
+		type: actionTypes.REPORTS_MESSAGES_UPDATED,
+		messageTypes,
+	}
+}
+
 export {
 	navigateToLayer,
 	reportsSaved,
 	reportsLoaded,
 	reportsLoadFailed,
+	renderersUpdated,
+	messagesUpdated,
 }

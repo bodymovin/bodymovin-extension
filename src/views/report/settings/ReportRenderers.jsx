@@ -1,8 +1,8 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import BodymovinCheckbox from '../../components/bodymovin/bodymovin_checkbox'
-import checkbox from '../../assets/animations/checkbox.json'
-import Variables from '../../helpers/styles/variables'
+import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
+import checkbox from '../../../assets/animations/checkbox.json'
+import Variables from '../../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -39,46 +39,6 @@ const styles = StyleSheet.create({
 
 class ReportRenderers extends React.Component {
 
-  state = {
-    renderers: [
-      {
-        id: 'all',
-        label: 'All',
-        isSelected: true,
-      },
-      {
-        id: 'browser',
-        label: 'Browser',
-        isSelected: true,
-      },
-      {
-        id: 'skottie',
-        label: 'Skottie',
-        isSelected: true,
-      },
-      {
-        id: 'ios',
-        label: 'iOS',
-        isSelected: true,
-      },
-      {
-        id: 'android',
-        label: 'Android',
-        isSelected: true,
-      }
-    ]
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.renderers !== this.state.renderers) {
-      this.props.onUpdate(this.state.renderers)
-    }
-  }
-
-  componentDidMount(prevProps, prevState) {
-    this.props.onUpdate(this.state.renderers)
-  }
-
   buildRenderer = renderer => {
     return (
       <li
@@ -98,7 +58,7 @@ class ReportRenderers extends React.Component {
   }
 
   onRendererSelect = selectedRenderer => {
-      const newRenderers = this.state.renderers.map(renderer =>
+      const newRenderers = this.props.renderers.map(renderer =>
         renderer.id === selectedRenderer.id
         ?  {...renderer, isSelected: !renderer.isSelected}
         :  selectedRenderer.id === 'all'
@@ -107,9 +67,7 @@ class ReportRenderers extends React.Component {
              ? {...renderer, isSelected: false}
              : renderer
       )
-      this.setState({
-        renderers: newRenderers
-      })
+      this.props.onRenderersUpdate(newRenderers)
   }
 
   render() {
@@ -117,7 +75,7 @@ class ReportRenderers extends React.Component {
       <div className={css(styles.wrapper)}>
         <div className={css(styles.title)}>Get report for:</div>
         <ul className={css(styles.renderers)}>
-          {this.state.renderers.map(this.buildRenderer)}
+          {this.props.renderers.map(this.buildRenderer)}
         </ul>
       </div>
       );

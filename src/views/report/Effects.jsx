@@ -13,6 +13,8 @@ class Effects extends React.Component {
       return <Message
         key={index}
         message={effect}
+        renderers={this.props.renderers}
+        messageTypes={this.props.messageTypes}
       />
     })
   }
