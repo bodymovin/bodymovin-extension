@@ -123,8 +123,8 @@ class Message extends React.Component {
     return (
       <div>These effects are not supported:
         <div>
-          {effects.map(effect => (
-            <div key={effect}>{effect}</div>
+          {effects.map((effect, index) => (
+            <div key={index}>{effect}</div>
           ))}
         </div>
       </div>

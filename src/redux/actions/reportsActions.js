@@ -43,6 +43,12 @@ function messagesUpdated(messageTypes) {
 	}
 }
 
+function importSelected() {
+	return {
+		type: actionTypes.REPORTS_IMPORT_SELECTED,
+	}
+}
+
 export {
 	navigateToLayer,
 	reportsSaved,
@@ -50,4 +56,5 @@ export {
 	reportsLoadFailed,
 	renderersUpdated,
 	messagesUpdated,
+	importSelected,
 }

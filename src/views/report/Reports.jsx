@@ -9,6 +9,7 @@ import {
   navigateToLayer,
   renderersUpdated,
   messagesUpdated,
+  importSelected,
 } from '../../redux/actions/reportsActions'
 import Variables from '../../helpers/styles/variables'
 
@@ -62,6 +63,7 @@ class Reports extends React.Component {
         <div className={css(styles.header)}>
           <ReportsHeader 
             onSettingsSelected={this.showSettings}
+            onImportSelected={this.props.onImportSelected}
           />
         </div>
         <div className={css(styles.content)} >
@@ -98,6 +100,7 @@ const mapDispatchToProps = {
   onLayerNavigation: navigateToLayer,
   onRenderersUpdate: renderersUpdated,
   onMessagesUpdate: messagesUpdated,
+  onImportSelected: importSelected,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Reports)

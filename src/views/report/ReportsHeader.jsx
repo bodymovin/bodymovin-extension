@@ -31,6 +31,11 @@ class ReportsHeader extends React.Component {
               type='green'
               classes={styles.button}
               onClick={this.props.onSettingsSelected} />
+            <BaseButton
+              text='Import Report'
+              type='green'
+              classes={styles.button}
+              onClick={this.props.onImportSelected} />
         </div>
       </div>
     );
