@@ -1,9 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { StyleSheet, css } from 'aphrodite'
 import Range from '../../../components/range/Range'
 import BaseButton from '../../../components/buttons/Base_button'
 import Variables from '../../../helpers/styles/variables'
 import snapshot from '../../../assets/animations/snapshot.json'
+import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
+import checkbox from '../../../assets/animations/checkbox.json'
 
 const styles = StyleSheet.create({
     container: {
@@ -13,7 +16,8 @@ const styles = StyleSheet.create({
     navContainer: {
       width: '100%',
       height: '36px',
-      display: 'flex'
+      display: 'flex',
+      alignItems: 'center',
     },
     progressNumberContainer: {
       fontSize: '20px',
@@ -42,7 +46,19 @@ const styles = StyleSheet.create({
     },
     button: {
       flexGrow: 0
-    }
+    },
+    previewOption: {
+        fontSize: '14px',
+        marginRight: '10px',
+        cursor: 'pointer',
+        color: Variables.colors.white,
+    },
+    'previewOption-checkbox': {
+        width: '20px',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        marginRight: '4px',
+    },
 })
 
 class PreviewScrubber extends React.Component {
@@ -140,18 +156,43 @@ class PreviewScrubber extends React.Component {
                     onChange={this.updateValue}/>}
             <div className={css(styles.progressNumber)}>&nbsp;/ {this.props.totalFrames}</div>
           </div>
+          <div
+              className={css(styles.previewOption)}
+              onClick={this.props.toggleLockTimeline}
+          >
+              <BodymovinCheckbox
+                  animationData={checkbox}
+                  animate={this.props.shouldLockTimelineToComposition}
+              >
+                  <div
+                      className={css(styles['previewOption-checkbox'])}
+                      
+                  />
+              </BodymovinCheckbox>
+              <span>Lock to Composition Timeline</span>
+          </div>
           <div className={css(styles.emptySpace)}></div>
-          <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
+          {this.props.canSaveFile &&
+            <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
+          }
         </div>
       </div>
       );
   }
 }
 
+PreviewScrubber.propTypes = {
+  totalFrames: PropTypes.number,
+  progress: PropTypes.number,
+  max: PropTypes.number,
+  canSaveFile: PropTypes.bool,
+}
+
 PreviewScrubber.defaultProps = {
   totalFrames: 0,
   progress: 0,
-  max: 1
+  max: 1,
+  canSaveFile: false,
 }
 
 export default PreviewScrubber

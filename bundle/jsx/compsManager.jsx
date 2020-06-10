@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $, app, Folder, File */
+/*global $, Folder, File, app, ViewerType */
 
 $.__bodymovin.bm_compsManager = (function () {
     'use strict';
@@ -132,6 +132,34 @@ $.__bodymovin.bm_compsManager = (function () {
             i += 1;
         }
     }
+    function getTimelinePosition() {
+        var activeItem = app.project.activeItem;
+        if (activeItem) {
+            var comp = activeItem
+            bm_eventDispatcher.sendEvent('bm:composition:timelinePosition', {
+                active: true,
+                data: {
+                    inPoint: comp.workAreaStart * comp.frameRate,
+                    outPoint: (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
+                    time: comp.time * comp.frameRate,
+                }
+            });
+        } else {
+            bm_eventDispatcher.sendEvent('bm:composition:timelinePosition', {
+                active: false
+            });
+        }
+    }
+
+    function setTimelinePosition(progress) {
+        var activeItem = app.project.activeItem;
+        if (activeItem) {
+            var comp = activeItem;
+            var timeInSeconds = comp.workAreaStart + comp.workAreaDuration * progress;
+            var timeInFrames = timeInSeconds * comp.frameRate;
+            comp.time = Math.floor(timeInFrames) / comp.frameRate;
+        }
+    }
     
     ob = {
         updateData : updateData,
@@ -139,6 +167,8 @@ $.__bodymovin.bm_compsManager = (function () {
         renderComplete : renderComplete,
         browseFolder : browseFolder,
         renderComposition : renderComposition,
+        getTimelinePosition : getTimelinePosition,
+        setTimelinePosition : setTimelinePosition,
         cancel : cancel,
         navigateToLayer : navigateToLayer,
         cancelled: false

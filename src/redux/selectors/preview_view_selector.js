@@ -20,7 +20,7 @@ const previewViewSelector = createSelector(
   (preview, compositions) => {
   	let totalFrames, renderer
   	if(preview.animationData) {
-  		totalFrames = preview.animationData.op - preview.animationData.ip
+      totalFrames = preview.animationData.op - preview.animationData.ip
       renderer = getRenderer(preview.animationData)
   	} else {
       renderer = 'svg'
@@ -37,7 +37,10 @@ const previewViewSelector = createSelector(
   		preview: preview,
       totalFrames: totalFrames,
       renderer: renderer,
-  		previewableItems: previewableItems
+      previewableItems: previewableItems,
+      backgroundColor: preview.backgroundColor,
+      timelineData: preview.timelineData,
+  		shouldLockTimelineToComposition: preview.shouldLockTimelineToComposition,
   	}
   }
 )

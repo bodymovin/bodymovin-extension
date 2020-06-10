@@ -246,6 +246,11 @@ function settingsBannerLibraryFileSelected(value) {
 function goToAnnotations(value) {
 	return {
 		type: actionTypes.GOTO_ANNOTATIONS,
+	}
+}
+function handleDemoBackgroundColorChange(value) {
+	return {
+		type: actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE,
 		value,
 	}
 }
@@ -296,4 +301,5 @@ export {
 	settingsBannerLibraryFileSelected,
 	goToAnnotations,
 	goToReports,
+	handleDemoBackgroundColorChange,
 }

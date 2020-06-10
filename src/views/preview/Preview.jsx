@@ -1,11 +1,21 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
-import PreviewViewer from './viewer/PreviewViewer'
+import PreviewViewer, {previewTypes} from './viewer/PreviewViewer'
 import PreviewScrubber from './scrubber/PreviewScrubber'
 import PreviewHeader from './header/PreviewHeader'
 import CurrentRenders from './current_renders/CurrentRenders'
-import {browsePreviewFile, updateProgress, setTotalFrames, showNoCurrentRenders, previewFromPath} from '../../redux/actions/previewActions'
+import {
+  browsePreviewFile,
+  updateProgress,
+  setTotalFrames,
+  showNoCurrentRenders,
+  previewFromPath,
+  updateColor,
+  toggleLockTimeline,
+  initialize,
+  finalize,
+} from '../../redux/actions/previewActions'
 import {goToComps} from '../../redux/actions/compositionActions'
 import preview_view_selector from '../../redux/selectors/preview_view_selector'
 import FileSaver from '../../helpers/FileSaver'
@@ -51,8 +61,17 @@ class Preview extends React.Component {
     this.selectCurrentRenders = this.selectCurrentRenders.bind(this)
     this.closeSelection = this.closeSelection.bind(this)
     this.state = {
-      showingCurrentRenders: false
+      showingCurrentRenders: false,
+      previewerTypes: [previewTypes.BROWSER],
     }
+  }
+
+  componentDidMount() {
+    this.props.initialize()
+  }
+
+  componentWillUnmount() {
+    this.props.finalize()
   }
 
   changeStart() {
@@ -90,7 +109,26 @@ class Preview extends React.Component {
     }
   }
 
+  onRendedereSelected = toggledType => {
+    const availableTypes = [
+      previewTypes.BROWSER,
+      previewTypes.SKOTTIE,
+    ]
+    let selectedTypes = availableTypes.filter(currentType => {
+      if (this.state.previewerTypes.includes(currentType)) {
+        return currentType !== toggledType
+      } else if (currentType === toggledType) {
+        return true
+      }
+      return false
+    })
+    this.setState({
+      previewerTypes: selectedTypes,
+    })
+  }
+
   render() {
+
     return (
       <div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
@@ -98,24 +136,37 @@ class Preview extends React.Component {
             <PreviewHeader 
               browseFiles={this.props.browsePreviewFile} 
               goToComps={this.props.goToComps}
-              selectCurrentRenders={this.selectCurrentRenders} />
+              onRendererSelected={this.onRendedereSelected}
+              selectCurrentRenders={this.selectCurrentRenders} 
+              selectedTypes={this.state.previewerTypes}
+              updateColor={this.props.updateColor}
+              backgroundColor={this.props.backgroundColor}
+            />
           </div>
           <div className={css(styles.animation)}> 
             <PreviewViewer 
               animationData={this.props.preview.animationData} 
+              assetsData={this.props.preview.assetsData} 
               path={this.props.preview.path} 
               renderer={this.props.renderer} 
               progress={this.props.preview.progress} 
               setTotalFrames={this.props.setTotalFrames} 
-              ref={(elem => this.previewViewer = elem)} />
+              previewerTypes={this.state.previewerTypes}
+              ref={(elem => this.previewViewer = elem)}
+              backgroundColor={this.props.backgroundColor}
+            />
           </div>
           <div className={css(styles.scrubber)}> 
             <PreviewScrubber 
               updateProgress={this.updateProgress} 
               changeStart={this.changeStart} 
-              totalFrames={this.props.preview.totalFrames} 
+              totalFrames={this.props.totalFrames} 
               saveFile={this.saveFile} 
-              progress={this.props.preview.progress}/>
+              canSaveFile={this.state.previewerTypes.includes(previewTypes.BROWSER)} 
+              progress={this.props.preview.progress}
+              shouldLockTimelineToComposition={this.props.shouldLockTimelineToComposition}
+              toggleLockTimeline={this.props.toggleLockTimeline}
+            />
           </div>
         </div>
         {this.state.showingCurrentRenders && <CurrentRenders 
@@ -137,7 +188,11 @@ const mapDispatchToProps = {
   updateProgress: updateProgress,
   setTotalFrames: setTotalFrames,
   goToComps: goToComps,
-  showNoCurrentRenders: showNoCurrentRenders
+  showNoCurrentRenders: showNoCurrentRenders,
+  updateColor: updateColor,
+  toggleLockTimeline: toggleLockTimeline,
+  initialize: initialize,
+  finalize: finalize,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Preview)

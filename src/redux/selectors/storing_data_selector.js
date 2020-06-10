@@ -1,12 +1,13 @@
 import { createSelector } from 'reselect'
 
 const getCompositionState = (state) => state.compositions
+const getPreviewState = (state) => state.preview
 const getID = (state) => state.project.id
 const getReports = (state) => state.reports
 
 const storingDataSelector = createSelector(
-  [ getCompositionState, getID, getReports ],
-  (compositionState, id, reports) => {
+  [ getCompositionState, getPreviewState, getID, getReports ],
+  (compositionState, previewState, id, reports) => {
 
   	const compositions = compositionState.items
   	return {
@@ -20,6 +21,10 @@ const storingDataSelector = createSelector(
         reports: {
           renderers: reports.settings.renderers,
           messageTypes: reports.settings.messageTypes,
+        },
+        preview: {
+          backgroundColor: previewState.backgroundColor,
+          shouldLockTimelineToComposition: previewState.shouldLockTimelineToComposition,
         }
   		},
   		id: id
