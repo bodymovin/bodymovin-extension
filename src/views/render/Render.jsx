@@ -133,11 +133,6 @@ class Render extends React.Component {
     goToFolder(item.destination)
   }
 
-  navigateToReports(item) {
-    goToFolder(item.destination)
-  }
-
-
   render() {
   	let progress = this.props.render.progress
   	let barStyle = {'transform':'translateX(-' + 100  * (1 - progress) + '%)'}

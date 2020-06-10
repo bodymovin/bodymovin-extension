@@ -1,5 +1,6 @@
 import csInterface from './CSInterfaceHelper'
 import extensionLoader from './ExtensionLoader'
+import errorCodes from './enums/errorCodes'
 
 var resolve, reject
 
@@ -8,7 +9,7 @@ csInterface.addEventListener('bm:file:uri', function (ev) {
 })
 
 csInterface.addEventListener('bm:file:cancel', function (ev) {
-	reject()
+	reject({errorCode: errorCodes.FILE_CANCELLED})
 })
 
 function browseFile(path) {

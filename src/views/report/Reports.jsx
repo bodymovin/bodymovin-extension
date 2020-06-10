@@ -5,11 +5,13 @@ import reports_view_selector from '../../redux/selectors/reports_view_selector'
 import ReportsHeader from './ReportsHeader'
 import Report from './Report'
 import Settings from './settings/ReportSettings'
+import Messages from './messages/Messages'
 import {
   navigateToLayer,
   renderersUpdated,
   messagesUpdated,
   importSelected,
+  alertDismissed,
 } from '../../redux/actions/reportsActions'
 import Variables from '../../helpers/styles/variables'
 
@@ -27,6 +29,7 @@ const styles = StyleSheet.create({
       padding: '10px',
       backgroundColor : Variables.colors.gray,
       overflow: 'auto',
+      position: 'relative',
     },
     header: {
       flex: '0 0 auto',
@@ -75,6 +78,10 @@ class Reports extends React.Component {
               onLayerNavigation={this.props.onLayerNavigation}
             />
           </div>
+          <Messages
+            message={this.props.message}
+            onDismiss={this.props.onAlertDismissed}
+          />
         </div>
         {this.state.areSettingsOpen &&
           <div className={css(styles.settings)}>
@@ -101,6 +108,7 @@ const mapDispatchToProps = {
   onRenderersUpdate: renderersUpdated,
   onMessagesUpdate: messagesUpdated,
   onImportSelected: importSelected,
+  onAlertDismissed: alertDismissed,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Reports)

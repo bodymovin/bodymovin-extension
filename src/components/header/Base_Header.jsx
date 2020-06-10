@@ -13,8 +13,6 @@ import {
 import {connect} from 'react-redux'
 import {routes} from '../../redux/reducers/routes'
 
-console.log('routes', routes)
-
 const styles = StyleSheet.create({
     container: {
       width: '100%',

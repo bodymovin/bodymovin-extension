@@ -12,7 +12,6 @@ $.__bodymovin.bm_animationReport = (function () {
         this.messages = [];
         this._onComplete = onComplete;
         this._onFail = onFail;
-        bm_eventDispatcher.log('ANIMATION 1')
         this.onLayersComplete = this.onLayersComplete.bm_bind(this);
         try {
             this.layerCollection = layerCollectionFactory(animation.layers, this.onLayersComplete, this._onFail);
@@ -27,13 +26,11 @@ $.__bodymovin.bm_animationReport = (function () {
     }
 
     Animation.prototype.onLayersComplete = function() {
-        bm_eventDispatcher.log('onLayersComplete')
         this._onComplete(this);
     }
 
     Animation.prototype.serialize = function() {
         try {
-            bm_eventDispatcher.log('ANIMATION SERIALIZE');
             var layerCollection = this.layerCollection.serialize();
             var serializedData = {
                 layers: layerCollection.layers,
@@ -45,14 +42,10 @@ $.__bodymovin.bm_animationReport = (function () {
             }
             serializedData.messages = messages;
             serializedData.id = this.animation.id;
+            serializedData.name = this.animation.name;
             serializedData.version = versionHelper.get();
             return serializedData;
         } catch(error) {
-            bm_eventDispatcher.log('ERROR SERIALIZE');
-            bm_eventDispatcher.log(error.message);
-            bm_eventDispatcher.log(error.line);
-            bm_eventDispatcher.log(error.fileName);
-            bm_eventDispatcher.log($.stack);
             return null;
         }
     }

@@ -14,11 +14,12 @@ function *getReportData(action) {
 			const reportData = yield call(loadBodymovinFileData, action.path)
 			if ('version' in reportData) {
 				yield put(reportsLoaded(reportData))
+			} else {
+				throw new Error()
 			}
 		}
 	} catch(err) {
-		console.log(err)
-		yield put(reportsLoadFailed())
+		yield put(reportsLoadFailed(err))
 	}
 }
 
@@ -29,9 +30,11 @@ function *handleImportSelected(action) {
 		const reportData = yield call(loadBodymovinFileData, fileData.fsName)
 		if ('version' in reportData) {
 			yield put(reportsLoaded(reportData))
+		} else {
+			throw new Error()
 		}
 	} catch(err) {
-		console.log(err)
+		yield put(reportsLoadFailed(err))
 	}
 }
 

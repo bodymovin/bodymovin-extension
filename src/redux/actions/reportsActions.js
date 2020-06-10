@@ -23,9 +23,10 @@ function reportsLoaded(data) {
 	}
 }
 
-function reportsLoadFailed() {
+function reportsLoadFailed(error) {
 	return {
 		type: actionTypes.REPORTS_LOAD_FAILED,
+		error,
 	}
 }
 
@@ -49,6 +50,12 @@ function importSelected() {
 	}
 }
 
+function alertDismissed() {
+	return {
+		type: actionTypes.REPORTS_ALERT_DISMISSED,
+	}
+}
+
 export {
 	navigateToLayer,
 	reportsSaved,
@@ -57,4 +64,5 @@ export {
 	renderersUpdated,
 	messagesUpdated,
 	importSelected,
+	alertDismissed,
 }

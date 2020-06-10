@@ -1,9 +1,11 @@
 import React from 'react'
 import {
-  getAnimationMessageCount
+  getAnimationMessageCount,
+  getTotalMessagesCount,
 } from '../../helpers/reports/counter'
 import LayerCollection from './LayerCollection'
 import RowContainer from './components/RowContainer'
+import NoErrorsReport from './components/NoErrorsReport'
 
 class Report extends React.Component {
 
@@ -27,14 +29,22 @@ class Report extends React.Component {
       return null;
     }
     const messageCount = getAnimationMessageCount(this.props.report, this.props.renderers, this.props.messageTypes)
-    return (
-      <RowContainer
-        name={'Animation Report'}
-        content={this.buildContent}
-        messageCount={messageCount}
-        shouldAutoExpand={this.props.shouldAutoExpand}
+    const totalMessages = getTotalMessagesCount(messageCount)
+    if (totalMessages === 0) {
+      return <NoErrorsReport
+        name={this.props.report.name}
+        id={this.props.report.id}
       />
-    );
+    } else {
+      return (
+        <RowContainer
+          name={`${this.props.report.name || 'Animation'} Report`}
+          content={this.buildContent}
+          messageCount={messageCount}
+          shouldAutoExpand={this.props.shouldAutoExpand}
+        />
+      );
+    }
   }
 }
 

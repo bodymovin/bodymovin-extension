@@ -81,13 +81,15 @@ let RenderItem = (props) => {
 					   <img src={status_button}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                     </button>
 				</div>}
-                {props.item.renderStatus === 1 && <div className={css(styles.compElementContentToggle)}>
-                   <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
-                </div>}
                 {props.item.renderStatus === 1 && 
+                    <div className={css(styles.compElementContentToggle)}>
+                        <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
+                    </div>
+                }
+                {props.item.renderStatus === 1 && props.item.reportPath &&
                     <div
                         className={css(styles.compElementContentToggle, styles['compElementContentToggle--clickable'])}
-                        onClick={()=>props.navigateToReports(props.item)}
+                        onClick={()=>props.navigateToReports(props.item.reportPath)}
                     >
                        <img src={report_icon}  className={css(styles.compElementContentFolder__image)} alt='Report' />
                     </div>

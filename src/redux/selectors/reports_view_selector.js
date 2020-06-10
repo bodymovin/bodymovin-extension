@@ -9,6 +9,7 @@ const reportsViewSelector = createSelector(
   	return {
   		data: reports.data,
   		settings: reports.settings,
+  		message: reports.message,
   		options,
   	}
   }

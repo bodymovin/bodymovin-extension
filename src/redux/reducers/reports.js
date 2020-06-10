@@ -1,4 +1,6 @@
 import actionTypes from '../actions/actionTypes'
+import messageTypes from '../../helpers/enums/messageTypes'
+import errorCodes from '../../helpers/enums/errorCodes'
 
 let initialState = {
 	reports: [],
@@ -49,6 +51,10 @@ let initialState = {
 				isSelected: true,
 			}
 		],
+	},
+	message: {
+		type: messageTypes.NONE,
+		text: '',
 	}
 }
 
@@ -63,6 +69,7 @@ function setReportsData(state, action) {
 	return {
 		...state,
 		data: action.data,
+		message: initialState.message,
 	}
 }
 
@@ -107,6 +114,31 @@ function setStoredData(state, action) {
 	}
 }
 
+function showLoadErrorMessage(state, action) {
+	return {
+		...state,
+		message: {
+			type: messageTypes.ALERT,
+			text: 'The animation failed to load. Check if the file exists and is a valid report.'
+		}
+	}
+}
+
+function handleLoadError(state, action) {
+	if (action.error && action.error.errorCode === errorCodes.FILE_CANCELLED) {
+		return state
+	} else {
+		return showLoadErrorMessage(state, action)
+	}
+}
+
+function dismissAlertMessage(state, action) {
+	return {
+		...state,
+		message: initialState.message,
+	}
+}
+
 export default function project(state = initialState, action) {
 	switch (action.type) {
 		case actionTypes.GOTO_REPORTS:
@@ -119,6 +151,10 @@ export default function project(state = initialState, action) {
 		return updateMessages(state, action);
 	    case actionTypes.PROJECT_STORED_DATA:
 	      return setStoredData(state, action)
+	    case actionTypes.REPORTS_LOAD_FAILED:
+	      return handleLoadError(state, action)
+	    case actionTypes.REPORTS_ALERT_DISMISSED:
+	      return dismissAlertMessage(state, action)
 		default:
 		return state
 	}
