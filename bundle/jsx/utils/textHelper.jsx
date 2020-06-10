@@ -6,6 +6,7 @@ $.__bodymovin.bm_textHelper = (function () {
     var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var ob = {};
     
     function getJustification(value) {
@@ -44,6 +45,7 @@ $.__bodymovin.bm_textHelper = (function () {
         if(jLen === 0){
             jLen = 1;
         }
+        var additionalTextDocumentData = annotationsManager.searchTextProperties(layerInfo);
         for(j=0;j<jLen;j+=1){
             var ob = {};
             var textDocument, time;
@@ -104,6 +106,11 @@ $.__bodymovin.bm_textHelper = (function () {
                 ob.sw = textDocument.strokeWidth;
                 if (textDocument.applyFill) {
                     ob.of = textDocument.strokeOverFill;
+                }
+            }
+            for (var s in additionalTextDocumentData) {
+                if (additionalTextDocumentData.hasOwnProperty(s)) {
+                    ob[s] = additionalTextDocumentData[s]
                 }
             }
             //TODO check if it need to be multiplied by stretch

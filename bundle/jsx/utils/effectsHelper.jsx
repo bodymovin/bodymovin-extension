@@ -272,7 +272,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var annotationsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            if(effectElement.enabled || includeHiddenData) {
+            if (effectElement.enabled || includeHiddenData) {
                 var effectType = getEffectType(effectElement.matchName);
                 /*
                 //If the effect is not a Slider Control and is not enabled, it won't be exported.
@@ -280,6 +280,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
                     continue;
                 }
                 */
+                /* Keep this code commented in case i gets used in the future.
                 var annotation = annotationsManager.findAnnotationEffectByMatchName(effectElement.matchName)
                 if (annotation) {
                     var annotationData = exportCustomEffect(effectElement ,effectType, frameRate, stretch);
@@ -287,7 +288,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
                     annotationsArray.push(annotationData)
                 } else {
                     effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
-                }
+                }*/
+                effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
             }
         }
         if (effectsArray.length) {
