@@ -139,6 +139,10 @@ class Settings extends React.PureComponent {
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.qualityChange = this.qualityChange.bind(this)
+    this.sampleSizeChange = this.sampleSizeChange.bind(this)
+    this.toggleBakeExpressionProperties = this.toggleValue.bind(this,'expressions:shouldBake')
+    this.toggleCacheExpressionProperties = this.toggleValue.bind(this,'expressions:shouldCacheExport')
+    this.toggleRestrictToWorkAreaProperties = this.toggleValue.bind(this,'expressions:shouldRestrictToWorkArea')
   }
 
 	componentDidMount() {
@@ -180,6 +184,17 @@ class Settings extends React.PureComponent {
     this.props.updateSettingsValue('compression_rate', segments)
   }
 
+  sampleSizeChange(ev) {
+    let sampleSize = parseInt(ev.target.value, 10)
+    if(ev.target.value === '') {
+      this.props.updateSettingsValue('expressions:sampleSize', 1)
+    }
+    if(isNaN(sampleSize) || sampleSize < 0) {
+      return
+    }
+    this.props.updateSettingsValue('expressions:sampleSize', sampleSize)
+  }
+
   getExtraComps() {
     return this.props.extraCompsList.map(function(item){
       return (<div 
@@ -214,6 +229,38 @@ class Settings extends React.PureComponent {
               </div>
           </div>
           <ul className={css(styles.compsList)}>
+            <SettingsCollapsableItem 
+              title={'Expression options'}
+              description={'Converts expressions to keyframes. This might be a slow process.'}
+              >
+              <SettingsListItem 
+                title='Convert expressions to keyframes'
+                description='Exports expressions as keyframes (can increase file size significantly)'
+                toggleItem={this.toggleBakeExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldBake : false}
+              />
+              <SettingsListItem 
+                title='Cache values'
+                description='Caches keyframe values to speed up next render.'
+                toggleItem={this.toggleCacheExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldCacheExport : false}
+              />
+              <SettingsListItem 
+                title='Limit to work area range'
+                description='Only creates keyframes for work area range. Might not work with time remapping.'
+                toggleItem={this.toggleRestrictToWorkAreaProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldRestrictToWorkArea : false}
+              />
+              <SettingsListItem 
+                title='Sample size'
+                description='Samples keyframes every n frames. Might reduce file size and speed up export.'
+                active={this.props.settings.expressions.shouldBake} 
+                needsInput={true} 
+                inputValue={this.props.settings ? this.props.settings.expressions.sampleSize : 1} 
+                inputValueChange={this.sampleSizeChange}
+              />
+
+            </SettingsCollapsableItem>
             <SettingsListItem 
               title='Glyphs'
               description='If selected it converts fonts to shapes'

@@ -69,6 +69,12 @@ let defaultComposition = {
           shouldLoop: false,
           loopCount: 0,
           localPath: null,
+        },
+        expressions: {
+          shouldBake: false,
+          shouldCacheExport: false,
+          shouldRestrictToWorkArea: false,
+          sampleSize: 1,
         }
     }
   }
@@ -121,6 +127,10 @@ function setStoredData(state, action) {
           banner: {
             ...defaultComposition.settings.banner,
             ...item.settings.banner,
+          },
+          expressions: {
+            ...defaultComposition.settings.expressions,
+            ...item.settings.expressions,
           }
         }
       }
@@ -366,13 +376,25 @@ function cancelSettings(state, action) {
 function toggleSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
-  if(action.name === 'extraComps') {
+  if (action.name === 'extraComps') {
 
     let newExtraComps = {...newSettings.extraComps}
     newExtraComps.active = !newExtraComps.active
     newSettings.extraComps = newExtraComps
   } else {
-    newSettings[action.name] = !newSettings[action.name]
+    var nameArray = action.name.split(':');
+    var object = newSettings;
+    while (nameArray.length) {
+      var name = nameArray.shift();
+      if (nameArray.length) {
+        object[name] = {
+          ...object[name],
+        };
+        object = object[name];
+      } else {
+        object[name] = !object[name];
+      }
+    }
   } 
   newItem.settings = newSettings
   let newItems = {...state.items}
@@ -409,7 +431,20 @@ function toggleExtraComp(state, action) {
 function updateSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
-  newSettings[action.name] = action.value
+  var nameArray = action.name.split(':');
+  var object = newSettings;
+  while (nameArray.length) {
+    var name = nameArray.shift();
+    if (nameArray.length) {
+      object[name] = {
+        ...object[name],
+      };
+      object = object[name];
+    } else {
+      object[name] = action.value;
+    }
+  }
+
   newItem.settings = newSettings
   let newItems = {...state.items}
   newItems[state.current] = newItem
