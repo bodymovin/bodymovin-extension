@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global  bm_timeremapHelper, bm_shapeHelper, bm_generalUtils, CompItem, PlaceholderSource, AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer, TrackMatteType, bm_sourceHelper, bm_transformHelper, bm_maskHelper, bm_textHelper, bm_effectsHelper, bm_layerStylesHelper, bm_cameraHelper*/
+/* global  $, bm_timeremapHelper, bm_shapeHelper, bm_generalUtils, CompItem, PlaceholderSource, AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer, TrackMatteType, bm_sourceHelper, bm_transformHelper, bm_maskHelper, bm_textHelper, bm_effectsHelper, bm_layerStylesHelper, bm_cameraHelper*/
 
 $.__bodymovin.bm_layerElement = (function () {
     'use strict';
@@ -16,6 +16,7 @@ $.__bodymovin.bm_layerElement = (function () {
     var bm_textHelper = $.__bodymovin.bm_textHelper;
     var bm_imageSeqHelper = $.__bodymovin.bm_imageSeqHelper;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     var completeCallback;
 
@@ -172,7 +173,7 @@ $.__bodymovin.bm_layerElement = (function () {
         layerData.ip = layerInfo.inPoint * frameRate;
         layerData.op = layerInfo.outPoint * frameRate;
         layerData.st = layerInfo.startTime * frameRate;
-        if ($.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties()) {
+        if (settingsHelper.shouldIncludeNotSupportedProperties()) {
             layerData.cp = layerInfo.collapseTransformation;
             if (layerInfo.motionBlur) {
                 layerData.mb = true;

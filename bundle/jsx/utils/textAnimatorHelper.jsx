@@ -1,10 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, bm_eventDispatcher, bm_expressionHelper*/
+/*global $, bm_keyframeHelper, bm_eventDispatcher, bm_expressionHelper*/
 $.__bodymovin.bm_textAnimatorHelper = (function () {
     'use strict';
-    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
     
     function exportTextSelectors(layerInfo, frameRate, stretch) {
@@ -88,11 +88,11 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
             });
         }
 
-        var export_array = selectors.length > 1 && $.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties();
+        var export_array = selectors.length > 1 && settingsHelper.shouldIncludeNotSupportedProperties();
 
         return export_array ? selectors : selectors[0];
     }
-    
+
     function exportAnimationSelector(layerInfo, frameRate, stretch) {
         var ob = {};
         var i, len, property, propertyName;

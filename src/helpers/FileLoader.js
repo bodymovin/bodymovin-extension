@@ -8,13 +8,15 @@ function loadBodymovinFileData(path) {
     	resolve = _resolve
     	reject = _reject
     })
-    var result = window.cep.fs.readFile(path)
     try {
-	    if(result.err === 0) {
-	    	var jsonData = JSON.parse(result.data)
-	    	if(jsonData.v) {
-    			resolve(jsonData)
-	    	}
+        var result = window.cep.fs.readFile(path);
+        if(result.err === 0) {
+            var jsonData = JSON.parse(result.data);
+            if (jsonData.v || jsonData.version) {
+                resolve(jsonData);
+            } else {
+                reject()
+            }
 	    } else {
             reject()
         }

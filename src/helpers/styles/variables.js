@@ -10,7 +10,10 @@ export default {
 		gray2: '#595959',
 		gray_darkest: '#303030',
 		gray_lighter: '#444444',
-		button_gray_text: '#bfbfbf'
+		button_gray_text: '#bfbfbf',
+		gray_more_darkest: '#111111',
+		gray_lightest: '#EEEEEE',
+		black: '#000000',
 	},
 	gradients: {
 		blueGreen: 'linear-gradient(left, rgba(0,142,211,0.25) 15%,rgba(0,182,72,0.25) 85%)',

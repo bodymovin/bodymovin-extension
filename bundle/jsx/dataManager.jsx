@@ -17,7 +17,6 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_avdExporter = $.__bodymovin.bm_avdExporter;
     var bm_riveExporter = $.__bodymovin.bm_riveExporter;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var layerTypes = $.__bodymovin.layerTypes;
 
     var results = {
@@ -162,8 +161,29 @@ $.__bodymovin.bm_dataManager = (function () {
         bm_standaloneExporter.save(destinationPath, config, onResult);
 
     }
+
+    function saveReport(reportData, destinationPath) {
+        // var destinationFile = new File(destinationPath);
+        // var destinationFileName = destinationFile.name;
+        // var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+        var destinationData = exporterHelpers.parseDestination(destinationPath, 'report');
+        var demoDestinationFile = new File(destinationData.folder.fsName);
+        demoDestinationFile.changePath('report.json');
+        demoDestinationFile.open('w', 'TEXT', '????');
+        demoDestinationFile.encoding = 'UTF-8';
+        var reportStr = JSON.stringify(reportData);
+        reportStr = reportStr.replace(/\n/g, '');
+        try {
+            demoDestinationFile.write(reportStr);
+            demoDestinationFile.close();
+        } catch (error) {
+            bm_eventDispatcher.log('ERROR SAVE REPORT')
+        }
+        return demoDestinationFile.fsName;
+    }
     
     ob.saveData = saveData;
+    ob.saveReport = saveReport;
     
     return ob;
 }());

@@ -3,6 +3,7 @@ import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
+import {reportsSaved} from '../redux/actions/reportsActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
 import {splitAnimation} from './splitAnimationHelper'
@@ -224,6 +225,20 @@ csInterface.addEventListener('bm:split:animation', async function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:report:saved', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			dispatcher(reportsSaved(data.compId, data.reportPath));
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
+	}
+})
+
 function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
@@ -387,6 +402,15 @@ function initializeServer() {
 	csInterface.requestOpenExtension("com.bodymovin.bodymovin_server", "");
 }
 
+function navigateToLayer(compositionId, layerIndex) {
+	extensionLoader.then(function(){
+		var eScript = `
+		$.__bodymovin.bm_compsManager.navigateToLayer(${compositionId},${layerIndex})
+	    `
+	    csInterface.evalScript(eScript);
+	})
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -403,4 +427,5 @@ export {
 	riveFileSaveSuccess,
 	riveFileSaveFailed,
 	getProjectPath,
+	navigateToLayer,
 }

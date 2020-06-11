@@ -7,68 +7,13 @@ $.__bodymovin.bm_shapeHelper = (function () {
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_boundingBox = $.__bodymovin.bm_boundingBox;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
-    var bm_renderManager = $.__bodymovin.bm_renderManager;
-    var ob = {}, shapeItemTypes = {
-        shape: 'sh',
-        rect: 'rc',
-        ellipse: 'el',
-        star: 'sr',
-        fill: 'fl',
-        gfill: 'gf',
-        gStroke: 'gs',
-        stroke: 'st',
-        merge: 'mm',
-        trim: 'tm',
-        twist: 'tw',
-        group: 'gr',
-        repeater: 'rp',
-        roundedCorners: 'rd',
-        offsetPath: 'op'
-    };
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var shapeItemTypes = $.__bodymovin.shapeTypes;
+    var getItemType = $.__bodymovin.getShapeType;
+    var ob = {};
     var navigationShapeTree = [];
     var extraParams = {};
 
-    function getItemType(matchName) {
-        switch (matchName) {
-        case 'ADBE Vector Shape - Group':
-            return shapeItemTypes.shape;
-        case 'ADBE Vector Shape - Star':
-            return shapeItemTypes.star;
-        case 'ADBE Vector Shape - Rect':
-            return shapeItemTypes.rect;
-        case 'ADBE Vector Shape - Ellipse':
-            return shapeItemTypes.ellipse;
-        case 'ADBE Vector Graphic - Fill':
-            return shapeItemTypes.fill;
-        case 'ADBE Vector Graphic - Stroke':
-            return shapeItemTypes.stroke;
-        case 'ADBE Vector Graphic - Merge':
-        case 'ADBE Vector Filter - Merge':
-            return shapeItemTypes.merge;
-        case 'ADBE Vector Graphic - Trim':
-        case 'ADBE Vector Filter - Trim':
-            return shapeItemTypes.trim;
-        case 'ADBE Vector Graphic - Twist':
-        case 'ADBE Vector Filter - Twist':
-            return shapeItemTypes.twist;
-        case 'ADBE Vector Filter - RC':
-            return shapeItemTypes.roundedCorners;
-        case 'ADBE Vector Group':
-            return shapeItemTypes.group;
-        case 'ADBE Vector Graphic - G-Fill':
-            return shapeItemTypes.gfill;
-        case 'ADBE Vector Graphic - G-Stroke':
-            return shapeItemTypes.gStroke;
-        case 'ADBE Vector Filter - Repeater':
-            return shapeItemTypes.repeater;
-        case 'ADBE Vector Filter - Offset':
-            return shapeItemTypes.offsetPath;
-        default:
-            bm_eventDispatcher.log(matchName);
-            return '';
-        }
-    }
-    
     function reverseShape(ks) {
         var newI = [], newO = [], newV = [];
         var i, len,isClosed;
@@ -462,7 +407,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
             if (ob) {
                 ob.nm = prop.name;
                 ob.mn = prop.matchName;
-                if(bm_renderManager.shouldIgnoreExpressionProperties()) {
+                if(settingsHelper.shouldIgnoreExpressionProperties()) {
                     delete ob.mn;
                     delete ob.np;
                     delete ob.cix;

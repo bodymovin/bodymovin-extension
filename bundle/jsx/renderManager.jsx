@@ -11,10 +11,16 @@ $.__bodymovin.bm_renderManager = (function () {
     var bm_layerElement = $.__bodymovin.bm_layerElement;
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
+    var reportManager = $.__bodymovin.bm_reportsManager;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var versionHelper = $.__bodymovin.bm_versionHelper;
     
-    var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
+    var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentExportedComps = [];
-    var version_number = '4.8.0';
+    var processesState = {
+        render: 'idle',
+        report: 'idle',
+    }
 
     function getParentData(layers, id) {
         var i = 0, len = layers.length;
@@ -73,6 +79,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }*/
     
     function createLayers(comp, layers, framerate, deepTraversing) {
+        var currentCompSettings = settingsHelper.get();
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
@@ -136,12 +143,15 @@ $.__bodymovin.bm_renderManager = (function () {
             return;
         };
 
+        processesState.render = 'working';
+        processesState.report = 'working';
+
         ////
         app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
         hasExpressionsFlag = false;
         currentCompID = comp.id;
-        currentCompSettings = compSettings;
+        settingsHelper.set(compSettings)
 
         bm_ProjectHelper.init();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
@@ -151,7 +161,7 @@ $.__bodymovin.bm_renderManager = (function () {
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
-            v : version_number,
+            v : versionHelper.get(),
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
@@ -175,11 +185,57 @@ $.__bodymovin.bm_renderManager = (function () {
         exportMotionBlur(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
+        createReport();
         app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
     }
 
+    function onReportFail(error) {
+        bm_eventDispatcher.log('REPORT FAILED');
+        if (error) {
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+        }
+        processesState.report = 'ended';
+        bm_eventDispatcher.log($.stack);
+        checkProcesses();
+    }
+
+    function onReportComplete(report) {
+        var reportData = report.serialize();
+        var currentCompSettings = settingsHelper.get();
+        var reportPath = bm_dataManager.saveReport(reportData, destinationPath);
+        bm_eventDispatcher.log();
+        bm_eventDispatcher.sendEvent('bm:report:saved',
+            {
+                compId: currentCompID,
+                reportPath: reportPath,
+            });
+        processesState.report = 'ended';
+        checkProcesses();
+    }
+
+    function createReport() {
+        if (settingsHelper.shouldIncludeReport()) {
+            var comp = bm_projectManager.getCompositionById(currentCompID);
+            reportManager.createReport(comp, onReportComplete, onReportFail);
+        } else {
+            processesState.report = 'ended';
+            checkProcesses();
+        }
+    }
+
+    function checkProcesses() {
+        if (processesState.report === 'ended' && processesState.render === 'ended') {
+            clearData();
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
+        } else if(processesState.render === 'ended') {
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Finishing Report', compId: currentCompID, progress: 1});
+        }
+    }
+
     function exportMotionBlur(exportData, comp) {
-        if (comp.motionBlur && shouldIncludeNotSupportedProperties()) {
+        if (comp.motionBlur && settingsHelper.shouldIncludeNotSupportedProperties()) {
             exportData.mb = {
               sa : comp.shutterAngle,
               sp : comp.shutterPhase,
@@ -208,6 +264,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function exportExtraComps(exportData){
+        var currentCompSettings = settingsHelper.get();
         if(currentCompSettings.extraComps.active) {
             var list = currentCompSettings.extraComps.list;
             var i, len = list.length, compData;
@@ -240,12 +297,17 @@ $.__bodymovin.bm_renderManager = (function () {
     function reset() {
         pendingLayers.length = 0;
         pendingComps.length = 0;
-        currentCompSettings = null;
+
+        settingsHelper.set(null)
         bm_ProjectHelper.end();
     }
 
     function dataSaved() {
-        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
+        processesState.render = 'ended';
+        checkProcesses();
+    }
+
+    function clearData() {
         reset();
         $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_compsManager.renderComplete();
@@ -253,6 +315,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
     
     function saveData() {
+        var currentCompSettings = settingsHelper.get();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
         try {
             bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
@@ -301,6 +364,7 @@ $.__bodymovin.bm_renderManager = (function () {
         if (bm_compsManager.cancelled) {
             return;
         }
+        var currentCompSettings = settingsHelper.get();
         if (pendingLayers.length) {
             var nextLayerData = pendingLayers.pop();
             currentLayer += 1;
@@ -321,6 +385,7 @@ $.__bodymovin.bm_renderManager = (function () {
         if (fonts.length === 0) {
             saveData();
         } else {
+            var currentCompSettings = settingsHelper.get();
             if (currentCompSettings.glyphs) {
                 var fontsInfo = {
                     list: []
@@ -384,40 +449,8 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function getVersion() {
-        bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+        bm_eventDispatcher.sendEvent('bm:version', {value: versionHelper.get()});
         bm_eventDispatcher.sendEvent('app:version', {value: app.version});
-    }
-
-    function shouldCompressImages() {
-        return currentCompSettings.should_compress && !currentCompSettings.original_assets;
-    }
-
-    function getCompressionQuality() {
-        return currentCompSettings.compression_rate;
-    }
-
-    function shouldEncodeImages() {
-        return currentCompSettings.should_encode_images;
-    }
-
-    function shouldSkipImages() {
-        return currentCompSettings.should_skip_images && !currentCompSettings.should_encode_images;
-    }
-
-    function shouldIgnoreExpressionProperties() {
-        return currentCompSettings.ignore_expression_properties;
-    }
-
-    function shouldExportOldFormat() {
-        return currentCompSettings.export_old_format;
-    }
-
-    function shouldSkipDefaultProperties() {
-        return currentCompSettings.skip_default_properties;
-    }
-
-    function shouldIncludeNotSupportedProperties() {
-        return currentCompSettings.not_supported_properties;
     }
     
     ob.renderData = {
@@ -433,14 +466,6 @@ $.__bodymovin.bm_renderManager = (function () {
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
     ob.getVersion = getVersion;
-    ob.shouldCompressImages = shouldCompressImages;
-    ob.getCompressionQuality = getCompressionQuality;
-    ob.shouldEncodeImages = shouldEncodeImages;
-    ob.shouldSkipImages = shouldSkipImages;
-    ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
-    ob.shouldExportOldFormat = shouldExportOldFormat;
-    ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
-    ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
     
     return ob;
 }());

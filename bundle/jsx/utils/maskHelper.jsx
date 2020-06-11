@@ -2,6 +2,7 @@
 /*global $, MaskMode*/
 $.__bodymovin.bm_maskHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
 
     function getMaskMode(num) {
@@ -44,7 +45,7 @@ $.__bodymovin.bm_maskHelper = (function () {
             $.__bodymovin.bm_shapeHelper.checkVertexCount(shapeData.pt.k);
             shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
             shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
-            if ($.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties()) {
+            if (settingsHelper.shouldIncludeNotSupportedProperties()) {
                 shapeData.f = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Feather'), frameRate, stretch);
             }
             shapeData.nm = maskElement.name;

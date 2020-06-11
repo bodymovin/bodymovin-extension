@@ -4,8 +4,8 @@ import CompositionsListItem from './CompositionsListItem'
 
 const styles = StyleSheet.create({
     list: {
-      height: 'calc( 100% - 180px)',
-      overflow: 'auto'
+      overflow: 'auto',
+      flex: '1 1 auto',
     }
 })
 
@@ -16,6 +16,7 @@ class CompositionsList extends React.PureComponent {
               item={item} 
               toggleItem={this.props.toggleItem} 
               showSettings={this.props.showSettings} 
+              goToReports={this.props.goToReports} 
               selectDestination={this.props.selectDestination} 
               key={item.id} />
   }

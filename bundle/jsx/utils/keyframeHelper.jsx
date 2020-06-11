@@ -1,9 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global PropertyValueType, KeyframeInterpolationType, $ */
+/*global app, PropertyValueType, KeyframeInterpolationType, $ */
 $.__bodymovin.bm_keyframeHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -91,7 +92,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     }
 
     function exportKeys(prop, frRate, stretch, keyframeValues) {
-        var exportOldFormat = $.__bodymovin.bm_renderManager.shouldExportOldFormat();
+        var exportOldFormat = settingsHelper.shouldExportOldFormat();
         var currentExpression = '';
         property = prop;
         var propertyValueType = property.propertyValueType;
@@ -412,7 +413,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
         searchRovingKeyframes(prop);
         returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
-        if(prop.propertyIndex && !$.__bodymovin.bm_renderManager.shouldIgnoreExpressionProperties()) {
+        if(prop.propertyIndex && !settingsHelper.shouldIgnoreExpressionProperties()) {
             returnOb.ix = prop.propertyIndex;
         }
         bm_expressionHelper.checkExpression(prop, returnOb);

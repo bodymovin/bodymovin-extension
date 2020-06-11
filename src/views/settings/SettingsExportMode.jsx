@@ -7,6 +7,7 @@ import SettingsAVD from './SettingsExportModeAVD'
 import SettingsFlare from './SettingsExportModeFlare'
 import SettingsDemo from './SettingsExportModeDemo'
 import SettingsStandalone from './SettingsExportModeStandalone'
+import SettingsReport from './SettingsExportModeReport'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
@@ -46,6 +47,9 @@ class SettingsExportMode extends React.PureComponent {
             </div>
             <div className={css(styles.modeItem)}>
               <SettingsDemo />
+            </div>
+            <div className={css(styles.modeItem)}>
+              <SettingsReport />
             </div>
             <div className={css(styles.modeItem)}>
               <SettingsFlare />

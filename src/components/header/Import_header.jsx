@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     	width: '100%',
     	height: '1px',
     	backgroundColor: Variables.colors.gray2,
-    	marginTop: '20px',
-    	marginBottom: '20px'
+    	marginTop: '10px',
+    	marginBottom: '10px'
     }
 })
 

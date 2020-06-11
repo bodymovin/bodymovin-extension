@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $, Folder, File */
+/*global $, app, Folder, File */
 
 $.__bodymovin.bm_compsManager = (function () {
     'use strict';
@@ -111,6 +111,27 @@ $.__bodymovin.bm_compsManager = (function () {
         $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_eventDispatcher.sendEvent('bm:render:cancel');
     }
+
+    function navigateToLayer(compositionId, layerIndex) {
+        // audioComp.openInViewer();
+        var comps = bm_projectManager.getCompositions();
+        var i = 0, len = comps.length, comp;
+        while (i < len) {
+            comp = projectComps[i];
+            if (comp.id === compositionId) {
+                try {
+                    comp.openInViewer();
+                    app.executeCommand(2004); // Deselect all
+                    var layer = comp.layer(layerIndex);
+                    layer.selected = true;
+                } catch(err) {
+                    bm_eventDispatcher.sendEvent('bm:navigation:cancel');
+                }
+                break;
+            }
+            i += 1;
+        }
+    }
     
     ob = {
         updateData : updateData,
@@ -119,6 +140,7 @@ $.__bodymovin.bm_compsManager = (function () {
         browseFolder : browseFolder,
         renderComposition : renderComposition,
         cancel : cancel,
+        navigateToLayer : navigateToLayer,
         cancelled: false
     };
     

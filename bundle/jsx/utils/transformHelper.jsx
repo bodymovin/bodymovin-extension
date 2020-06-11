@@ -3,11 +3,12 @@
 $.__bodymovin.bm_transformHelper = (function () {
     'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
     
     function exportTransform(layerInfo, data, frameRate) {
 
-        var skipDefaultProperties = $.__bodymovin.bm_renderManager.shouldSkipDefaultProperties()
+        var skipDefaultProperties = settingsHelper.shouldSkipDefaultProperties()
 
         if (!layerInfo.transform) {
             return;

@@ -3,6 +3,7 @@
 $.__bodymovin.bm_effectsHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,
@@ -268,6 +269,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
        
         var i, len = effects.numProperties, effectElement;
         var effectsArray = [];
+        var annotationsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
             if(effectElement.enabled || includeHiddenData) {
@@ -278,11 +280,21 @@ $.__bodymovin.bm_effectsHelper = (function () {
                     continue;
                 }
                 */
-                effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
+                var annotation = annotationsManager.findAnnotationEffectByMatchName(effectElement.matchName)
+                if (annotation) {
+                    var annotationData = exportCustomEffect(effectElement ,effectType, frameRate, stretch);
+                    annotationData.id = annotation.id;
+                    annotationsArray.push(annotationData)
+                } else {
+                    effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
+                }
             }
         }
         if (effectsArray.length) {
             layerData.ef = effectsArray;
+        }
+        if (annotationsArray.length) {
+            layerData.annots = annotationsArray;
         }
     }
     

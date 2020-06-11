@@ -52,6 +52,7 @@ let defaultComposition = {
           banner: false,
           avd: false,
           rive: false,
+          reports: false,
         },
         banner: {
           lottie_origin: LottieLibraryOrigins.LOCAL,
@@ -642,6 +643,20 @@ function toggleCompNameAsDefault(state, action) {
   }
 }
 
+function storeReportsPath(state, action) {
+  var comp = {
+    ...state.items[action.compId],
+    reportPath: action.reportPath,
+  } || {}
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [action.compId]: comp,
+    }
+  }
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -691,6 +706,8 @@ export default function compositions(state = initialState, action) {
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
       return toggleMode(state, action)
+    case actionTypes.REPORTS_SAVED:
+      return storeReportsPath(state, action)
     default:
       return state
   }
