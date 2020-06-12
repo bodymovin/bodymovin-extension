@@ -137,8 +137,8 @@ $.__bodymovin.bm_renderManager = (function () {
                 currentExportedComps.push(layerData.compId);
                 if(deepTraversing){
                     layerData.layers = [];
-                    newInPoint = Math.max(0, compTimeRange[0] - layerInfo.inPoint);
-                    newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.inPoint;
+                    newInPoint = Math.max(0, compTimeRange[0] - layerInfo.startTime);
+                    newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.startTime;
                     newTimeRange = [newInPoint, newOutPoint];
                     createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing, newTimeRange);
                 }
