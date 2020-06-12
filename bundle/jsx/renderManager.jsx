@@ -14,6 +14,7 @@ $.__bodymovin.bm_renderManager = (function () {
     var reportManager = $.__bodymovin.bm_reportsManager;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var versionHelper = $.__bodymovin.bm_versionHelper;
+    var renderHelper = $.__bodymovin.bm_renderHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentExportedComps = [];
@@ -77,10 +78,15 @@ $.__bodymovin.bm_renderManager = (function () {
             }
         }
     }*/
+
+    function createCompRange(comp, currentRange) {
+        //[exportData.op, exportData.ip]
+    }
     
-    function createLayers(comp, layers, framerate, deepTraversing) {
+    function createLayers(comp, layers, framerate, deepTraversing, compTimeRange) {
         var currentCompSettings = settingsHelper.get();
         var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
+        var newInPoint, newOutPoint, newTimeRange;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
             layerData = bm_layerElement.prepareLayer(layerInfo, currentCompSettings.should_include_av_assets);
@@ -113,7 +119,10 @@ $.__bodymovin.bm_renderManager = (function () {
                 }
             }
             layers.push(layerData);
-            pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate});
+            newInPoint = Math.max(compTimeRange[0], layerInfo.inPoint);
+            newOutPoint = Math.max(newInPoint, Math.min(compTimeRange[1], layerInfo.outPoint));
+            newTimeRange = [newInPoint, newOutPoint];
+            pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate, range: newTimeRange});
             prevLayerData = layerData;
         }
         restoreParents(layers);
@@ -128,7 +137,10 @@ $.__bodymovin.bm_renderManager = (function () {
                 currentExportedComps.push(layerData.compId);
                 if(deepTraversing){
                     layerData.layers = [];
-                    createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing);
+                    newInPoint = Math.max(0, compTimeRange[0] - layerInfo.inPoint);
+                    newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.inPoint;
+                    newTimeRange = [newInPoint, newOutPoint];
+                    createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing, newTimeRange);
                 }
             }
         }
@@ -179,7 +191,8 @@ $.__bodymovin.bm_renderManager = (function () {
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
         ob.renderData.firstFrame = exportData.ip * comp.frameRate;
-        createLayers(comp, exportData.layers, exportData.fr, true);
+        bm_eventDispatcher.log('comp.workAreaStart: ' + comp.workAreaStart)
+        createLayers(comp, exportData.layers, exportData.fr, true, [comp.workAreaStart, comp.workAreaStart + comp.workAreaDuration]);
         exportExtraComps(exportData);
         exportCompMarkers(exportData, comp);
         exportMotionBlur(exportData, comp);
@@ -287,7 +300,7 @@ $.__bodymovin.bm_renderManager = (function () {
                         w: comp.width,
                         h: comp.height
                     };
-                    createLayers(comp, compData.layers, exportData.fr, false);
+                    createLayers(comp, compData.layers, exportData.fr, false, [0, comp.duration]);
                     exportData.comps.push(compData);
                 }
             }
@@ -367,6 +380,10 @@ $.__bodymovin.bm_renderManager = (function () {
         var currentCompSettings = settingsHelper.get();
         if (pendingLayers.length) {
             var nextLayerData = pendingLayers.pop();
+            // bm_eventDispatcher.log('NEW LAYER: ' + nextLayerData.layer.name);
+            // bm_eventDispatcher.log(nextLayerData.range);
+            // bm_eventDispatcher.log('======');
+            renderHelper.pushRenderRange(nextLayerData.range);
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
             bm_layerElement.renderLayer(nextLayerData, currentCompSettings.hiddens, renderLayerComplete);
@@ -441,6 +458,7 @@ $.__bodymovin.bm_renderManager = (function () {
     }
     
     function renderLayerComplete() {
+        renderHelper.popRenderRange();
         app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
     }
     

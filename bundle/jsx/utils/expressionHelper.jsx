@@ -558,8 +558,12 @@ $.__bodymovin.bm_expressionHelper = (function () {
         }
     }*/
 
+    function hasExpressions(prop) {
+        return prop.expressionEnabled && !prop.expressionError;
+    }
+
     function checkExpression(prop, returnOb) {
-        if (prop.expressionEnabled && !prop.expressionError) {
+        if (hasExpressions(prop)) {
             if(expressionIsValue(prop.expression)) {
                 return;
             }
@@ -644,6 +648,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
     }
 
     ob.checkExpression = checkExpression;
+    ob.hasExpressions = hasExpressions;
 
     return ob;
 }());

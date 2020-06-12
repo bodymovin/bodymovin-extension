@@ -32,6 +32,7 @@ $.evalFile(extensionPath + 'enums/shapeTypes.jsx');
 $.evalFile(extensionPath + 'helpers/layerResolver.jsx');
 $.evalFile(extensionPath + 'helpers/shapeTypeResolver.jsx');
 $.evalFile(extensionPath + 'helpers/settingsHelper.jsx');
+$.evalFile(extensionPath + 'helpers/renderHelper.jsx');
 $.evalFile(extensionPath + 'helpers/versionHelper.jsx');
 $.evalFile(extensionPath + 'utils/generalUtils.jsx');
 $.evalFile(extensionPath + 'reports/rendererTypes.jsx');
