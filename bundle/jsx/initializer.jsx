@@ -76,6 +76,7 @@ $.evalFile(extensionPath + 'reports/layerCollectionReport.jsx');
 $.evalFile(extensionPath + 'reports/animationReport.jsx');
 $.evalFile(extensionPath + 'reports/reportsManager.jsx');
 $.evalFile(extensionPath + 'downloadManager.jsx');
+$.evalFile(extensionPath + 'utils/expressions/keyframeBakerHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressions/reservedPropertiesHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressions/valueAssignmentHelper.jsx');
 $.evalFile(extensionPath + 'utils/expressions/variableDeclarationHelper.jsx');

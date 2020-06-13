@@ -374,25 +374,29 @@ $.__bodymovin.bm_renderManager = (function () {
     }
     
     function renderNextLayer() {
-        if (bm_compsManager.cancelled) {
-            return;
-        }
-        var currentCompSettings = settingsHelper.get();
-        if (pendingLayers.length) {
-            var nextLayerData = pendingLayers.pop();
-            // bm_eventDispatcher.log('NEW LAYER: ' + nextLayerData.layer.name);
-            // bm_eventDispatcher.log(nextLayerData.range);
-            // bm_eventDispatcher.log('======');
-            renderHelper.pushRenderRange(nextLayerData.range);
-            currentLayer += 1;
-            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
-            bm_layerElement.renderLayer(nextLayerData, currentCompSettings.hiddens, renderLayerComplete);
-            /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
-                removeHiddenContent(nextLayerData.data.shapes);
-            }*/
-        } else {
-            removeExtraData();
-            $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
+        try {
+            if (bm_compsManager.cancelled) {
+                return;
+            }
+            var currentCompSettings = settingsHelper.get();
+            if (pendingLayers.length) {
+                var nextLayerData = pendingLayers.pop();
+                // bm_eventDispatcher.log('NEW LAYER: ' + nextLayerData.layer.name);
+                // bm_eventDispatcher.log(nextLayerData.range);
+                // bm_eventDispatcher.log('======');
+                renderHelper.pushRenderRange(nextLayerData.range);
+                currentLayer += 1;
+                bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
+                bm_layerElement.renderLayer(nextLayerData, currentCompSettings.hiddens, renderLayerComplete);
+                /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
+                    removeHiddenContent(nextLayerData.data.shapes);
+                }*/
+            } else {
+                removeExtraData();
+                $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
+            }
+        } catch(error) {
+            bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render Failed ', compId: currentCompID, progress: 1, isFinished: false, fsPath: fsDestinationPath});
         }
     }
     
