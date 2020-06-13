@@ -79,8 +79,34 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }*/
 
-    function createCompRange(comp, currentRange) {
-        //[exportData.op, exportData.ip]
+    function getLayerDataByLayer(layer) {
+        var i = 0, len = pendingLayers.length;
+        while (i < len) {
+            if (pendingLayers[i].layer === layer) {
+                return pendingLayers[i];
+            }
+            i += 1;
+        }
+    }
+
+    function updateLayersRange(layers, compTimeRange) {
+        var i, len = layers.length;
+        var layer, layerData;
+        for (i = 0; i < len; i += 1) {
+            layer = layers[i + 1];
+            layerData = getLayerDataByLayer(layer);
+            if (layerData) {
+                layerData.range[0] = Math.min(layerData.range[0], compTimeRange[0]);
+                layerData.range[1] = Math.max(layerData.range[1], compTimeRange[1]);
+                if (layerData.data.ty === layerTypes.precomp
+                    && layerData.data.render !== false) {
+                    var newInPoint = Math.max(0, compTimeRange[0] - layer.startTime);
+                    var newOutPoint = Math.min(layer.outPoint, compTimeRange[1]) - layer.startTime;
+                    var newTimeRange = [newInPoint, newOutPoint];
+                    updateLayersRange(layer.source.layers, newTimeRange);
+                }
+            }
+        }
     }
     
     function createLayers(comp, layers, framerate, deepTraversing, compTimeRange) {
@@ -133,14 +159,18 @@ $.__bodymovin.bm_renderManager = (function () {
             if (layerData.ty === layerTypes.text) {
                 $.__bodymovin.bm_textShapeHelper.addComps();
             }
-            if (layerData.ty === layerTypes.precomp && layerData.render !== false && layerData.compId) {
-                currentExportedComps.push(layerData.compId);
-                if(deepTraversing){
-                    layerData.layers = [];
-                    newInPoint = Math.max(0, compTimeRange[0] - layerInfo.startTime);
-                    newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.startTime;
-                    newTimeRange = [newInPoint, newOutPoint];
-                    createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing, newTimeRange);
+            if (layerData.ty === layerTypes.precomp && layerData.render !== false) {
+                newInPoint = Math.max(0, compTimeRange[0] - layerInfo.startTime);
+                newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.startTime;
+                newTimeRange = [newInPoint, newOutPoint];
+                if (layerData.compId) {
+                    currentExportedComps.push(layerData.compId);
+                    if(deepTraversing){
+                        layerData.layers = [];
+                        createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing, newTimeRange);
+                    }
+                } else {
+                    updateLayersRange(comp.layers, newTimeRange);
                 }
             }
         }
@@ -186,12 +216,10 @@ $.__bodymovin.bm_renderManager = (function () {
             fonts : [],
             layers : [],
             markers : []
-            
         };
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
         ob.renderData.firstFrame = exportData.ip * comp.frameRate;
-        bm_eventDispatcher.log('comp.workAreaStart: ' + comp.workAreaStart)
         createLayers(comp, exportData.layers, exportData.fr, true, [comp.workAreaStart, comp.workAreaStart + comp.workAreaDuration]);
         exportExtraComps(exportData);
         exportCompMarkers(exportData, comp);
@@ -203,7 +231,6 @@ $.__bodymovin.bm_renderManager = (function () {
     }
 
     function onReportFail(error) {
-        bm_eventDispatcher.log('REPORT FAILED');
         if (error) {
             bm_eventDispatcher.log(error.message);
             bm_eventDispatcher.log(error.line);
