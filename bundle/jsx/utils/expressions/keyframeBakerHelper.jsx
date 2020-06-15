@@ -76,7 +76,7 @@ $.__bodymovin.bm_keyframeBakerHelper = (function () {
                     // bm_eventDispatcher.log('diff / nonZeroValue: ' + diff / nonZeroValue)
                     // bm_eventDispatcher.log('value1: ' + value1[i])
                     // bm_eventDispatcher.log('value2: ' + value2[i])
-                    if (diff > 0.00001 && diff / nonZeroValue > 0.01) {
+                    if (diff > 0.00001 && diff / nonZeroValue > 0.001) {
                         return false;
                     }
                 }
@@ -157,7 +157,7 @@ $.__bodymovin.bm_keyframeBakerHelper = (function () {
         return false;
     }
 
-    function checkPrevValueFromKeyframes(prop, key, keyframes) {
+    function checkPrevValueFromKeyframes(key, keyframes) {
         if (keyframes.length > 1) {
             var prevKey = keyframes[keyframes.length - 1];
             var secondPrevKey = keyframes[keyframes.length - 2];
@@ -215,18 +215,18 @@ $.__bodymovin.bm_keyframeBakerHelper = (function () {
                 i: easePointsTemplates.inPoint[prop.propertyValueType],
                 o: easePointsTemplates.outPoint[prop.propertyValueType],
             }
-            checkPrevValueFromKeyframes(prop, key, keyframes);
+            checkPrevValueFromKeyframes(key, keyframes);
             keyframes.push(key);
         }
         for (var i = 0; i < keyframes.length; i += 1) {
             keyframes[i].s = roundValue(keyframes[i].s);
         }
-        if (keyframes.length > 1
+        if (keyframes.length > 2
             && equal(keyframes[keyframes.length - 1].s, keyframes[keyframes.length - 2].s)
         ) {
             keyframes.pop();
         }
-        if (keyframes.length > 1
+        if (keyframes.length > 2
             && equal(keyframes[0].s, keyframes[1].s)
         ) {
             keyframes.shift();
