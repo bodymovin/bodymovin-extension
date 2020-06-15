@@ -142,7 +142,7 @@ class Settings extends React.PureComponent {
     this.sampleSizeChange = this.sampleSizeChange.bind(this)
     this.toggleBakeExpressionProperties = this.toggleValue.bind(this,'expressions:shouldBake')
     this.toggleCacheExpressionProperties = this.toggleValue.bind(this,'expressions:shouldCacheExport')
-    this.toggleRestrictToWorkAreaProperties = this.toggleValue.bind(this,'expressions:shouldRestrictToWorkArea')
+    this.toggleExtendBakeBeyondWorkArea = this.toggleValue.bind(this,'expressions:shouldBakeBeyondWorkArea')
   }
 
 	componentDidMount() {
@@ -229,38 +229,6 @@ class Settings extends React.PureComponent {
               </div>
           </div>
           <ul className={css(styles.compsList)}>
-            <SettingsCollapsableItem 
-              title={'Expression options'}
-              description={'Converts expressions to keyframes. This might be a slow process.'}
-              >
-              <SettingsListItem 
-                title='Convert expressions to keyframes'
-                description='Exports expressions as keyframes (can increase file size significantly)'
-                toggleItem={this.toggleBakeExpressionProperties}
-                active={this.props.settings ? this.props.settings.expressions.shouldBake : false}
-              />
-              <SettingsListItem 
-                title='Cache values'
-                description='Caches keyframe values to speed up next render.'
-                toggleItem={this.toggleCacheExpressionProperties}
-                active={this.props.settings ? this.props.settings.expressions.shouldCacheExport : false}
-              />
-              <SettingsListItem 
-                title='Limit to work area range'
-                description='Only creates keyframes for work area range. Might not work with time remapping.'
-                toggleItem={this.toggleRestrictToWorkAreaProperties}
-                active={this.props.settings ? this.props.settings.expressions.shouldRestrictToWorkArea : false}
-              />
-              <SettingsListItem 
-                title='Sample size'
-                description='Samples keyframes every n frames. Might reduce file size and speed up export.'
-                active={this.props.settings.expressions.shouldBake} 
-                needsInput={true} 
-                inputValue={this.props.settings ? this.props.settings.expressions.sampleSize : 1} 
-                inputValueChange={this.sampleSizeChange}
-              />
-
-            </SettingsCollapsableItem>
             <SettingsListItem 
               title='Glyphs'
               description='If selected it converts fonts to shapes'
@@ -301,14 +269,46 @@ class Settings extends React.PureComponent {
             
             <SettingsExportMode />
             <SettingsCollapsableItem 
-              title={'Advanced export settings'}
-              description={'Advanced export features'}
+              title={'Expression options'}
+              description={'Converts expressions to keyframes. This might be a slow process.'}
               >
+              <SettingsListItem 
+                title='Convert expressions to keyframes'
+                description='Exports expressions as keyframes (can increase file size significantly)'
+                toggleItem={this.toggleBakeExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldBake : false}
+              />
+              {/*<SettingsListItem 
+                title='Cache values'
+                description='Caches keyframe values to speed up next render.'
+                toggleItem={this.toggleCacheExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldCacheExport : false}
+              />*/}
+              <SettingsListItem 
+                title='Extend conversion beyond work area'
+                description='Use it when you need to convert keyframes beyond the workarea. For example when using time remapping.'
+                toggleItem={this.toggleExtendBakeBeyondWorkArea}
+                active={this.props.settings ? this.props.settings.expressions.shouldBakeBeyondWorkArea : false}
+              />
+              {/*<SettingsListItem 
+                title='Sample size'
+                description='Samples keyframes every n frames. Might reduce file size and speed up export.'
+                active={this.props.settings.expressions.shouldBake} 
+                needsInput={true} 
+                inputValue={this.props.settings ? this.props.settings.expressions.sampleSize : 1} 
+                inputValueChange={this.sampleSizeChange}
+              />*/}
               <SettingsListItem 
                 title='Remove expression properties (Reduces filesize)'
                 description='Removes properties that are only used for expressions. Select if your animation is not using expressions or your expressions are not using special properties.'
                 toggleItem={this.toggleExpressionProperties}
                 active={this.props.settings ? this.props.settings.ignore_expression_properties : false}  />
+
+            </SettingsCollapsableItem>
+            <SettingsCollapsableItem 
+              title={'Advanced export settings'}
+              description={'Advanced export features'}
+              >
               <SettingsListItem 
                 title='Export old json format (for backwards compatibility)'
                 description='Exports old json format in case you are using it with older players'

@@ -60,6 +60,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.expressions.shouldBake;
     }
 
+    function shouldBakeBeyondWorkArea() {
+        return _settings.expressions.shouldBakeBeyondWorkArea;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -74,6 +78,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldIncludeHiddenLayers = shouldIncludeHiddenLayers;
     ob.shouldIncludeGuidedLayers = shouldIncludeGuidedLayers;
     ob.shouldBakeExpressions = shouldBakeExpressions;
+    ob.shouldBakeBeyondWorkArea = shouldBakeBeyondWorkArea;
 
     return ob;
 }());

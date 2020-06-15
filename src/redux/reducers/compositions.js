@@ -74,7 +74,7 @@ let defaultComposition = {
         expressions: {
           shouldBake: false,
           shouldCacheExport: false,
-          shouldRestrictToWorkArea: false,
+          shouldBakeBeyondWorkArea: false,
           sampleSize: 1,
         }
     }

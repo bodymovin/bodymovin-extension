@@ -96,8 +96,13 @@ $.__bodymovin.bm_renderManager = (function () {
             layer = layers[i + 1];
             layerData = getLayerDataByLayer(layer);
             if (layerData) {
-                layerData.range[0] = Math.min(layerData.range[0], compTimeRange[0]);
-                layerData.range[1] = Math.max(layerData.range[1], compTimeRange[1]);
+                if (layerData.range[0] === layerData.range[1]) {
+                    layerData.range[0] = compTimeRange[0];
+                    layerData.range[1] = compTimeRange[1];
+                } else {
+                    layerData.range[0] = Math.min(layerData.range[0], compTimeRange[0]);
+                    layerData.range[1] = Math.max(layerData.range[1], compTimeRange[1]);
+                }
                 if (layerData.data.ty === layerTypes.precomp
                     && layerData.data.render !== false) {
                     var newInPoint = Math.max(0, compTimeRange[0] - layer.startTime);
@@ -145,9 +150,14 @@ $.__bodymovin.bm_renderManager = (function () {
                 }
             }
             layers.push(layerData);
-            newInPoint = Math.max(compTimeRange[0], layerInfo.inPoint);
-            newOutPoint = Math.max(newInPoint, Math.min(compTimeRange[1], layerInfo.outPoint));
-            newTimeRange = [newInPoint, newOutPoint];
+            if (settingsHelper.shouldBakeBeyondWorkArea()) {
+                newTimeRange = [0, comp.duration];
+            } else {
+                newInPoint = Math.max(compTimeRange[0], layerInfo.inPoint);
+                newOutPoint = Math.max(newInPoint, Math.min(compTimeRange[1], layerInfo.outPoint));
+                newTimeRange = [newInPoint, newOutPoint];
+                
+            }
             pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate, range: newTimeRange});
             prevLayerData = layerData;
         }
@@ -160,9 +170,13 @@ $.__bodymovin.bm_renderManager = (function () {
                 $.__bodymovin.bm_textShapeHelper.addComps();
             }
             if (layerData.ty === layerTypes.precomp && layerData.render !== false) {
-                newInPoint = Math.max(0, compTimeRange[0] - layerInfo.startTime);
-                newOutPoint = Math.min(layerInfo.outPoint, compTimeRange[1]) - layerInfo.startTime;
-                newTimeRange = [newInPoint, newOutPoint];
+                if (settingsHelper.shouldBakeBeyondWorkArea()) {
+                    newTimeRange = [0, comp.duration];
+                } else {
+                    newInPoint = Math.max(compTimeRange[0], layerInfo.inPoint);
+                    newOutPoint = Math.max(newInPoint, Math.min(compTimeRange[1], layerInfo.outPoint));
+                    newTimeRange = [newInPoint - layerInfo.startTime, newOutPoint - layerInfo.startTime];
+                }
                 if (layerData.compId) {
                     currentExportedComps.push(layerData.compId);
                     if(deepTraversing){
@@ -170,7 +184,7 @@ $.__bodymovin.bm_renderManager = (function () {
                         createLayers(layerInfo.source, layerData.layers, framerate, deepTraversing, newTimeRange);
                     }
                 } else {
-                    updateLayersRange(comp.layers, newTimeRange);
+                    updateLayersRange(layerInfo.source.layers, newTimeRange);
                 }
             }
         }
@@ -243,9 +257,7 @@ $.__bodymovin.bm_renderManager = (function () {
 
     function onReportComplete(report) {
         var reportData = report.serialize();
-        var currentCompSettings = settingsHelper.get();
         var reportPath = bm_dataManager.saveReport(reportData, destinationPath);
-        bm_eventDispatcher.log();
         bm_eventDispatcher.sendEvent('bm:report:saved',
             {
                 compId: currentCompID,
