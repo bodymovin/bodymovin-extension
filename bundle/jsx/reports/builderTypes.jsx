@@ -16,5 +16,9 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         MERGE_PATHS: 'merge paths',
         TEXT_ANIMATORS: 'text animators',
         ANIMATOR_PROPERTIES: 'animator properties',
+        LARGE_IMAGE: 'large image',
+        ILLUSTRATOR_ASSET: 'illustrator asset',
+        CAMERA_LAYER: 'camera layer',
+        AUDIO_LAYER: 'audio layer',
     };
 }());

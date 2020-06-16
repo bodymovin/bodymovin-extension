@@ -196,8 +196,8 @@ $.__bodymovin.bm_renderManager = (function () {
             bm_eventDispatcher.log(error.line);
             bm_eventDispatcher.log(error.fileName);
         }
-        processesState.report = 'ended';
         bm_eventDispatcher.log($.stack);
+        processesState.report = 'ended';
         checkProcesses();
     }
 

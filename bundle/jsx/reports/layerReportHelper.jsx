@@ -7,6 +7,11 @@ $.__bodymovin.bm_layerReportHelper = (function () {
     var getLayerType = $.__bodymovin.getLayerType;
     var layerTypes = $.__bodymovin.layerTypes;
     var solidLayerReport = $.__bodymovin.bm_solidLayerReport;
+    var nullLayerReport = $.__bodymovin.bm_nullLayerReport;
+    var imageLayerReport = $.__bodymovin.bm_imageLayerReport;
+    var imageSequenceLayerReport = $.__bodymovin.bm_imageSequenceLayerReport;
+    var cameraLayerReport = $.__bodymovin.bm_cameraLayerReport;
+    var audioLayerReport = $.__bodymovin.bm_audioLayerReport;
     var compositionLayerReport = $.__bodymovin.bm_compositionLayerReport;
     var shapeLayerReport = $.__bodymovin.bm_shapeLayerReport;
     var textLayerReport = $.__bodymovin.bm_textLayerReport;
@@ -14,6 +19,26 @@ $.__bodymovin.bm_layerReportHelper = (function () {
 
     function createSolidReport(layer, onComplete, onFail) {
         return solidLayerReport(layer, onComplete, onFail);
+    }
+
+    function createNullReport(layer, onComplete, onFail) {
+        return nullLayerReport(layer, onComplete, onFail);
+    }
+
+    function createImageReport(layer, onComplete, onFail) {
+        return imageLayerReport(layer, onComplete, onFail);
+    }
+
+    function createImageSequenceReport(layer, onComplete, onFail) {
+        return imageSequenceLayerReport(layer, onComplete, onFail);
+    }
+
+    function createCameraReport(layer, onComplete, onFail) {
+        return cameraLayerReport(layer, onComplete, onFail);
+    }
+
+    function createAudioReport(layer, onComplete, onFail) {
+        return audioLayerReport(layer, onComplete, onFail);
     }
 
     function createCompositionReport(layer, onComplete, onFail) {
@@ -43,6 +68,16 @@ $.__bodymovin.bm_layerReportHelper = (function () {
             return createShapeReport(layer, onComplete, onFail);
         } else if (layerType === layerTypes.text) {
             return createTextLayerReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.nullLayer) {
+            return createNullReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.still) {
+            return createImageReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.imageSeq) {
+            return createImageSequenceReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.camera) {
+            return createCameraReport(layer, onComplete, onFail);
+        } else if (layerType === layerTypes.audio) {
+            return createAudioReport(layer, onComplete, onFail);
         } else {
             return createUnhandledLayerReport(layer, onComplete, onFail);
         }

@@ -106,6 +106,9 @@ const getRotationMessageCount = memoizeHelper((rotationData, renderers, messageT
 })
 
 const getTransformMessageCount = memoizeHelper((transform, renderers, messageTypes) => {
+  if (!transform) {
+    return buildMessageCounterObject();
+  }
   return addMessagesCount(
     getPropertyMessageCount(transform.anchorPoint, renderers, messageTypes),
     getPositionMessageCount(transform.position, renderers, messageTypes),

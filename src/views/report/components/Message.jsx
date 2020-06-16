@@ -118,6 +118,10 @@ class Message extends React.Component {
     <div>This shape property is not supported</div>
   )
 
+  buildUnhandledShape = () => (
+    <div>This shape property is not supported</div>
+  )
+
   buildEffects = (payload) => {
     const effects = payload.effects;
     return (
@@ -152,6 +156,22 @@ class Message extends React.Component {
     <div>Text animators are not supported</div>
   )
 
+  buildLargeImage = () => (
+    <div>This layer source size is large and can affect performance. Consider using smaller images.</div>
+  )
+
+  buildIllustratorAsset = () => (
+    <div>It seems you are using an asset coming from illustrator. Consider converting it to shapes so it gets exported as vectors instead of a raster image.</div>
+  )
+
+  buildCameraLayer = () => (
+    <div>Layers of type camera are not supported.</div>
+  )
+
+  buildNotSupportedLayer = () => (
+    <div>This type of layer is not supported.</div>
+  )
+
   builders = {
     expressions: this.buildExpressionMessage,
     wiggle: this.buildWiggleMessage,
@@ -165,7 +185,10 @@ class Message extends React.Component {
     'unhandled shape': this.buildUnhandledShape,
     'merge paths': this.buildMergePaths,
     'text animators': this.buildTextAnimators,
-    'animator properties': this.buildAnimatorProperties,
+    'large image': this.buildLargeImage,
+    'illustrator asset': this.buildIllustratorAsset,
+    'camera layer': this.buildCameraLayer,
+    'audio layer': this.buildNotSupportedLayer,
   }
 
   buildMessage = (builder, payload) => {
