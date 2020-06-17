@@ -8,6 +8,7 @@ $.__bodymovin.bm_propertyReport = (function () {
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var MessageClass = $.__bodymovin.bm_messageClassReport;
     var generalUtils = $.__bodymovin.bm_generalUtils;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     function Property(property) {
         this.property = property;
@@ -18,7 +19,7 @@ $.__bodymovin.bm_propertyReport = (function () {
 
     Property.prototype.processExpressions = function() {
         var property = this.property;
-        if (property.expressionEnabled && !property.expressionError) {
+        if (property.expressionEnabled && !property.expressionError && !settingsHelper.shouldBakeExpressions()) {
             this.addMessage(messageTypes.ERROR,
             [
                 rendererTypes.SKOTTIE,
