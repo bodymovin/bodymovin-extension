@@ -123,10 +123,16 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
 })
 
 const getDropShadowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
-  return addMessagesCount(
-    getPropertyMessageCount(style.color, renderers, messageTypes),
-    getPropertyMessageCount(style.opacity, renderers, messageTypes),
+  const properties = [
+    'color', 'opacity', 'angle', 'size', 'distance',
+    'spread', 'blendMode', 'noise', 'knocksOut'
+  ]
+  const propertyMessages = properties.reduce((accumulator, propertyName) => (
+      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
+    ), buildMessageCounterObject)
+  return addMessageCount(
     getPropertyMessageCount(style.messages, renderers, messageTypes),
+    propertyMessages
   )
 })
 

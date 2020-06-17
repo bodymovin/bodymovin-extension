@@ -24,20 +24,20 @@ $.__bodymovin.bm_layerStylesDropShadowFactory = (function () {
         this.color = propertyReport(this.style.property('dropShadow/color'));
         // // Opacity
         this.opacity = propertyReport(this.style.property('dropShadow/opacity'));
-        // // Angle
-        // ob.a = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/localLightingAngle'), frameRate, stretch);
-        // // Size
-        // ob.s = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/blur'), frameRate, stretch);
-        // // Distance
-        // ob.d = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/distance'), frameRate, stretch);
-        // // Choke/Spread
-        // ob.ch = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/chokeMatte'), frameRate, stretch);
-        // // Blend Mode
-        // ob.bm = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/mode2'), frameRate, stretch);
-        // // Noise
-        // ob.no = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/noise'), frameRate, stretch);
-        // // Layer Knocks Out Drop Shadow
-        // ob.lc = bm_keyframeHelper.exportKeyframes(style.property('dropShadow/layerConceals'), frameRate, stretch);
+        // Angle
+        this.angle = propertyReport(this.style.property('dropShadow/localLightingAngle'));
+        // Size
+        this.size = propertyReport(this.style.property('dropShadow/blur'));
+        // Distance
+        this.distance = propertyReport(this.style.property('dropShadow/distance'));
+        // Choke/Spread
+        this.spread = propertyReport(this.style.property('dropShadow/chokeMatte'));
+        // Blend Mode
+        this.blendMode = propertyReport(this.style.property('dropShadow/mode2'));
+        // Noise
+        this.noise = propertyReport(this.style.property('dropShadow/noise'));
+        // Layer Knocks Out Drop Shadow
+        this.knocksOut = propertyReport(this.style.property('dropShadow/layerConceals'));
     }
 
     DropShadow.prototype.processStyle = function() {
@@ -62,6 +62,13 @@ $.__bodymovin.bm_layerStylesDropShadowFactory = (function () {
             messages: this.serializeMessages(),
             color: this.color.serialize(),
             opacity: this.opacity.serialize(),
+            angle: this.angle.serialize(),
+            size: this.size.serialize(),
+            distance: this.distance.serialize(),
+            spread: this.spread.serialize(),
+            blendMode: this.blendMode.serialize(),
+            noise: this.noise.serialize(),
+            knocksOut: this.knocksOut.serialize(),
         }
     }
 

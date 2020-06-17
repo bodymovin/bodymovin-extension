@@ -7,26 +7,56 @@ import Property from '../Property'
 
 class DropShadowStyle extends React.Component {
 
-  buildProperties = shouldAutoExpand => (
-    [
-      <Property
-        key={'color'}
-        name={'Color'}
-        messages={this.props.style.color}
-        renderers={this.props.renderers}
-        messageTypes={this.props.messageTypes}
-        shouldAutoExpand={shouldAutoExpand}
-      />,
-      <Property
-        key={'opacity'}
-        name={'Opacity'}
-        messages={this.props.style.opacity}
-        renderers={this.props.renderers}
-        messageTypes={this.props.messageTypes}
-        shouldAutoExpand={shouldAutoExpand}
-      />,
+  styleProperties = [
+    {
+      key: 'color',
+      name: 'Color',
+    },
+    {
+      key: 'opacity',
+      name: 'Opacity',
+    },
+    {
+      key: 'angle',
+      name: 'Angle',
+    },
+    {
+      key: 'size',
+      name: 'Size',
+    },
+    {
+      key: 'distance',
+      name: 'Distance',
+    },
+    {
+      key: 'spread',
+      name: 'Spread',
+    },
+    {
+      key: 'blendMode',
+      name: 'Blend Mode',
+    },
+    {
+      key: 'noise',
+      name: 'Noise',
+    },
+    {
+      key: 'knocksOut',
+      name: 'Layer Knocks Out Drop Shadow',
+    },
+  ]
 
-    ]
+  buildProperties = shouldAutoExpand => (
+    this.styleProperties.map(propertyData => (
+      <Property
+        key={propertyData.key}
+        name={propertyData.name}
+        messages={this.props.style[propertyData.key]}
+        renderers={this.props.renderers}
+        messageTypes={this.props.messageTypes}
+        shouldAutoExpand={shouldAutoExpand}
+      />
+    ))
   )
 
   buildMessages = shouldAutoExpand => (
