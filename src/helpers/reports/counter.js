@@ -136,8 +136,26 @@ const getDropShadowStyleMessageCount = memoizeHelper((style, renderers, messageT
   )
 })
 
+const getStrokeStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'color',
+    'size',
+    'blendMode',
+    'opacity',
+    'position',
+  ]
+  const propertyMessages = properties.reduce((accumulator, propertyName) => (
+      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
+    ), buildMessageCounterObject)
+  return addMessageCount(
+    getPropertyMessageCount(style.messages, renderers, messageTypes),
+    propertyMessages
+  )
+})
+
 const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const counterStyles = {
+    0: getStrokeStyleMessageCount,
     1: getDropShadowStyleMessageCount,
   }
 

@@ -50,6 +50,7 @@ $.evalFile(extensionPath + 'reports/rotationReport.jsx');
 $.evalFile(extensionPath + 'reports/effectsReport.jsx');
 $.evalFile(extensionPath + 'reports/transformReport.jsx');
 $.evalFile(extensionPath + 'reports/layerStyles/dropShadowStyle.jsx');
+$.evalFile(extensionPath + 'reports/layerStyles/strokeStyle.jsx');
 $.evalFile(extensionPath + 'reports/layerStylesReport.jsx');
 $.evalFile(extensionPath + 'reports/layerReport.jsx');
 $.evalFile(extensionPath + 'reports/layers/shapes/shapeGroupReport.jsx');

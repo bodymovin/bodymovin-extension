@@ -5,10 +5,12 @@ import {
 import RowContainer from './components/RowContainer'
 import Message from './components/Message'
 import DropShadowStyle from './styles/DropShadowStyle'
+import StrokeStyle from './styles/StrokeStyle'
 
 class LayerStyles extends React.Component {
 
   builders = {
+    0: StrokeStyle,
     1: DropShadowStyle,
   }
 
