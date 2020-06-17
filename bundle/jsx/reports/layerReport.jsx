@@ -10,8 +10,10 @@ $.__bodymovin.bm_layerReport = (function () {
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
     var effectsFactory = $.__bodymovin.bm_effectsReportFactory;
+    var layerStylesFactory = $.__bodymovin.bm_layerStylesReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getLayerType = $.__bodymovin.getLayerType;
+    var layerTypes = $.__bodymovin.layerTypes;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
     function Layer(layer) {
@@ -24,6 +26,7 @@ $.__bodymovin.bm_layerReport = (function () {
     Layer.prototype.process = function() {
         this.processProperties();
         this.processTransform();
+        this.processStyles();
         this.processEffects();
     }
 
@@ -76,11 +79,19 @@ $.__bodymovin.bm_layerReport = (function () {
     }
 
     Layer.prototype.processTransform = function() {
-        this.transform = transformFactory(this.layer.transform, this.layer.threeDLayer);
+        var layerType = getLayerType(this.layer);
+        var isThreeD = this.layer.threeDLayer || layerType === layerTypes.camera;
+        if (this.layer.transform) {
+            this.transform = transformFactory(this.layer.transform, isThreeD);
+        }
     }
 
     Layer.prototype.processEffects = function() {
-        this.effects = effectsFactory(this.layer.effect);
+        this.effects = effectsFactory(this.layer.effect || {numProperties: 0});
+    }
+
+    Layer.prototype.processStyles = function() {
+        this.styles = layerStylesFactory(this.layer.property('Layer Styles') || {numProperties: 0});
     }
 
     Layer.prototype.serialize = function() {
@@ -89,7 +100,8 @@ $.__bodymovin.bm_layerReport = (function () {
             index: this.layer.index,
             type: getLayerType(this.layer),
             messages: this.serializeMessages(),
-            transform: this.transform.serialize(),
+            transform: this.transform ? this.transform.serialize() : undefined,
+            styles: this.styles.serialize(),
             effects: this.effects.serialize(),
         }
     }

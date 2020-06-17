@@ -30,7 +30,6 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
     }
     
     LayerCollection.prototype.processCurrentLayer = function() {
-        bm_eventDispatcher.log('LayerCollection.prototype.processCurrentLayer: ' + this.currentLayerIndex);
         try {
             var currentLayer = this.collection[this.currentLayerIndex];
             if (currentLayer) {
@@ -48,8 +47,19 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
         app.scheduleTask('$.__bodymovin.reportScheduledMethod();', 20, false);
     }
 
-    LayerCollection.prototype.onLayerFailed = function() {
-        this._onFail();
+    LayerCollection.prototype.onLayerFailed = function(error) {
+        if (error) {
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+        }
+        bm_eventDispatcher.log($.stack);
+        this.collection[this.currentLayerIndex] = layerReportHelper.createFailedLayer(
+            this.layers[this.currentLayerIndex + 1],
+            this.onLayerComplete,
+            this.onLayerFailed
+        );
+        this.processCurrentLayer();
     }
 
     LayerCollection.prototype.onLayerComplete = function() {

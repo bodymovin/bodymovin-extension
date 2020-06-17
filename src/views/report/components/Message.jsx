@@ -31,11 +31,23 @@ const styles = StyleSheet.create({
     renderers: {
       display: 'flex',
     },
+    renderers_title: {
+      flex: '0 0 auto',
+      color: Variables.colors.gray_darkest,
+      whiteSpace: 'pre',
+    },
     renderer: {
       paddingRight: '4px',
+      color: Variables.colors.blue,
+    },
+    renderer_separator: {
+      color: Variables.colors.gray_darkest,
     },
     content: {
       paddingTop: '10px',
+    },
+    missing_error: {
+      color: Variables.colors.red,
     }
 })
 
@@ -66,9 +78,10 @@ class Message extends React.Component {
 
   buildRenderers = renderers => (
     <div className={css(styles.renderers)}>
+      <span className={css(styles.renderers_title)}>Renderers: </span>
       {renderers.map((renderer, index) => 
         (<div key={renderer} className={css(styles.renderer)}>
-          {index > 0 && <span> | </span>}
+          {index > 0 && <span className={css(styles.renderer_separator)}> | </span>}
           {this.renderers[renderer]}
         </div>)
       )}
@@ -118,6 +131,10 @@ class Message extends React.Component {
     <div>This shape property is not supported</div>
   )
 
+  buildUnhandledShape = () => (
+    <div>This shape property is not supported</div>
+  )
+
   buildEffects = (payload) => {
     const effects = payload.effects;
     return (
@@ -152,6 +169,40 @@ class Message extends React.Component {
     <div>Text animators are not supported</div>
   )
 
+  buildLargeImage = () => (
+    <div>This layer source size is large and can affect performance. Consider using smaller images.</div>
+  )
+
+  buildIllustratorAsset = () => (
+    <div>It seems you are using an asset coming from illustrator. Consider converting it to shapes so it gets exported as vectors instead of a raster image.</div>
+  )
+
+  buildCameraLayer = () => (
+    <div>Layers of type camera are not supported.</div>
+  )
+
+  buildNotSupportedLayer = () => (
+    <div>This type of layer is not supported.</div>
+  )
+
+  buildAdjustmentLayer = () => (
+    <div>Adjustment layers get exported as null layers.</div>
+  )
+
+  buildFailedLayer = () => (
+    <div>this layer failed while creating the report.</div>
+  )
+
+  buildUnsupportedStyle = () => (
+    <div>this layer style is not supported.</div>
+  )
+
+  buildUnhandledMessageType = type => (
+    <div>this error type: 
+      <span className={css(styles.missing_error)}>{type}</span> is not supported by the reader.
+    </div>
+  )
+
   builders = {
     expressions: this.buildExpressionMessage,
     wiggle: this.buildWiggleMessage,
@@ -165,14 +216,21 @@ class Message extends React.Component {
     'unhandled shape': this.buildUnhandledShape,
     'merge paths': this.buildMergePaths,
     'text animators': this.buildTextAnimators,
-    'animator properties': this.buildAnimatorProperties,
+    'large image': this.buildLargeImage,
+    'illustrator asset': this.buildIllustratorAsset,
+    'camera layer': this.buildCameraLayer,
+    'audio layer': this.buildNotSupportedLayer,
+    'light layer': this.buildNotSupportedLayer,
+    'adjustment layer': this.buildAdjustmentLayer,
+    'failed layer': this.buildFailedLayer,
+    'unsupported style': this.buildUnsupportedStyle,
   }
 
   buildMessage = (builder, payload) => {
     if (this.builders[builder]) {
       return this.builders[builder](payload)
     } else {
-      return null
+      return this.buildUnhandledMessageType(builder)
     }
   }
 

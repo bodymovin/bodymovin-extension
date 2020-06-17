@@ -106,6 +106,9 @@ const getRotationMessageCount = memoizeHelper((rotationData, renderers, messageT
 })
 
 const getTransformMessageCount = memoizeHelper((transform, renderers, messageTypes) => {
+  if (!transform) {
+    return buildMessageCounterObject();
+  }
   return addMessagesCount(
     getPropertyMessageCount(transform.anchorPoint, renderers, messageTypes),
     getPositionMessageCount(transform.position, renderers, messageTypes),
@@ -119,6 +122,71 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
   )
 })
 
+const getDropShadowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'color', 'opacity', 'angle', 'size', 'distance',
+    'spread', 'blendMode', 'noise', 'knocksOut'
+  ]
+  const propertyMessages = properties.reduce((accumulator, propertyName) => (
+      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
+    ), buildMessageCounterObject)
+  return addMessageCount(
+    getPropertyMessageCount(style.messages, renderers, messageTypes),
+    propertyMessages
+  )
+})
+
+const getStrokeStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'color',
+    'size',
+    'blendMode',
+    'opacity',
+    'position',
+  ]
+  const propertyMessages = properties.reduce((accumulator, propertyName) => (
+      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
+    ), buildMessageCounterObject)
+  return addMessageCount(
+    getPropertyMessageCount(style.messages, renderers, messageTypes),
+    propertyMessages
+  )
+})
+
+const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const counterStyles = {
+    0: getStrokeStyleMessageCount,
+    1: getDropShadowStyleMessageCount,
+  }
+
+  if (counterStyles[style.type]) {
+    return counterStyles[style.type](style, renderers, messageTypes)
+  } else {
+    return getPropertyMessageCount(style.messages, renderers, messageTypes)
+  }
+})
+
+const getStylesCollectionMessageCount = memoizeHelper((stylesCollection, renderers, messageTypes) => {
+  let messageCount = buildMessageCounterObject();
+  for (var i = 0; i < stylesCollection.length; i += 1) {
+    messageCount = addMessageCount(
+      messageCount,
+      getStyleMessageCount(stylesCollection[i], renderers, messageTypes)
+    )
+  }
+  return messageCount;
+})
+
+const getStylesMessageCount = memoizeHelper((styles, renderers, messageTypes) => {
+  if (!styles) {
+    return buildMessageCounterObject();
+  }
+  return addMessagesCount(
+    countMessages(styles.messages, renderers, messageTypes),
+    getStylesCollectionMessageCount(styles.styles, renderers, messageTypes),
+  )
+})
+
 const getEffectsMessageCount = memoizeHelper((effects, renderers, messageTypes) =>
   countMessages(effects, renderers, messageTypes)
 )
@@ -126,6 +194,7 @@ const getEffectsMessageCount = memoizeHelper((effects, renderers, messageTypes) 
 const getLayerMessageCount = memoizeHelper((layer, renderers, messageTypes) => {
   return addMessagesCount(
     getTransformMessageCount(layer.transform, renderers, messageTypes),
+    getStylesMessageCount(layer.styles, renderers, messageTypes),
     countMessages(layer.messages, renderers, messageTypes),
     getEffectsMessageCount(layer.effects, renderers, messageTypes),
     countLayerMessagesByType(layer, renderers, messageTypes),
@@ -243,4 +312,6 @@ export {
   getTextMessagesCount,
   getAnimatorMessageCount,
   countMessageByTypeAndRenderer,
+  getStylesMessageCount,
+  getDropShadowStyleMessageCount,
 }
