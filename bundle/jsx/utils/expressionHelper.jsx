@@ -6,6 +6,7 @@ $.__bodymovin.bm_expressionHelper = (function () {
     var variableDeclaration_helper = $.__bodymovin.bm_variableDeclarationHelper;
     var valueAssignment_helper = $.__bodymovin.bm_valueAssignmentHelper;
     var reservedProperties_helper = $.__bodymovin.bm_reserverPropertiesHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
     var options = {
         tokens: true,
@@ -558,8 +559,12 @@ $.__bodymovin.bm_expressionHelper = (function () {
         }
     }*/
 
+    function hasExpressions(prop) {
+        return prop.expressionEnabled && !prop.expressionError;
+    }
+
     function checkExpression(prop, returnOb) {
-        if (prop.expressionEnabled && !prop.expressionError) {
+        if (hasExpressions(prop)) {
             if(expressionIsValue(prop.expression)) {
                 return;
             }
@@ -643,7 +648,19 @@ $.__bodymovin.bm_expressionHelper = (function () {
         return str.replace(throwRegex, '$1;\n$4');
     }
 
+    function shouldBakeExpression(property) {
+        if (hasExpressions(property)) {
+            if (settingsHelper.shouldBakeExpressions()
+            || property.expression.indexOf("lottie:bake") !== -1){
+                return true;
+            }
+        }
+        return false;
+    }
+
     ob.checkExpression = checkExpression;
+    ob.shouldBakeExpression = shouldBakeExpression;
+    ob.hasExpressions = hasExpressions;
 
     return ob;
 }());

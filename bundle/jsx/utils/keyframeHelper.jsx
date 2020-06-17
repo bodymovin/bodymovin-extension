@@ -5,6 +5,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var bakeExpressions = $.__bodymovin.bm_keyframeBakerHelper;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -406,18 +407,22 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     
     function exportKeyframes(prop, frRate, stretch, keyframeValues) {
         var returnOb = {}
-        if (prop.numKeys <= 1) {
-            returnOb.a = 0;
+        if (bm_expressionHelper.shouldBakeExpression(prop)) {
+            returnOb = bakeExpressions(prop, frRate);
         } else {
-            returnOb.a = 1;
+            if (prop.numKeys <= 1) {
+                returnOb.a = 0;
+            } else {
+                returnOb.a = 1;
+            }
+            searchRovingKeyframes(prop);
+            returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
+            if(prop.propertyIndex && !settingsHelper.shouldIgnoreExpressionProperties()) {
+                returnOb.ix = prop.propertyIndex;
+            }
+            bm_expressionHelper.checkExpression(prop, returnOb);
+            restoreRovingKeyframes(prop);
         }
-        searchRovingKeyframes(prop);
-        returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
-        if(prop.propertyIndex && !settingsHelper.shouldIgnoreExpressionProperties()) {
-            returnOb.ix = prop.propertyIndex;
-        }
-        bm_expressionHelper.checkExpression(prop, returnOb);
-        restoreRovingKeyframes(prop);
         return returnOb;
     }
     
