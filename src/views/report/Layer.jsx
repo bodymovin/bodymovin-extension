@@ -4,6 +4,7 @@ import {
 } from '../../helpers/reports/counter'
 import Transform from './Transform'
 import Effects from './Effects'
+import LayerStyles from './LayerStyles'
 import RowContainer from './components/RowContainer'
 import Property from './Property'
 import LayerCollection from './LayerCollection'
@@ -37,6 +38,16 @@ class Layer extends React.Component {
     <Effects
       key={'effects'}
       effects={this.props.layer.effects}
+      renderers={this.props.renderers}
+      messageTypes={this.props.messageTypes}
+      shouldAutoExpand={shouldAutoExpand}
+    />
+  )
+
+  buildStyles = shouldAutoExpand => (
+    <LayerStyles
+      key={'layer styles'}
+      styles={this.props.layer.styles}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
       shouldAutoExpand={shouldAutoExpand}
@@ -88,6 +99,7 @@ class Layer extends React.Component {
         this.buildMessages(shouldAutoExpand),
         this.buildTransform(shouldAutoExpand),
         this.buildEffects(shouldAutoExpand),
+        this.buildStyles(shouldAutoExpand),
         this.buildLayerContent(shouldAutoExpand),
       ]
     )

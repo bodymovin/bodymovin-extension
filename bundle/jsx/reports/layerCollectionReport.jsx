@@ -48,6 +48,12 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
     }
 
     LayerCollection.prototype.onLayerFailed = function(error) {
+        if (error) {
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+        }
+        bm_eventDispatcher.log($.stack);
         this.collection[this.currentLayerIndex] = layerReportHelper.createFailedLayer(
             this.layers[this.currentLayerIndex + 1],
             this.onLayerComplete,

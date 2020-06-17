@@ -23,5 +23,6 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         IMAGE_LAYER: 'image layer',
         FAILED_LAYER: 'failed layer',
         ADJUSTMENT_LAYER: 'adjustment layer',
+        UNSUPPORTED_STYLE: 'unsupported style',
     };
 }());

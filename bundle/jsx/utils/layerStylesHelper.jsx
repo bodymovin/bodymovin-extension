@@ -2,31 +2,10 @@
 /*global $*/
 $.__bodymovin.bm_layerStylesHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var layerStyleTypes = $.__bodymovin.layerStyleTypes;
+    var getStyleType = $.__bodymovin.getLayerStyleType;
+
     var ob = {};
-    var layerStyleTypes = {
-        stroke: 0,
-        dropShadow: 1,
-        innerShadow: 2,
-        outerGlow: 3,
-        innerGlow: 4
-    };
-    
-    function getStyleType(name) {
-        switch (name) {
-        case 'frameFX/enabled':
-            return layerStyleTypes.stroke;
-        case 'dropShadow/enabled':
-            return layerStyleTypes.dropShadow;
-        case 'innerShadow/enabled':
-            return layerStyleTypes.innerShadow;
-        case 'outerGlow/enabled':
-            return layerStyleTypes.outerGlow;
-        case 'innerGlow/enabled':
-            return layerStyleTypes.innerGlow;
-        default:
-            return '';
-        }
-    }
     
     function exportStroke(style, frameRate, stretch) {
         var ob = {};

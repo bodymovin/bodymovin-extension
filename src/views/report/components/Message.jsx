@@ -193,6 +193,10 @@ class Message extends React.Component {
     <div>this layer failed while creating the report.</div>
   )
 
+  buildUnsupportedStyle = () => (
+    <div>this layer style is not supported.</div>
+  )
+
   buildUnhandledMessageType = type => (
     <div>this error type: 
       <span className={css(styles.missing_error)}>{type}</span> is not supported by the reader.
@@ -219,6 +223,7 @@ class Message extends React.Component {
     'light layer': this.buildNotSupportedLayer,
     'adjustment layer': this.buildAdjustmentLayer,
     'failed layer': this.buildFailedLayer,
+    'unsupported style': this.buildUnsupportedStyle,
   }
 
   buildMessage = (builder, payload) => {
