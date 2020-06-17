@@ -20,5 +20,8 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         ILLUSTRATOR_ASSET: 'illustrator asset',
         CAMERA_LAYER: 'camera layer',
         AUDIO_LAYER: 'audio layer',
+        IMAGE_LAYER: 'image layer',
+        FAILED_LAYER: 'failed layer',
+        ADJUSTMENT_LAYER: 'adjustment layer',
     };
 }());

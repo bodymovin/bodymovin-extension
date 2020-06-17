@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper*/
+/*global $*/
 $.__bodymovin.bm_transformHelper = (function () {
     'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
@@ -24,7 +24,7 @@ $.__bodymovin.bm_transformHelper = (function () {
             data.ks.ry = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Rotate Y'), frameRate, stretch);
             data.ks.rz = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Rotate Z'), frameRate, stretch);
             data.ks.or = bm_keyframeHelper.exportKeyframes(layerInfo.transform.Orientation, frameRate, stretch);
-        } else {
+        } else if(layerInfo.transform.rotation) {
             data.ks.r = bm_keyframeHelper.exportKeyframes(layerInfo.transform.rotation, frameRate, stretch);
         }
         if (layerInfo.transform.position.dimensionsSeparated) {

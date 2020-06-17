@@ -48,7 +48,12 @@ $.__bodymovin.bm_layerCollectionReport = (function () {
     }
 
     LayerCollection.prototype.onLayerFailed = function(error) {
-        this._onFail(error);
+        this.collection[this.currentLayerIndex] = layerReportHelper.createFailedLayer(
+            this.layers[this.currentLayerIndex + 1],
+            this.onLayerComplete,
+            this.onLayerFailed
+        );
+        this.processCurrentLayer();
     }
 
     LayerCollection.prototype.onLayerComplete = function() {
