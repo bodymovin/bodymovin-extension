@@ -178,6 +178,21 @@ const getBevelEmbossStyleMessageCount = memoizeHelper((style, renderers, message
   return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
+const getSatinStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getColorOverlayStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getGradientOverlayStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
 const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const counterStyles = {
     0: getStrokeStyleMessageCount,
@@ -186,6 +201,9 @@ const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
     3: getOuterGlowStyleMessageCount,
     4: getInnerGlowStyleMessageCount,
     5: getBevelEmbossStyleMessageCount,
+    6: getSatinStyleMessageCount,
+    7: getColorOverlayStyleMessageCount,
+    8: getGradientOverlayStyleMessageCount,
   }
 
   if (counterStyles[style.type]) {

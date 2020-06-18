@@ -10,6 +10,9 @@ import InnerShadowStyle from './styles/InnerShadowStyle'
 import OuterGlowStyle from './styles/OuterGlowStyle'
 import InnerGlowStyle from './styles/InnerGlowStyle'
 import BevelEmbossStyle from './styles/BevelEmbossStyle'
+import SatinStyle from './styles/SatinStyle'
+import ColorOverlayStyle from './styles/ColorOverlayStyle'
+import GradientOverlayStyle from './styles/GradientOverlayStyle'
 
 class LayerStyles extends React.Component {
 
@@ -20,6 +23,9 @@ class LayerStyles extends React.Component {
     3: OuterGlowStyle,
     4: InnerGlowStyle,
     5: BevelEmbossStyle,
+    6: SatinStyle,
+    7: ColorOverlayStyle,
+    8: GradientOverlayStyle,
   }
 
   buildStylesCollection = (shouldAutoExpand, styles) => {
