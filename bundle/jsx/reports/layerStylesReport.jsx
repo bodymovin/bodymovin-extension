@@ -10,6 +10,7 @@ $.__bodymovin.bm_layerStylesReportFactory = (function () {
     var getStyleType = $.__bodymovin.getLayerStyleType;
     var dropShadowFactory = $.__bodymovin.bm_layerStylesDropShadowFactory;
     var strokeFactory = $.__bodymovin.bm_layerStylesStrokeFactory;
+    var innerShadowFactory = $.__bodymovin.bm_layerStylesInnerShadowFactory;
 
     function LayerStyles(styles) {
         this.stylesProperty = styles;
@@ -23,6 +24,7 @@ $.__bodymovin.bm_layerStylesReportFactory = (function () {
     var styleTypesFactories = {}
     styleTypesFactories[layerStyleTypes.stroke] = strokeFactory;
     styleTypesFactories[layerStyleTypes.dropShadow] = dropShadowFactory;
+    styleTypesFactories[layerStyleTypes.innerShadow] = innerShadowFactory;
 
     function buildStyleReport(type, style) {
         return styleTypesFactories[type](style);
