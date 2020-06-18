@@ -8,6 +8,7 @@ import StrokeStyle from './styles/StrokeStyle'
 import DropShadowStyle from './styles/DropShadowStyle'
 import InnerShadowStyle from './styles/InnerShadowStyle'
 import OuterGlowStyle from './styles/OuterGlowStyle'
+import InnerGlowStyle from './styles/InnerGlowStyle'
 
 class LayerStyles extends React.Component {
 
@@ -16,6 +17,7 @@ class LayerStyles extends React.Component {
     1: DropShadowStyle,
     2: InnerShadowStyle,
     3: OuterGlowStyle,
+    4: InnerGlowStyle,
   }
 
   buildStylesCollection = (shouldAutoExpand, styles) => {
