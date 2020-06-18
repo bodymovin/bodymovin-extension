@@ -5,61 +5,9 @@ import {
 import RowContainer from '../components/RowContainer'
 import Property from '../Property'
 
-class InnerGlowStyle extends React.Component {
+class BevelEmbossStyle extends React.Component {
 
   styleProperties = [
-    {
-      key: 'blendMode',
-      name: 'Blend Mode',
-    },
-    {
-      key: 'opacity',
-      name: 'Opacity',
-    },
-    {
-      key: 'noise',
-      name: 'Noise',
-    },
-    {
-      key: 'colorChoice',
-      name: 'Color Type',
-    },
-    {
-      key: 'color',
-      name: 'Color',
-    },
-    {
-      key: 'gradient',
-      name: 'Colors',
-    },
-    {
-      key: 'gradientSmoothness',
-      name: 'Gradient Smoothness',
-    },
-    {
-      key: 'glowTechnique',
-      name: 'Technique',
-    },
-    {
-      key: 'source',
-      name: 'Source',
-    },
-    {
-      key: 'chokeMatte',
-      name: 'Spread',
-    },
-    {
-      key: 'blur',
-      name: 'Size',
-    },
-    {
-      key: 'inputRange',
-      name: 'Range',
-    },
-    {
-      key: 'shadingNoise',
-      name: 'Jitter',
-    },
   ]
 
   buildProperties = shouldAutoExpand => (
@@ -112,4 +60,4 @@ class InnerGlowStyle extends React.Component {
   }
 }
 
-export default InnerGlowStyle
+export default BevelEmbossStyle

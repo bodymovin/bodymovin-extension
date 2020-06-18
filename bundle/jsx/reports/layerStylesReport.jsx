@@ -13,6 +13,7 @@ $.__bodymovin.bm_layerStylesReportFactory = (function () {
     var innerShadowFactory = $.__bodymovin.bm_layerStylesInnerShadowFactory;
     var outerGlowFactory = $.__bodymovin.bm_layerStylesOuterGlowFactory;
     var innerGlowFactory = $.__bodymovin.bm_layerStylesInnerGlowFactory;
+    var bevelEmbossFactory = $.__bodymovin.bm_layerStylesBevelEmbossFactory;
 
     function LayerStyles(styles) {
         this.stylesProperty = styles;
@@ -29,6 +30,7 @@ $.__bodymovin.bm_layerStylesReportFactory = (function () {
     styleTypesFactories[layerStyleTypes.innerShadow] = innerShadowFactory;
     styleTypesFactories[layerStyleTypes.outerGlow] = outerGlowFactory;
     styleTypesFactories[layerStyleTypes.innerGlow] = innerGlowFactory;
+    styleTypesFactories[layerStyleTypes.bevelEmboss] = bevelEmbossFactory;
 
     function buildStyleReport(type, style) {
         return styleTypesFactories[type](style);

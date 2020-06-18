@@ -54,6 +54,7 @@ $.evalFile(extensionPath + 'reports/layerStyles/dropShadowStyle.jsx');
 $.evalFile(extensionPath + 'reports/layerStyles/innerShadowStyle.jsx');
 $.evalFile(extensionPath + 'reports/layerStyles/outerGlowStyle.jsx');
 $.evalFile(extensionPath + 'reports/layerStyles/innerGlowStyle.jsx');
+$.evalFile(extensionPath + 'reports/layerStyles/bevelEmbossStyle.jsx');
 $.evalFile(extensionPath + 'reports/layerStylesReport.jsx');
 $.evalFile(extensionPath + 'reports/layerReport.jsx');
 $.evalFile(extensionPath + 'reports/layers/shapes/shapeGroupReport.jsx');

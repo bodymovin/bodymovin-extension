@@ -173,6 +173,11 @@ const getInnerGlowStyleMessageCount = memoizeHelper((style, renderers, messageTy
   return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
+const getBevelEmbossStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
 const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const counterStyles = {
     0: getStrokeStyleMessageCount,
@@ -180,6 +185,7 @@ const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
     2: getInnerShadowStyleMessageCount,
     3: getOuterGlowStyleMessageCount,
     4: getInnerGlowStyleMessageCount,
+    5: getBevelEmbossStyleMessageCount,
   }
 
   if (counterStyles[style.type]) {

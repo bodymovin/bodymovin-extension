@@ -5,7 +5,7 @@ import {
 import RowContainer from '../components/RowContainer'
 import Property from '../Property'
 
-class DropShadowStyle extends React.Component {
+class InnerShadowStyle extends React.Component {
 
   styleProperties = [
     {
@@ -96,4 +96,4 @@ class DropShadowStyle extends React.Component {
   }
 }
 
-export default DropShadowStyle
+export default InnerShadowStyle

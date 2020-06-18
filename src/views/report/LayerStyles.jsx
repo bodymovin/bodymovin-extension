@@ -9,6 +9,7 @@ import DropShadowStyle from './styles/DropShadowStyle'
 import InnerShadowStyle from './styles/InnerShadowStyle'
 import OuterGlowStyle from './styles/OuterGlowStyle'
 import InnerGlowStyle from './styles/InnerGlowStyle'
+import BevelEmbossStyle from './styles/BevelEmbossStyle'
 
 class LayerStyles extends React.Component {
 
@@ -18,6 +19,7 @@ class LayerStyles extends React.Component {
     2: InnerShadowStyle,
     3: OuterGlowStyle,
     4: InnerGlowStyle,
+    5: BevelEmbossStyle,
   }
 
   buildStylesCollection = (shouldAutoExpand, styles) => {
