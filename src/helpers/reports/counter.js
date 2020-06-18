@@ -142,19 +142,25 @@ const getDropShadowStyleMessageCount = memoizeHelper((style, renderers, messageT
 
 const getStrokeStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const properties = [
-    'color',
-    'size',
-    'blendMode',
-    'opacity',
-    'position',
+    'color','size','blendMode','opacity','position'
   ]
   return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
 const getInnerShadowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const properties = [
-  'blendMode','color','opacity','globalLight','angle'
-  ,'distance','choke','size','noise']
+    'blendMode','color','opacity','globalLight','angle'
+    ,'distance','choke','size','noise'
+  ]
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getOuterGlowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'blendMode','opacity','noise','colorChoice',
+    'color','gradient','gradientSmoothness','glowTechnique',
+    'chokeMatte','blur','inputRange','shadingNoise'
+  ]
   return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
@@ -163,6 +169,7 @@ const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
     0: getStrokeStyleMessageCount,
     1: getDropShadowStyleMessageCount,
     2: getInnerShadowStyleMessageCount,
+    3: getOuterGlowStyleMessageCount,
   }
 
   if (counterStyles[style.type]) {
