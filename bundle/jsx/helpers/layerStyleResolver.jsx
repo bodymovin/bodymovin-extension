@@ -4,6 +4,7 @@
 $.__bodymovin.getLayerStyleType = (function () {
 
     var layerStyleTypes = $.__bodymovin.layerStyleTypes;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     
     return function (name) {
         switch (name) {
@@ -17,6 +18,14 @@ $.__bodymovin.getLayerStyleType = (function () {
             return layerStyleTypes.outerGlow;
         case 'innerGlow/enabled':
             return layerStyleTypes.innerGlow;
+        case 'bevelEmboss/enabled':
+            return layerStyleTypes.bevelEmboss;
+        case 'chromeFX/enabled':
+            return layerStyleTypes.satin;
+        case 'solidFill/enabled':
+            return layerStyleTypes.colorOverlay;
+        case 'gradientFill/enabled':
+            return layerStyleTypes.gradientOverlay;
         default:
             return '';
         }

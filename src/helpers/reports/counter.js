@@ -122,41 +122,88 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
   )
 })
 
+const getGenericStyleMessagCount = (style, renderers, messageTypes, properties) => {
+  const propertyMessages = properties.reduce((accumulator, propertyName) => (
+      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
+    ), buildMessageCounterObject)
+  return addMessageCount(
+    getPropertyMessageCount(style.messages, renderers, messageTypes),
+    propertyMessages
+  )
+}
+
 const getDropShadowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const properties = [
     'color', 'opacity', 'angle', 'size', 'distance',
     'spread', 'blendMode', 'noise', 'knocksOut'
   ]
-  const propertyMessages = properties.reduce((accumulator, propertyName) => (
-      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
-    ), buildMessageCounterObject)
-  return addMessageCount(
-    getPropertyMessageCount(style.messages, renderers, messageTypes),
-    propertyMessages
-  )
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
 const getStrokeStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const properties = [
-    'color',
-    'size',
-    'blendMode',
-    'opacity',
-    'position',
+    'color','size','blendMode','opacity','position'
   ]
-  const propertyMessages = properties.reduce((accumulator, propertyName) => (
-      addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes), accumulator)
-    ), buildMessageCounterObject)
-  return addMessageCount(
-    getPropertyMessageCount(style.messages, renderers, messageTypes),
-    propertyMessages
-  )
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getInnerShadowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'blendMode','color','opacity','globalLight','angle'
+    ,'distance','choke','size','noise'
+  ]
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getOuterGlowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'blendMode','opacity','noise','colorChoice',
+    'color','gradient','gradientSmoothness','glowTechnique',
+    'chokeMatte','blur','inputRange','shadingNoise'
+  ]
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getInnerGlowStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = [
+    'blendMode','opacity','noise','colorChoice',
+    'color','gradient','gradientSmoothness','glowTechnique','source',
+    'chokeMatte','blur','inputRange','shadingNoise'
+  ]
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getBevelEmbossStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getSatinStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getColorOverlayStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
+})
+
+const getGradientOverlayStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
+  const properties = []
+  return getGenericStyleMessagCount(style, renderers, messageTypes, properties)
 })
 
 const getStyleMessageCount = memoizeHelper((style, renderers, messageTypes) => {
   const counterStyles = {
     0: getStrokeStyleMessageCount,
     1: getDropShadowStyleMessageCount,
+    2: getInnerShadowStyleMessageCount,
+    3: getOuterGlowStyleMessageCount,
+    4: getInnerGlowStyleMessageCount,
+    5: getBevelEmbossStyleMessageCount,
+    6: getSatinStyleMessageCount,
+    7: getColorOverlayStyleMessageCount,
+    8: getGradientOverlayStyleMessageCount,
   }
 
   if (counterStyles[style.type]) {
