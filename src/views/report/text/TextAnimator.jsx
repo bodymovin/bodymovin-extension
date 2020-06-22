@@ -10,6 +10,7 @@ class TextAnimator extends React.Component {
         messages={this.props.animator.messages}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={this.props.shouldAutoExpand}
       />
     );

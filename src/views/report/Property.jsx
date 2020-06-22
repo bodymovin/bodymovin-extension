@@ -17,6 +17,7 @@ class Property extends React.Component {
           message={message}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
         />
       ))}
       </div>
@@ -24,7 +25,7 @@ class Property extends React.Component {
   }
 
   render() {
-    const messageCount = getPropertyMessageCount(this.props.messages, this.props.renderers, this.props.messageTypes)
+    const messageCount = getPropertyMessageCount(this.props.messages, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={this.props.name}

@@ -24,5 +24,7 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         FAILED_LAYER: 'failed layer',
         ADJUSTMENT_LAYER: 'adjustment layer',
         UNSUPPORTED_STYLE: 'unsupported style',
+        LARGE_MASK: 'large mask',
+        FILTER_SIZE: 'filter size',
     };
 }());

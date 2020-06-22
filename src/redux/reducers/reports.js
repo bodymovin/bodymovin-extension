@@ -51,6 +51,124 @@ let initialState = {
 				isSelected: true,
 			}
 		],
+		builders: [
+			{
+				id: 'all',
+				label: 'All',
+				isSelected: true,
+			},
+			{
+				id: 'expressions',
+				label: 'Expressions',
+				isSelected: true,
+			},
+			{
+				id: 'wiggle',
+				label: 'Wiggle',
+				isSelected: true,
+			},
+			{
+				id: 'separateDimensions',
+				label: 'Separate dimensions',
+				isSelected: true,
+			},
+			{
+				id: 'orientAlongPath',
+				label: 'Orient along path',
+				isSelected: true,
+			},
+			{
+				id:'unhandled layer',
+				label: 'Unhandled Layers',
+				isSelected: true,
+			},
+			{
+				id:'three d layer',
+				label: 'Three dimensional layer',
+				isSelected: true,
+			},
+			{
+				id:'motion blur',
+				label: 'Motion blur',
+				isSelected: true,
+			},
+			{
+				id:'disabled layer',
+				label: 'Disbled layer',
+				isSelected: true,
+			},
+			{
+				id:'effects',
+				label: 'Effects',
+				isSelected: true,
+			},
+			{
+				id:'unhandled shape',
+				label: 'Unhandled shape property',
+				isSelected: true,
+			},
+			{
+				id:'merge paths',
+				label: 'Merge paths',
+				isSelected: true,
+			},
+			{
+				id:'text animators',
+				label: 'Text Animators',
+				isSelected: true,
+			},
+			{
+				id:'large image',
+				label: 'Large assets',
+				isSelected: true,
+			},
+			{
+				id:'illustrator asset',
+				label: 'Illustrator assets',
+				isSelected: true,
+			},
+			{
+				id:'camera layer',
+				label: 'Camera layer',
+				isSelected: true,
+			},
+			{
+				id:'audio layer',
+				label: 'Audio layer',
+				isSelected: true,
+			},
+			{
+				id:'light layer',
+				label: 'Light layer',
+				isSelected: true,
+			},
+			{
+				id:'adjustment layer',
+				label: 'Adjustment layer',
+				isSelected: true,
+			},
+			{
+				id:'failed layer',
+				label: 'Failed layer',
+				isSelected: true,
+			},
+			{
+				id:'unsupported style',
+				label: 'Unsupported style',
+				isSelected: true,
+			},
+			{
+				id:'large mask',
+				label: 'Large masks',
+				isSelected: true,
+			},
+			{
+				id:'filter size',
+				label: 'Filter size',
+				isSelected: true,
+			},
+
+		]
 	},
 	message: {
 		type: messageTypes.NONE,
@@ -89,6 +207,16 @@ function updateMessages(state, action) {
 		settings: {
 			...state.settings,
 			messageTypes: action.messageTypes,
+		}
+	}
+}
+
+function updateBuilders(state, action) {
+	return {
+		...state,
+		settings: {
+			...state.settings,
+			builders: action.builders,
 		}
 	}
 }
@@ -149,6 +277,8 @@ export default function project(state = initialState, action) {
 		return updateRenderers(state, action);
 		case actionTypes.REPORTS_MESSAGES_UPDATED:
 		return updateMessages(state, action);
+		case actionTypes.REPORTS_BUILDERS_UPDATED:
+		return updateBuilders(state, action);
 	    case actionTypes.PROJECT_STORED_DATA:
 	      return setStoredData(state, action)
 	    case actionTypes.REPORTS_LOAD_FAILED:

@@ -76,6 +76,19 @@ $.__bodymovin.bm_layerReport = (function () {
             ],
             builderTypes.THREE_D_LAYER);
         }
+        if (this.layer.isTrackMatte) {
+            var rect = this.layer.sourceRectAtTime(0, false);
+            if (rect.height * rect.width >= 1000 * 1000) {
+                this.addMessage(messageTypes.WARNING,
+                [
+                    rendererTypes.BROWSER,
+                    rendererTypes.SKOTTIE,
+                    rendererTypes.IOS,
+                    rendererTypes.ANDROID,
+                ],
+                builderTypes.LARGE_MASK);
+            }
+        }
     }
 
     Layer.prototype.processTransform = function() {

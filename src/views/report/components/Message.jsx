@@ -6,6 +6,7 @@ import warningIcon from '../../../assets/svg/warning.svg'
 import {
   countMessageByTypeAndRenderer,
 } from '../../../helpers/reports/counter'
+import {openInBrowser} from '../../../helpers/CompositionsProvider'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -197,9 +198,28 @@ class Message extends React.Component {
     <div>this layer style is not supported.</div>
   )
 
+  buildLargeMask = () => (
+    <div>Large masks can have an impact on performance.</div>
+  )
+
+  buildFilterSize = () => (
+    <div>You might need to set the filterSize property of the rendererSettings
+      <div>check
+        <span> </span>
+        <a
+          onClick={() => openInBrowser('https://github.com/airbnb/lottie-web/wiki/Renderer-Settings#filtersize-svg-renderer')}
+          href='#'>
+          here
+        </a>
+        <span> </span>
+         for more info
+      </div>
+    </div>
+  )
+
   buildUnhandledMessageType = type => (
     <div>this error type: 
-      <span className={css(styles.missing_error)}>{type}</span> is not supported by the reader.
+      <span className={css(styles.missing_error)}> {type}</span> is not supported by the reader.
     </div>
   )
 
@@ -224,6 +244,8 @@ class Message extends React.Component {
     'adjustment layer': this.buildAdjustmentLayer,
     'failed layer': this.buildFailedLayer,
     'unsupported style': this.buildUnsupportedStyle,
+    'large mask': this.buildLargeMask,
+    'filter size': this.buildFilterSize,
   }
 
   buildMessage = (builder, payload) => {
@@ -241,7 +263,7 @@ class Message extends React.Component {
   )
 
   render() {
-    const messageCount = countMessageByTypeAndRenderer(this.props.message, this.props.renderers, this.props.messageTypes)
+    const messageCount = countMessageByTypeAndRenderer(this.props.message, this.props.renderers, this.props.messageTypes, this.props.builders)
     if (messageCount === 0) {
       return null
     } else {

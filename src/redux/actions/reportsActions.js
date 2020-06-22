@@ -44,6 +44,13 @@ function messagesUpdated(messageTypes) {
 	}
 }
 
+function buildersUpdated(builders) {
+	return {
+		type: actionTypes.REPORTS_BUILDERS_UPDATED,
+		builders,
+	}
+}
+
 function importSelected() {
 	return {
 		type: actionTypes.REPORTS_IMPORT_SELECTED,
@@ -65,4 +72,5 @@ export {
 	messagesUpdated,
 	importSelected,
 	alertDismissed,
+	buildersUpdated,
 }
