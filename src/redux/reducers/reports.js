@@ -225,6 +225,7 @@ function setStoredData(state, action) {
 	const reports = action.projectData.reports || {
 		renderers: [],
 		messageTypes: [],
+		builders: [],
 	}
 	return {
 		...state,
@@ -237,6 +238,10 @@ function setStoredData(state, action) {
 			messageTypes: state.settings.messageTypes.map(messageType => {
 				const cachedMessageType = reports.messageTypes.find(cached => cached.id === messageType.id)
 				return cachedMessageType || messageType
+			}),
+			builders: state.settings.builders.map(builder => {
+				const cachedBuilder = reports.builders.find(cached => cached.id === builder.id)
+				return cachedBuilder || builder
 			}),
 		}
 	}

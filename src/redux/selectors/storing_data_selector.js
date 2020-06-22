@@ -20,6 +20,7 @@ const storingDataSelector = createSelector(
         reports: {
           renderers: reports.settings.renderers,
           messageTypes: reports.settings.messageTypes,
+          builders: reports.settings.builders,
         }
   		},
   		id: id
