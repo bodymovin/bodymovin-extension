@@ -167,6 +167,16 @@ let initialState = {
 				label: 'Filter size',
 				isSelected: true,
 			},
+			{
+				id:'unsupported property',
+				label: 'Unsupported property',
+				isSelected: true,
+			},
+			{
+				id:'unsupported mask mode',
+				label: 'Unsupported mask mode',
+				isSelected: true,
+			},
 
 		]
 	},

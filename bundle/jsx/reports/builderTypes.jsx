@@ -26,5 +26,7 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         UNSUPPORTED_STYLE: 'unsupported style',
         LARGE_MASK: 'large mask',
         FILTER_SIZE: 'filter size',
+        UNSUPPORTED_PROPERTY: 'unsupported property',
+        UNSUPPORTED_MASK_MODE: 'unsupported mask mode',
     };
 }());

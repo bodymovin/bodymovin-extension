@@ -10,6 +10,7 @@ $.__bodymovin.bm_layerReport = (function () {
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
     var effectsFactory = $.__bodymovin.bm_effectsReportFactory;
+    var masksFactory = $.__bodymovin.bm_masksReportFactory;
     var layerStylesFactory = $.__bodymovin.bm_layerStylesReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getLayerType = $.__bodymovin.getLayerType;
@@ -28,6 +29,7 @@ $.__bodymovin.bm_layerReport = (function () {
         this.processTransform();
         this.processStyles();
         this.processEffects();
+        this.processMasks();
     }
 
     Layer.prototype.processProperties = function() {
@@ -103,6 +105,10 @@ $.__bodymovin.bm_layerReport = (function () {
         this.effects = effectsFactory(this.layer.effect || {numProperties: 0});
     }
 
+    Layer.prototype.processMasks = function() {
+        this.masks = masksFactory(this.layer.mask || {numProperties: 0});
+    }
+
     Layer.prototype.processStyles = function() {
         this.styles = layerStylesFactory(this.layer.property('Layer Styles') || {numProperties: 0});
     }
@@ -116,6 +122,7 @@ $.__bodymovin.bm_layerReport = (function () {
             transform: this.transform ? this.transform.serialize() : undefined,
             styles: this.styles.serialize(),
             effects: this.effects.serialize(),
+            masks: this.masks.serialize(),
         }
     }
 

@@ -4,6 +4,7 @@ import {
 } from '../../helpers/reports/counter'
 import Transform from './Transform'
 import Effects from './Effects'
+import Masks from './Masks'
 import LayerStyles from './LayerStyles'
 import RowContainer from './components/RowContainer'
 import Property from './Property'
@@ -40,6 +41,17 @@ class Layer extends React.Component {
     <Effects
       key={'effects'}
       effects={this.props.layer.effects}
+      renderers={this.props.renderers}
+      messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
+      shouldAutoExpand={shouldAutoExpand}
+    />
+  )
+
+  buildMasks = shouldAutoExpand => (
+    <Masks
+      key={'masks'}
+      masks={this.props.layer.masks}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
       builders={this.props.builders}
@@ -106,6 +118,7 @@ class Layer extends React.Component {
         this.buildMessages(shouldAutoExpand),
         this.buildTransform(shouldAutoExpand),
         this.buildEffects(shouldAutoExpand),
+        this.buildMasks(shouldAutoExpand),
         this.buildStyles(shouldAutoExpand),
         this.buildLayerContent(shouldAutoExpand),
       ]

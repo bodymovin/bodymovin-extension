@@ -131,6 +131,30 @@ const getTransformMessageCount = memoizeHelper((transform, renderers, messageTyp
   )
 })
 
+const getMaskMessageCount = memoizeHelper((mask, renderers, messageTypes, builders) => {
+  return addMessagesCount(
+    getPropertyMessageCount(mask.expansion, renderers, messageTypes, builders),
+    getPropertyMessageCount(mask.feather, renderers, messageTypes, builders),
+    getPropertyMessageCount(mask.opacity, renderers, messageTypes, builders),
+    getPropertyMessageCount(mask.path, renderers, messageTypes, builders),
+    getPropertyMessageCount(mask.messages, renderers, messageTypes, builders),
+  )
+})
+
+const getMasksMessageCount = memoizeHelper((masks, renderers, messageTypes, builders) => {
+  if (!masks) {
+    return buildMessageCounterObject();
+  }
+
+  const masksMessages = masks.masks
+  .map(mask => getMaskMessageCount(mask, renderers, messageTypes, builders))
+  .reduce((acc, count) => addMessageCount(acc, count), buildMessageCounterObject())
+  return addMessagesCount(
+    masksMessages,
+    getPropertyMessageCount(masks.messages, renderers, messageTypes, builders),
+  )
+}) 
+
 const getGenericStyleMessagCount = (style, renderers, messageTypes, builders, properties) => {
   const propertyMessages = properties.reduce((accumulator, propertyName) => (
       addMessageCount(getPropertyMessageCount(style[propertyName], renderers, messageTypes, builders), accumulator)
@@ -250,6 +274,7 @@ const getEffectsMessageCount = memoizeHelper((effects, renderers, messageTypes, 
 const getLayerMessageCount = memoizeHelper((layer, renderers, messageTypes, builders) => {
   return addMessagesCount(
     getTransformMessageCount(layer.transform, renderers, messageTypes, builders),
+    getMasksMessageCount(layer.masks, renderers, messageTypes, builders),
     getStylesMessageCount(layer.styles, renderers, messageTypes, builders),
     countMessages(layer.messages, renderers, messageTypes, builders),
     getEffectsMessageCount(layer.effects, renderers, messageTypes, builders),
@@ -370,4 +395,6 @@ export {
   countMessageByTypeAndRenderer,
   getStylesMessageCount,
   getDropShadowStyleMessageCount,
+  getMasksMessageCount,
+  getMaskMessageCount,
 }

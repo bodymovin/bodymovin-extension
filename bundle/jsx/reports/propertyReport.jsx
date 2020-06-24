@@ -39,6 +39,31 @@ $.__bodymovin.bm_propertyReport = (function () {
         }
     }
 
+    Property.prototype.areValuesEqual = function(value1, value2) {
+        if (typeof value1 === 'number') {
+            return value1 === value2;
+        } else if (value1.length) {
+            for (var i = 0; i < value1.length; i += 1) {
+                if (value1[i] !== value2[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    Property.prototype.checkModifiedValue = function(value) {
+        if (!this.areValuesEqual(this.property.value, value)
+        || this.property.numKeys > 1
+        || (this.property.expressionEnabled && !this.property.expressionError)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     Property.prototype.process = function() {
         this.processExpressions();
     }

@@ -202,6 +202,14 @@ class Message extends React.Component {
     <div>Large masks can have an impact on performance.</div>
   )
 
+  buildUnsupportedProperty = () => (
+    <div>This property is not supported.</div>
+  )
+
+  buildUnsupportedMaskMode = () => (
+    <div>This mask mode is not supported.</div>
+  )
+
   buildFilterSize = () => (
     <div>You might need to set the filterSize property of the rendererSettings
       <div>check
@@ -246,6 +254,8 @@ class Message extends React.Component {
     'unsupported style': this.buildUnsupportedStyle,
     'large mask': this.buildLargeMask,
     'filter size': this.buildFilterSize,
+    'unsupported property': this.buildUnsupportedProperty,
+    'unsupported mask mode': this.buildUnsupportedMaskMode,
   }
 
   buildMessage = (builder, payload) => {
