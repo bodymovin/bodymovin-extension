@@ -28,5 +28,6 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         FILTER_SIZE: 'filter size',
         UNSUPPORTED_PROPERTY: 'unsupported property',
         UNSUPPORTED_MASK_MODE: 'unsupported mask mode',
+        LARGE_EFFECTS: 'large effects',
     };
 }());

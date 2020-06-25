@@ -202,6 +202,10 @@ class Message extends React.Component {
     <div>Large masks can have an impact on performance.</div>
   )
 
+  buildLargeEffect = () => (
+    <div>Large layers with effects can have an impact on performance.</div>
+  )
+
   buildUnsupportedProperty = () => (
     <div>This property is not supported.</div>
   )
@@ -256,6 +260,7 @@ class Message extends React.Component {
     'filter size': this.buildFilterSize,
     'unsupported property': this.buildUnsupportedProperty,
     'unsupported mask mode': this.buildUnsupportedMaskMode,
+    'large effects': this.buildLargeEffect,
   }
 
   buildMessage = (builder, payload) => {

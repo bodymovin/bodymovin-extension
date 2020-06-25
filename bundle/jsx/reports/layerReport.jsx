@@ -19,6 +19,9 @@ $.__bodymovin.bm_layerReport = (function () {
 
     function Layer(layer) {
         this.layer = layer;
+        // If layer is larger than this size, it might have performance issue in certain cases
+        this.LARGE_LAYER_SIZE = 1000 * 1000;
+        this.layerRect = this.layer.sourceRectAtTime(0, false);
         this.process();
     }
 
@@ -79,8 +82,8 @@ $.__bodymovin.bm_layerReport = (function () {
             builderTypes.THREE_D_LAYER);
         }
         if (this.layer.isTrackMatte) {
-            var rect = this.layer.sourceRectAtTime(0, false);
-            if (rect.height * rect.width >= 1000 * 1000) {
+            var rect = this.layerRect;
+            if (rect.height * rect.width >= this.LARGE_LAYER_SIZE) {
                 this.addMessage(messageTypes.WARNING,
                 [
                     rendererTypes.BROWSER,
@@ -103,6 +106,19 @@ $.__bodymovin.bm_layerReport = (function () {
 
     Layer.prototype.processEffects = function() {
         this.effects = effectsFactory(this.layer.effect || {numProperties: 0});
+        if (this.effects.hasSupportedEffects()) {
+            var rect = this.layerRect;
+            if (rect.height * rect.width >= this.LARGE_LAYER_SIZE) {
+                this.addMessage(messageTypes.WARNING,
+                [
+                    rendererTypes.BROWSER,
+                    rendererTypes.SKOTTIE,
+                    rendererTypes.IOS,
+                    rendererTypes.ANDROID,
+                ],
+                builderTypes.LARGE_EFFECTS);
+            }
+        }
     }
 
     Layer.prototype.processMasks = function() {
