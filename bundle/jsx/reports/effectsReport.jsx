@@ -11,6 +11,7 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
 
     var skippedEffectMatchNames = {
         'ADBE Effect Built In Params': 'ADBE Effect Built In Params',
+        'Pseudo/Bodymovin Text Props 3': 'Pseudo/Bodymovin Text Props 3',
     }
 
     var supportedEffects = [
@@ -59,6 +60,8 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
     Effects.prototype.process = function() {
         for (var i = 0; i < this.effectsProperty.numProperties; i += 1) {
             var effectElement = this.effectsProperty(i + 1);
+            bm_eventDispatcher.log('effectElement.matchName')
+            bm_eventDispatcher.log(effectElement.matchName)
             if (effectElement.enabled && !skippedEffectMatchNames[effectElement.matchName]) {
                 if (effectsMessages[effectElement.matchName]) {
                     this.addEffect(effectsMessages[effectElement.matchName]);
