@@ -12,6 +12,7 @@ import {
   messagesUpdated,
   importSelected,
   alertDismissed,
+  buildersUpdated,
 } from '../../redux/actions/reportsActions'
 import Variables from '../../helpers/styles/variables'
 
@@ -74,6 +75,7 @@ class Reports extends React.Component {
             <Report
               renderers={this.props.options.renderers}
               messageTypes={this.props.options.messageTypes}
+              builders={this.props.options.builders}
               report={this.props.data}
               onLayerNavigation={this.props.onLayerNavigation}
             />
@@ -88,8 +90,10 @@ class Reports extends React.Component {
             <Settings
               renderers={this.props.settings.renderers}
               messageTypes={this.props.settings.messageTypes}
+              builders={this.props.settings.builders}
               onRenderersUpdate={this.props.onRenderersUpdate}
               onMessagesUpdate={this.props.onMessagesUpdate}
+              onBuildersUpdate={this.props.onBuildersUpdate}
               onClose={this.hideSettings}
             />
           </div>
@@ -107,6 +111,7 @@ const mapDispatchToProps = {
   onLayerNavigation: navigateToLayer,
   onRenderersUpdate: renderersUpdated,
   onMessagesUpdate: messagesUpdated,
+  onBuildersUpdate: buildersUpdated,
   onImportSelected: importSelected,
   onAlertDismissed: alertDismissed,
 }

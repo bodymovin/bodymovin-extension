@@ -16,6 +16,7 @@ class LayerCollection extends React.Component {
         assets={this.props.assets}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         onLayerNavigation={this.props.onLayerNavigation}
         shouldAutoExpand={shouldAutoExpand}
       />
@@ -27,7 +28,7 @@ class LayerCollection extends React.Component {
   }
 
   render() {
-    const messageCount = getLayerCollectionMessagesCount(this.props.layers, this.props.renderers, this.props.messageTypes)
+    const messageCount = getLayerCollectionMessagesCount(this.props.layers, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={'Composition Layers'}

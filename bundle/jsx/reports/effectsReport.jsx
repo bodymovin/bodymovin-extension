@@ -13,13 +13,25 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
         'ADBE Effect Built In Params': 'ADBE Effect Built In Params',
     }
 
+    var supportedEffects = [
+        'ADBE Tint',
+        'ADBE Fill',
+        'ADBE Stroke',
+        'ADBE Tritone',
+        'ADBE Pro Levels2',
+        'ADBE Drop Shadow',
+        'ADBE Set Matte3',
+        'ADBE Gaussian Blur 2',
+    ]
+
     function Effects(effects) {
         this.effectsProperty = effects;
         this.messages = [];
+        this._addedEffects = [];
         this.process();
     }
 
-    Effects.prototype.getMessageByTypeAndRenderers = function(type, renderers) {
+    Effects.prototype.getMessageByTypeAndRenderers = function(type, renderers, builder) {
 
         var key = type + '_' + renderers.join('-');
         for (var i = 0; i < this.messages.length; i += 1) {
@@ -29,7 +41,7 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
         }
         var message = {
             key: key,
-            message: effectMessageFactory(type, renderers),
+            message: effectMessageFactory(type, renderers, builder),
         }
         this.messages.push(message);
         return message.message;
@@ -40,7 +52,7 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
         var messageData;
         for (var i = 0; i < messages.length; i += 1) {
             messageData = messages[i];
-            var message = this.getMessageByTypeAndRenderers(messageData.type, messageData.renderers);
+            var message = this.getMessageByTypeAndRenderers(messageData.type, messageData.renderers, messageData.builder);
             message.addEffect(effectData.name);
         }
     }
@@ -53,8 +65,21 @@ $.__bodymovin.bm_effectsReportFactory = (function () {
                 } else {
                     this.addUnhandledEffect(effectElement);
                 }
+                this.checkSupportedEffects(effectElement.matchName)
             }
         }
+    }
+
+    Effects.prototype.checkSupportedEffects = function(effectName) {
+        for (var i = 0; i < supportedEffects.length; i += 1) {
+            if (supportedEffects[i] === effectName) {
+                this._addedEffects.push(effectName);
+            }
+        }
+    }
+
+    Effects.prototype.hasSupportedEffects = function() {
+        return this._addedEffects.length > 0;
     }
 
     Effects.prototype.addUnhandledEffect = function(effect) {

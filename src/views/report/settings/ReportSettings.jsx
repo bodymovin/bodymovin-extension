@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import ReportRenderers from './ReportRenderers'
 import ReportMessageTypes from './ReportMessageTypes'
+import ReportBuilders from './ReportBuilders'
 import Variables from '../../../helpers/styles/variables'
 import BaseButton from '../../../components/buttons/Base_button'
 
@@ -17,6 +18,7 @@ const styles = StyleSheet.create({
       backgroundColor: Variables.colors.gray,
       borderRadius: '10px',
       padding: '10px',
+      overflow: 'auto',
     },
     renderers: {
       padding: '0 0 10px 0',
@@ -46,6 +48,10 @@ class ReportSettings extends React.Component {
           <ReportMessageTypes
             messageTypes={this.props.messageTypes}
             onMessagesUpdate={this.props.onMessagesUpdate}
+          />
+          <ReportBuilders
+            builders={this.props.builders}
+            onBuildersUpdate={this.props.onBuildersUpdate}
           />
           <div className={css(styles.buttons_container)}>
               <BaseButton

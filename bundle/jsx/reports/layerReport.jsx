@@ -10,6 +10,7 @@ $.__bodymovin.bm_layerReport = (function () {
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
     var transformFactory = $.__bodymovin.bm_transformReportFactory;
     var effectsFactory = $.__bodymovin.bm_effectsReportFactory;
+    var masksFactory = $.__bodymovin.bm_masksReportFactory;
     var layerStylesFactory = $.__bodymovin.bm_layerStylesReportFactory;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getLayerType = $.__bodymovin.getLayerType;
@@ -18,6 +19,9 @@ $.__bodymovin.bm_layerReport = (function () {
 
     function Layer(layer) {
         this.layer = layer;
+        // If layer is larger than this size, it might have performance issue in certain cases
+        this.LARGE_LAYER_SIZE = 1000 * 1000;
+        this.layerRect = this.layer.sourceRectAtTime(0, false);
         this.process();
     }
 
@@ -28,6 +32,7 @@ $.__bodymovin.bm_layerReport = (function () {
         this.processTransform();
         this.processStyles();
         this.processEffects();
+        this.processMasks();
     }
 
     Layer.prototype.processProperties = function() {
@@ -76,6 +81,19 @@ $.__bodymovin.bm_layerReport = (function () {
             ],
             builderTypes.THREE_D_LAYER);
         }
+        if (this.layer.isTrackMatte) {
+            var rect = this.layerRect;
+            if (rect.height * rect.width >= this.LARGE_LAYER_SIZE) {
+                this.addMessage(messageTypes.WARNING,
+                [
+                    rendererTypes.BROWSER,
+                    rendererTypes.SKOTTIE,
+                    rendererTypes.IOS,
+                    rendererTypes.ANDROID,
+                ],
+                builderTypes.LARGE_MASK);
+            }
+        }
     }
 
     Layer.prototype.processTransform = function() {
@@ -88,6 +106,23 @@ $.__bodymovin.bm_layerReport = (function () {
 
     Layer.prototype.processEffects = function() {
         this.effects = effectsFactory(this.layer.effect || {numProperties: 0});
+        if (this.effects.hasSupportedEffects()) {
+            var rect = this.layerRect;
+            if (rect.height * rect.width >= this.LARGE_LAYER_SIZE) {
+                this.addMessage(messageTypes.WARNING,
+                [
+                    rendererTypes.BROWSER,
+                    rendererTypes.SKOTTIE,
+                    rendererTypes.IOS,
+                    rendererTypes.ANDROID,
+                ],
+                builderTypes.LARGE_EFFECTS);
+            }
+        }
+    }
+
+    Layer.prototype.processMasks = function() {
+        this.masks = masksFactory(this.layer.mask || {numProperties: 0});
     }
 
     Layer.prototype.processStyles = function() {
@@ -103,6 +138,7 @@ $.__bodymovin.bm_layerReport = (function () {
             transform: this.transform ? this.transform.serialize() : undefined,
             styles: this.styles.serialize(),
             effects: this.effects.serialize(),
+            masks: this.masks.serialize(),
         }
     }
 

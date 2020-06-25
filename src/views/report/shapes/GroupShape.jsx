@@ -14,6 +14,7 @@ class GroupShape extends React.Component {
       transform={this.props.shape.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -24,6 +25,7 @@ class GroupShape extends React.Component {
       shapes={this.props.shape.shapes}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -41,7 +43,8 @@ class GroupShape extends React.Component {
     const messageCount = getShapeGroupMessagesCount(
       this.props.shape,
       this.props.renderers,
-      this.props.messageTypes
+      this.props.messageTypes,
+      this.props.builders,
     )
     return (
       <RowContainer

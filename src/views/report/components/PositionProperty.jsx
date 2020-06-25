@@ -16,6 +16,7 @@ class Position extends React.Component {
         messages={property.positionX}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />,
       <Property
@@ -24,6 +25,7 @@ class Position extends React.Component {
         messages={property.positionY}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />,
       property.positionZ && 
@@ -33,6 +35,7 @@ class Position extends React.Component {
           messages={property.positionZ}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
     ]    
@@ -47,11 +50,12 @@ class Position extends React.Component {
           messages={property.position}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={this.props.shouldAutoExpand}
         />
       )
     } else {
-      const messageCount = getPositionMessageCount(this.props.property, this.props.renderers, this.props.messageTypes)
+      const messageCount = getPositionMessageCount(this.props.property, this.props.renderers, this.props.messageTypes, this.props.builders)
       return (
         <RowContainer
           name={'Position'}

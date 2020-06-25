@@ -19,6 +19,7 @@ class ShapeCollection extends React.Component {
           shape={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
       } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
@@ -29,6 +30,7 @@ class ShapeCollection extends React.Component {
             shape={shape}
             renderers={this.props.renderers}
             messageTypes={this.props.messageTypes}
+            builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
           />)
       } else if(shape.type === 'un') {
@@ -38,6 +40,7 @@ class ShapeCollection extends React.Component {
           messages={shape.messages}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
       } else if(shape.type === 'rp') {
@@ -47,6 +50,7 @@ class ShapeCollection extends React.Component {
           repeater={shape}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
       } else {
@@ -60,7 +64,7 @@ class ShapeCollection extends React.Component {
   }
 
   render() {
-    const messageCount = getShapeCollectionMessagesCount(this.props.shapes, this.props.renderers, this.props.messageTypes)
+    const messageCount = getShapeCollectionMessagesCount(this.props.shapes, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={'Group Content'}

@@ -18,6 +18,7 @@ class SatinStyle extends React.Component {
         messages={this.props.style[propertyData.key]}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />
     ))
@@ -30,6 +31,7 @@ class SatinStyle extends React.Component {
       messages={this.props.style.messages}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -47,7 +49,8 @@ class SatinStyle extends React.Component {
     const messageCount = getDropShadowStyleMessageCount(
       this.props.style,
       this.props.renderers,
-      this.props.messageTypes
+      this.props.messageTypes,
+      this.props.builders,
     )
     return (
       <RowContainer

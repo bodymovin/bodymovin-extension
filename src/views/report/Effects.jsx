@@ -15,12 +15,13 @@ class Effects extends React.Component {
         message={effect}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
       />
     })
   }
 
   render() {
-    const messageCount = getEffectsMessageCount(this.props.effects, this.props.renderers, this.props.messageTypes)
+    const messageCount = getEffectsMessageCount(this.props.effects, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={'Effects'}

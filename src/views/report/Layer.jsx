@@ -4,6 +4,7 @@ import {
 } from '../../helpers/reports/counter'
 import Transform from './Transform'
 import Effects from './Effects'
+import Masks from './Masks'
 import LayerStyles from './LayerStyles'
 import RowContainer from './components/RowContainer'
 import Property from './Property'
@@ -20,6 +21,7 @@ class Layer extends React.Component {
       messages={this.props.layer.messages}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -30,6 +32,7 @@ class Layer extends React.Component {
       transform={this.props.layer.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -40,6 +43,18 @@ class Layer extends React.Component {
       effects={this.props.layer.effects}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
+      shouldAutoExpand={shouldAutoExpand}
+    />
+  )
+
+  buildMasks = shouldAutoExpand => (
+    <Masks
+      key={'masks'}
+      masks={this.props.layer.masks}
+      renderers={this.props.renderers}
+      messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -50,6 +65,7 @@ class Layer extends React.Component {
       styles={this.props.layer.styles}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -64,6 +80,7 @@ class Layer extends React.Component {
           assets={this.props.assets}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           onLayerNavigation={this.props.onLayerNavigation}
           shouldAutoExpand={shouldAutoExpand}
         />
@@ -75,6 +92,7 @@ class Layer extends React.Component {
           shapes={this.props.layer.shapes}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
       )
@@ -85,6 +103,7 @@ class Layer extends React.Component {
           text={this.props.layer.text}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
       )
@@ -99,6 +118,7 @@ class Layer extends React.Component {
         this.buildMessages(shouldAutoExpand),
         this.buildTransform(shouldAutoExpand),
         this.buildEffects(shouldAutoExpand),
+        this.buildMasks(shouldAutoExpand),
         this.buildStyles(shouldAutoExpand),
         this.buildLayerContent(shouldAutoExpand),
       ]
@@ -110,7 +130,7 @@ class Layer extends React.Component {
   }
 
   render() {
-    const messageCount = getLayerMessageCount(this.props.layer, this.props.renderers, this.props.messageTypes)
+    const messageCount = getLayerMessageCount(this.props.layer, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={this.props.layer.name}

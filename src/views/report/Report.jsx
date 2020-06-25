@@ -17,6 +17,7 @@ class Report extends React.Component {
       assets={this.props.report.assets}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       onLayerNavigation={this.props.onLayerNavigation}
       shouldAutoExpand={shouldAutoExpand}
     />
@@ -28,7 +29,7 @@ class Report extends React.Component {
     if (!this.props.report || !this.props.report.version) {
       return null;
     }
-    const messageCount = getAnimationMessageCount(this.props.report, this.props.renderers, this.props.messageTypes)
+    const messageCount = getAnimationMessageCount(this.props.report, this.props.renderers, this.props.messageTypes, this.props.builders)
     const totalMessages = getTotalMessagesCount(messageCount)
     if (totalMessages === 0) {
       return <NoErrorsReport

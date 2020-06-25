@@ -7,9 +7,10 @@ $.__bodymovin.bm_reportEffectMessageFactory = (function () {
     var builderTypes = $.__bodymovin.bm_reportBuilderTypes;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
-    function ReportEffectMessage(type, renderers, effects) {
-        this._message = reportMessageFactory(type, renderers, builderTypes.EFFECTS);
-        this._effects = effects || [];
+    function ReportEffectMessage(type, renderers, builderType) {
+        builderType = builderType || builderTypes.EFFECTS;
+        this._message = reportMessageFactory(type, renderers, builderType);
+        this._effects = [];
     }
 
     ReportEffectMessage.prototype.addEffect = function(effect) {

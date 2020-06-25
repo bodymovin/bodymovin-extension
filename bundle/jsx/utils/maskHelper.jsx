@@ -3,29 +3,9 @@
 $.__bodymovin.bm_maskHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var getMaskMode = $.__bodymovin.getMaskType;
     var ob = {};
 
-    function getMaskMode(num) {
-        switch (num) {
-        case MaskMode.NONE:
-            return 'n';
-        case MaskMode.ADD:
-            return 'a';
-        case MaskMode.SUBTRACT:
-            return 's';
-        case MaskMode.INTERSECT:
-            return 'i';
-        case MaskMode.LIGHTEN:
-            return 'l';
-        case MaskMode.DARKEN:
-            return 'd';
-        case MaskMode.DIFFERENCE:
-            return 'f';
-        default:
-            return undefined;
-        }
-    }
-    
     function exportMasks(layerInfo, layerData, frameRate) {
         if (!(layerInfo.mask && layerInfo.mask.numProperties > 0)) {
             return;

@@ -16,6 +16,7 @@ class Rotation extends React.Component {
         messages={property.rotationX}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />,
       <Property
@@ -24,6 +25,7 @@ class Rotation extends React.Component {
         messages={property.rotationY}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />,
       <Property
@@ -32,6 +34,7 @@ class Rotation extends React.Component {
         messages={property.rotationZ}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />,
       <Property
@@ -40,6 +43,7 @@ class Rotation extends React.Component {
         messages={property.orientation}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />
     ]
@@ -54,11 +58,12 @@ class Rotation extends React.Component {
           messages={property.rotation}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={this.props.shouldAutoExpand}
         />
       )
     } else {
-      const messageCount = getPositionMessageCount(this.props.property, this.props.renderers, this.props.messageTypes)
+      const messageCount = getPositionMessageCount(this.props.property, this.props.renderers, this.props.messageTypes, this.props.builders)
       return (
         <RowContainer
           name={'Rotation'}

@@ -37,6 +37,7 @@ class LayerStyles extends React.Component {
           style={style}
           renderers={this.props.renderers}
           messageTypes={this.props.messageTypes}
+          builders={this.props.builders}
           shouldAutoExpand={this.props.shouldAutoExpand}
         />
       }
@@ -50,7 +51,7 @@ class LayerStyles extends React.Component {
   }
 
   render() {
-    const messageCount = getStylesMessageCount(this.props.styles, this.props.renderers, this.props.messageTypes)
+    const messageCount = getStylesMessageCount(this.props.styles, this.props.renderers, this.props.messageTypes, this.props.builders)
     return (
       <RowContainer
         name={'Layer Styles'}

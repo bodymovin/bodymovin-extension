@@ -17,6 +17,7 @@ class GenericShape extends React.Component {
         messages={this.props.shape.messages}
         renderers={this.props.renderers}
         messageTypes={this.props.messageTypes}
+        builders={this.props.builders}
         shouldAutoExpand={shouldAutoExpand}
       />
     )
@@ -37,6 +38,7 @@ class GenericShape extends React.Component {
               messages={properties[propertyKey]}
               renderers={this.props.renderers}
               messageTypes={this.props.messageTypes}
+              builders={this.props.builders}
               shouldAutoExpand={shouldAutoExpand}
             />
           })
@@ -56,7 +58,8 @@ class GenericShape extends React.Component {
     const messageCount = getGenericShapeMessagesCount(
       this.props.shape,
       this.props.renderers,
-      this.props.messageTypes
+      this.props.messageTypes,
+      this.props.builders,
     )
     return (
       <RowContainer

@@ -14,6 +14,7 @@ class RepeaterShape extends React.Component {
       transform={this.props.repeater.transform}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -25,6 +26,7 @@ class RepeaterShape extends React.Component {
       messages={this.props.repeater.copies}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -36,6 +38,7 @@ class RepeaterShape extends React.Component {
       messages={this.props.repeater.offset}
       renderers={this.props.renderers}
       messageTypes={this.props.messageTypes}
+      builders={this.props.builders}
       shouldAutoExpand={shouldAutoExpand}
     />
   )
@@ -54,7 +57,8 @@ class RepeaterShape extends React.Component {
     const messageCount = getShapeRepeaterMessagesCount(
       this.props.repeater,
       this.props.renderers,
-      this.props.messageTypes
+      this.props.messageTypes,
+      this.props.builders,
     )
     return (
       <RowContainer
