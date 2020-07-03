@@ -10,6 +10,12 @@ import {
 } from '../actions/previewActions'
 import {getSimpleSeparator} from '../../helpers/osHelper'
 import {
+	getLatestVersion as getLatestSkottieVersion,
+	getSavedVersion as getSkottieSavedVersions,
+	saveLatestVersion as saveSkottieLatestVersion,
+	initialize as initializeSkottie,
+} from '../../helpers/skottie/skottie'
+import {
 	getCompositionTimelinePosition,
 	setCompositionTimelinePosition,
 } from '../../helpers/CompositionsProvider'
@@ -126,6 +132,19 @@ function *handleTimelineLock() {
 	})
 }
 
+function *searchSkottieUpdates() {
+	try {
+		yield call(initializeSkottie)
+		const latestVersion = yield call(getLatestSkottieVersion)
+		const savedVersions = yield call(getSkottieSavedVersions)
+		if (!savedVersions.length || savedVersions[savedVersions.length - 1].version !== latestVersion) {
+			saveSkottieLatestVersion(latestVersion)
+		}
+	} catch(err) {
+		console.log(err)
+	}
+}
+
 export default [
   takeEvery(actions.PREVIEW_BROWSE_FILE, browseFile),
   takeEvery([
@@ -134,4 +153,5 @@ export default [
   ]
   , loadBodymovinFile),
   takeEvery(actions.PREVIEW_INITIALIZE, handleTimelineLock),
+  takeEvery(actions.PREVIEW_INITIALIZE, searchSkottieUpdates),
 ]
