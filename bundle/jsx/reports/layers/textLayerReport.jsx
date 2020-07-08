@@ -40,7 +40,6 @@ $.__bodymovin.bm_textLayerReport = (function () {
             [
                 rendererTypes.IOS,
                 rendererTypes.ANDROID,
-                rendererTypes.SKOTTIE,
             ],
             builderTypes.TEXT_ANIMATORS);
         }

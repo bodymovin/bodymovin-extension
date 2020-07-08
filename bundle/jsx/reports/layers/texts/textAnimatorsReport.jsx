@@ -8,6 +8,7 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var animatorMessageFactory = $.__bodymovin.bm_reportAnimatorMessageFactory;
     var rendererTypes = $.__bodymovin.bm_reportRendererTypes;
+    var textSelector = $.__bodymovin.bm_textSelectorReport;
     var messageTypes = $.__bodymovin.bm_reportMessageTypes;
 
     var defaultRenderers = [
@@ -15,6 +16,16 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
         rendererTypes.IOS,
         rendererTypes.ANDROID,
         rendererTypes.SKOTTIE
+    ];
+    var onlyBrowserRenderers = [
+        rendererTypes.IOS,
+        rendererTypes.ANDROID,
+        rendererTypes.SKOTTIE
+    ];
+    var onlySkottieRenderers = [
+        rendererTypes.BROWSER,
+        rendererTypes.IOS,
+        rendererTypes.ANDROID,
     ];
 
     var defaultMessageType = messageTypes.ERROR;
@@ -31,15 +42,44 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
         'ADBE Text Line Spacing': {
         },
         'ADBE Text Blur': {
+            renderers: onlySkottieRenderers,
+        },
+        'ADBE Text Anchor Point 3D': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Skew': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Skew Axis': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Fill Hue': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Fill Saturation': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Fill Brightness': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Stroke Hue': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Stroke Saturation': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Stroke Brightness': {
+            renderers: onlyBrowserRenderers,
+        },
+        'ADBE Text Stroke Width': {
+            renderers: onlyBrowserRenderers,
         }
     }
 
     function Animator(element) {
         this.element = element;
-        // For now there is a single propertiesMessage for all.
-        // This might change in the future if different renderers support different properties
-        this.propertiesMessage = animatorMessageFactory();
         this.messages = [];
+        this.selectors = [];
         this.process();
     }
     
@@ -61,13 +101,13 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
         return message.message;
     }
 
-    Animator.prototype.addProperty = function(effectData) {
-        var messages = effectData.messages;
+    Animator.prototype.addProperty = function(animatorData) {
+        var messages = animatorData.messages;
         var messageData;
         for (var i = 0; i < messages.length; i += 1) {
             messageData = messages[i];
             var message = this.getMessageByTypeAndRenderers(messageData.type, messageData.renderers);
-            message.addProperty(effectData.name);
+            message.addProperty(animatorData.name);
         }
     }
 
@@ -82,14 +122,23 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
                     this.addProperty({
                         messages: propertyData.message || [
                             {
-                                type: defaultMessageType,
-                                renderers: defaultRenderers,
+                                type: propertyData.type || defaultMessageType,
+                                renderers: propertyData.renderers || defaultRenderers,
                             }
                         ],
                         name: property.name,
                     })
                 }
             }
+        }
+    }
+
+    Animator.prototype.processSelectors = function(selectorProperty) {
+        var i, len = selectorProperty.numProperties;
+        var property;
+        for (i = 0; i < len; i += 1) {
+            property = selectorProperty.property(i + 1);
+            this.selectors.push(textSelector(property));
         }
     }
 
@@ -100,6 +149,8 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
             property = this.element.property(i + 1);
             if (property.matchName === 'ADBE Text Animator Properties') {
                 this.processProperties(property);
+            } else if (property.matchName === 'ADBE Text Selectors') {
+                this.processSelectors(property);
             }
         }
     }
@@ -110,11 +161,17 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
 
     Animator.prototype.serialize = function() {
         var messages = [];
-        for (var i = 0; i < this.messages.length; i += 1) {
+        var i
+        for (i = 0; i < this.messages.length; i += 1) {
             messages.push(this.messages[i].message.serialize());
+        }
+        var selectors = [];
+        for (i = 0; i < this.selectors.length; i += 1) {
+            selectors.push(this.selectors[i].serialize());
         }
         return {
             messages: messages,
+            selectors: selectors,
             name: this.element.name,
         };
     }
