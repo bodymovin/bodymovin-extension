@@ -14,5 +14,7 @@ $.__bodymovin.shapeTypes = {
     group: 'gr',
     repeater: 'rp',
     roundedCorners: 'rd',
-    offsetPath: 'op'
+    offsetPath: 'op',
+    puckerAndBloat: 'pb',
+    zigZag: 'zz',
 }

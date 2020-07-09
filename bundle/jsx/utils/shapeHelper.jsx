@@ -348,7 +348,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
             } else if (itemType === shapeItemTypes.twist) {
                 ob = {};
                 ob.ty = itemType;
-                bm_generalUtils.iterateProperty(prop);
                 ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate, stretch);
                 ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate, stretch);
                 /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
@@ -402,6 +401,23 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Amount'), frameRate, stretch);
                 ob.lj = prop.property('Line Join').value;
                 ob.ml = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.puckerAndBloat) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Amount'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.zigZag) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Ridges per segment'), frameRate, stretch);
+                ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate, stretch);
+                bm_generalUtils.iterateProperty(prop)
                 ob.ix = prop.propertyIndex;
             }
             if (ob) {

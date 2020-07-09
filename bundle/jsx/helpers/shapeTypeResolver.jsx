@@ -40,6 +40,10 @@ $.__bodymovin.getShapeType = (function () {
             return shapeItemTypes.repeater;
         case 'ADBE Vector Filter - Offset':
             return shapeItemTypes.offsetPath;
+        case 'ADBE Vector Filter - PB':
+            return shapeItemTypes.puckerAndBloat;
+        case 'ADBE Vector Filter - Zigzag':
+            return shapeItemTypes.zigZag;
         default:
             return '';
         }
