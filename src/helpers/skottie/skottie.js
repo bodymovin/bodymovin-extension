@@ -35,9 +35,11 @@ const getFolder = async () => {
 }
 
 const getLatestVersion = async () => {
-	const response = await fetch('https://unpkg.com/canvaskit-wasm/package.json');
-	const packageResponse = await response.json();
-	return packageResponse.version
+	// const response = await fetch('https://unpkg.com/canvaskit-wasm/package.json');
+	// return packageResponse.version
+	const response = await fetch('https://particles.skia.org/static/VERSION');
+	const packageResponse = await response.text();
+	return packageResponse.replace(/\W/g, '')
 }
 
 const saveDataFile = async data => {
@@ -71,14 +73,20 @@ const getSavedVersion = async () => {
 }
 
 const saveLatestVersion = async version => {
+	// const files = await Promise.all([
+	// 	fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.js'),
+	// 	fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.wasm'),
+	// ])
 	const files = await Promise.all([
-		fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.js'),
-		fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.wasm'),
+		fetch('https://particles.skia.org/static/canvaskit.js'),
+		fetch('https://particles.skia.org/static/canvaskit.wasm'),
 	])
 	const savingFolder = await getFolder()
-	const fileName = version.split('.').join('_')
+	const fileName = version.split('.').join('_').replace(/\W/g, '')
 	const jsBuffer = await files[0].arrayBuffer()
 	const jsFilePath = savingFolder + nodePath.sep + fileName + '.js'
+	console.log('fileName', fileName)
+	console.log('jsFilePath', jsFilePath)
 	fs.writeFileSync(jsFilePath, Buffer.from(jsBuffer))
 	const wasmBuffer = await files[1].arrayBuffer()
 	const wasmFilePath = savingFolder + nodePath.sep + fileName + '.wasm'

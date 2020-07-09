@@ -15,7 +15,7 @@ async function loadCanvasJs() {
 		var scriptTag = document.createElement('script')
 		let jsPath = ''
 		const savedVersions = await getSavedVersion()
-		if (savedVersions.length && false) {
+		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
 			var jsFilePath = lastVersion.js
 			jsPath = `http://localhost:3119/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
@@ -42,7 +42,7 @@ async function getCanvasKit() {
 		await loadCanvasJs()
 		let wasmPath = ''
 		const savedVersions = await getSavedVersion()
-		if (savedVersions.length && false) {
+		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
 			var wasmFilePath = lastVersion.wasm
 			wasmPath = `http://localhost:3119/fileFromPath?path=${wasmFilePath}&type=${encodeURIComponent('application/wasm')}`
