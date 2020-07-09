@@ -51,7 +51,7 @@ async function getCanvasKit() {
 		}
 		_canvasKit = await window.CanvasKitInit({
 		    locateFile: (file) => wasmPath, 
-		}).ready()
+		})
 	}
 	return _canvasKit
 }
