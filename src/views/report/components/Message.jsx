@@ -162,6 +162,19 @@ class Message extends React.Component {
     )
   }
 
+  buildTextSelectorProperties = (payload) => {
+    const properties = payload.properties;
+    return (
+      <div>These text animator selector properties are not supported:
+        <div>
+          {properties.map(animator => (
+            <div key={animator}>{animator}</div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   buildMergePaths = () => (
     <div>Merge paths are not supported</div>
   )
@@ -248,6 +261,7 @@ class Message extends React.Component {
     'unhandled shape': this.buildUnhandledShape,
     'merge paths': this.buildMergePaths,
     'text animators': this.buildTextAnimators,
+    'animator properties': this.buildAnimatorProperties,
     'large image': this.buildLargeImage,
     'illustrator asset': this.buildIllustratorAsset,
     'camera layer': this.buildCameraLayer,
@@ -261,6 +275,7 @@ class Message extends React.Component {
     'unsupported property': this.buildUnsupportedProperty,
     'unsupported mask mode': this.buildUnsupportedMaskMode,
     'large effects': this.buildLargeEffect,
+    'text selector properties': this.buildTextSelectorProperties,
   }
 
   buildMessage = (builder, payload) => {
