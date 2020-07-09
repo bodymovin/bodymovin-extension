@@ -106,6 +106,10 @@ $.__bodymovin.bm_projectManager = (function () {
             bm_eventDispatcher.sendEvent('bm:project:path', {path: projectFolder.fsName});
         }
     }
+
+    function getUserFolders() {
+        bm_eventDispatcher.sendEvent('bm:user:folders', {userData: Folder.userData.fsName});
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -113,8 +117,9 @@ $.__bodymovin.bm_projectManager = (function () {
         getCompositionById: getCompositionById,
         searchCommands: searchCommands,
         getCommandID: getCommandID,
-        getFile: getFile, 
-        getProjectPath: getProjectPath, 
+        getFile: getFile,
+        getProjectPath: getProjectPath,
+        getUserFolders: getUserFolders,
     };
     return ob;
 }());
