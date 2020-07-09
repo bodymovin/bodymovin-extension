@@ -684,7 +684,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         scheduleNextSaveImage();  
     }
     
-    function addFont(fontName, fontFamily, fontStyle) {
+    function addFont(fontName, fontFamily, fontStyle, fontLocation) {
         var i = 0, len = fonts.length;
         while (i < len) {
             if (fonts[i].name === fontName && fonts[i].family === fontFamily && fonts[i].style === fontStyle) {
@@ -692,12 +692,23 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
             i += 1;
         }
-        fonts.push({
-            name: fontName,
-            family: fontFamily,
-            style: fontStyle
+        fonts.push(
+            {
+                name: fontName,
+                family: fontFamily,
+                style: fontStyle,
+                location: fontLocation,
+            }
+        );
+        if (fontLocation) {
+            var file = new File(fontLocation)
+            if (file.exists) {
+                var destinationFileData = bm_fileManager.createFile(file.name, ['raw','images']);
+                var destinationFile = destinationFileData.file;
+                file.copy(destinationFile.fsName);
+            }
+
         }
-                  );
     }
     
     function getFonts() {

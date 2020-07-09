@@ -465,6 +465,12 @@ $.__bodymovin.bm_renderManager = (function () {
                     fontOb.fName = fonts[i].name;
                     fontOb.fFamily = fonts[i].family;
                     fontOb.fStyle = fonts[i].style;
+                    if (fonts[i].location) {
+                        var fontFile = new File(fonts[i].location)
+                        if (fontFile.exists) {
+                            fontOb.fLoc = fontFile.name;
+                        }
+                    }
                     list.push(fontOb);
                 }
                 exportData = ob.renderData.exportData;
