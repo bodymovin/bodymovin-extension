@@ -11,13 +11,18 @@ const delay = async delay => {
 }
 
 async function loadCanvasJs() {
-	const savedVersions = await getSavedVersion()
-	if (savedVersions.length) {
-		var lastVersion = savedVersions[savedVersions.length - 1]
-		var jsFilePath =  lastVersion.js
-		console.log(jsFilePath)
+	if (!window.CanvasKitInit) {
 		var scriptTag = document.createElement('script')
-		scriptTag.src = `http://localhost:3119/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
+		let jsPath = ''
+		const savedVersions = await getSavedVersion()
+		if (savedVersions.length && false) {
+			var lastVersion = savedVersions[savedVersions.length - 1]
+			var jsFilePath = lastVersion.js
+			jsPath = `http://localhost:3119/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
+		} else {
+			jsPath = 'http://localhost:3119/canvaskit.js'
+		}
+		scriptTag.src = jsPath
 		scriptTag.id = 'canvasKitElement'
 		document.body.appendChild(scriptTag)
 		let isCanvasKitReady = false
@@ -37,7 +42,7 @@ async function getCanvasKit() {
 		await loadCanvasJs()
 		let wasmPath = ''
 		const savedVersions = await getSavedVersion()
-		if (savedVersions.length) {
+		if (savedVersions.length && false) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
 			var wasmFilePath = lastVersion.wasm
 			wasmPath = `http://localhost:3119/fileFromPath?path=${wasmFilePath}&type=${encodeURIComponent('application/wasm')}`

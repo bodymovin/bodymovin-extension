@@ -64,6 +64,17 @@ app.get('/canvaskit.wasm', (req, res) => {
 	}
 })
 
+app.get('/canvaskit.js', (req, res) => {
+	const filePath = nodePath.join(__dirname, 'public') + nodePath.sep + 'canvaskit.js'
+	const buffer = fs.readFileSync(filePath)
+	if (buffer) {
+		res.setHeader('Content-Type', 'text/javascript; charset=UTF-8');
+		res.send(buffer);
+	} else {
+		res.send('NOT FOUND')
+	}
+})
+
 app.get('/fileFromPath', (req, res) => {
 	const filePath = req.query.path
 	const buffer = fs.readFileSync(filePath)
