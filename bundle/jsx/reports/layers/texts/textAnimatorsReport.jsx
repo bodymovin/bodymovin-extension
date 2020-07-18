@@ -29,6 +29,16 @@ $.__bodymovin.bm_textAnimatorsReport = (function () {
         'ADBE Text Character Offset': {
         },
         'ADBE Text Line Spacing': {
+            message: [
+                {
+                    type: defaultMessageType,
+                    renderers: [
+                        rendererTypes.BROWSER,
+                        rendererTypes.IOS,
+                        rendererTypes.ANDROID
+                    ],
+                }
+            ]
         },
         'ADBE Text Blur': {
         }
