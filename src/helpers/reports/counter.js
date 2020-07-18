@@ -336,9 +336,26 @@ const getShapeCollectionMessagesCount = memoizeHelper((shapes, renderers, messag
   .reduce(addMessageCount, buildMessageCounterObject())
 })
 
-const getAnimatorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
+const getSelectorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
   if (animator.messages) {
     return countMessages(animator.messages, renderers, messageTypes, builders)
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getSelectorsMessageCount = memoizeHelper((selectors, renderers, messageTypes, builders) => {
+  return selectors
+  .map(selector => getSelectorMessageCount(selector, renderers, messageTypes, builders))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
+const getAnimatorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
+  if (animator.messages) {
+    return addMessagesCount(
+      countMessages(animator.messages, renderers, messageTypes, builders),
+      getSelectorsMessageCount(animator.selectors || [], renderers, messageTypes, builders),
+    )
   } else {
     return buildMessageCounterObject()
   }

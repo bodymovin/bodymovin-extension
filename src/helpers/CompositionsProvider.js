@@ -436,6 +436,26 @@ async function setCompositionTimelinePosition(progress) {
 	
 }
 
+async function getUserFolders() {
+	return new Promise(async function(resolve, reject) {
+		function onUserFoldersFetched(ev) {
+			if (ev.data) {
+				const foldersData = (typeof ev.data === "string")
+				? JSON.parse(ev.data)
+				: ev.data
+				resolve(foldersData)
+			}
+			csInterface.removeEventListener('bm:user:folders', onUserFoldersFetched)
+		}
+		csInterface.addEventListener('bm:user:folders', onUserFoldersFetched)
+
+		await extensionLoader;
+		var eScript = '$.__bodymovin.bm_projectManager.getUserFolders()';
+	    csInterface.evalScript(eScript);
+	})
+	
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -455,4 +475,5 @@ export {
 	navigateToLayer,
 	getCompositionTimelinePosition,
 	setCompositionTimelinePosition,
+	getUserFolders,
 }
