@@ -46,6 +46,7 @@ if (!Function.prototype.bm_bind) (function(){
   'reports/effectsMessageTypes.jsx',
   'reports/reportMessageFactory.jsx',
   'reports/reportEffectMessageFactory.jsx',
+  'reports/reportAnimatorSelectorMessageFactory.jsx',
   'reports/reportAnimatorMessageFactory.jsx',
   'reports/messageClassReport.jsx',
   'reports/propertyReport.jsx',
@@ -77,11 +78,13 @@ if (!Function.prototype.bm_bind) (function(){
   'reports/layers/shapes/shapeGradientStrokeReport.jsx',
   'reports/layers/shapes/shapeMergePathsReport.jsx',
   'reports/layers/shapes/shapeRoundCornersReport.jsx',
+  'reports/layers/shapes/shapePuckerAndBloatReport.jsx',
   'reports/layers/shapes/shapeTrimPathsReport.jsx',
   'reports/layers/shapes/shapeRepeaterReport.jsx',
   'reports/layers/shapes/shapeUnhandledReport.jsx',
   'reports/layers/shapes/shapeReportHelper.jsx',
   'reports/layers/shapes/shapeCollectionReport.jsx',
+  'reports/layers/texts/textAnimatorSelectorReport.jsx',
   'reports/layers/texts/textAnimatorsReport.jsx',
   'reports/layers/imageLayerReport.jsx',
   'reports/layers/imageSequenceLayerReport.jsx',
@@ -154,7 +157,6 @@ if (!Function.prototype.bm_bind) (function(){
     $.evalFile(file.fsName);
   }
 }())
-
 
 var globalVariables = ['bm_eventDispatcher','bm_generalUtils','bm_expressionHelper','esprima', 'escodegen'
 , 'bez', 'PropertyFactory', 'bm_keyframeHelper', 'bm_transformHelper', 'bm_maskHelper', 'bm_timeremapHelper'

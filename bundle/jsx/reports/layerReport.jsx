@@ -19,6 +19,9 @@ $.__bodymovin.bm_layerReport = (function () {
 
     function Layer(layer) {
         this.layer = layer;
+        this.isExported = (layer.enabled && !this.layer.guideLayer)
+        || (!this.layer.enabled && settingsHelper.shouldIncludeHiddenLayers())
+        || (this.layer.guideLayer && settingsHelper.shouldIncludeGuidedLayers())
         // If layer is larger than this size, it might have performance issue in certain cases
         this.LARGE_LAYER_SIZE = 1000 * 1000;
         this.layerRect = this.layer.sourceRectAtTime(0, false);
@@ -28,6 +31,9 @@ $.__bodymovin.bm_layerReport = (function () {
     generalUtils.extendPrototype(Layer, MessageClass);
 
     Layer.prototype.process = function() {
+        if (!this.isExported) {
+            return
+        }
         this.processProperties();
         this.processTransform();
         this.processStyles();
@@ -36,6 +42,7 @@ $.__bodymovin.bm_layerReport = (function () {
     }
 
     Layer.prototype.processProperties = function() {
+
         if ((!this.layer.enabled && settingsHelper.shouldIncludeHiddenLayers()) 
             || (this.layer.guideLayer && settingsHelper.shouldIncludeGuidedLayers())) {
             this.addMessage(messageTypes.WARNING,
@@ -130,15 +137,24 @@ $.__bodymovin.bm_layerReport = (function () {
     }
 
     Layer.prototype.serialize = function() {
-    	return {
-            name: this.layer.name,
-            index: this.layer.index,
-            type: getLayerType(this.layer),
-            messages: this.serializeMessages(),
-            transform: this.transform ? this.transform.serialize() : undefined,
-            styles: this.styles.serialize(),
-            effects: this.effects.serialize(),
-            masks: this.masks.serialize(),
+        if(!this.isExported) {
+            return {
+                name: this.layer.name,
+                index: this.layer.index,
+                type: getLayerType(this.layer),
+                messages: this.serializeMessages(),
+            }
+        } else {
+            return {
+                name: this.layer.name,
+                index: this.layer.index,
+                type: getLayerType(this.layer),
+                messages: this.serializeMessages(),
+                transform: this.transform ? this.transform.serialize() : undefined,
+                styles: this.isExported ? this.styles.serialize() : undefined,
+                effects: this.isExported ? this.effects.serialize() : undefined,
+                masks: this.masks ? this.masks.serialize() : undefined,
+            }
         }
     }
 

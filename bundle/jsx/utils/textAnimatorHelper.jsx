@@ -168,6 +168,9 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
                 case 'ADBE Text Blur':
                     ob.bl = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
                     break;
+                case 'ADBE Text Line Spacing':
+                    ob.ls = bm_keyframeHelper.exportKeyframes(property, frameRate, stretch);
+                    break;
                 }
             }
         }

@@ -31,7 +31,7 @@ $.__bodymovin.bm_reportAnimatorMessageFactory = (function () {
     }
 
     function factory(type, renderers) {
-        return new ReportAnimatorMessage(type, renderers,)
+        return new ReportAnimatorMessage(type, renderers)
     };
     
     return factory;

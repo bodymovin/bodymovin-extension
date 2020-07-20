@@ -22,7 +22,7 @@ class ShapeCollection extends React.Component {
           builders={this.props.builders}
           shouldAutoExpand={shouldAutoExpand}
         />
-      } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
+      } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm', 'pb'].includes(shape.type)) {
         return (
           <GenericShape
             key={index}

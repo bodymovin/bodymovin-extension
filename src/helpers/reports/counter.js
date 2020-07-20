@@ -319,7 +319,7 @@ const getGenericShapeMessagesCount = memoizeHelper((shape, renderers, messageTyp
 const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes, builders) => {
   if(shape.type === 'gr') {
     return getShapeGroupMessagesCount(shape, renderers, messageTypes, builders)
-  } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
+  } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'mm', 'pb'].includes(shape.type)) {
     return getGenericShapeMessagesCount(shape, renderers, messageTypes, builders)
   } else if(shape.type === 'un') {
     return countMessages(shape.messages, renderers, messageTypes, builders)
@@ -336,9 +336,26 @@ const getShapeCollectionMessagesCount = memoizeHelper((shapes, renderers, messag
   .reduce(addMessageCount, buildMessageCounterObject())
 })
 
-const getAnimatorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
+const getSelectorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
   if (animator.messages) {
     return countMessages(animator.messages, renderers, messageTypes, builders)
+  } else {
+    return buildMessageCounterObject()
+  }
+})
+
+const getSelectorsMessageCount = memoizeHelper((selectors, renderers, messageTypes, builders) => {
+  return selectors
+  .map(selector => getSelectorMessageCount(selector, renderers, messageTypes, builders))
+  .reduce(addMessageCount, buildMessageCounterObject())
+})
+
+const getAnimatorMessageCount = memoizeHelper((animator, renderers, messageTypes, builders) => {
+  if (animator.messages) {
+    return addMessagesCount(
+      countMessages(animator.messages, renderers, messageTypes, builders),
+      getSelectorsMessageCount(animator.selectors || [], renderers, messageTypes, builders),
+    )
   } else {
     return buildMessageCounterObject()
   }

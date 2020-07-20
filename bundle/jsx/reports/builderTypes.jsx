@@ -29,5 +29,8 @@ $.__bodymovin.bm_reportBuilderTypes = (function () {
         UNSUPPORTED_PROPERTY: 'unsupported property',
         UNSUPPORTED_MASK_MODE: 'unsupported mask mode',
         LARGE_EFFECTS: 'large effects',
+        TEXT_SELECTOR_TYPE: 'text selector type',
+        TEXT_SELECTOR_PROPERTIES: 'text selector properties',
+        PUCKER_AND_BLOAT: 'pucker and bloat',
     };
 }());

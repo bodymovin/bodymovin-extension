@@ -435,7 +435,8 @@ $.__bodymovin.bm_renderManager = (function () {
                 $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
             }
         } catch(error) {
-            /* Uncomment for debugging
+            /* 
+            // Uncomment for debugging
             if (error) {
                 bm_eventDispatcher.log(error.message);
                 bm_eventDispatcher.log(error.line);

@@ -125,7 +125,7 @@ class Message extends React.Component {
   )
 
   buildDisabledLayer = () => (
-    <div>Hidden and Guided layers are not supported in this renderers</div>
+    <div>Hidden and Guided layers are not supported by these renderers</div>
   )
 
   buildUnhandledShape = () => (
@@ -134,6 +134,10 @@ class Message extends React.Component {
 
   buildUnhandledShape = () => (
     <div>This shape property is not supported</div>
+  )
+
+  buildPuckerAndBloatProperties = () => (
+    <div>Pucker and bloat is not supported by these renderers</div>
   )
 
   buildEffects = (payload) => {
@@ -153,6 +157,19 @@ class Message extends React.Component {
     const properties = payload.properties;
     return (
       <div>These text animator properties are not supported:
+        <div>
+          {properties.map(animator => (
+            <div key={animator}>{animator}</div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  buildTextSelectorProperties = (payload) => {
+    const properties = payload.properties;
+    return (
+      <div>These text animator selector properties are not supported:
         <div>
           {properties.map(animator => (
             <div key={animator}>{animator}</div>
@@ -248,6 +265,7 @@ class Message extends React.Component {
     'unhandled shape': this.buildUnhandledShape,
     'merge paths': this.buildMergePaths,
     'text animators': this.buildTextAnimators,
+    'animator properties': this.buildAnimatorProperties,
     'large image': this.buildLargeImage,
     'illustrator asset': this.buildIllustratorAsset,
     'camera layer': this.buildCameraLayer,
@@ -261,6 +279,8 @@ class Message extends React.Component {
     'unsupported property': this.buildUnsupportedProperty,
     'unsupported mask mode': this.buildUnsupportedMaskMode,
     'large effects': this.buildLargeEffect,
+    'text selector properties': this.buildTextSelectorProperties,
+    'pucker and bloat': this.buildPuckerAndBloatProperties,
   }
 
   buildMessage = (builder, payload) => {
