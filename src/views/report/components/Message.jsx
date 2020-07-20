@@ -125,7 +125,7 @@ class Message extends React.Component {
   )
 
   buildDisabledLayer = () => (
-    <div>Hidden and Guided layers are not supported in this renderers</div>
+    <div>Hidden and Guided layers are not supported by these renderers</div>
   )
 
   buildUnhandledShape = () => (
@@ -134,6 +134,10 @@ class Message extends React.Component {
 
   buildUnhandledShape = () => (
     <div>This shape property is not supported</div>
+  )
+
+  buildPuckerAndBloatProperties = () => (
+    <div>Pucker and bloat is not supported by these renderers</div>
   )
 
   buildEffects = (payload) => {
@@ -276,6 +280,7 @@ class Message extends React.Component {
     'unsupported mask mode': this.buildUnsupportedMaskMode,
     'large effects': this.buildLargeEffect,
     'text selector properties': this.buildTextSelectorProperties,
+    'pucker and bloat': this.buildPuckerAndBloatProperties,
   }
 
   buildMessage = (builder, payload) => {

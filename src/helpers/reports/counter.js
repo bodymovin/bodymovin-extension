@@ -319,7 +319,7 @@ const getGenericShapeMessagesCount = memoizeHelper((shape, renderers, messageTyp
 const getShapeMessageCount = memoizeHelper((shape, renderers, messageTypes, builders) => {
   if(shape.type === 'gr') {
     return getShapeGroupMessagesCount(shape, renderers, messageTypes, builders)
-  } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'rd', 'mm'].includes(shape.type)) {
+  } else if (['rc', 'el', 'st', 'sh', 'fl', 'sr', 'gf', 'gs', 'rd', 'tm', 'mm', 'pb'].includes(shape.type)) {
     return getGenericShapeMessagesCount(shape, renderers, messageTypes, builders)
   } else if(shape.type === 'un') {
     return countMessages(shape.messages, renderers, messageTypes, builders)

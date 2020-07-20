@@ -19,6 +19,7 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
     var shapeMergePaths = $.__bodymovin.bm_shapeMergePathsReport;
     var shapeRepeater = $.__bodymovin.bm_shapeRepeaterReport;
     var roundCorners = $.__bodymovin.bm_shapeRoundCornersReport;
+    var puckerAndBloat = $.__bodymovin.bm_shapePuckerAndBloatReport;
     var trimPaths = $.__bodymovin.bm_shapeTrimPathsReport;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
 
@@ -70,6 +71,10 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
         return roundCorners(element)
     }
 
+    function buildPuckerAndBloat(element) {
+        return puckerAndBloat(element)
+    }
+
     function buildTrimPaths(element) {
         return trimPaths(element)
     }
@@ -91,6 +96,7 @@ $.__bodymovin.bm_shapeReportHelper = (function () {
     builders[shapeTypes.gStroke] = buildGradientStroke
     builders[shapeTypes.merge] = buildMergePaths
     builders[shapeTypes.roundedCorners] = buildRoundCorners
+    builders[shapeTypes.puckerAndBloat] = buildPuckerAndBloat
     builders[shapeTypes.trim] = buildTrimPaths
 
     function processShape(element) {

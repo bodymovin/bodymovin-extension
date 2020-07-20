@@ -78,6 +78,7 @@ if (!Function.prototype.bm_bind) (function(){
   'reports/layers/shapes/shapeGradientStrokeReport.jsx',
   'reports/layers/shapes/shapeMergePathsReport.jsx',
   'reports/layers/shapes/shapeRoundCornersReport.jsx',
+  'reports/layers/shapes/shapePuckerAndBloatReport.jsx',
   'reports/layers/shapes/shapeTrimPathsReport.jsx',
   'reports/layers/shapes/shapeRepeaterReport.jsx',
   'reports/layers/shapes/shapeUnhandledReport.jsx',
