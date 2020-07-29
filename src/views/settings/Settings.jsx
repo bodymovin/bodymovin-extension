@@ -143,9 +143,11 @@ class Settings extends React.PureComponent {
     this.toggleBakeExpressionProperties = this.toggleValue.bind(this,'expressions:shouldBake')
     this.toggleCacheExpressionProperties = this.toggleValue.bind(this,'expressions:shouldCacheExport')
     this.toggleExtendBakeBeyondWorkArea = this.toggleValue.bind(this,'expressions:shouldBakeBeyondWorkArea')
+    this.toggleBundleFonts = this.toggleValue.bind(this,'bundleFonts')
+    this.toggleInlineFonts = this.toggleValue.bind(this,'inlineFonts')
   }
 
-	componentDidMount() {
+  componentDidMount() {
     if (this.props.settings) {
       this.storedSettings = this.props.settings
     } else {
@@ -234,6 +236,22 @@ class Settings extends React.PureComponent {
               description='If selected it converts fonts to shapes'
               toggleItem={this.toggleGlyphs}
               active={this.props.settings ? this.props.settings.glyphs : false} />
+            {!this.props.settings.glyphs && 
+              <SettingsListItem 
+                title='Bundle Fonts'
+                description='if fonts are reachable on the file system. They will get exported with the bundle. (Works with Skottie player only)'
+                toggleItem={this.toggleBundleFonts}
+                active={this.props.settings ? this.props.settings.bundleFonts : false} 
+              />
+            }
+            {this.props.settings.bundleFonts && 
+              <SettingsListItem 
+                title='Inline Fonts'
+                description='Inline fonts on the json file'
+                toggleItem={this.toggleInlineFonts}
+                active={this.props.settings ? this.props.settings.inlineFonts : false} 
+              />
+            }
             <SettingsListItem 
               title='Hidden'
               description='Select if you need HIDDEN layers to be exported'

@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var PNG = require('pngjs').PNG;
 var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
 var animationSegmenter = require('./animationSegmenter')
+const FileType = require('file-type');
 var ltf = new LottieToFlare();
 
 var JSZip = require('jszip');
@@ -133,13 +134,36 @@ app.post('/encode', async function(req, res){
 			const base64data = buff.toString('base64');
 			res.send({
 				status: 'success',
-				test: 'test3',
 				data: base64data,
 			})
 		} catch(err) {
 			res.send({
 			status: 'error',
 			message: 'failed decoding',
+			error: err,
+			errorMessage: err.message,
+		})
+		}
+	} else {
+		res.send({
+			status: 'error',
+			message: 'missing params',
+		})
+	}
+})
+
+app.post('/getType', async function(req, res){
+	if (req.body.path) {
+		try {
+			const fileType = await FileType.fromFile(decodeURIComponent(req.body.path))
+			res.send({
+				status: 'success',
+				fileType: fileType,
+			})
+		} catch(err) {
+			res.send({
+			status: 'error',
+			message: 'failed getting type',
 			error: err,
 			errorMessage: err.message,
 		})

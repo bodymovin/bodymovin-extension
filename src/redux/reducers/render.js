@@ -5,6 +5,8 @@ let initialState = {
   progress: 0,
   finished: false,
   cancelled: false,
+  bundleFonts: false,
+  inlineFonts: false,
   fonts: []
 }
 
@@ -21,15 +23,29 @@ function updateFontsData(state, action) {
     fFamily:'',
     fWeight:'',
     fStyle:'',
-    fName:''
+    fName:'',
   }
   let fonts = []
   let item, i, len = action.data.fonts.length
   for(i = 0; i < len; i += 1) {
-    item = action.data.fonts[i]
-    fonts.push({...fontFormData,...{fFamily: item.family, fStyle: item.style, fName: item.name}})
+    item = action.data.fonts[i];
+    const font = {
+      ...fontFormData,
+      fFamily: item.family,
+      fStyle: item.style,
+      fName: item.name,
+    }
+    if (action.data.bundleFonts) {
+      font.fPath = item.location
+    }
+    fonts.push(font)
   }
-  let newState = {...state, ...{fonts: fonts}}
+  let newState = {
+    ...state, 
+    ...{fonts: fonts},
+    bundleFonts: action.data.bundleFonts,
+    inlineFonts: action.data.inlineFonts,
+  }
   return newState
 }
 
@@ -63,7 +79,14 @@ function updateFontFromLocalData(state, action) {
     i = 0
     while(i<len) {
       if(item.fName === storedFonts[i].fName && storedFonts[i].data){
-        return storedFonts[i].data
+        var newItem = {
+          ...item,
+          ...storedFonts[i].data,
+        }
+        if (state.bundleFonts) {
+          newItem.fPath = item.fPath
+        }
+        return newItem
       }
       i += 1
     }

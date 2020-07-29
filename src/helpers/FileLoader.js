@@ -84,6 +84,41 @@ async function saveFileFromBase64(data, path) {
     })
 }
 
+async function getFileType(path) {
+    const encodedImageResponse = await fetch('http://localhost:3119/getType/', 
+    {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: encodeURIComponent(path),
+        })
+    })
+    const jsonResponse = await encodedImageResponse.json()
+    return jsonResponse.fileType || { mime: 'font/unn' }
+
+}
+
+async function getEncodedFile(path) {
+    const encodedImageResponse = await fetch('http://localhost:3119/encode/', 
+    {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: encodeURIComponent(path),
+        })
+    })
+    const jsonResponse = await encodedImageResponse.json()
+    const fileType = await getFileType(path)
+    return `data:${fileType.mime};base64,${jsonResponse.data}`
+
+}
+
 async function createFolder(path, folderName) {
     if (!fs.existsSync(path + folderName)){
         fs.mkdirSync(path + folderName);
@@ -98,4 +133,5 @@ export {
     saveFileFromBase64,
     createFolder,
     loadArrayBuffer,
+    getEncodedFile,
 }

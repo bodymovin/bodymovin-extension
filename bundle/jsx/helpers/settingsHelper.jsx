@@ -64,6 +64,14 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.expressions.shouldBakeBeyondWorkArea;
     }
 
+    function shouldBundleFonts() {
+        return !_settings.glyphs && _settings.bundleFonts;
+    }
+
+    function shouldInlineFonts() {
+        return shouldBundleFonts() && _settings.inlineFonts;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -79,6 +87,8 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldIncludeGuidedLayers = shouldIncludeGuidedLayers;
     ob.shouldBakeExpressions = shouldBakeExpressions;
     ob.shouldBakeBeyondWorkArea = shouldBakeBeyondWorkArea;
+    ob.shouldBundleFonts = shouldBundleFonts;
+    ob.shouldInlineFonts = shouldInlineFonts;
 
     return ob;
 }());

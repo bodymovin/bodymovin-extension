@@ -466,12 +466,6 @@ $.__bodymovin.bm_renderManager = (function () {
                     fontOb.fName = fonts[i].name;
                     fontOb.fFamily = fonts[i].family;
                     fontOb.fStyle = fonts[i].style;
-                    if (fonts[i].location) {
-                        var fontFile = new File(fonts[i].location)
-                        if (fontFile.exists) {
-                            fontOb.fLoc = fontFile.name;
-                        }
-                    }
                     list.push(fontOb);
                 }
                 exportData = ob.renderData.exportData;
@@ -480,7 +474,14 @@ $.__bodymovin.bm_renderManager = (function () {
                 $.__bodymovin.bm_textShapeHelper.exportChars(fontsInfo);
             } else {
                 exportData = ob.renderData.exportData;
-                bm_eventDispatcher.sendEvent('bm:render:fonts', {type: 'save', compId: currentCompID, fonts: fonts});
+                bm_eventDispatcher.sendEvent('bm:render:fonts',
+                    {
+                        type: 'save',
+                        compId: currentCompID,
+                        fonts: fonts,
+                        bundleFonts: settingsHelper.shouldBundleFonts(),
+                        inlineFonts: settingsHelper.shouldInlineFonts(),
+                    });
             }
         }
     }

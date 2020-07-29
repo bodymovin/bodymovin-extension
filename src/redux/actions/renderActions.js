@@ -49,6 +49,12 @@ function previewAnimation(path) {
 	}
 }
 
+function toggleBundleFont() {
+	return {
+		type: actionTypes.RENDER_TOGGLE_BUNDLE_FONT,
+	}
+}
+
 export {
 	startRender,
 	stopRender,
@@ -57,4 +63,5 @@ export {
 	setFonts,
 	showRenderBlock,
 	previewAnimation,
+	toggleBundleFont,
 }

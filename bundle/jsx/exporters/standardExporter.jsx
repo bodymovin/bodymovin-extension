@@ -37,7 +37,6 @@ $.__bodymovin.bm_standardExporter = (function () {
 	function moveAssetsToDestination() {
 		var rawFiles = bm_fileManager.getFilesOnPath(['standard']);
 		var i = 0, len = rawFiles.length;
-		bm_eventDispatcher.log('moveAssetsToDestination: ' + len)
 		while(i < len) {
 			var fileData = bm_fileManager.getFileById(rawFiles[i].id);
 			if (fileData) {
