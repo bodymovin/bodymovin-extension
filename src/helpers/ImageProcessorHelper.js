@@ -71,7 +71,6 @@ async function getEncodedFile(path) {
 }
 
 async function processImage(actionData) {
-
 	let path = actionData.path
 
 	try {
