@@ -27,6 +27,32 @@ $.__bodymovin.bm_textHelper = (function () {
             return 6;
         }
     }
+
+    function findLineHeight(textDocument) {
+        var baselineLocs = textDocument.baselineLocs
+        var fontSize = textDocument.fontSize
+        var isFound = false
+        var counter = 1
+        var lineHeight = fontSize
+        bm_eventDispatcher.log('findLineHeight')
+        while(!isFound) {
+            bm_eventDispatcher.log('=========')
+            if (baselineLocs.length > 1 + counter * 4) {
+                lineHeight = (baselineLocs[1 + counter * 4] - baselineLocs[1]) / counter
+                bm_eventDispatcher.log('lineHeight: ' + lineHeight)
+                if (lineHeight < 100000) {
+                    isFound = true
+                } else {
+                    lineHeight = fontSize
+                }
+            } else {
+                isFound = true
+            }
+            counter += 1
+        }
+        bm_eventDispatcher.log('lineHeight: ' + lineHeight)
+        return lineHeight
+    }
     
     function exportTextDocumentData(layerInfo, data, frameRate, stretch) {
         var duplicatedLayerInfo = layerInfo.duplicate();
@@ -74,11 +100,7 @@ $.__bodymovin.bm_textHelper = (function () {
             ob.tr = textDocument.tracking;
             if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
                 if(textDocument.baselineLocs[5] > textDocument.baselineLocs[1]){
-                    ob.lh = textDocument.baselineLocs[5] - textDocument.baselineLocs[1];
-                    // Fix when there is an empty newLine between first and second line. AE return an extremely large number.
-                    if(ob.lh > 10000) {
-                        ob.lh = ob.s*1.2;
-                    }
+                    ob.lh = findLineHeight(textDocument)
                 } else {
                     ob.lh = ob.s*1.2;
                 }
