@@ -358,10 +358,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         imgIndex = '0' + imgIndex;
                     }
 
-                    var bug = new File(file.fsName + imgIndex);
-                    if (bug.exists) {
-                        bug.rename(imageName);
-                    }
+                    fixBugNameFile(imageName, file.fsName, imgIndex);
 
                     bm_eventDispatcher.sendEvent('bm:image:process', {
                         /***
@@ -503,6 +500,19 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         bm_renderManager.imagesReady();
     }
+
+    function fixBugNameFile(imageName, fsName, suffix) {
+        var bug = new File(fsName + suffix);
+        if (bug.exists) {
+            bug.rename(imageName);
+        } else {
+            var namename = fsName.substr(0, fsName.lastIndexOf('.')) + '_' + suffix+ '.png'
+            bug = new File(namename);
+            if (bug.exists) {
+                bug.rename(imageName);
+            }
+        }
+    }
     
     function saveNextImage() {
         if (bm_compsManager.cancelled) {
@@ -563,10 +573,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
                     /***
                     var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
                     ***/
-                    var bug = new File(file.fsName + '00000');
-                    if (bug.exists) {
-                        bug.rename(imageName);
-                    }
+
+                    fixBugNameFile(imageName, file.fsName, '00000')
 
                     bm_eventDispatcher.sendEvent('bm:image:process', {
                         /***
