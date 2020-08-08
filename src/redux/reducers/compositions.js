@@ -27,6 +27,8 @@ let defaultComposition = {
         standalone: false,
         avd: false,
         glyphs: true,
+        bundleFonts: false,
+        inlineFonts: false,
         hiddens: false,
         original_assets: false,
         original_names: false,

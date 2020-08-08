@@ -8,7 +8,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
-    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0, imageNameIndex = 0;
+    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0
+    , imageNameIndex = 0, fontCount = 0;
     var currentSavingAsset;
     var queue, playSound, autoSave, canEditPrefs = true;
     var _lastSecond = -1;
@@ -692,7 +693,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         scheduleNextSaveImage();  
     }
     
-    function addFont(fontName, fontFamily, fontStyle) {
+    function addFont(fontName, fontFamily, fontStyle, fontLocation) {
         var i = 0, len = fonts.length;
         while (i < len) {
             if (fonts[i].name === fontName && fonts[i].family === fontFamily && fonts[i].style === fontStyle) {
@@ -700,12 +701,26 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
             i += 1;
         }
-        fonts.push({
+        var fontData = {
             name: fontName,
             family: fontFamily,
-            style: fontStyle
+            style: fontStyle,
         }
-                  );
+
+        if (fontLocation && settingsHelper.shouldBundleFonts()) {
+            var file = new File(fontLocation)
+            if (file.exists) {
+                if (!settingsHelper.shouldInlineFonts()) {
+                    var fontFileName = 'font_' + fontCount++;
+                    var destinationFileData = bm_fileManager.createFile(fontFileName, ['raw','images']);
+                    var destinationFile = destinationFileData.file;
+                    file.copy(destinationFile.fsName);
+                    fontData.location = "images/" + fontFileName;
+                }
+                fontData.originalLocation = fontLocation;
+            }
+        }
+        fonts.push(fontData);
     }
     
     function getFonts() {
@@ -720,6 +735,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         sequenceSourcesStills.length = 0;
         fonts.length = 0;
         imageCount = 0;
+        fontCount = 0;
         videoCount = 0;
         sequenceCount = 0;
         sequenceSourcesStillsCount = 0;

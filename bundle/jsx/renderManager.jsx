@@ -474,7 +474,14 @@ $.__bodymovin.bm_renderManager = (function () {
                 $.__bodymovin.bm_textShapeHelper.exportChars(fontsInfo);
             } else {
                 exportData = ob.renderData.exportData;
-                bm_eventDispatcher.sendEvent('bm:render:fonts', {type: 'save', compId: currentCompID, fonts: fonts});
+                bm_eventDispatcher.sendEvent('bm:render:fonts',
+                    {
+                        type: 'save',
+                        compId: currentCompID,
+                        fonts: fonts,
+                        bundleFonts: settingsHelper.shouldBundleFonts(),
+                        inlineFonts: settingsHelper.shouldInlineFonts(),
+                    });
             }
         }
     }

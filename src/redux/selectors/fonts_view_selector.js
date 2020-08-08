@@ -1,12 +1,12 @@
 import { createSelector } from 'reselect'
 
-const getFonts = (state) => state.render.fonts
+const getRender = (state) => state.render
 
 const getFontsViewData = createSelector(
-  [ getFonts ],
-  (fonts) => {
+  [ getRender ],
+  (renderData) => {
   	return {
-  		fonts: fonts
+  		fonts: renderData.fonts,
   	}
   }
 )

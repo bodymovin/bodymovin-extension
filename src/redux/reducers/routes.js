@@ -16,12 +16,20 @@ let initialState = {
 	route: 0
 }
 
+function handleRenderFonts(state, action) {
+  if (!action.data.bundleFonts) {
+    return {...state, ...{route: routes.fonts}}
+  } else {
+    return state
+  }
+}
+
 export default function project(state = initialState, action) {
   switch (action.type) {
     case actionTypes.CHANGE_VIEW:
       return {...state, ...{route: action.route}}
     case actionTypes.RENDER_FONTS:
-      return {...state, ...{route: routes.fonts}}
+      return handleRenderFonts(state, action)
     case actionTypes.RENDER_SET_FONTS:
     case actionTypes.RENDER_START:
       return {...state, ...{route: routes.render}}

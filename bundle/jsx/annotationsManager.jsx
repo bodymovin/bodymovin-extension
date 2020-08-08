@@ -141,7 +141,6 @@ $.__bodymovin.bm_annotationsManager = (function () {
     }
 
     function searchTextProperties(layerInfo) {
-        bm_eventDispatcher.log('searchTextProperties')
         var textDocumentData = {};
         if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
             return textDocumentData;

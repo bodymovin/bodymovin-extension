@@ -89,7 +89,7 @@ $.__bodymovin.bm_textHelper = (function () {
             var i, len;
             ob.s = textDocument.fontSize;
             ob.f = textDocument.font;
-            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
+            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle, textDocument.fontLocation);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
             } else {
