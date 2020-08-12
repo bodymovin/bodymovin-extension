@@ -16,6 +16,7 @@ $.__bodymovin.bm_layerElement = (function () {
     var bm_textHelper = $.__bodymovin.bm_textHelper;
     var bm_imageSeqHelper = $.__bodymovin.bm_imageSeqHelper;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
+    var bm_audioHelper = $.__bodymovin.bm_audioHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     var completeCallback;
@@ -26,8 +27,8 @@ $.__bodymovin.bm_layerElement = (function () {
         var layerData = {};
         var layerType = getLayerType(layerInfo);
 
-        if (layerType === layerTypes.audio
-            || layerType === layerTypes.light
+        if (/*layerType === layerTypes.audio
+            ||*/ layerType === layerTypes.light
             || layerType === layerTypes.pholderStill
             || layerType === layerTypes.pholderVideo)
         {
@@ -127,6 +128,8 @@ $.__bodymovin.bm_layerElement = (function () {
             }
         } else if (layerType === layerTypes.video) {
             layerData.refId = bm_sourceHelper.checkVideoSource(layerInfo);
+        } else if (layerType === layerTypes.audio) {
+            layerData.refId = bm_sourceHelper.checkAudioSource(layerInfo);
         }
     }
     
@@ -142,7 +145,7 @@ $.__bodymovin.bm_layerElement = (function () {
         layerData.sr = layerInfo.stretch/100;
         
         var lType = layerData.ty;
-        if (lType !== layerTypes.camera) {
+        if (lType !== layerTypes.camera && lType !== layerTypes.audio) {
             bm_transformHelper.exportTransform(layerInfo, layerData, frameRate);
             bm_maskHelper.exportMasks(layerInfo, layerData, frameRate);
             bm_effectsHelper.exportEffects(layerInfo, layerData, frameRate, includeHiddenData);
@@ -169,6 +172,8 @@ $.__bodymovin.bm_layerElement = (function () {
             bm_imageSeqHelper.exportStills(layerInfo, layerData, frameRate);
         } else if (lType === layerTypes.camera) {
             bm_cameraHelper.exportCamera(layerInfo, layerData, frameRate);
+        } else if (lType === layerTypes.audio) {
+            bm_audioHelper.exportAudio(layerInfo, layerData, frameRate);
         }
         layerData.ip = layerInfo.inPoint * frameRate;
         layerData.op = layerInfo.outPoint * frameRate;

@@ -130,6 +130,7 @@ if (!Function.prototype.bm_bind) (function(){
   'utils/effectsHelper.jsx',
   'utils/layerStylesHelper.jsx',
   'utils/cameraHelper.jsx',
+  'utils/audioHelper.jsx',
   'utils/XMPParser.jsx',
   'utils/ProjectParser.jsx',
   'utils/markerHelper.jsx',

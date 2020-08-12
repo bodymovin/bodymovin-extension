@@ -6,9 +6,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var bm_renderManager = $.__bodymovin.bm_renderManager;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
-    var compSources = [], imageSources = [], videoSources = [], fonts = []
+    var compSources = [], imageSources = [], videoSources = [], audioSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
-    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0
+    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0, audioCount = 0
     , imageNameIndex = 0, fontCount = 0;
     var currentSavingAsset;
     var queue, playSound, autoSave, canEditPrefs = true;
@@ -52,6 +52,26 @@ $.__bodymovin.bm_sourceHelper = (function () {
         });
         videoCount += 1;
         return videoSources[videoSources.length - 1].id;
+    }
+
+    function checkAudioSource(item) {
+        var i = 0, len = audioSources.length;
+        while (i < len) {
+            if (audioSources[i].source === item.source) {
+                return audioSources[i].id;
+            }
+            i += 1;
+        }
+        audioSources.push({
+            source: item.source,
+            width: item.source.width,
+            height: item.source.height,
+            source_name: item.source.name,
+            name: item.name,
+            id: 'audio_' + audioCount,
+        });
+        audioCount += 1;
+        return audioSources[audioSources.length - 1].id;
     }
     
     function checkImageSource(item) {
@@ -189,6 +209,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var sequenceSources = [], sequenceSourcesStills = []
     var currentExportingImageSequenceIndex = 0;
     var currentExportingVideoIndex = 0;
+    var currentExportingAudioIndex = 0;
     var sequenceSourcesStillsCount = 0;
     var currentStillIndex = 0;
     var currentSequenceTotalFrames = 0;
@@ -448,6 +469,30 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     }
 
+    function saveAudio() {
+
+        var currentSourceData = audioSources[currentExportingAudioIndex];
+        var sourceExtension = currentSourceData.source_name.substr(currentSourceData.source_name.lastIndexOf('.') + 1) || 'mp3';
+        var imageName = getImageName(currentSourceData.source_name, 'aud_' + currentExportingAudioIndex, sourceExtension);
+        var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
+        var file = renderFileData.file;
+        var currentSourceFile = currentSourceData.source.file;
+        currentSourceFile.copy(file.fsName);
+        assetsArray.push({
+            id: currentSourceData.id,
+            w: currentSourceData.width,
+            h: currentSourceData.height,
+            u: 'images/',
+            p: imageName,
+            e: 0,
+            fileId: renderFileData.id
+        });
+
+        currentExportingAudioIndex += 1;
+        app.scheduleTask('$.__bodymovin.bm_sourceHelper.saveNextAudio();', 20, false);
+        
+    }
+
     function saveVideo() {
 
         var currentSourceData = videoSources[currentExportingVideoIndex];
@@ -474,9 +519,17 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     function saveNextVideo() {
         if (currentExportingVideoIndex === videoSources.length) {
-            finishImageSave();
+            saveNextAudio();
         } else {
             saveVideo();
+        }
+    }
+
+    function saveNextAudio() {
+        if (currentExportingAudioIndex === audioSources.length) {
+            finishImageSave();
+        } else {
+            saveAudio();
         }
     }
 
@@ -660,7 +713,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
-        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0) || settingsHelper.shouldSkipImages()) {
+        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSources.length === 0) || settingsHelper.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }
@@ -675,6 +728,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         currentExportingImage = 0;
         currentExportingImageSequenceIndex = 0;
         currentExportingVideoIndex = 0;
+        currentExportingAudioIndex = 0;
         var file = new File(path);
         folder = file.parent;
         folder.changePath('images/');
@@ -731,12 +785,14 @@ $.__bodymovin.bm_sourceHelper = (function () {
         compSources.length = 0;
         imageSources.length = 0;
         videoSources.length = 0;
+        audioSources.length = 0;
         sequenceSources.length = 0;
         sequenceSourcesStills.length = 0;
         fonts.length = 0;
         imageCount = 0;
         fontCount = 0;
         videoCount = 0;
+        audioCount = 0;
         sequenceCount = 0;
         sequenceSourcesStillsCount = 0;
         imageNameIndex = 0;
@@ -747,6 +803,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         checkCompSource: checkCompSource,
         checkImageSource: checkImageSource,
         checkVideoSource: checkVideoSource,
+        checkAudioSource: checkAudioSource,
         searchSequenceSource: searchSequenceSource,
         addSequenceSource: addSequenceSource,
         addImageSequenceStills: addImageSequenceStills,
@@ -759,6 +816,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         scheduleNextSaveStilInSequence: scheduleNextSaveStilInSequence,
         scheduleNextSaveImage: scheduleNextSaveImage,
         saveNextVideo: saveNextVideo,
+        saveNextAudio: saveNextAudio,
     };
     
 }());
