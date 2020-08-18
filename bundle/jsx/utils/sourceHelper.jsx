@@ -1,17 +1,18 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global layerElement, $, RQItemStatus, File, app, PREFType */
 $.__bodymovin.bm_sourceHelper = (function () {
+    var audioSourceHelper = $.__bodymovin.bm_audioSourceHelper;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
-    var compSources = [], imageSources = [], videoSources = [], audioSources = [], fonts = []
+    var renderQueueHelper = $.__bodymovin.bm_renderQueueHelper;
+    var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
-    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0, audioCount = 0
+    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0
     , imageNameIndex = 0, fontCount = 0;
     var currentSavingAsset;
-    var queue, playSound, autoSave, canEditPrefs = true;
     var _lastSecond = -1;
     var _lastMilliseconds = -1;
 
@@ -55,23 +56,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function checkAudioSource(item) {
-        var i = 0, len = audioSources.length;
-        while (i < len) {
-            if (audioSources[i].source === item.source) {
-                return audioSources[i].id;
-            }
-            i += 1;
-        }
-        audioSources.push({
-            source: item.source,
-            width: item.source.width,
-            height: item.source.height,
-            source_name: item.source.name,
-            name: item.name,
-            id: 'audio_' + audioCount,
-        });
-        audioCount += 1;
-        return audioSources[audioSources.length - 1].id;
+        return audioSourceHelper.checkAudioSource(item);
     }
     
     function checkImageSource(item) {
@@ -173,35 +158,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
 
         return imageName;
-    }
-
-    function saveFilesToFolder() {
-        /***
-        var temporaryFolder = bm_fileManager.getTemporaryFolder();
-        bm_eventDispatcher.log('saveFilesToFolder')
-        var i, len = assetsArray.length;
-        var copyingFile;
-        for(i = 0; i < len; i += 1) {
-            bm_eventDispatcher.log('saveFilesToFolder: ' + i);
-            if(!assetsArray[i].e) {
-                bm_eventDispatcher.log('saveFilesToFolder: ' + temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
-                copyingFile = new File(temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
-                if(copyingFile.exists) {
-                    if(!folder.exists) {
-                        folder.create()
-                    }
-                    copyingFile.copy(folder.absoluteURI+'/'+copyingFile.name);
-                }
-            }
-        }
-        
-        var files = temporaryFolder.getFiles();
-        len = files.length;
-        for(i = 0; i < len; i += 1) {
-            files[i].remove();
-        }
-        temporaryFolder.remove();
-        ***/
     }
 
     //// IMAGE SEQUENCE FUNCTIONS
@@ -389,7 +345,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         path: file.fsName, 
                         should_compress: settingsHelper.shouldCompressImages(), 
                         compression_rate: settingsHelper.getCompressionQuality()/100,
-                        should_encode_images: settingsHelper.shouldEncodeImages()
+                        should_encode_images: settingsHelper.shouldEncodeImages(),
+                        assetType: 'image',
                     })
 
                 }
@@ -421,7 +378,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 path: file.fsName, 
                 should_compress: settingsHelper.shouldCompressImages(), 
                 compression_rate: settingsHelper.getCompressionQuality()/100,
-                should_encode_images: settingsHelper.shouldEncodeImages()
+                should_encode_images: settingsHelper.shouldEncodeImages(),
+                assetType: 'image',
             })
         }
         
@@ -469,30 +427,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     }
 
-    function saveAudio() {
-
-        var currentSourceData = audioSources[currentExportingAudioIndex];
-        var sourceExtension = currentSourceData.source_name.substr(currentSourceData.source_name.lastIndexOf('.') + 1) || 'mp3';
-        var imageName = getImageName(currentSourceData.source_name, 'aud_' + currentExportingAudioIndex, sourceExtension);
-        var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
-        var file = renderFileData.file;
-        var currentSourceFile = currentSourceData.source.file;
-        currentSourceFile.copy(file.fsName);
-        assetsArray.push({
-            id: currentSourceData.id,
-            w: currentSourceData.width,
-            h: currentSourceData.height,
-            u: 'images/',
-            p: imageName,
-            e: 0,
-            fileId: renderFileData.id
-        });
-
-        currentExportingAudioIndex += 1;
-        app.scheduleTask('$.__bodymovin.bm_sourceHelper.saveNextAudio();', 20, false);
-        
-    }
-
     function saveVideo() {
 
         var currentSourceData = videoSources[currentExportingVideoIndex];
@@ -519,17 +453,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     function saveNextVideo() {
         if (currentExportingVideoIndex === videoSources.length) {
-            saveNextAudio();
+            audioSourceHelper.save(finishImageSave, assetsArray);
         } else {
             saveVideo();
-        }
-    }
-
-    function saveNextAudio() {
-        if (currentExportingAudioIndex === audioSources.length) {
-            finishImageSave();
-        } else {
-            saveAudio();
         }
     }
 
@@ -545,13 +471,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     function finishImageSave() {
 
-        saveFilesToFolder();
-        restoreRenderQueue(queue);
+        renderQueueHelper.restoreRenderQueue();
 
-        if(canEditPrefs) {
-            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);   
-        }
         bm_renderManager.imagesReady();
     }
 
@@ -684,40 +605,13 @@ $.__bodymovin.bm_sourceHelper = (function () {
             scheduleNextSaveImage();
         }
     }
-    
-    function renderQueueIsBusy() {
-        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
-            if (app.project.renderQueue.item(i).status == RQItemStatus.RENDERING) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function backupRenderQueue() {
-        var queue = [];
-        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
-            var item = app.project.renderQueue.item(i);
-            if (item.status === RQItemStatus.QUEUED) {
-                queue.push(i);
-                item.render = false;
-            }
-        }
-        return queue;
-    }
-
-    function restoreRenderQueue(queue) {
-        for (var i = 0; i < queue.length; i++) {
-            app.project.renderQueue.item(queue[i]).render = true;
-        }
-    }
 
     function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
-        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSources.length === 0) || settingsHelper.shouldSkipImages()) {
+        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSourceHelper.isEmpty()) || settingsHelper.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }
-        if (renderQueueIsBusy()) {
+        if (renderQueueHelper.renderQueueIsBusy()) {
             bm_eventDispatcher.sendEvent('bm:alert', {message: 'Render queue is currently busy. \n\rCan\'t continue with render.\n\rCheck for elements in AE\'s render queue in a Rendering status, remove them and try again.'});
             return;
         }
@@ -734,16 +628,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         folder.changePath('images/');
         assetsArray = assets;
 
-        try {
-            playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-            autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
-            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);
-        }  catch(err) {
-            canEditPrefs = false;
-        }
-
-        queue = backupRenderQueue();
+        renderQueueHelper.backupRenderQueue();
         scheduleNextSaveImage();  
     }
     
@@ -785,17 +670,16 @@ $.__bodymovin.bm_sourceHelper = (function () {
         compSources.length = 0;
         imageSources.length = 0;
         videoSources.length = 0;
-        audioSources.length = 0;
         sequenceSources.length = 0;
         sequenceSourcesStills.length = 0;
         fonts.length = 0;
         imageCount = 0;
         fontCount = 0;
         videoCount = 0;
-        audioCount = 0;
         sequenceCount = 0;
         sequenceSourcesStillsCount = 0;
         imageNameIndex = 0;
+        audioSourceHelper.reset();
     }
     
     return {
@@ -816,7 +700,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
         scheduleNextSaveStilInSequence: scheduleNextSaveStilInSequence,
         scheduleNextSaveImage: scheduleNextSaveImage,
         saveNextVideo: saveNextVideo,
-        saveNextAudio: saveNextAudio,
     };
     
 }());

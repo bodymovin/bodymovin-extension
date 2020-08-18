@@ -92,6 +92,9 @@ csInterface.addEventListener('bm:image:process', function (ev) {
 		if(data && typeof data.compression_rate === 'string') {
 			data.compression_rate = Number(data.compression_rate)
 		}
+		if(data && typeof data.compression_rate === 'string') {
+			data.compression_rate = Number(data.compression_rate)
+		}
 		//End fix for AE 2014
 
 		dispatcher({ 
@@ -383,11 +386,18 @@ function getVersionFromExtension() {
 	return prom
 }
 
-function imageProcessed(result) {
+function imageProcessed(result, data) {
 	extensionLoader.then(function(){
-		var eScript = '$.__bodymovin.bm_sourceHelper.imageProcessed(';
+		var eScript = ''
+		if(data.assetType === 'audio') {
+			eScript += '$.__bodymovin.bm_audioSourceHelper.assetProcessed(';
+
+		} else {
+			eScript += '$.__bodymovin.bm_sourceHelper.imageProcessed(';
+		}
 		eScript += result.extension === 'jpg';
 		eScript += ',';
+		console.log('result.encoded', result.encoded)
 		if(result.encoded) {
 			eScript += '"' + result.encoded_data + '"'
 		} else {

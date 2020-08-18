@@ -86,7 +86,7 @@ function *storeFontData() {
 function *processImage(action) {
 	try{
 		let response = yield call(imageProcessor, action.data)
-		imageProcessed(response)
+		imageProcessed(response, action.data)
 	} catch (err) {
 		console.log(err)
 	}

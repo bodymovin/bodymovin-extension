@@ -83,6 +83,7 @@ async function processImage(actionData) {
 		const imageCompressedData = await handleImageCompression(path, actionData)
 
 		if (actionData.should_encode_images) {
+
 			const imagePath = imageCompressedData.extension === 'png' ? 
 				imageCompressedData.path
 				:
@@ -91,7 +92,12 @@ async function processImage(actionData) {
 			var fileExtension = imagePath.substr(imagePath.lastIndexOf('.') + 1)
 
 			let encodedImage = await getEncodedFile(imagePath)
-			encodedImage = `data:image/${fileExtension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+
+			if (actionData.assetType === 'audio') {
+				encodedImage = `data:audio/mp3;base64,${encodedImage}`
+			} else {
+				encodedImage = `data:image/${fileExtension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+			}
 			return {
 				encoded_data: encodedImage,
 				encoded: true,

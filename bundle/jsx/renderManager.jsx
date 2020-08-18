@@ -435,7 +435,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
             }
         } catch(error) {
-            /* 
+             
             // Uncomment for debugging
             if (error) {
                 bm_eventDispatcher.log(error.message);
@@ -443,7 +443,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 bm_eventDispatcher.log(error.fileName);
             }
             bm_eventDispatcher.log($.stack);
-            */
+            
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render Failed ', compId: currentCompID, progress: 1, isFinished: false, fsPath: fsDestinationPath});
         }
     }
