@@ -200,7 +200,8 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         //
         var item = app.project.renderQueue.items.add(containingCompCopy);
         var outputModule = item.outputModule(1);
-        applyTemplateToModule(outputModule, '__bodymovin_sound_template_16', containingCompCopy);
+        var template = settingsHelper.getAudioBitRateTemplate()
+        applyTemplateToModule(outputModule, template, containingCompCopy);
         //
         item = getRenderItemByComp(containingCompCopy);
         outputModule = item.outputModule(1);

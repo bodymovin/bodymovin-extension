@@ -27,10 +27,11 @@ $.__bodymovin.bm_layerElement = (function () {
         var layerData = {};
         var layerType = getLayerType(layerInfo);
 
-        if (/*layerType === layerTypes.audio
-            ||*/ layerType === layerTypes.light
+        if (layerType === layerTypes.light
             || layerType === layerTypes.pholderStill
-            || layerType === layerTypes.pholderVideo)
+            || layerType === layerTypes.pholderVideo
+            || (layerType === layerTypes.audio && !settingsHelper.shouldRenderAudio())
+            )
         {
             layerData.isValid = false;
             layerData.render = false;

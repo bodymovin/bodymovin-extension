@@ -3,12 +3,14 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsListDropdown from './list/SettingsListDropdown'
 import SettingsExportMode from './SettingsExportMode'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import SettingsAssets from './SettingsAssets'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
+import audioBitOptions from '../../helpers/enums/audioBitOptions'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -138,6 +140,7 @@ class Settings extends React.PureComponent {
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
     this.togglePrettyPrint = this.toggleValue.bind(this,'pretty_print')
+    this.toggleAudioLayers = this.toggleValue.bind(this,'audio:isEnabled')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.qualityChange = this.qualityChange.bind(this)
     this.sampleSizeChange = this.sampleSizeChange.bind(this)
@@ -196,6 +199,10 @@ class Settings extends React.PureComponent {
       return
     }
     this.props.updateSettingsValue('expressions:sampleSize', sampleSize)
+  }
+
+  handleBitRateChange = value => {
+    this.props.updateSettingsValue('audio:bitrate', value)
   }
 
   getExtraComps() {
@@ -348,6 +355,23 @@ class Settings extends React.PureComponent {
                 description='Export in a more human readable format. Do not use for final file since filesize gets significantly larger.'
                 toggleItem={this.togglePrettyPrint}
                 active={this.props.settings ? this.props.settings.pretty_print : false}  />
+            </SettingsCollapsableItem>
+            <SettingsCollapsableItem 
+              title={'Audio'}
+              description={'Audio Settings'}
+              >
+              <SettingsListItem 
+                title='Enabled'
+                description='Export audio layers (this will process audio layers and export them as mp3 files).'
+                toggleItem={this.toggleAudioLayers}
+                active={this.props.settings ? this.props.settings.audio.isEnabled : false}  />
+              <SettingsListDropdown 
+                title='Lottie Library Origin'
+                description='Select where to load the library from'
+                onChange={this.handleBitRateChange}
+                current={this.props.settings.audio.bitrate}
+                options={audioBitOptions}  
+              />
             </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>

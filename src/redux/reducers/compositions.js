@@ -2,6 +2,7 @@ import actionTypes from '../actions/actionTypes'
 import ExportModes from '../../helpers/ExportModes'
 import LottieVersions, {findLottieVersion} from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
+import audioBitOptions from '../../helpers/enums/audioBitOptions'
 import Variables from '../../helpers/styles/variables'
 
 let initialState = {
@@ -82,6 +83,10 @@ let defaultComposition = {
           shouldCacheExport: false,
           shouldBakeBeyondWorkArea: false,
           sampleSize: 1,
+        },
+        audio: {
+          isEnabled: true,
+          bitrate: audioBitOptions[0].value,
         }
     }
   }
@@ -141,6 +146,10 @@ function setStoredData(state, action) {
           expressions: {
             ...defaultComposition.settings.expressions,
             ...item.settings.expressions,
+          },
+          audio: {
+            ...defaultComposition.settings.audio,
+            ...item.settings.audio,
           }
         }
       }
