@@ -137,6 +137,7 @@ class Settings extends React.PureComponent {
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
+    this.togglePrettyPrint = this.toggleValue.bind(this,'pretty_print')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.qualityChange = this.qualityChange.bind(this)
     this.sampleSizeChange = this.sampleSizeChange.bind(this)
@@ -342,6 +343,11 @@ class Settings extends React.PureComponent {
                 description='Only check this if you need specific properties for uses  other that the player.'
                 toggleItem={this.toggleNotSupportedProperties}
                 active={this.props.settings ? this.props.settings.not_supported_properties : false}  />
+              <SettingsListItem 
+                title='Pretty print JSON'
+                description='Export in a more human readable format. Do not use for final file since filesize gets significantly larger.'
+                toggleItem={this.togglePrettyPrint}
+                active={this.props.settings ? this.props.settings.pretty_print : false}  />
             </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>

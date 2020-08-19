@@ -18,6 +18,7 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_riveExporter = $.__bodymovin.bm_riveExporter;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var layerTypes = $.__bodymovin.layerTypes;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     var results = {
         avd: {
@@ -147,8 +148,15 @@ $.__bodymovin.bm_dataManager = (function () {
         separateComps(data.layers, data.comps);
         moveCompsToAssets(data);
 
-        var stringifiedData = JSON.stringify(data);
-        stringifiedData = stringifiedData.replace(/\n/g, '');
+        var stringifiedData
+
+        if (settingsHelper.shouldPrettyPrint()) {
+            stringifiedData = JSON.stringify(data, null, '\t');
+        } else {
+            stringifiedData = JSON.stringify(data);
+            stringifiedData = stringifiedData.replace(/\n/g, '');
+        }
+
         bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData);
 
         ////

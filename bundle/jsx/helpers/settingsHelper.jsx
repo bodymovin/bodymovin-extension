@@ -72,6 +72,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return shouldBundleFonts() && _settings.inlineFonts;
     }
 
+    function shouldPrettyPrint() {
+        return _settings.pretty_print;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -89,6 +93,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldBakeBeyondWorkArea = shouldBakeBeyondWorkArea;
     ob.shouldBundleFonts = shouldBundleFonts;
     ob.shouldInlineFonts = shouldInlineFonts;
+    ob.shouldPrettyPrint = shouldPrettyPrint;
 
     return ob;
 }());
