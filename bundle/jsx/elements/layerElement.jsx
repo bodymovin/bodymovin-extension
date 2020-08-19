@@ -179,6 +179,10 @@ $.__bodymovin.bm_layerElement = (function () {
         layerData.ip = layerInfo.inPoint * frameRate;
         layerData.op = layerInfo.outPoint * frameRate;
         layerData.st = layerInfo.startTime * frameRate;
+        if (lType === layerTypes.audio) {
+            // Settings inpoint equal to start point because audio is rasterized and trimmed
+            layerData.st = layerData.ip;
+        }
         if (settingsHelper.shouldIncludeNotSupportedProperties()) {
             layerData.cp = layerInfo.collapseTransformation;
             if (layerInfo.motionBlur) {

@@ -8,12 +8,15 @@ $.__bodymovin.bm_audioHelper = (function () {
     var ob = {};
     
     function exportAudio(layerInfo, data, frameRate) {
-        var stretch = data.sr;
-        var audioProperty = layerInfo.property('Audio');
-        bm_timeremapHelper.exportTimeremap(layerInfo, data, frameRate);
-            data.au = {
-                lv: bm_keyframeHelper.exportKeyframes(audioProperty.property('Audio Levels'), frameRate, stretch),
-            }
+        // For now nothing additional is getting exported
+        // since the audio is rasterized with all effects applied during export
+        // var stretch = data.sr;
+        // var audioProperty = layerInfo.property('Audio');
+        // bm_timeremapHelper.exportTimeremap(layerInfo, data, frameRate);
+        // data.au = {
+        //     lv: bm_keyframeHelper.exportKeyframes(audioProperty.property('Audio Levels'), frameRate, stretch),
+        // }
+        //
     }
     
     ob.exportAudio = exportAudio;
