@@ -176,9 +176,6 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         }
 
         var maxPosition = Math.min(comp.duration, layer.outPoint);
-        bm_eventDispatcher.log('comp.duration:' + comp.duration)
-        bm_eventDispatcher.log('layer.outPoint:' + layer.outPoint)
-        bm_eventDispatcher.log('layer.inPoint:' + layer.inPoint)
         compCopy.name = '__bodymovin_copy';
         compCopy.workAreaStart = layer.inPoint;
         compCopy.workAreaDuration = maxPosition - layer.inPoint;

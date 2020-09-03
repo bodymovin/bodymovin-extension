@@ -689,7 +689,11 @@ var Matrix = (function(){
         if(this.isIdentity()) {
             arr = [x,y,z];
         } else {
-            arr = [x * this.props[0] + y * this.props[4] + z * this.props[8] + this.props[12],x * this.props[1] + y * this.props[5] + z * this.props[9] + this.props[13],x * this.props[2] + y * this.props[6] + z * this.props[10] + this.props[14]];
+            arr = [
+                x * this.props[0] + y * this.props[4] + z * this.props[8] + this.props[12],
+                x * this.props[1] + y * this.props[5] + z * this.props[9] + this.props[13],
+                x * this.props[2] + y * this.props[6] + z * this.props[10] + this.props[14]
+            ];
         }
         return arr;
     }
@@ -13271,7 +13275,57 @@ var expressionHelpers = (function(){
     }
 
     function getTransformValueAtTime(time) {
-        console.warn('Transform at time not supported');
+        if (!this._transformCachingAtTime) {
+            this._transformCachingAtTime = {
+                v: new Matrix(),
+            };
+        }
+        ////
+        var matrix = this._transformCachingAtTime.v;
+        matrix.cloneFromProps(this.pre.props);
+        if (this.appliedTransformations < 1) {
+            var anchor = this.a.getValueAtTime(time);
+            matrix.translate(-anchor[0], -anchor[1], anchor[2]);
+        }
+        if (this.appliedTransformations < 2) {
+            var scale = this.s.getValueAtTime(time);
+            matrix.scale(scale[0], scale[1], scale[2]);
+        }
+        if (this.sk && this.appliedTransformations < 3) {
+            var skew = this.sk.getValueAtTime(time);
+            var skewAxis = this.sa.getValueAtTime(time);
+            matrix.skewFromAxis(-skew, skewAxis);
+        }
+        if (this.r && this.appliedTransformations < 4) {
+            var rotation = this.r.getValueAtTime(time);
+            matrix.rotate(-rotation);
+        } else if (!this.r && this.appliedTransformations < 4){
+            var rotationZ = this.rz.getValueAtTime(time);
+            var rotationY = this.ry.getValueAtTime(time);
+            var rotationX = this.rx.getValueAtTime(time);
+            var orientation = this.or.getValueAtTime(time);
+            matrix.rotateZ(-rotationZ.v)
+            .rotateY(rotationY.v)
+            .rotateX(rotationX.v)
+            .rotateZ(-orientation[2])
+            .rotateY(orientation[1])
+            .rotateX(orientation[0]);
+        }
+        if (this.data.p && this.data.p.s) {
+            var positionX = this.px.getValueAtTime(time);
+            var positionY = this.py.getValueAtTime(time);
+            if (this.data.p.z) {
+                var positionZ = this.pz.getValueAtTime(time);
+                matrix.translate(positionX, positionY, -positionZ);
+            } else {
+                matrix.translate(positionX, positionY, 0);
+            }
+        } else {
+            var position = this.p.getValueAtTime(time);
+            matrix.translate(position[0], position[1], -position[2]);
+        }
+        return matrix;
+        ////
     }
 
     function getTransformStaticValueAtTime(time) {
@@ -14053,7 +14107,11 @@ var ShapeExpressionInterface = (function(){
 var TextExpressionInterface = (function(){
 	return function(elem){
         var _prevValue, _sourceText;
-        function _thisLayerFunction(){
+        function _thisLayerFunction(name){
+            switch(name){
+                case "ADBE Text Document":
+                    return _thisLayerFunction.sourceText;
+            }
         }
         Object.defineProperty(_thisLayerFunction, "sourceText", {
             get: function(){
@@ -14076,14 +14134,12 @@ var LayerExpressionInterface = (function (){
         var toWorldMat = new Matrix();
         toWorldMat.reset();
         var transformMat;
-        if(time) {
-            //Todo implement value at time on transform properties
-            //transformMat = this._elem.finalTransform.mProp.getValueAtTime(time);
-            transformMat = this._elem.finalTransform.mProp;
+        if (time !== undefined) {
+            toWorldMat = this._elem.finalTransform.mProp.getValueAtTime(time);
         } else {
             transformMat = this._elem.finalTransform.mProp;
+            transformMat.applyToMatrix(toWorldMat);
         }
-        transformMat.applyToMatrix(toWorldMat);
         if(this._elem.hierarchy && this._elem.hierarchy.length){
             var i, len = this._elem.hierarchy.length;
             for(i=0;i<len;i+=1){
@@ -14097,15 +14153,13 @@ var LayerExpressionInterface = (function (){
         var toWorldMat = new Matrix();
         toWorldMat.reset();
         var transformMat;
-        if(time) {
-            //Todo implement value at time on transform properties
-            //transformMat = this._elem.finalTransform.mProp.getValueAtTime(time);
-            transformMat = this._elem.finalTransform.mProp;
+        if (time !== undefined) {
+            toWorldMat = this._elem.finalTransform.mProp.getValueAtTime(time);
         } else {
             transformMat = this._elem.finalTransform.mProp;
+            transformMat.applyToMatrix(toWorldMat);
         }
-        transformMat.applyToMatrix(toWorldMat);
-        if(this._elem.hierarchy && this._elem.hierarchy.length){
+        if (this._elem.hierarchy && this._elem.hierarchy.length){
             var i, len = this._elem.hierarchy.length;
             for(i=0;i<len;i+=1){
                 this._elem.hierarchy[i].finalTransform.mProp.applyToMatrix(toWorldMat);
@@ -14161,6 +14215,8 @@ var LayerExpressionInterface = (function (){
                 case "effects":
                 case "Effects":
                     return _thisLayerFunction.effect;
+                case "ADBE Text Properties":
+                    return _thisLayerFunction.textInterface;
             }
         }
         _thisLayerFunction.toWorld = toWorld;
@@ -14439,7 +14495,7 @@ var EffectsExpressionInterface = (function (){
                 }
                 i += 1;
             }
-            return effectElements[0]();
+            throw new Error();
         };
         var _propertyGroup = propertyGroupFactory(groupInterface, propertyGroup);
 
@@ -14564,6 +14620,7 @@ var ExpressionPropertyInterface = (function() {
                 }
                 var valueProp = type === 'unidimensional' ? new Number(value) : Object.assign({}, value);
                 valueProp.time = property.keyframes[pos-1].t / property.elem.comp.globalData.frameRate;
+                valueProp.value = type === 'unidimensional' ? value[0] : value;
                 return valueProp;
             }
         };
@@ -14863,7 +14920,7 @@ lottie.mute = animationManager.mute;
 lottie.unmute = animationManager.unmute;
 lottie.getRegisteredAnimations = animationManager.getRegisteredAnimations;
 lottie.__getFactory = getFactory;
-lottie.version = '5.7.2';
+lottie.version = '5.7.3';
 
 function checkReady() {
     if (document.readyState === "complete") {
