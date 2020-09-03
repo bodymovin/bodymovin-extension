@@ -42,7 +42,7 @@ class SkottiePreviewer extends React.PureComponent {
   }
 
   async updateFrame() {
-    const CanvasKit = await getCanvasKit()
+    const CanvasKit = this.CanvasKit
     const totalFrames = this.props.animationData.op - this.props.animationData.ip;
     const frame = parseInt(totalFrames * this.props.progress, 10)
     CanvasKit.setCurrentContext(this.skottieContext);
@@ -76,6 +76,7 @@ class SkottiePreviewer extends React.PureComponent {
         this.skottieCanvas = this.skottieSurface.getCanvas();
         this.skottieInstance = CanvasKit.MakeManagedAnimation(JSON.stringify(data), this.props.assetsData);
         this.skottieContext = CanvasKit.currentContext();
+        this.CanvasKit = CanvasKit;
         this.updateFrame();
       }
   }

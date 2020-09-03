@@ -37,7 +37,6 @@ async function loadCanvasJs() {
 }
 
 async function getCanvasKit() {
-	console.log('getCanvasKit')
 	if (!_canvasKit) {
 		await loadCanvasJs()
 		let wasmPath = ''

@@ -161,6 +161,7 @@ class Preview extends React.Component {
               updateProgress={this.updateProgress} 
               changeStart={this.changeStart} 
               totalFrames={this.props.totalFrames} 
+              frameRate={this.props.frameRate} 
               saveFile={this.saveFile} 
               canSaveFile={this.state.previewerTypes.includes(previewTypes.BROWSER)} 
               progress={this.props.preview.progress}
