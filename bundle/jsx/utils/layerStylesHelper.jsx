@@ -102,6 +102,98 @@ $.__bodymovin.bm_layerStylesHelper = (function () {
         return ob;
     }
     
+    function exportBevelEmboss(style, frameRate, stretch) {
+        var ob = {};
+        $.__bodymovin.bm_generalUtils.iterateProperty(style);
+        // Style
+        ob.bs = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/bevelStyle'), frameRate, stretch);
+        // Technique
+        ob.bt = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/bevelTechnique'), frameRate, stretch);
+        // Depth
+        ob.sr = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/strengthRatio'), frameRate, stretch);
+        // Direction
+        ob.bd = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/bevelDirection'), frameRate, stretch);
+        // Size
+        ob.s = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/blur'), frameRate, stretch);
+        // Soften
+        ob.so = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/softness'), frameRate, stretch);
+        // Use Global Light
+        ob.ga = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/useGlobalAngle'), frameRate, stretch);
+        // Angle
+        ob.a = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/localLightingAngle'), frameRate, stretch);
+        // Altitude
+        ob.ll = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/localLightingAltitude'), frameRate, stretch);
+        // Highlight Mode
+        ob.hm = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/highlightMode'), frameRate, stretch);
+        // Highlight Color
+        ob.hc = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/highlightColor'), frameRate, stretch);
+        // Highlight Opacity
+        ob.ho = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/highlightOpacity'), frameRate, stretch);
+        // Shadow Mode
+        ob.sm = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/shadowMode'), frameRate, stretch);
+        // Shadow Color
+        ob.sc = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/shadowColor'), frameRate, stretch);
+        // Shadow Opacity
+        ob.so = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/shadowOpacity'), frameRate, stretch);
+        return ob;
+    }
+    
+    function exportSatin(style, frameRate, stretch) {
+        var ob = {};
+        // Blend Mode
+        ob.bm = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/mode2'), frameRate, stretch);
+        // Color
+        ob.c = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/color'), frameRate, stretch);
+        // Opacity
+        ob.o = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/opacity'), frameRate, stretch);
+        // Angle
+        ob.a = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/localLightingAngle'), frameRate, stretch);
+        // Distance
+        ob.d = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/distance'), frameRate, stretch);
+        // Size
+        ob.s = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/blur'), frameRate, stretch);
+        // Invert
+        ob.in = bm_keyframeHelper.exportKeyframes(style.property('chromeFX/invert'), frameRate, stretch);
+        return ob;
+    }
+    
+    function exportColorOverlay(style, frameRate, stretch) {
+        var ob = {};
+        // Blend Mode
+        ob.bm = bm_keyframeHelper.exportKeyframes(style.property('solidFill/mode2'), frameRate, stretch);
+        // Color
+        ob.c = bm_keyframeHelper.exportKeyframes(style.property('solidFill/color'), frameRate, stretch);
+        // Opacity
+        ob.so = bm_keyframeHelper.exportKeyframes(style.property('solidFill/opacity'), frameRate, stretch);
+        return ob;
+    }
+    
+    function exportGradientOverlay(style, frameRate, stretch) {
+        var ob = {};
+        // Blend Mode
+        ob.bm = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/mode2'), frameRate, stretch);
+        // Opacity
+        ob.o = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/opacity'), frameRate, stretch);
+        // Colors
+        ob.gf = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/gradient'), frameRate, stretch);
+        // Gradient Smoothness
+        ob.gs = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/gradientSmoothness'), frameRate, stretch);
+        // Angle
+        ob.a = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/angle'), frameRate, stretch);
+        // Style
+        ob.gt = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/type'), frameRate, stretch);
+        // Reverse
+        ob.re = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/reverse'), frameRate, stretch);
+        // Align with Layer
+        ob.al = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/align'), frameRate, stretch);
+        // Scale
+        ob.s = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/scale'), frameRate, stretch);
+        // Offset
+        ob.of = bm_keyframeHelper.exportKeyframes(style.property('gradientFill/offset'), frameRate, stretch);
+
+        return ob;
+    }
+    
     function exportStyles(layerInfo, layerData, frameRate) {
         if (!(layerInfo.property('Layer Styles') && layerInfo.property('Layer Styles').numProperties > 0)) {
             return;
@@ -131,6 +223,18 @@ $.__bodymovin.bm_layerStylesHelper = (function () {
                     break;
                 case layerStyleTypes.innerGlow:
                     styleOb = exportInnerGlow(styleElement, frameRate, stretch);
+                    break;
+                case layerStyleTypes.bevelEmboss:
+                    styleOb = exportBevelEmboss(styleElement, frameRate, stretch);
+                    break;
+                case layerStyleTypes.satin:
+                    styleOb = exportSatin(styleElement, frameRate, stretch);
+                    break;
+                case layerStyleTypes.colorOverlay:
+                    styleOb = exportColorOverlay(styleElement, frameRate, stretch);
+                    break;
+                case layerStyleTypes.gradientOverlay:
+                    styleOb = exportGradientOverlay(styleElement, frameRate, stretch);
                     break;
                 }
                 
