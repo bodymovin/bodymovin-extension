@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $*/
+/*global $, PropertyValueType, AutoOrientType*/
 $.__bodymovin.bm_transformHelper = (function () {
     'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
@@ -36,12 +36,30 @@ $.__bodymovin.bm_transformHelper = (function () {
             }
         } else {
             data.ks.p = bm_keyframeHelper.exportKeyframes(layerInfo.transform.position, frameRate, stretch);
+            if (!!data.ks.p 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.p.l = 2;
+            }
         }
         if (layerInfo.transform.property('ADBE Anchor Point')) {
             data.ks.a = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Anchor Point'), frameRate, stretch);
+            if (!!data.ks.a 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.a.l = 2;
+            }
         }
         if (layerInfo.transform.Scale) {
             data.ks.s = bm_keyframeHelper.exportKeyframes(layerInfo.transform.Scale, frameRate, stretch);
+            if (!!data.ks.s 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.s.l = 2;
+            }
         }
         if(layerInfo.autoOrient === AutoOrientType.ALONG_PATH){
             data.ao = 1;
