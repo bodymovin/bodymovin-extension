@@ -13,6 +13,7 @@ import {
   previewFromPath,
   updateColor,
   toggleLockTimeline,
+  toggleLoop,
   initialize,
   finalize,
 } from '../../redux/actions/previewActions'
@@ -166,7 +167,9 @@ class Preview extends React.Component {
               canSaveFile={this.state.previewerTypes.includes(previewTypes.BROWSER)} 
               progress={this.props.preview.progress}
               shouldLockTimelineToComposition={this.props.shouldLockTimelineToComposition}
+              shouldLoop={this.props.shouldLoop}
               toggleLockTimeline={this.props.toggleLockTimeline}
+              toggleLoop={this.props.toggleLoop}
             />
           </div>
         </div>
@@ -192,6 +195,7 @@ const mapDispatchToProps = {
   showNoCurrentRenders: showNoCurrentRenders,
   updateColor: updateColor,
   toggleLockTimeline: toggleLockTimeline,
+  toggleLoop: toggleLoop,
   initialize: initialize,
   finalize: finalize,
 }

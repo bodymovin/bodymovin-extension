@@ -11,7 +11,7 @@ import checkbox from '../../../assets/animations/checkbox.json'
 const styles = StyleSheet.create({
     container: {
       width: '100%',
-      height: '80px'
+      height: '100px'
     },
     navContainer: {
       width: '100%',
@@ -100,11 +100,20 @@ class PreviewScrubber extends React.Component {
   }
 
   togglePlay = () => {
-    this.setState({
-      isPlaying: !this.state.isPlaying,
-      initialValue: this.props.totalFrames * this.props.progress,
-      initialTime: Date.now(),
-    })
+    if (this.props.progress === 1 && !this.state.isPlaying) {
+      this.props.updateProgress(0)
+      this.setState({
+        isPlaying: !this.state.isPlaying,
+        initialValue: 0,
+        initialTime: Date.now(),
+      })
+    } else {
+      this.setState({
+        isPlaying: !this.state.isPlaying,
+        initialValue: this.props.totalFrames * this.props.progress,
+        initialTime: Date.now(),
+      })
+    }
   }
 
   play() {
@@ -123,6 +132,13 @@ class PreviewScrubber extends React.Component {
       requestAnimationFrame(this.tick)
       this.setState({
         inputValue: currentFrame
+      })
+    } else if(this.props.shouldLoop) {
+      requestAnimationFrame(this.tick)
+      this.setState({
+        initialValue: currentFrame - this.props.totalFrames,
+        initialTime: Date.now() + currentFrame - this.props.totalFrames,
+        inputValue: 0,
       })
     } else {
       this.togglePlay()
@@ -255,6 +271,12 @@ class PreviewScrubber extends React.Component {
                     onChange={this.updateValue}/>}
             <div className={css(styles.progressNumber)}>&nbsp;/ {Math.floor(this.props.totalFrames)}</div>
           </div>
+          <div className={css(styles.emptySpace)}></div>
+          {this.props.canSaveFile &&
+            <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
+          }
+        </div>
+        <div className={css(styles.navContainer)}>
           <div
               className={css(styles.previewOption)}
               onClick={this.props.toggleLockTimeline}
@@ -270,10 +292,21 @@ class PreviewScrubber extends React.Component {
               </BodymovinCheckbox>
               <span>Lock to Comp Timeline</span>
           </div>
-          <div className={css(styles.emptySpace)}></div>
-          {this.props.canSaveFile &&
-            <BaseButton text='Take Snapshot' type='gray' classes={styles.button} onClick={this.props.saveFile} icon={snapshot}/>
-          }
+          <div
+              className={css(styles.previewOption)}
+              onClick={this.props.toggleLoop}
+          >
+              <BodymovinCheckbox
+                  animationData={checkbox}
+                  animate={this.props.shouldLoop}
+              >
+                  <div
+                      className={css(styles['previewOption-checkbox'])}
+                      
+                  />
+              </BodymovinCheckbox>
+              <span>Loop Animation</span>
+          </div>
         </div>
       </div>
       );

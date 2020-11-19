@@ -90,7 +90,21 @@ $.__bodymovin.bm_dataManager = (function () {
             }
         }
         deleteAssetParams(data.assets);
+        deleteExcludedLayers(data.layers);
         deleteLayerParams(data.layers);
+    }
+
+    function deleteExcludedLayers(layers) {
+        var i, len = layers.length;
+        for (i = 0; i < len; i += 1) {
+            if (layers[i]._excluded) {
+                layers.splice(i, 1);
+                i -= 1;
+                len -= 1;
+            } else if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
+                deleteExcludedLayers(layers[i].layers);
+            }
+        }
     }
 
     function moveCompsToAssets(data) {

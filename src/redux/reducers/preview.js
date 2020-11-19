@@ -9,6 +9,7 @@ let initialState = {
   timelineData: {},
   backgroundColor: Variables.colors.gray,
   shouldLockTimelineToComposition: false,
+  shouldLoop: true,
 }
 
 function setStoredData(state, action) {
@@ -57,6 +58,8 @@ export default function project(state = initialState, action) {
       return {...state, ...{backgroundColor: action.color}}
     case actionTypes.PREVIEW_LOCK_TIMELINE_TOGGLE:
       return {...state, ...{shouldLockTimelineToComposition: !state.shouldLockTimelineToComposition}}
+    case actionTypes.PREVIEW_LOOP_TOGGLE:
+      return {...state, ...{shouldLoop: !state.shouldLoop}}
     case actionTypes.PROJECT_STORED_DATA:
       return setStoredData(state, action)
     case actionTypes.PREVIEW_TIMELINE_UPDATED:

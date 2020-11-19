@@ -105,6 +105,7 @@ class Range extends React.Component {
 
 	componentDidMount() {
 		window.addEventListener('resize', this.resizeHandler)
+		this.timeoutId = setTimeout(this.resizeHandler, 100)
 		this.resizeHandler()
 	}
 
@@ -112,6 +113,7 @@ class Range extends React.Component {
 		window.removeEventListener('resize', this.resizeHandler)
 		document.removeEventListener('mouseup', this.mouseUpHandler)
 		document.removeEventListener('mousemove', this.mouseMoveHandler)
+		clearTimeout(this.timeoutId)
 	}
 
 	render() {

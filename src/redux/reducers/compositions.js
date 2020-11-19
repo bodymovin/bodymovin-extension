@@ -45,6 +45,7 @@ let defaultComposition = {
         guideds: false,
         ignore_expression_properties: false,
         export_old_format: false,
+        shouldTrimData: false,
         skip_default_properties: false,
         not_supported_properties: false,
         pretty_print: false,
@@ -86,6 +87,7 @@ let defaultComposition = {
         },
         audio: {
           isEnabled: true,
+          shouldRaterizeWaveform: true,
           bitrate: audioBitOptions[0].value,
         }
     }

@@ -178,7 +178,20 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         var maxPosition = Math.min(comp.duration, layer.outPoint);
         compCopy.name = '__bodymovin_copy';
         compCopy.workAreaStart = layer.inPoint;
-        compCopy.workAreaDuration = maxPosition - layer.inPoint;
+        try {
+            compCopy.workAreaDuration = maxPosition - layer.inPoint;
+        } catch(err) {
+            compCopy.workAreaDuration = maxPosition - layer.inPoint - comp.frameDuration;
+        }
+
+        if (!settingsHelper.shouldRasterizeWaveform()) {
+            var audioProperty = compCopy.layer(1).property('Audio');
+            var levels = audioProperty.property('Audio Levels');
+            while (levels.numKeys !== 0) {
+                levels.removeKey(1);
+            }
+            levels.setValue([0, 0]);
+        }
         return compCopy;
     }
 

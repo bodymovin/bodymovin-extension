@@ -6,6 +6,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var bakeExpressions = $.__bodymovin.bm_keyframeBakerHelper;
+    var renderHelper = $.__bodymovin.bm_renderHelper;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
@@ -404,6 +405,36 @@ $.__bodymovin.bm_keyframeHelper = (function () {
             }
         }
     }
+
+    function trimKeyframes(keyframes, frameRate) {
+
+        var range = renderHelper.getCurrentRange();
+        var time = range[0];
+        var index = 0;
+        var totalFrames = (range[1] - range[0]) * frameRate;
+        var initFrame = range[0] * frameRate
+        var endFrame = range[1] * frameRate
+        var i, len = keyframes.length;
+        // bm_eventDispatcher.log('RANGE: ')
+        // bm_eventDispatcher.log(range[0])
+        // bm_eventDispatcher.log(range[1])
+        // bm_eventDispatcher.log('initFrame: ' + initFrame)
+        // bm_eventDispatcher.log('endFrame: ' + endFrame)
+        var count = 0
+        for (i = 0; i < len; i += 1) {
+            if (keyframes[i + 1] && keyframes[i + 1].t < initFrame) {
+                keyframes.splice(i, 1);
+                i -= 1;
+                len -= 1;
+            } else if(keyframes[i - 1] && keyframes[i - 1].t > endFrame) {
+                keyframes.splice(i, 1);
+                i -= 1
+                len -= 1
+            }
+        }
+
+        return keyframes
+    }
     
     function exportKeyframes(prop, frRate, stretch, keyframeValues) {
         var returnOb = {}
@@ -416,7 +447,11 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 returnOb.a = 1;
             }
             searchRovingKeyframes(prop);
-            returnOb.k = exportKeys(prop, frRate, stretch, keyframeValues);
+            var keys = exportKeys(prop, frRate, stretch, keyframeValues);
+            if (settingsHelper.shouldTrimData() && prop.numKeys > 1) {
+                keys = trimKeyframes(keys, frRate)
+            }
+            returnOb.k = keys;
             if(prop.propertyIndex && !settingsHelper.shouldIgnoreExpressionProperties()) {
                 returnOb.ix = prop.propertyIndex;
             }

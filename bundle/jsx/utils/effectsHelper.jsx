@@ -67,7 +67,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         case 'ADBE FreePin3':
             return effectTypes.freePin3;
         default:
-            bm_eventDispatcher.log(name)
+            // bm_eventDispatcher.log(name)
             return effectTypes.group;
         }
     }
@@ -250,7 +250,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
                     ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
                 } else {
-                    bm_eventDispatcher.log(prop.matchName)
+                    // bm_eventDispatcher.log(prop.matchName)
                 }
             }
         }

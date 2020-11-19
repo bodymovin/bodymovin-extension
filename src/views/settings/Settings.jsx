@@ -137,10 +137,12 @@ class Settings extends React.PureComponent {
     this.toggleIncludeVideo = this.toggleValue.bind(this,'should_include_av_assets')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
+    this.toggleTrimData = this.toggleValue.bind(this,'shouldTrimData')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
     this.togglePrettyPrint = this.toggleValue.bind(this,'pretty_print')
     this.toggleAudioLayers = this.toggleValue.bind(this,'audio:isEnabled')
+    this.toggleRasterizeWaveform = this.toggleValue.bind(this,'audio:shouldRaterizeWaveform')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.qualityChange = this.qualityChange.bind(this)
     this.sampleSizeChange = this.sampleSizeChange.bind(this)
@@ -341,6 +343,11 @@ class Settings extends React.PureComponent {
                 toggleItem={this.toggleJsonFormat}
                 active={this.props.settings ? this.props.settings.export_old_format : false}  />
               <SettingsListItem 
+                title='Trim unused keyframes and layers'
+                description='Removes layers and keyframes beyond the workarea'
+                toggleItem={this.toggleTrimData}
+                active={this.props.settings ? this.props.settings.shouldTrimData : false}  />
+              <SettingsListItem 
                 title='Skip default properties (Reduces filesize)'
                 description='Skips default properties. Uncheck if you are not using the latest Ios, Android or web players.'
                 toggleItem={this.toggleSkipDefaultProperties}
@@ -365,9 +372,14 @@ class Settings extends React.PureComponent {
                 description='Export audio layers (this will process audio layers and export them as mp3 files).'
                 toggleItem={this.toggleAudioLayers}
                 active={this.props.settings ? this.props.settings.audio.isEnabled : false}  />
+              <SettingsListItem 
+                title='Rasterize Waveforms'
+                description='It rasterizes waveform instead of exporting keyframes (unchecked option only works in Skottie)'
+                toggleItem={this.toggleRasterizeWaveform}
+                active={this.props.settings ? this.props.settings.audio.shouldRaterizeWaveform : false}  />
               <SettingsListDropdown 
-                title='Lottie Library Origin'
-                description='Select where to load the library from'
+                title='Audio quality'
+                description='Select audio quality for export'
                 onChange={this.handleBitRateChange}
                 current={this.props.settings.audio.bitrate}
                 options={audioBitOptions}  

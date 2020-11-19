@@ -158,6 +158,9 @@ $.__bodymovin.bm_renderManager = (function () {
                 newTimeRange = [newInPoint, newOutPoint];
                 
             }
+            if (currentCompSettings.shouldTrimData && newTimeRange[0] === newTimeRange[1]) {
+                layerData._excluded = true;
+            }
             pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate, range: newTimeRange});
             prevLayerData = layerData;
         }

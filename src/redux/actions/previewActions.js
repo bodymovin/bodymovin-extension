@@ -52,6 +52,12 @@ function toggleLockTimeline() {
 	}
 }
 
+function toggleLoop() {
+	return {
+		type: actionTypes.PREVIEW_LOOP_TOGGLE,
+	}
+}
+
 function timelineUpdated(timeline) {
 	return {
 		type: actionTypes.PREVIEW_TIMELINE_UPDATED,
@@ -80,6 +86,7 @@ export {
 	previewFromPath,
 	updateColor,
 	toggleLockTimeline,
+	toggleLoop,
 	timelineUpdated,
 	initialize,
 	finalize,

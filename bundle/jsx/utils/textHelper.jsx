@@ -34,12 +34,9 @@ $.__bodymovin.bm_textHelper = (function () {
         var isFound = false
         var counter = 1
         var lineHeight = fontSize
-        bm_eventDispatcher.log('findLineHeight')
         while(!isFound) {
-            bm_eventDispatcher.log('=========')
             if (baselineLocs.length > 1 + counter * 4) {
                 lineHeight = (baselineLocs[1 + counter * 4] - baselineLocs[1]) / counter
-                bm_eventDispatcher.log('lineHeight: ' + lineHeight)
                 if (lineHeight < 100000) {
                     isFound = true
                 } else {
@@ -50,7 +47,6 @@ $.__bodymovin.bm_textHelper = (function () {
             }
             counter += 1
         }
-        bm_eventDispatcher.log('lineHeight: ' + lineHeight)
         return lineHeight
     }
     
@@ -92,8 +88,10 @@ $.__bodymovin.bm_textHelper = (function () {
             $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle, textDocument.fontLocation);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
+                ob.ca = 1;
             } else {
                 ob.t = textDocument.text;
+                ob.ca = textDocument.smallCaps ? 2 : 0;
             }
             len = ob.t.length;
             ob.j = getJustification(textDocument.justification);

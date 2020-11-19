@@ -84,6 +84,14 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.audio.bitrate;
     }
 
+    function shouldTrimData() {
+        return _settings.shouldTrimData;
+    }
+
+    function shouldRasterizeWaveform() {
+        return _settings.audio.shouldRaterizeWaveform;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -104,6 +112,8 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldPrettyPrint = shouldPrettyPrint;
     ob.shouldRenderAudio = shouldRenderAudio;
     ob.getAudioBitRateTemplate = getAudioBitRateTemplate;
+    ob.shouldTrimData = shouldTrimData;
+    ob.shouldRasterizeWaveform = shouldRasterizeWaveform;
 
     return ob;
 }());
