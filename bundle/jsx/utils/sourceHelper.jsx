@@ -135,9 +135,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
             } else {
                 sanitizedName += '_'
             }
-            if(checkSanitizedNameExists(sanitizedName + extension)){
-                sanitizedName = incrementSanizitedName(sanitizedName)
-            }
+        }
+        if(checkSanitizedNameExists(sanitizedName + extension)){
+            sanitizedName = incrementSanizitedName(sanitizedName)
         }
         return sanitizedName + extension;
     }
