@@ -9,7 +9,7 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var audioSources = []
     , assetsArray
-    , originalNamesFlag, originalAssetsFlag, audioCount = 0;
+    , originalAssetsFlag, audioCount = 0;
     var currentExportingAudioIndex = 0;
     var imageNameIndex = 0;
     var finishCallback;
@@ -87,7 +87,7 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         
         var imageName;
 
-        if (originalNamesFlag) {
+        if (settingsHelper.shouldUserOriginalNames()) {
             imageName = formatImageName(originalName);
         } else {
             imageName = generatedName;
@@ -220,7 +220,6 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         outputModule = item.outputModule(1);
         //
         var imageName = getImageName(sourceData.source_name, 'aud_' + currentExportingAudioIndex, 'mp3');
-        
         var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
         var file = renderFileData.file;
         outputModule.file = file;
