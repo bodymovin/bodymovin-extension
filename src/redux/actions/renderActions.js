@@ -55,6 +55,13 @@ function toggleBundleFont() {
 	}
 }
 
+function processExpression(data) {
+	return {
+		type: actionTypes.RENDER_PROCESS_EXPRESSION,
+		data,
+	}
+}
+
 export {
 	startRender,
 	stopRender,
@@ -64,4 +71,5 @@ export {
 	showRenderBlock,
 	previewAnimation,
 	toggleBundleFont,
+	processExpression,
 }

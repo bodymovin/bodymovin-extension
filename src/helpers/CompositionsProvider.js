@@ -4,6 +4,7 @@ import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
 import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
 import {reportsSaved} from '../redux/actions/reportsActions'
+import {processExpression} from '../redux/actions/renderActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
 import {splitAnimation} from './splitAnimationHelper'
@@ -242,6 +243,20 @@ csInterface.addEventListener('bm:report:saved', async function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:expression:process', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			dispatcher(processExpression(data));
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
+	}
+})
+
 function getCompositions() {
 	let prom = new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
@@ -397,7 +412,6 @@ function imageProcessed(result, data) {
 		}
 		eScript += result.extension === 'jpg';
 		eScript += ',';
-		console.log('result.encoded', result.encoded)
 		if(result.encoded) {
 			eScript += '"' + result.encoded_data + '"'
 		} else {
@@ -446,6 +460,13 @@ async function setCompositionTimelinePosition(progress) {
 	
 }
 
+function expressionProcessed(id, data) {
+	extensionLoader.then(function(){
+		var eScript = `$.__bodymovin.bm_expressionHelper.saveExpression(${JSON.stringify(data)}, "${id}")`;
+	    csInterface.evalScript(eScript);
+	})
+}
+
 async function getUserFolders() {
 	return new Promise(async function(resolve, reject) {
 		function onUserFoldersFetched(ev) {
@@ -486,4 +507,5 @@ export {
 	getCompositionTimelinePosition,
 	setCompositionTimelinePosition,
 	getUserFolders,
+	expressionProcessed,
 }

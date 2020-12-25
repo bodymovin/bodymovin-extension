@@ -1,12 +1,13 @@
 import { call, take, put, takeEvery, fork, select, all } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveFontsFromLocalStorage, getFontsFromLocalStorage} from '../../helpers/localStorageHelper'
-import {setFonts, imageProcessed, riveFileSaveSuccess, riveFileSaveFailed} from '../../helpers/CompositionsProvider'
+import {setFonts, imageProcessed, riveFileSaveSuccess, riveFileSaveFailed, expressionProcessed} from '../../helpers/CompositionsProvider'
 import renderFontSelector from '../selectors/render_font_selector'
 import setFontsSelector from '../selectors/set_fonts_selector'
 import imageProcessor from '../../helpers/ImageProcessorHelper'
 import {saveFile as riveSaveFile} from '../../helpers/riveHelper'
 import {getEncodedFile} from '../../helpers/FileLoader'
+import expressionProcessor from '../../helpers/expressions/expressions'
 
 function *searchStoredFonts(action) {
 	try{
@@ -102,10 +103,16 @@ function *saveRiveFile(action) {
 	}
 }
 
+function *processExpression(action) {
+	const expressionData = yield call(expressionProcessor, action.data.text);
+	yield call(expressionProcessed, action.data.id, expressionData);
+}
+
 export default [
   takeEvery(actions.RENDER_FONTS, handleRenderFonts),
   takeEvery(actions.RENDER_SET_FONTS, saveFonts),
   takeEvery(actions.RENDER_PROCESS_IMAGE, processImage),
   takeEvery(actions.RIVE_SAVE_DATA, saveRiveFile),
+  takeEvery(actions.RENDER_PROCESS_EXPRESSION, processExpression),
   fork(storeFontData)
 ]
