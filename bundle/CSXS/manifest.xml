@@ -88,7 +88,7 @@
 					<AutoVisible>false</AutoVisible>
 				</Lifecycle>
 				<UI>
-					<Type>Custom</Type>
+					<Type>Modeless</Type>
 					<Geometry>
 						<Size>
 							<Height>0</Height>

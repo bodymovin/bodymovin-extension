@@ -46,7 +46,7 @@ async function processImage(path, compression, hasTransparency) {
 const app = express.createServer();
 app.use(bodyParser.json())
 app.use(express.static('public'))
-const port = 3119
+const port = 24801
 
 app.get('/', (req, res) => {
 

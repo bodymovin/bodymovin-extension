@@ -1,6 +1,7 @@
 import csInterface from './CSInterfaceHelper'
 import {getSeparator} from './osHelper'
 import fs from './fs_proxy'
+import { getPort } from './enums/networkData'
 
 function loadBodymovinFileData(path) {
     var reject, resolve
@@ -85,7 +86,7 @@ async function saveFileFromBase64(data, path) {
 }
 
 async function getFileType(path) {
-    const encodedImageResponse = await fetch('http://localhost:3119/getType/', 
+    const encodedImageResponse = await fetch(`http://localhost:${getPort()}/getType/`, 
     {
         method: 'post',
         headers: {
@@ -102,7 +103,7 @@ async function getFileType(path) {
 }
 
 async function getEncodedFile(path) {
-    const encodedImageResponse = await fetch('http://localhost:3119/encode/', 
+    const encodedImageResponse = await fetch(`http://localhost:${getPort()}/encode/`, 
     {
         method: 'post',
         headers: {

@@ -1,6 +1,7 @@
 import {
 	getSavedVersion
 } from './skottie/skottie'
+import { getPort } from './enums/networkData'
 
 let _canvasKit
 
@@ -18,9 +19,9 @@ async function loadCanvasJs() {
 		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
 			var jsFilePath = lastVersion.js
-			jsPath = `http://localhost:3119/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
+			jsPath = `http://localhost:${getPort()}/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
 		} else {
-			jsPath = 'http://localhost:3119/canvaskit.js'
+			jsPath = `http://localhost:${getPort()}/canvaskit.js`
 		}
 		scriptTag.src = jsPath
 		scriptTag.id = 'canvasKitElement'
@@ -44,9 +45,9 @@ async function getCanvasKit() {
 		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
 			var wasmFilePath = lastVersion.wasm
-			wasmPath = `http://localhost:3119/fileFromPath?path=${wasmFilePath}&type=${encodeURIComponent('application/wasm')}`
+			wasmPath = `http://localhost:${getPort()}/fileFromPath?path=${wasmFilePath}&type=${encodeURIComponent('application/wasm')}`
 		} else {
-			wasmPath = 'http://localhost:3119/canvaskit.wasm'
+			wasmPath = `http://localhost:${getPort()}/canvaskit.wasm`
 		}
 		_canvasKit = await window.CanvasKitInit({
 		    locateFile: (file) => wasmPath, 

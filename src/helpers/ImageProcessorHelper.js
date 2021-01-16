@@ -1,3 +1,4 @@
+import { getPort } from './enums/networkData';
 var path = require('path');
 path.parse = function(_path){
 	return {
@@ -8,7 +9,7 @@ path.parse = function(_path){
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
 	return new Promise((resolve, reject) => {
-		fetch('http://localhost:3119/processImage/', 
+		fetch(`http://localhost:${getPort()}/processImage/`, 
 			{
 				method: 'post',
 				headers: {
@@ -54,7 +55,7 @@ function handleImageCompression(path, settings) {
 }
 
 async function getEncodedFile(path) {
-	const encodedImageResponse = await fetch('http://localhost:3119/encode/', 
+	const encodedImageResponse = await fetch(`http://localhost:${getPort()}/encode/`, 
 	{
 		method: 'post',
 		headers: {

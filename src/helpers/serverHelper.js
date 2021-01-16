@@ -1,5 +1,7 @@
+import { getPort } from './enums/networkData'
+
 const ping = async() => {
-	const response = await fetch('http://localhost:3119/ping/');
+	const response = await fetch(`http://localhost:${getPort()}/ping/`);
 	const textResponse = await response.text();
 	return textResponse
 }

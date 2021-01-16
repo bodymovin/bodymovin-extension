@@ -1,5 +1,7 @@
+import { getPort } from './enums/networkData'
+
 const saveFile = async (origin, destination) => {
-	const encodedImageResponse = await fetch('http://localhost:3119/createBanner/', 
+	const encodedImageResponse = await fetch(`http://localhost:${getPort()}/createBanner/`, 
 	{
 		method: 'post',
 		headers: {
