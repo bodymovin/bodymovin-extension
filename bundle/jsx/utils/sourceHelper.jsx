@@ -399,7 +399,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
         if (lastMatch) {
             var value = lastMatch[0]
-            var num = parseInt(value) + index
+            var num = parseInt(value, 10) + index
             var newValue = num.toString()
             var count = 0;
             while(newValue.length < value.length) {
