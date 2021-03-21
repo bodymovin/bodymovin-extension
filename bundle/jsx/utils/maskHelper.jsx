@@ -2,6 +2,7 @@
 /*global $, MaskMode*/
 $.__bodymovin.bm_maskHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var getMaskMode = $.__bodymovin.getMaskType;
     var ob = {};
@@ -15,8 +16,12 @@ $.__bodymovin.bm_maskHelper = (function () {
         layerData.masksProperties = [];
         var masks = layerInfo.mask;
         var i, len = masks.numProperties, maskElement;
+        bm_eventDispatcher.log('PASOSOSSSS!!!');
+        bm_eventDispatcher.log('MaskMode.ADD:' + MaskMode.ADD);
+        bm_eventDispatcher.log('MaskMode.NONE:' + MaskMode.NONE);
         for (i = 0; i < len; i += 1) {
             maskElement = masks(i + 1);
+            bm_eventDispatcher.log('maskElement.maskMode:' + maskElement.maskMode);
             var shapeData = {
                 inv: maskElement.inverted,
                 mode: getMaskMode(maskElement.maskMode)

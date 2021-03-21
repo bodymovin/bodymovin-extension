@@ -1,4 +1,5 @@
 const imagemin = require('imagemin');
+console.log('STARTTT');
 // const imageminJpegtran = require('imagemin-jpegtran');
 // const imageminJpegoptim = require('imagemin-jpegoptim');
 const imageminPngquant = require('imagemin-pngquant');
