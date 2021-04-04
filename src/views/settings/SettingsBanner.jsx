@@ -149,8 +149,9 @@ class SettingsBanner extends React.PureComponent {
             }
             {[LottieLibraryOrigins.LOCAL, LottieLibraryOrigins.CDNJS].includes(this.props.lottie_origin) &&
               <SettingsListDropdown 
-                title='Lottie Library Version'
-                description='Select what version of the library you want to export'
+                title='Lottie Library Version (Uncompressed)'
+                description={`Select what version of the library you want to export.
+                Compressed as a zip, file size should be significantly smaller.`}
                 onChange={this.handleLottieVersionChange}
                 current={this.props.lottie_library}
                 options={this.buildLottieOptions()}  

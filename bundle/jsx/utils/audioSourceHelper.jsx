@@ -252,7 +252,8 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
             u: 'images/',
             p: imageName,
             e: 0,
-            fileId: renderFileData.id
+            fileId: renderFileData.id,
+            t: 2,
         });
 
         app.project.renderQueue.render();

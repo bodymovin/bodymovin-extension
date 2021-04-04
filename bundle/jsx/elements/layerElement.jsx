@@ -17,6 +17,7 @@ $.__bodymovin.bm_layerElement = (function () {
     var bm_imageSeqHelper = $.__bodymovin.bm_imageSeqHelper;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
     var bm_audioHelper = $.__bodymovin.bm_audioHelper;
+    var bm_dataHelper = $.__bodymovin.bm_dataHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     var completeCallback;
@@ -45,8 +46,8 @@ $.__bodymovin.bm_layerElement = (function () {
             layerData.isGuide = true;
             layerData.render = false;
         }
-
-        if (layerInfo.enabled === false) {
+        
+        if (layerInfo.enabled === false && layerType !== layerTypes.data) {
             layerData.enabled = false;
             layerData.render = false;
         }
@@ -104,6 +105,7 @@ $.__bodymovin.bm_layerElement = (function () {
             return;
         }
         var bm_sourceHelper = $.__bodymovin.bm_sourceHelper;
+        var bm_dataSourceHelper = $.__bodymovin.bm_dataSourceHelper;
         var layerType = layerData.ty;
         var sourceId;
         if (layerType === layerTypes.precomp) {
@@ -131,6 +133,8 @@ $.__bodymovin.bm_layerElement = (function () {
             layerData.refId = bm_sourceHelper.checkVideoSource(layerInfo);
         } else if (layerType === layerTypes.audio) {
             layerData.refId = bm_sourceHelper.checkAudioSource(layerInfo);
+        } else if (layerType === layerTypes.data) {
+            layerData.refId = bm_dataSourceHelper.checkDataSource(layerInfo);
         }
     }
     
@@ -146,7 +150,7 @@ $.__bodymovin.bm_layerElement = (function () {
         layerData.sr = layerInfo.stretch/100;
         
         var lType = layerData.ty;
-        if (lType !== layerTypes.camera && lType !== layerTypes.audio) {
+        if (lType !== layerTypes.camera && lType !== layerTypes.audio && lType !== layerTypes.data) {
             bm_transformHelper.exportTransform(layerInfo, layerData, frameRate);
             bm_maskHelper.exportMasks(layerInfo, layerData, frameRate);
             bm_effectsHelper.exportEffects(layerInfo, layerData, frameRate, includeHiddenData);
@@ -175,6 +179,8 @@ $.__bodymovin.bm_layerElement = (function () {
             bm_cameraHelper.exportCamera(layerInfo, layerData, frameRate);
         } else if (lType === layerTypes.audio) {
             bm_audioHelper.exportAudio(layerInfo, layerData, frameRate);
+        } else if (lType === layerTypes.data) {
+            bm_dataHelper.exportData(layerInfo, layerData, frameRate);
         }
         layerData.ip = layerInfo.inPoint * frameRate;
         layerData.op = layerInfo.outPoint * frameRate;

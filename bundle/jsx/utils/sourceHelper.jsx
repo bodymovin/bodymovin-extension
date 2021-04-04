@@ -2,6 +2,7 @@
 /*global layerElement, $, RQItemStatus, File, app, PREFType */
 $.__bodymovin.bm_sourceHelper = (function () {
     var audioSourceHelper = $.__bodymovin.bm_audioSourceHelper;
+    var dataSourceHelper = $.__bodymovin.bm_dataSourceHelper;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
@@ -451,9 +452,17 @@ $.__bodymovin.bm_sourceHelper = (function () {
         
     }
 
+    function onDataFinishSave() {
+        finishImageSave();
+    }
+
+    function onAudioFinishSave() {
+        dataSourceHelper.save(onDataFinishSave, assetsArray);
+    }
+
     function saveNextVideo() {
         if (currentExportingVideoIndex === videoSources.length) {
-            audioSourceHelper.save(finishImageSave, assetsArray);
+            audioSourceHelper.save(onAudioFinishSave, assetsArray);
         } else {
             saveVideo();
         }
@@ -607,7 +616,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     }
 
     function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
-        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSourceHelper.isEmpty()) || settingsHelper.shouldSkipImages()) {
+        if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSourceHelper.isEmpty() && dataSourceHelper.isEmpty()) || settingsHelper.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
         }
@@ -680,6 +689,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         sequenceSourcesStillsCount = 0;
         imageNameIndex = 0;
         audioSourceHelper.reset();
+        dataSourceHelper.reset();
     }
     
     return {

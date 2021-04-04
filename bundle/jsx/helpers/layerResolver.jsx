@@ -12,7 +12,11 @@ $.__bodymovin.getLayerType = (function () {
         }
         var lMainSource = lSource.mainSource;
         if (!lObj.hasVideo) {
-            return layerTypes.audio;
+            if (lObj.hasAudio) {
+                return layerTypes.audio;
+            } else {
+                return layerTypes.data;
+            }
         } else if (lSource instanceof CompItem) {
             return layerTypes.precomp;
         } else if (lSource.frameDuration < 1) {

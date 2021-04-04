@@ -122,7 +122,7 @@ $.__bodymovin.bm_bannerExporter = (function () {
 		var i = 0, len = rawFiles.length;
 		// TODO improve this solution
 		while(i < len) {
-			if(rawFiles[i].name.indexOf('.json') === -1) {
+			if(rawFiles[i].type !== 'main') {
 				var fileData = bm_fileManager.getFileById(rawFiles[i].id);
 				if (fileData) {
 					var file = fileData.file;

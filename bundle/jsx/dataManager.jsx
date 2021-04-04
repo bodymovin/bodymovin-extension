@@ -171,7 +171,7 @@ $.__bodymovin.bm_dataManager = (function () {
             stringifiedData = stringifiedData.replace(/\n/g, '');
         }
 
-        bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData);
+        bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData, 'main');
 
         ////
 
