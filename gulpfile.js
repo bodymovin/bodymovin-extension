@@ -1,3 +1,5 @@
+var path = require('path');
+
 var gulp = require('gulp'); 
 var watch = require('gulp-watch');
 var htmlreplace = require('gulp-html-replace');
@@ -11,7 +13,7 @@ var insert = require('gulp-insert');
 var version = '5.7.8'
 
 var extensionSource = './bundle';
-var extensionDestination = '../../../tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
+var extensionDestination = path.join(process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : '.'), 'Adobe/CEP/extensions/bodymovin');
 gulp.task('watch-extension', function() {
     gulp.src(extensionSource + '/**/*', {base: extensionSource})
         .pipe(watch(extensionSource, {base: extensionSource}))
