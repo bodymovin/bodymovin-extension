@@ -13,7 +13,7 @@ var insert = require('gulp-insert');
 var version = '5.7.8'
 
 var extensionSource = './bundle';
-var extensionDestination = path.join(process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : '.'), 'Adobe/CEP/extensions/bodymovin');
+var extensionDestination = path.join(process.env.APPDATA || (process.platform === 'darwin' ? path.join(process.env.HOME, '/Library/Application Support') : '.'), 'Adobe/CEP/extensions/bodymovin');
 gulp.task('watch-extension', function() {
     gulp.src(extensionSource + '/**/*', {base: extensionSource})
         .pipe(watch(extensionSource, {base: extensionSource}))
