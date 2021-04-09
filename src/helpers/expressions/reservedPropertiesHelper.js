@@ -2,7 +2,6 @@
 /*global $, esprima, escodegen*/
 
 const reserverPropertiesHelper = (function () {
-    'use strict';
     var ob = {
         replaceProperties: replaceProperties
     };
