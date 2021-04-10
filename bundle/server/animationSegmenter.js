@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const layerTypes = {
 	precomp : 0,
     solid : 1,

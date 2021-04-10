@@ -29,10 +29,7 @@ module.exports = merge(commonConfig, {
         test: /\.(js|jsx)$/,
         include: [paths.appSrc,paths.appNodeModules],
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', 'react-app'],
-          }
+          loader: 'babel-loader'
         }
       },
       {
@@ -45,16 +42,7 @@ module.exports = merge(commonConfig, {
               importLoaders: true
             }
           },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [
-                  ["autoprefixer"]
-                ]
-              }
-            }
-          }
+          'postcss-loader'
         ]
       }
     ]

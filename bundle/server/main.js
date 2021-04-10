@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const imagemin = require('imagemin');
 console.log('STARTTT');
 // const imageminJpegtran = require('imagemin-jpegtran');

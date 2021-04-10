@@ -28,7 +28,6 @@ module.exports = merge(commonConfig, {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', 'react-app'],
             cacheDirectory: true
           }
         }
@@ -43,16 +42,7 @@ module.exports = merge(commonConfig, {
               importLoaders: true
             }
           },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [
-                  ["autoprefixer"]
-                ]
-              }
-            }
-          }
+          'postcss-loader'
         ]
       }
     ]
