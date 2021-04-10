@@ -36,6 +36,9 @@ module.exports = {
 			{
 				test: /\.svg$/,
 				type: 'asset/resource',
+				generator: {
+					filename: 'static/media/[name].[hash:8].[ext]'
+				}
 			}
 		]
 	},
