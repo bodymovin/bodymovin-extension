@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var watch = require('gulp-watch');
 var htmlreplace = require('gulp-html-replace');
 var eventstream = require("event-stream");
-var gulpSequence = require('gulp-sequence');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');

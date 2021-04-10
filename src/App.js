@@ -48,14 +48,6 @@ class App extends Component {
       <Provider store={store}>
         <div style={{width:'100%', height:'100%'}}>
           <ViewsContainer />
-          {/*<Router history={browserHistory}>
-            <Route path="/" component={Compositions} />
-            <Route path="/render" component={Render} />
-            <Route path="/preview" component={PreviewView} />
-            <Route path="/settings/:id" component={SettingsView} />
-            <Route path="/fonts" component={FontsView} />
-            <Route path="/player" component={PlayerView} />
-          </Router>*/}
           <Footer />
           <Alerts />
         </div>

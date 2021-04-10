@@ -1,5 +1,4 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
@@ -63,12 +62,6 @@ const styles = StyleSheet.create({
 class Settings extends React.Component {
 
   constructor() {
-    /*demo: false
-    extraComps: Object
-    active: false
-    list: Array
-    glyphs: false
-    guideds: falsehiddens: falsesegmentTime: 10segmented: falsestandalone: false*/
     super()
     this.storedSettings = null
     this.cancelSettings = this.cancelSettings.bind(this)
@@ -98,11 +91,9 @@ class Settings extends React.Component {
 
   cancelSettings() {
     this.props.cancelSettings(this.storedSettings)
-    //browserHistory.push('/')
   }
 
   saveSettings() {
-    //browserHistory.push('/')
     this.props.goToComps()
   }
 

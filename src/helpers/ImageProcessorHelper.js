@@ -1,10 +1,4 @@
 import { getPort } from './enums/networkData';
-var path = require('path');
-path.parse = function(_path){
-	return {
-		dir:''
-	}
-}
 
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
