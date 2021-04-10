@@ -17,6 +17,11 @@ module.exports = {
 	rules: {
 		"import/no-anonymous-default-export": "off",
 		"jsx-a11y/anchor-is-valid": "off",
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"no-empty": ["error", { "allowEmptyCatch": true }],
+		"no-async-promise-executor": "off",
+
+		// This should be re-enabled at some point after fixing mixed indents
+		"no-mixed-spaces-and-tabs": "off",
 	}
 }
