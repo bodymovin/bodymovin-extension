@@ -8,32 +8,32 @@ import BaseButton from '../buttons/Base_button'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: '100%',
-    height: '100%',
-    padding: '10px',
-    position: 'absolute',
-    top:'0',
-    left:'0',
-    backgroundColor:'rgba(71,71,71,.9)',
-    overflow: 'auto'
-  },
-  aligner: {
+	wrapper: {
+		width: '100%',
+		height: '100%',
+		padding: '10px',
+		position: 'absolute',
+		top:'0',
+		left:'0',
+		backgroundColor:'rgba(71,71,71,.9)',
+		overflow: 'auto'
+	},
+	aligner: {
   	textAlign: 'center'
-  },
-  pars_container:{
+	},
+	pars_container:{
   	paddingBottom: '10px'
-  },
-  par:{
+	},
+	par:{
   	fontFamily: 'Roboto-Bold',
   	fontSize: '12px',
   	lineHeight: '15px',
   	textAlign: 'center',
   	color: Variables.colors.white
-  },
-  bm_container: {
+	},
+	bm_container: {
   	height: '250px'
-  }
+	}
 })
 
 class Alerts extends React.Component {
@@ -65,11 +65,11 @@ class Alerts extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return {alerts: state.alerts}
+	return {alerts: state.alerts}
 }
 
 const mapDispatchToProps = {
-  hideAlert: hideAlert
+	hideAlert: hideAlert
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Alerts)

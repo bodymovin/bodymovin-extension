@@ -4,8 +4,8 @@ class SettingsReportRenderers extends React.PureComponent {
 
 	render(){ 
 		return (
-      null
-    )
+			null
+		)
 	}
 }
 

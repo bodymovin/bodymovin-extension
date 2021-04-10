@@ -17,11 +17,11 @@ import {appInitialized, appFocused} from './redux/actions/generalActions'
 const sagaMiddleware = createSagaMiddleware()
 
 let composeStore = compose(
-  applyMiddleware(
-    sagaMiddleware,
-    extendScriptMiddleware,
-    generalMiddleware,
-  )
+	applyMiddleware(
+		sagaMiddleware,
+		extendScriptMiddleware,
+		generalMiddleware,
+	)
 )(createStore)
 
 let store = composeStore(reducer)
@@ -30,30 +30,30 @@ sagaMiddleware.run(rootSaga)
 
 class App extends Component {
 
-  componentWillMount() {
-    setDispatcher(store.dispatch)
-  }
+	componentWillMount() {
+		setDispatcher(store.dispatch)
+	}
 
-  componentDidMount() {
-    window.onfocus = function(){
-      store.dispatch(appFocused())
-    }
-    store.dispatch(appInitialized())
-  }
+	componentDidMount() {
+		window.onfocus = function(){
+			store.dispatch(appFocused())
+		}
+		store.dispatch(appInitialized())
+	}
 
 
-  render() {
+	render() {
 
-    return (
-      <Provider store={store}>
-        <div style={{width:'100%', height:'100%'}}>
-          <ViewsContainer />
-          <Footer />
-          <Alerts />
-        </div>
-      </Provider>
-    );
-  }
+		return (
+			<Provider store={store}>
+				<div style={{width:'100%', height:'100%'}}>
+					<ViewsContainer />
+					<Footer />
+					<Alerts />
+				</div>
+			</Provider>
+		);
+	}
 }
 
 export default App

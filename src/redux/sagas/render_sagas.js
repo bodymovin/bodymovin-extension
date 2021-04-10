@@ -13,11 +13,10 @@ function *searchStoredFonts(action) {
 	try{
 		let storedFonts = yield call(getFontsFromLocalStorage, action.data.fonts)
 		yield put({ 
-				type: actions.RENDER_STORED_FONTS_FETCHED,
-				storedFonts: storedFonts
+			type: actions.RENDER_STORED_FONTS_FETCHED,
+			storedFonts: storedFonts
 		})
 	} catch(err) {
-
 	}
 }
 
@@ -109,10 +108,10 @@ function *processExpression(action) {
 }
 
 export default [
-  takeEvery(actions.RENDER_FONTS, handleRenderFonts),
-  takeEvery(actions.RENDER_SET_FONTS, saveFonts),
-  takeEvery(actions.RENDER_PROCESS_IMAGE, processImage),
-  takeEvery(actions.RIVE_SAVE_DATA, saveRiveFile),
-  takeEvery(actions.RENDER_PROCESS_EXPRESSION, processExpression),
-  fork(storeFontData)
+	takeEvery(actions.RENDER_FONTS, handleRenderFonts),
+	takeEvery(actions.RENDER_SET_FONTS, saveFonts),
+	takeEvery(actions.RENDER_PROCESS_IMAGE, processImage),
+	takeEvery(actions.RIVE_SAVE_DATA, saveRiveFile),
+	takeEvery(actions.RENDER_PROCESS_EXPRESSION, processExpression),
+	fork(storeFontData)
 ]

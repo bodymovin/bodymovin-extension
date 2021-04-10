@@ -6,7 +6,7 @@ import {
 	getAvailableAnnotation,	
 } from '../../helpers/AnnotationsBridge'
 import {
-  annotationsListFetched,
+	annotationsListFetched,
 } from '..//actions/annotationActions'
 
 
@@ -37,6 +37,6 @@ function *getAvailalbeAnnotations() {
 }
 
 export default [
-  takeEvery(actions.ANNOTATIONS_INITIALIZE, initialize),
-  takeEvery(actions.ANNOTATIONS_INITIALIZE, getAvailalbeAnnotations),
+	takeEvery(actions.ANNOTATIONS_INITIALIZE, initialize),
+	takeEvery(actions.ANNOTATIONS_INITIALIZE, getAvailalbeAnnotations),
 ]

@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
       	flexDirection:'column',
 	},
 	toggleButton: {
-			fontSize: '12px',
-			color: '#eee',
-			textDecoration:'underline',
-			cursor: 'pointer',
-			paddingTop: '6px',
-			':hover': {
-				color: Variables.colors.green,
-			}
+		fontSize: '12px',
+		color: '#eee',
+		textDecoration:'underline',
+		cursor: 'pointer',
+		paddingTop: '6px',
+		':hover': {
+			color: Variables.colors.green,
+		}
 	},
 	header: {
 		flex: '0 0 auto',
@@ -128,16 +128,16 @@ class Compositions extends React.Component {
 					<div 
 						className={css(styles.toggleButton)} 
 						onClick={this.props.toggleShowSelected}>
-							{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
+						{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
 					</div>
 					<div 
 						className={css(styles.toggleButton)} 
 						onClick={this.props.applySettingsToSelectedComps}>
-							{'Apply Stored Settings to Selected Comps'}
+						{'Apply Stored Settings to Selected Comps'}
 					</div>
 				</div>
 			</div>
-			)
+		)
 	}
 }
 

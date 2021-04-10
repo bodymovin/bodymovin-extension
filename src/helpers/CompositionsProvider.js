@@ -13,10 +13,9 @@ csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
 		let compositions = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
-				type: actions.COMPOSITIONS_UPDATED,
-				compositions: compositions
+			type: actions.COMPOSITIONS_UPDATED,
+			compositions: compositions
 		})
-	} else {
 	}
 })
 
@@ -25,41 +24,30 @@ csInterface.addEventListener('bm:render:complete', function (ev) {
 	if(ev.data) {
 		let id = ev.data
 		dispatcher({ 
-				type: actions.RENDER_COMPLETE,
-				id: id
+			type: actions.RENDER_COMPLETE,
+			id: id
 		})
-	} else {
 	}
 })
 
 csInterface.addEventListener('bm:render:start', function (ev) {
-	/*if(ev.data) {
-		let id = ev.data
-		dispatcher({ 
-				type: actions.RENDER_COMPLETE,
-				id: id
-		})
-	} else {
-	}*/
-	//console.log('STARTED RENDER')
 })
 
 csInterface.addEventListener('console:log', function (ev) {
 	console.log('LOGGING:', ev.data)
-		dispatcher({ 
-				type: actions.GENERAL_LOG,
-				data: ev.data
-		})
+	dispatcher({ 
+		type: actions.GENERAL_LOG,
+		data: ev.data
+	})
 })
 
 csInterface.addEventListener('bm:render:update', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
-				type: actions.RENDER_UPDATE,
-				data: data
+			type: actions.RENDER_UPDATE,
+			data: data
 		})
-	} else {
 	}
 })
 
@@ -70,11 +58,9 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 			data.fonts = JSON.parse(data.fonts)
 		}
 		dispatcher({ 
-				type: actions.RENDER_FONTS,
-				data: data
+			type: actions.RENDER_FONTS,
+			data: data
 		})
-		//browserHistory.push('/fonts')
-	} else {
 	}
 })
 
@@ -99,11 +85,9 @@ csInterface.addEventListener('bm:image:process', function (ev) {
 		//End fix for AE 2014
 
 		dispatcher({ 
-				type: actions.RENDER_PROCESS_IMAGE,
-				data: data
+			type: actions.RENDER_PROCESS_IMAGE,
+			data: data
 		})
-		//browserHistory.push('/fonts')
-	} else {
 	}
 })
 
@@ -112,10 +96,9 @@ csInterface.addEventListener('bm:project:id', function (ev) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		let id = data.id
 		dispatcher({ 
-				type: actions.PROJECT_SET_ID,
-				id: id
+			type: actions.PROJECT_SET_ID,
+			id: id
 		})
-	} else {
 	}
 })
 
@@ -125,8 +108,8 @@ csInterface.addEventListener('bm:project:path', function (ev) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		let path = data.path
 		dispatcher({ 
-				type: actions.PROJECT_SET_PATH,
-				path: path
+			type: actions.PROJECT_SET_PATH,
+			path: path
 		})
 	}
 })
@@ -135,10 +118,9 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	if(ev.data) {
 		let compositionData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
-				type: actions.COMPOSITION_SET_DESTINATION,
-				compositionData: compositionData
+			type: actions.COMPOSITION_SET_DESTINATION,
+			compositionData: compositionData
 		})
-	} else {
 	}
 })
 
@@ -147,15 +129,12 @@ csInterface.addEventListener('bm:create:avd', async function (ev) {
 		try {
 			let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
 			await avdSaveFile(data.origin, data.destination)
-			// let animationData = JSON.parse(data.animation);
-			// saveAVD(animationData, data.destination);
 			const eScript = "$.__bodymovin.bm_avdExporter.saveAVDDataSuccess()";
 	    	csInterface.evalScript(eScript);
 		} catch(err) {
 	    	const eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
 	    	csInterface.evalScript(eScript);
 		} 
-	} else {
 	}
 })
 
@@ -163,12 +142,11 @@ csInterface.addEventListener('bm:create:rive', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
 		dispatcher({ 
-				type: actions.RIVE_SAVE_DATA,
-				origin: data.origin,
-				destination: data.destination,
-				fileName: decodeURIComponent(data.fileName),
+			type: actions.RIVE_SAVE_DATA,
+			origin: data.origin,
+			destination: data.destination,
+			fileName: decodeURIComponent(data.fileName),
 		})
-	} else {
 	}
 })
 
@@ -176,10 +154,9 @@ csInterface.addEventListener('bm:alert', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher({ 
-				type: actions.WRITE_ERROR,
-				pars: data.message.split('<br />')
+			type: actions.WRITE_ERROR,
+			pars: data.message.split('<br />')
 		})
-	} else {
 	}
 })
 
@@ -187,7 +164,6 @@ csInterface.addEventListener('bm:version', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher(versionFetched(data.value))
-	} else {
 	}
 })
 
@@ -195,7 +171,6 @@ csInterface.addEventListener('app:version', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher(appVersionFetched(data.value))
-	} else {
 	}
 })
 
@@ -456,7 +431,7 @@ async function getCompositionTimelinePosition() {
 async function setCompositionTimelinePosition(progress) {
 	await extensionLoader;
 	var eScript = '$.__bodymovin.bm_compsManager.setTimelinePosition(' + progress + ')';
-    csInterface.evalScript(eScript);
+	csInterface.evalScript(eScript);
 	
 }
 
@@ -472,8 +447,8 @@ async function getUserFolders() {
 		function onUserFoldersFetched(ev) {
 			if (ev.data) {
 				const foldersData = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
+					? JSON.parse(ev.data)
+					: ev.data
 				resolve(foldersData)
 			}
 			csInterface.removeEventListener('bm:user:folders', onUserFoldersFetched)

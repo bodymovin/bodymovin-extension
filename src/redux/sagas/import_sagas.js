@@ -42,6 +42,6 @@ function *loopRandomAsset() {
 }
 
 export default [
-  takeEvery(actions.IMPORT_LOTTIE_IMPORT_FILE, importLottieFile),
-  fork(loopRandomAsset),
+	takeEvery(actions.IMPORT_LOTTIE_IMPORT_FILE, importLottieFile),
+	fork(loopRandomAsset),
 ]

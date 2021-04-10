@@ -11,44 +11,44 @@ const env = getClientEnvironment(publicUrl);
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
 if (env['process.env'].NODE_ENV !== '"production"') {
-  throw new Error('Production builds must have NODE_ENV=production.');
+	throw new Error('Production builds must have NODE_ENV=production.');
 }
 
 module.exports = merge(commonConfig, {
-  mode: 'production',
-  bail: true,
-  devtool: 'source-map',
-  output: {
-    filename: 'static/js/[name].[chunkhash:8].js',
-    chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
-  },
+	mode: 'production',
+	bail: true,
+	devtool: 'source-map',
+	output: {
+		filename: 'static/js/[name].[chunkhash:8].js',
+		chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
+	},
   
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx)$/,
-        include: [paths.appSrc,paths.appNodeModules],
-        use: {
-          loader: 'babel-loader'
-        }
-      },
-      {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: true
-            }
-          },
-          'postcss-loader'
-        ]
-      }
-    ]
-  },
+	module: {
+		rules: [
+			{
+				test: /\.(js|jsx)$/,
+				include: [paths.appSrc,paths.appNodeModules],
+				use: {
+					loader: 'babel-loader'
+				}
+			},
+			{
+				test: /\.css$/,
+				use: [
+					MiniCssExtractPlugin.loader,
+					{
+						loader: 'css-loader',
+						options: {
+							importLoaders: true
+						}
+					},
+					'postcss-loader'
+				]
+			}
+		]
+	},
 
-  plugins: [
-    new MiniCssExtractPlugin({ filename: 'static/css/[name].[contenthash:8].css' }),
-  ]
+	plugins: [
+		new MiniCssExtractPlugin({ filename: 'static/css/[name].[contenthash:8].css' }),
+	]
 });

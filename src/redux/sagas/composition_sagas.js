@@ -29,8 +29,8 @@ function *getCompositionDestination() {
 			const compositions = yield call(getDestinationPath, action.comp, paths.destinationPath, shouldUseCompNameAsDefault)
 			if (compositions) {
 				yield put({ 
-						type: actions.COMPOSITIONS_UPDATED,
-						compositions: compositions
+					type: actions.COMPOSITIONS_UPDATED,
+					compositions: compositions
 				})
 			}
 		} catch(err) {
@@ -88,12 +88,12 @@ function *searchLottiePath(action) {
 }
 
 export default [
-  fork(getCSCompositions),
-  fork(getCompositionDestination),
-  fork(startRender),
-  takeEvery(actions.RENDER_STOP, stopRender),
-  takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
-  takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
-  takeEvery(actions.SETTINGS_APPLY, applySettings),
-  takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
+	fork(getCSCompositions),
+	fork(getCompositionDestination),
+	fork(startRender),
+	takeEvery(actions.RENDER_STOP, stopRender),
+	takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
+	takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
+	takeEvery(actions.SETTINGS_APPLY, applySettings),
+	takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
 ]

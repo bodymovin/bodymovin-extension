@@ -9,8 +9,8 @@ const getCurrentComp = (state) => {
 }
 
 const settingsBannerSelector = createSelector(
-  [getItems, getCurrentComp ],
-  (items, current) => {
+	[getItems, getCurrentComp ],
+	(items, current) => {
 
   	const exportModes = items[current].settings.export_modes
   	const bannerSettings = items[current].settings.banner
@@ -19,7 +19,7 @@ const settingsBannerSelector = createSelector(
   		_isActive: exportModes.banner,
   		...bannerSettings,
   	}
-  }
+	}
 )
 
 export default settingsBannerSelector

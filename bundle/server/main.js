@@ -1,9 +1,7 @@
 /* eslint-env node */
 
 const imagemin = require('imagemin');
-console.log('STARTTT');
-// const imageminJpegtran = require('imagemin-jpegtran');
-// const imageminJpegoptim = require('imagemin-jpegoptim');
+console.log('SERVER START');
 const imageminPngquant = require('imagemin-pngquant');
 const pngToJpeg = require('png-to-jpeg');
 const express = require('express')
@@ -19,8 +17,6 @@ var ltf = new LottieToFlare();
 var JSZip = require('jszip');
 
 async function processImage(path, compression, hasTransparency) {
-	//C:\\Program Files\\Adobe\\Adobe After Effects 2020\\Support Files
-	// const files = await imagemin(['C:/Users/tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin/server/images/*.{jpg,png}'], {
 	const destinationPathFolder = path.substr(0, path.lastIndexOf('/') + 1);
 	const destinationFullPath = destinationPathFolder;
 	const plugins = []
@@ -29,21 +25,14 @@ async function processImage(path, compression, hasTransparency) {
 			quality: [0, compression]
 		}))
 	} else {
-		/*plugins.push(imageminJpegoptim({
-			// max: Math.round(compression * 100)
-			max: compression
-		}))*/
 		plugins.push(pngToJpeg({quality: Math.round(compression * 100)}))
 	}
 	const files = await imagemin([path], {
-	// const files = await imagemin(['./images/hernan.jpg'], {
-			destination: destinationFullPath,
-			plugins
-		});
+		destination: destinationFullPath,
+		plugins
+	});
 
-		return files
-		// return files
-		//=> [{data: <Buffer 89 50 4e …>, destinationPath: 'build/images/foo.jpg'}, …]
+	return files
 }
 
 const app = express.createServer();
@@ -141,11 +130,11 @@ app.post('/encode', async function(req, res){
 			})
 		} catch(err) {
 			res.send({
-			status: 'error',
-			message: 'failed decoding',
-			error: err,
-			errorMessage: err.message,
-		})
+				status: 'error',
+				message: 'failed decoding',
+				error: err,
+				errorMessage: err.message,
+			})
 		}
 	} else {
 		res.send({
@@ -165,11 +154,11 @@ app.post('/getType', async function(req, res){
 			})
 		} catch(err) {
 			res.send({
-			status: 'error',
-			message: 'failed getting type',
-			error: err,
-			errorMessage: err.message,
-		})
+				status: 'error',
+				message: 'failed getting type',
+				error: err,
+				errorMessage: err.message,
+			})
 		}
 	} else {
 		res.send({
