@@ -1,18 +1,8 @@
 const { merge } = require ('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const getClientEnvironment = require('./env');
 const paths = require('./paths');
 
 const commonConfig = require('./webpack.config.common');
-
-const publicUrl = '.';
-const env = getClientEnvironment(publicUrl);
-
-// Assert this just to be safe.
-// Development builds of React are slow and not intended for production.
-if (env['process.env'].NODE_ENV !== '"production"') {
-	throw new Error('Production builds must have NODE_ENV=production.');
-}
 
 module.exports = merge(commonConfig, {
 	mode: 'production',
