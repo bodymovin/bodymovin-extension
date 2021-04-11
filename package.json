@@ -58,8 +58,5 @@
     "build": "gulp create-bm-extension-player && node scripts/build.js && gulp copy-extension-bundle",
     "lint": "cross-env NODE_ENV=development eslint -c ./.eslintrc.js **/*.js **/*.jsx",
     "lint:fix": "cross-env NODE_ENV=development eslint -c ./.eslintrc.js --fix **/*.js **/*.jsx"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }
