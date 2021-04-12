@@ -119,6 +119,18 @@ csInterface.addEventListener('bm:project:id', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:temp:id', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		let id = data.id
+		dispatcher({ 
+				type: actions.PROJECT_SET_TEMP_ID,
+				id: id
+		})
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:project:path', function (ev) {
 
 	if (ev.data) {

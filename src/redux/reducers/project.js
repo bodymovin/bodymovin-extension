@@ -2,6 +2,7 @@ import actionTypes from '../actions/actionTypes'
 
 let initialState = {
 	id: '',
+	tempId: '',
 	version: '',
   app_version: '',
   path: '',
@@ -11,6 +12,8 @@ export default function project(state = initialState, action) {
   switch (action.type) {
     case actionTypes.PROJECT_SET_ID:
       return {...state, ...{id: action.id}}
+    case actionTypes.PROJECT_SET_TEMP_ID:
+      return {...state, ...{tempId: action.id}}
     case actionTypes.PROJECT_SET_PATH:
       return {...state, ...{path: action.path}}
     case actionTypes.VERSION_FETCHED:

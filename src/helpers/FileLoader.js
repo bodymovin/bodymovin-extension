@@ -2,6 +2,7 @@ import csInterface from './CSInterfaceHelper'
 import {getSeparator} from './osHelper'
 import fs from './fs_proxy'
 import { getPort } from './enums/networkData'
+let tempId = ''
 
 function loadBodymovinFileData(path) {
     var reject, resolve
@@ -86,7 +87,7 @@ async function saveFileFromBase64(data, path) {
 }
 
 async function getFileType(path) {
-    const encodedImageResponse = await fetch(`http://localhost:${getPort()}/getType/`, 
+    const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/getType/`, 
     {
         method: 'post',
         headers: {
@@ -103,7 +104,7 @@ async function getFileType(path) {
 }
 
 async function getEncodedFile(path) {
-    const encodedImageResponse = await fetch(`http://localhost:${getPort()}/encode/`, 
+    const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/encode/`, 
     {
         method: 'post',
         headers: {
@@ -126,6 +127,21 @@ async function createFolder(path, folderName) {
     }
 }
 
+function setTempId(value) {
+    tempId = value;
+}
+
+async function fetchWithId(resource , init = {}) {
+    const request = {
+        ...init,
+        headers: {
+            ...init.headers,
+            'bodymovin-id': tempId,
+        }
+    }
+    return fetch(resource , request)
+}
+
 export {
     loadFileData,
     getLocalPath,
@@ -135,4 +151,6 @@ export {
     createFolder,
     loadArrayBuffer,
     getEncodedFile,
+    setTempId,
+    fetchWithId,
 }

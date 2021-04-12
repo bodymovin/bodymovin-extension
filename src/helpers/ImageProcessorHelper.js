@@ -1,4 +1,5 @@
 import { getPort } from './enums/networkData';
+import { fetchWithId } from '../helpers/FileLoader';
 var path = require('path');
 path.parse = function(_path){
 	return {
@@ -9,7 +10,7 @@ path.parse = function(_path){
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
 	return new Promise((resolve, reject) => {
-		fetch(`http://localhost:${getPort()}/processImage/`, 
+		fetchWithId(`http://localhost:${getPort()}/processImage/`, 
 			{
 				method: 'post',
 				headers: {
@@ -55,7 +56,7 @@ function handleImageCompression(path, settings) {
 }
 
 async function getEncodedFile(path) {
-	const encodedImageResponse = await fetch(`http://localhost:${getPort()}/encode/`, 
+	const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/encode/`, 
 	{
 		method: 'post',
 		headers: {
