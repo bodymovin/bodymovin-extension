@@ -8,20 +8,20 @@ import ghost from '../../assets/animations/ghost.json'
 import nessie from '../../assets/animations/nessie.json'
 
 const styles = StyleSheet.create({
-    buttonContainer: {
+	buttonContainer: {
     	width: '100%',
     	height: '100%',
     	position: 'relative',
     	cursor: 'pointer',
     	background: 'none'
-    },
-    buttonAnim: {
+	},
+	buttonAnim: {
     	width: '100%',
     	height: '100%',
     	position: 'absolute',
     	top: 0,
     	left: 0
-    }
+	}
 })
 
 let anims = [flame, bear, ghost, nessie]

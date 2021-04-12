@@ -285,15 +285,15 @@ function dismissAlertMessage(state, action) {
 export default function project(state = initialState, action) {
 	switch (action.type) {
 		case actionTypes.GOTO_REPORTS:
-		return handleReportsViewSwitch(state, action);
+			return handleReportsViewSwitch(state, action);
 		case actionTypes.REPORTS_LOAD_SUCCESS:
-		return setReportsData(state, action);
+			return setReportsData(state, action);
 		case actionTypes.REPORTS_RENDERERS_UPDATED:
-		return updateRenderers(state, action);
+			return updateRenderers(state, action);
 		case actionTypes.REPORTS_MESSAGES_UPDATED:
-		return updateMessages(state, action);
+			return updateMessages(state, action);
 		case actionTypes.REPORTS_BUILDERS_UPDATED:
-		return updateBuilders(state, action);
+			return updateBuilders(state, action);
 	    case actionTypes.PROJECT_STORED_DATA:
 	      return setStoredData(state, action)
 	    case actionTypes.REPORTS_LOAD_FAILED:
@@ -301,6 +301,6 @@ export default function project(state = initialState, action) {
 	    case actionTypes.REPORTS_ALERT_DISMISSED:
 	      return dismissAlertMessage(state, action)
 		default:
-		return state
+			return state
 	}
 }

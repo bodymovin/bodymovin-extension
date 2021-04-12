@@ -1,10 +1,4 @@
 import { getPort } from './enums/networkData';
-var path = require('path');
-path.parse = function(_path){
-	return {
-		dir:''
-	}
-}
 
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
@@ -21,25 +15,25 @@ function compressImage(path, compression_rate) {
 					compression: compression_rate
 				})
 			})
-		.then(async (response) => {
-			const jsonResponse = await response.json()
-			if (jsonResponse.status === 'error') {
-				resolve({
-					path,
-					extension: 'png',
-				})
-			} else {
-				setTimeout(() => {
+			.then(async (response) => {
+				const jsonResponse = await response.json()
+				if (jsonResponse.status === 'error') {
 					resolve({
-						path: jsonResponse.path,
-						extension: jsonResponse.extension,
+						path,
+						extension: 'png',
 					})
-				}, 1)
-			}
-		})
-		.catch((err) => {
-			console.log('ERROR', err)
-		})
+				} else {
+					setTimeout(() => {
+						resolve({
+							path: jsonResponse.path,
+							extension: jsonResponse.extension,
+						})
+					}, 1)
+				}
+			})
+			.catch((err) => {
+				console.log('ERROR', err)
+			})
 	})
 }
 
@@ -56,16 +50,16 @@ function handleImageCompression(path, settings) {
 
 async function getEncodedFile(path) {
 	const encodedImageResponse = await fetch(`http://localhost:${getPort()}/encode/`, 
-	{
-		method: 'post',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			path: encodeURIComponent(path),
+		{
+			method: 'post',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				path: encodeURIComponent(path),
+			})
 		})
-	})
 	const jsonResponse = await encodedImageResponse.json()
 	return jsonResponse.data
 

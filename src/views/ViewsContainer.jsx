@@ -14,33 +14,33 @@ import ReportsView from './report/Reports'
 
 function getView(route) {
 	switch(route) {
-      case routes.compositions:
-        return <Compositions />
-      case routes.render:
-        return <Render />
-      case routes.preview:
-        return <PreviewView />
-      case routes.settings:
-        return <SettingsView />
-      case routes.fonts:
-        return <FontsView />
-      case routes.player:
-        return <PlayerView />
-      case routes.importFile:
-        return <FileImportView />
-      case routes.annotations:
-        return <AnnotationsView />
-      case routes.reports:
-        return <ReportsView />
-      default:
-        return <Compositions />
-    }
+		case routes.compositions:
+			return <Compositions />
+		case routes.render:
+			return <Render />
+		case routes.preview:
+			return <PreviewView />
+		case routes.settings:
+			return <SettingsView />
+		case routes.fonts:
+			return <FontsView />
+		case routes.player:
+			return <PlayerView />
+		case routes.importFile:
+			return <FileImportView />
+		case routes.annotations:
+			return <AnnotationsView />
+		case routes.reports:
+			return <ReportsView />
+		default:
+			return <Compositions />
+	}
 }
 
 let ViewsContainer = (props) => <div style={{width:'100%',height:'100%'}}>{getView(props.route)}</div>
 
 function mapStateToProps(state) {
-  return state.routes
+	return state.routes
 }
 
 export default connect(mapStateToProps,null)(ViewsContainer)

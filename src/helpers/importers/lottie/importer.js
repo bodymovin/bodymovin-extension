@@ -197,25 +197,25 @@ function createLayer(layerData, compId, assets) {
 	setLayer(layerData.nm);
 	switch (layerData.ty) {
 		case 0:
-		createCompositionLayer(layerData, compId, assets);
-		break;
+			createCompositionLayer(layerData, compId, assets);
+			break;
 		case 1:
-		createSolid(layerData, compId);
-		break;
+			createSolid(layerData, compId);
+			break;
 		case 2:
-		createImageLayer(layerData, compId, assets);
-		break;
+			createImageLayer(layerData, compId, assets);
+			break;
 		case 3:
-		createNull(layerData, compId);
-		break;
+			createNull(layerData, compId);
+			break;
 		case 4:
-		createShapeLayer(layerData, compId);
-		break;
+			createShapeLayer(layerData, compId);
+			break;
 		case 5:
-		createTextLayer(layerData, compId);
-		break;
+			createTextLayer(layerData, compId);
+			break;
 		default:
-		skipLayer(layerData, compId);
+			skipLayer(layerData, compId);
 	}
 }
 
@@ -225,23 +225,23 @@ function findLayerByIndexProperty(layers, index) {
 
 function iterateLayers(layers, compId, assets) {
 	layers
-	.reverse()
-	.forEach(layer => {
-		createLayer(layer, compId, assets)
-	})
+		.reverse()
+		.forEach(layer => {
+			createLayer(layer, compId, assets)
+		})
 
 	// Iterating twice so all layers have been created
 	layers
-	.forEach(layer => {
-		if ('parent' in layer) {
-			const parentLayer = findLayerByIndexProperty(layers, layer.parent);
-			sendCommand('setLayerParent', [layer.__importId, parentLayer.__importId]);
-		}
+		.forEach(layer => {
+			if ('parent' in layer) {
+				const parentLayer = findLayerByIndexProperty(layers, layer.parent);
+				sendCommand('setLayerParent', [layer.__importId, parentLayer.__importId]);
+			}
 
-		if ('tt' in layer) {
-			sendCommand('setTrackMatte', [layer.__importId, layer.tt]);
-		}
-	})
+			if ('tt' in layer) {
+				sendCommand('setTrackMatte', [layer.__importId, layer.tt]);
+			}
+		})
 }
 
 function registerHandlers(onUpdate, onEnd, onFailed) {
@@ -255,8 +255,8 @@ function registerHandlers(onUpdate, onEnd, onFailed) {
 
 function addFootageToMainFolder(assets) {
 	var footageIds = (assets || [])
-	.filter(asset => asset.id && asset.w && asset.__sourceId)
-	.map(asset => asset.__sourceId)
+		.filter(asset => asset.id && asset.w && asset.__sourceId)
+		.map(asset => asset.__sourceId)
 
 	if (footageIds.length) {
 		sendCommand('addFootageToMainFolder', [footageIds]);
@@ -286,13 +286,13 @@ async function convert(lottieData, onUpdate, onEnd, onFailed) {
 
 async function loadLottieDataFromUrl(path) {
 	const jsonDataResonse = await fetch(path, 
-	{
-		method: 'get',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		}
-	})
+		{
+			method: 'get',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			}
+		})
 	const jsonData = await jsonDataResonse.json()
 	return jsonData;
 }

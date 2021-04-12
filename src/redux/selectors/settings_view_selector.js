@@ -28,15 +28,15 @@ function getExtraCompsList(extra, list, items) {
 }
 
 const getRenderComposition = createSelector(
-  [getList, getItems, getCurrentComp, getProjectVersion ],
-  (list, items, current, projectVersion) => {
+	[getList, getItems, getCurrentComp, getProjectVersion ],
+	(list, items, current, projectVersion) => {
   	let canCompressAssets = validateVersion([10,0,0], projectVersion);
   	return {
   		settings: items[current] ? items[current].settings : null,
   		extraCompsList: items[current] ? getExtraCompsList(items[current].settings.extraComps, list, items) : [],
   		canCompressAssets:  canCompressAssets
   	}
-  }
+	}
 )
 
 export default getRenderComposition

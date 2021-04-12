@@ -9,7 +9,6 @@ csInterface.addEventListener('bm:annotations:list', function (ev) {
 	if(ev.data) {
 		let layers = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
 		dispatcher(layersListFetched(layers))
-	} else {
 	}
 })
 
@@ -24,7 +23,7 @@ async function getCurrentLayers() {
 async function activateAnnotations(layerId, annotationId) {
 	await extensionLoader
 	var eScript = '$.__bodymovin.bm_annotationsManager.activateAnnotations("' + layerId + '","' + annotationId + '")';
-    csInterface.evalScript(eScript);
+	csInterface.evalScript(eScript);
 }
 
 async function getAvailableAnnotation() {

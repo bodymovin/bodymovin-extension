@@ -8,13 +8,13 @@ import annotations from './annotations_sagas'
 import reports from './reports_sagas'
 
 export default function* rootSaga() {	
-  yield all([
+	yield all([
   	...compositions,
   	...project,
   	...preview,
   	...render,
-    ...importFiles,
-    ...annotations,
+		...importFiles,
+		...annotations,
   	...reports,
-  ])
+	])
 }

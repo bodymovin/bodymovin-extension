@@ -22,8 +22,8 @@ function *projectGetStoredData(action) {
 		let projectData = yield call(getProjectFromLocalStorage, action.id)
 		if(projectData) {
 			yield put({ 
-					type: actions.PROJECT_STORED_DATA,
-					projectData: projectData
+				type: actions.PROJECT_STORED_DATA,
+				projectData: projectData
 			})
 		}
 	} catch(err){
@@ -35,8 +35,8 @@ function *getPaths(action) {
 		let pathsData = yield call(getPathsFromLocalStorage)
 		if(pathsData) {
 			yield put({ 
-					type: actions.PATHS_FETCHED,
-					pathsData: pathsData
+				type: actions.PATHS_FETCHED,
+				pathsData: pathsData
 			})
 		}
 	} catch(err){
@@ -122,18 +122,18 @@ function *start() {
 			yield call(pingServer)
 		} catch (err) {
 			yield put({ 
-					type: actions.SERVER_PING_FAIL,
+				type: actions.SERVER_PING_FAIL,
 			})
 		}
 	}
 }
 
 export default [
-  takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
-  takeEvery([actions.APP_INITIALIZED], getPaths),
-  takeEvery([actions.APP_INITIALIZED], getVersion),
-  takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
-  takeEvery([actions.APP_INITIALIZED], start),
-  fork(saveStoredData),
-  fork(savePathsData)
+	takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
+	takeEvery([actions.APP_INITIALIZED], getPaths),
+	takeEvery([actions.APP_INITIALIZED], getVersion),
+	takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
+	takeEvery([actions.APP_INITIALIZED], start),
+	fork(saveStoredData),
+	fork(savePathsData)
 ]

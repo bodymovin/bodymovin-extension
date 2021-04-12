@@ -9,8 +9,8 @@ const getCurrentComp = (state) => {
 }
 
 const settingsBannerSelector = createSelector(
-  [getItems, getCurrentComp ],
-  (items, current) => {
+	[getItems, getCurrentComp ],
+	(items, current) => {
 
   	const item = items[current]
   	const exportModes = item.settings.export_modes
@@ -19,7 +19,7 @@ const settingsBannerSelector = createSelector(
   		_isActive: exportModes.demo,
   		backgroundColor: item.settings.demoData.backgroundColor,
   	}
-  }
+	}
 )
 
 export default settingsBannerSelector

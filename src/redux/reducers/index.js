@@ -11,14 +11,14 @@ import annotations from './annotations'
 import reports from './reports'
 
 export default combineReducers({
-  routes,
-  compositions,
-  render,
-  project,
-  preview,
-  alerts,
-  paths,
-  importer,
-  annotations,
-  reports,
+	routes,
+	compositions,
+	render,
+	project,
+	preview,
+	alerts,
+	paths,
+	importer,
+	annotations,
+	reports,
 })

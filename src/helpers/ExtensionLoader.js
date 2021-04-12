@@ -14,13 +14,13 @@ function loadJSX(resolve, reject) {
     	var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/jsx/";
     	csInterface.evalScript('$.evalFile("' + extensionRoot + fileName + '");'
     	, function(){
-			window.removeEventListener('focus', init);
-			window.removeEventListener('click', init);
-			window.removeEventListener('mousedown', init);
-			window.removeEventListener('mouseenter', init);
-			window.removeEventListener('mouseover', init);
-			window.removeEventListener('mousemove', init);
-			resolve();
+				window.removeEventListener('focus', init);
+				window.removeEventListener('click', init);
+				window.removeEventListener('mousedown', init);
+				window.removeEventListener('mouseenter', init);
+				window.removeEventListener('mouseover', init);
+				window.removeEventListener('mousemove', init);
+				resolve();
     	});
 	}
 

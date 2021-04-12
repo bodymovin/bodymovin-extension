@@ -5,30 +5,30 @@ import Variables from '../../../helpers/styles/variables'
 import textEllipsis from '../../../helpers/styles/textEllipsis'
 
 const styles = StyleSheet.create({
-    container: {
-      width: '100%',
-      height: '100%',
-      backgroundColor:'rgba(100,100,100,.8)',
-      position: 'absolute',
-      top: '0',
-      left: '0',
-      display: 'flex',
-      flexDirection:'column',
-      padding: '20px'
-    },
-    list:{
+	container: {
+		width: '100%',
+		height: '100%',
+		backgroundColor:'rgba(100,100,100,.8)',
+		position: 'absolute',
+		top: '0',
+		left: '0',
+		display: 'flex',
+		flexDirection:'column',
+		padding: '20px'
+	},
+	list:{
     	flexGrow: 1,
     	backgroundColor: Variables.colors.gray_darkest,
-      width: '100%',
-      overflowX: 'hidden',
-      overflowY: 'auto'
-    },
-    nav:{
+		width: '100%',
+		overflowX: 'hidden',
+		overflowY: 'auto'
+	},
+	nav:{
     	flexGrow: 0,
     	textAlign: 'right',
     	marginBottom: '10px'
-    },
-    list_item:{
+	},
+	list_item:{
     	width: '100%',
     	height: '30px',
     	fontSize: '12px',
@@ -38,11 +38,11 @@ const styles = StyleSheet.create({
     	backgroundColor: Variables.colors.gray,
     	borderBottom: '2px solid ' + Variables.colors.gray2,
     	cursor: 'pointer',
-      overflow: 'hidden',
+		overflow: 'hidden',
     	':hover' : {
     		color: Variables.colors.green,
     	}
-    }
+	}
 })
 
 function getItems(items, itemSelected) {
@@ -53,13 +53,13 @@ function getItems(items, itemSelected) {
 
 let CurrentRenders = (props) => {
 	return (<div className={css(styles.container)}>
-				<div className={css(styles.nav)}>
-					<BaseButton text='Cancel' type='gray' onClick={props.cancelSelection} />
-				</div>
-				<ul className={css(styles.list)}>
-					{getItems(props.items, props.itemSelected)}
-				</ul>
-			</div>)
+		<div className={css(styles.nav)}>
+			<BaseButton text='Cancel' type='gray' onClick={props.cancelSelection} />
+		</div>
+		<ul className={css(styles.list)}>
+			{getItems(props.items, props.itemSelected)}
+		</ul>
+	</div>)
 }
 
 export default CurrentRenders

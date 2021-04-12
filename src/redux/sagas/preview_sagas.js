@@ -26,8 +26,8 @@ function *browseFile() {
 		let paths = yield select(storingPathsSelector)
 		let fileData = yield call(fileBrowser, paths.previewPath)
 		yield put({ 
-				type: actions.PREVIEW_FILE_BROWSED,
-				path: fileData.fsName
+			type: actions.PREVIEW_FILE_BROWSED,
+			path: fileData.fsName
 		})
 	} catch(err) {
 
@@ -47,9 +47,9 @@ function *loadAssets(path, assets) {
 	try {
 		const assetsPath = path.substr(0, path.lastIndexOf(getSimpleSeparator()) + 1)
 		const filesData = yield all( 
-		assets
-			.filter(asset => 'id' in asset)
-			.map(asset => buildAssetData(assetsPath, asset))
+			assets
+				.filter(asset => 'id' in asset)
+				.map(asset => buildAssetData(assetsPath, asset))
 		)
 		return filesData.reduce((accumulator, asset)=>{
 			accumulator[asset.name] = asset.data
@@ -65,14 +65,14 @@ function *loadBodymovinFile(action) {
 		let animationData = yield call(loadBodymovinFileData, action.path)
 		const assetsData = yield call(loadAssets, action.path, animationData.assets)
 		yield put({ 
-				type: actions.PREVIEW_ANIMATION_LOADED,
-				animationData: animationData,
-				assetsData,
-				path: action.path
+			type: actions.PREVIEW_ANIMATION_LOADED,
+			animationData: animationData,
+			assetsData,
+			path: action.path
 		})
 	} catch(err) {
 		yield put({ 
-				type: actions.PREVIEW_ANIMATION_LOAD_FAILED
+			type: actions.PREVIEW_ANIMATION_LOAD_FAILED
 		})
 	}
 }
@@ -146,12 +146,12 @@ function *searchSkottieUpdates() {
 }
 
 export default [
-  takeEvery(actions.PREVIEW_BROWSE_FILE, browseFile),
-  takeEvery([
+	takeEvery(actions.PREVIEW_BROWSE_FILE, browseFile),
+	takeEvery([
   	actions.PREVIEW_FILE_BROWSED,
   	actions.PREVIEW_ANIMATION,
-  ]
-  , loadBodymovinFile),
-  takeEvery(actions.PREVIEW_INITIALIZE, handleTimelineLock),
-  takeEvery(actions.PREVIEW_INITIALIZE, searchSkottieUpdates),
+	]
+	, loadBodymovinFile),
+	takeEvery(actions.PREVIEW_INITIALIZE, handleTimelineLock),
+	takeEvery(actions.PREVIEW_INITIALIZE, searchSkottieUpdates),
 ]

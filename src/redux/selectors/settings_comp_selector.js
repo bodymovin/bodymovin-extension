@@ -5,10 +5,10 @@ const getItemId = (state) => {
 }
 
 const getRenderComposition = createSelector(
-  [ getItemId ],
-  (itemId) => {
+	[ getItemId ],
+	(itemId) => {
   	return itemId
-  }
+	}
 )
 
 export default getRenderComposition
