@@ -7,8 +7,7 @@ module.exports = {
 		paths.appIndexJs
 	],
 	output: {
-		path: paths.appBuild,
-		publicPath: '/'
+		path: paths.appBuild
 	},
 	resolve: {
 		extensions: ['.js', '.json', '.jsx'],
@@ -37,7 +36,7 @@ module.exports = {
 				test: /\.svg$/,
 				type: 'asset/resource',
 				generator: {
-					filename: 'static/media/[name].[hash:8].[ext]'
+					filename: 'static/media/[name].[hash:8][ext]'
 				}
 			}
 		]

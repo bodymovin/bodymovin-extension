@@ -11,6 +11,7 @@ module.exports = merge(commonConfig, {
 	output: {
 		filename: 'static/js/[name].[chunkhash:8].js',
 		chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
+		publicPath: './'
 	},
   
 	module: {

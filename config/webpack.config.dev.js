@@ -18,6 +18,7 @@ module.exports = merge(commonConfig, {
 		// served by WebpackDevServer in development. This is the JS bundle
 		// containing code from all our entry points, and the Webpack runtime.
 		filename: 'static/js/bundle.js',
+		publicPath: '/'
 	},
   
 	module: {
