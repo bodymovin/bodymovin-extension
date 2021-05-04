@@ -1,5 +1,4 @@
 const imagemin = require('imagemin');
-console.log('STARTTT');
 // const imageminJpegtran = require('imagemin-jpegtran');
 // const imageminJpegoptim = require('imagemin-jpegoptim');
 const imageminPngquant = require('imagemin-pngquant');
@@ -12,9 +11,12 @@ var PNG = require('pngjs').PNG;
 var LottieToFlare = require('./lottie_to_flare/test.bundle.js').default
 var animationSegmenter = require('./animationSegmenter')
 const FileType = require('file-type');
+const os = require('os');
 var ltf = new LottieToFlare();
 
 var JSZip = require('jszip');
+
+let localStoredId = ''
 
 async function processImage(path, compression, hasTransparency) {
 	//C:\\Program Files\\Adobe\\Adobe After Effects 2020\\Support Files
@@ -47,6 +49,16 @@ async function processImage(path, compression, hasTransparency) {
 const app = express.createServer();
 app.use(bodyParser.json())
 app.use(express.static('public'))
+app.use(function (req, res, next) {
+	if (!localStoredId) {
+		localStoredId = fs.readFileSync(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt', "utf8");
+	}
+	if (!req.headers || req.headers['bodymovin-id'] !== localStoredId) {
+		res.status(403).send('Client unauthorized');
+	} else {
+		next();
+	}
+  })
 const port = 24801
 
 app.get('/', (req, res) => {
@@ -427,144 +439,6 @@ function writeFile(path, content, encoding = 'utf8') {
 
 ////  TESTING ULRS
 
-app.get('/encode', async function(req, res){
-	const fs = require('fs');
-
-	let buff = fs.readFileSync('images/img_0_test.png');
-	let base64data = buff.toString('base64');
-	res.send({
-		status: 'success',
-		data: base64data,
-	})
-})
-
-app.get('/process', async function(req, res){
-	try {
-		const hasTransparency = await checkImageTransparency('images/img_0_test.png')
-		const processedImages  = await processImage(decodeURIComponent(req.body.path), req.body.compression, hasTransparency)
-		if (processedImages.length) {
-			res.send({
-				status: 'success',
-				path: processedImages[0].destinationPath,
-			})
-		} else {
-			res.send({
-				status: 'error',
-				message: 'Could not export',
-			})
-		}
-	} catch(error) {
-		res.send({
-			status: 'error',
-			err: error,
-			message: error.message,
-		});
-	}
-
-});
-
-
-
-const getFlare = async function(req, res){
-	try {
-		const originPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\rive";
-		const destinationPath = "C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\gwir6aia7c\\riveExport";
-		var destinationName = 'flare.flr2d';
-
-		const zip = JSZip();
-
-		const dirItems = await readdir(originPath);
-		const jsonFilePath = await getJsonPath(dirItems, originPath);
-
-		const jsonDataString = await getJsonData(jsonFilePath)
-		const result = await ltf.convert(jsonDataString);
-		zip.file(destinationName, JSON.stringify(result));
-
-		// Adding assets
-		const jsonData = JSON.parse(jsonDataString)
-		const lottieAssets = jsonData.assets
-			.filter(asset => !!asset.p)
-
-		const assetsData = await Promise.all(lottieAssets.map(asset => {
-			return getFile(originPath + nodePath.sep + asset.u + asset.p)
-		}))
-		lottieAssets.forEach((asset, index) => {
-			zip.file(asset.id, assetsData[index]);
-		})
-
-		const zipBlob = await zip.generateAsync({type: 'nodebuffer'})
-
-		fs.writeFile(destinationPath + nodePath.sep + destinationName, zipBlob, 'binary', (error, success) => {
-			console.log(error, success)
-		});
-		
-
-		res.send({
-			status: 'success',
-		});
-	} catch(error) {
-		res.send({
-			status: 'error',
-			error: error
-		});
-	}
-}
-
-const getBanner = async (req, res) => {
-
-	try {
-
-		const zip = JSZip();
-
-		const traverseDirToZip = async(absolutePath, relativePath = '') => {
-			const dirItems = await readdir(absolutePath + relativePath);
-			await Promise.all(dirItems.map(async item => {
-				const fileRelativePath = relativePath + nodePath.sep + item;
-				if (fs.lstatSync(absolutePath + fileRelativePath).isDirectory()) {
-					await traverseDirToZip(absolutePath, fileRelativePath)
-				} else {
-					const fileData = await getFile(absolutePath + fileRelativePath)
-					zip.file(fileRelativePath, fileData);
-				}
-			}))
-			return 'ENDED'
-		}
-
-		const originFolder = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\7y69mmow98\\banner'
-		const destinationFolderFile = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\7y69mmow98\\bannerExport\\export.zip'
-
-
-		const dirItems = await traverseDirToZip(originFolder);
-
-		const zipBlob = await zip.generateAsync({type: 'nodebuffer', compression: "DEFLATE"})
-
-		fs.writeFile(destinationFolderFile, zipBlob, 'binary', (error, success) => {
-			console.log(error, success)
-		});
-
-		res.send({
-			status: 'success',
-		});
-	} catch(err) {
-		console.log(err)
-	}
-}
-
-const segment = async(req, res) => {
-	const originFolder = 'C:\\Users\\tropi\\AppData\\Local\\Temp\\Bodymovin\\9wh0m1fqqt\\raw'
-	const originFile = originFolder + '\\data.json'
-	const jsonData = await getJsonData(originFile)
-	const jsonObject = JSON.parse(jsonData);
-	const animationPieces = await animationSegmenter(jsonObject)
-	res.send({
-		status: 'success'
-	})
-}
-
-app.get('/flare', getFlare);
-app.get('/banner', getBanner);
-app.get('/segment', segment);
-
 ////  END TESTING ULRS
-
-app.listen(port)
+console.log('START 5');
+app.listen(port, '127.0.0.1');

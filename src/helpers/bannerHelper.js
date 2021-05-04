@@ -1,7 +1,8 @@
 import { getPort } from './enums/networkData'
+import { fetchWithId } from '../helpers/FileLoader'
 
 const saveFile = async (origin, destination) => {
-	const encodedImageResponse = await fetch(`http://localhost:${getPort()}/createBanner/`, 
+	const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/createBanner/`, 
 	{
 		method: 'post',
 		headers: {

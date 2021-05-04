@@ -1,5 +1,7 @@
+import { fetchWithId } from './FileLoader'
+
 const saveFile = async (origin, destination, fileName) => {
-	const encodedImageResponse = await fetch('http://localhost:3119/convertToFlare/', 
+	const encodedImageResponse = await fetchWithId('http://localhost:3119/convertToFlare/', 
 	{
 		method: 'post',
 		headers: {
