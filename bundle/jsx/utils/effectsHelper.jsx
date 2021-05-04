@@ -216,7 +216,9 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var i, len = elem.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = elem.property(i + 1);
-            if(prop.matchName === "ADBE FreePin3 ARAP Group" 
+            if (annotationsManager.isAnnotation(prop.matchName)) {
+                // skip
+            } else if(prop.matchName === "ADBE FreePin3 ARAP Group" 
                 || prop.matchName === "ADBE FreePin3 Mesh Group" 
                 || prop.matchName === "ADBE FreePin3 Mesh Atom" 
                 || prop.matchName === "ADBE FreePin3 PosPins" 
@@ -273,6 +275,10 @@ $.__bodymovin.bm_effectsHelper = (function () {
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
             if (effectElement.enabled || includeHiddenData) {
+                // if it is an annotaton, do not save
+                if (annotationsManager.isAnnotation(effectElement.matchName)) {
+                    continue;
+                }
                 var effectType = getEffectType(effectElement.matchName);
                 /*
                 //If the effect is not a Slider Control and is not enabled, it won't be exported.
