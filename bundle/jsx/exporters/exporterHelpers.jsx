@@ -79,6 +79,7 @@ $.__bodymovin.bm_exporterHelpers = (function () {
 	
 	ob.exportTypes = {
 		AVD: 'avd',
+		SMIL: 'smil',
 		BANNER: 'banner',
 		DEMO: 'demo',
 		RIVE: 'rive',

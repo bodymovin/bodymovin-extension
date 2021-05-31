@@ -7,6 +7,7 @@ import {reportsSaved} from '../redux/actions/reportsActions'
 import {processExpression} from '../redux/actions/renderActions'
 import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
+import {saveFile as smilSaveFile} from './smilHelper'
 import {splitAnimation} from './splitAnimationHelper'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
@@ -165,6 +166,21 @@ csInterface.addEventListener('bm:create:avd', async function (ev) {
 	    	csInterface.evalScript(eScript);
 		} catch(err) {
 	    	const eScript = '$.__bodymovin.bm_avdExporter.saveAVDFailed()';
+	    	csInterface.evalScript(eScript);
+		} 
+	} else {
+	}
+})
+
+csInterface.addEventListener('bm:create:smil', async function (ev) {
+	if(ev.data) {
+		try {
+			let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+			await smilSaveFile(data.origin, data.destination)
+			const eScript = "$.__bodymovin.bm_smilExporter.saveSMILDataSuccess()";
+	    	csInterface.evalScript(eScript);
+		} catch(err) {
+	    	const eScript = '$.__bodymovin.bm_smilExporter.saveSMILFailed()';
 	    	csInterface.evalScript(eScript);
 		} 
 	} else {

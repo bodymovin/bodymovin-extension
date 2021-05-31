@@ -56,6 +56,7 @@ let defaultComposition = {
           standalone: false,
           banner: false,
           avd: false,
+          smil: false,
           rive: false,
           reports: false,
         },

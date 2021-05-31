@@ -118,6 +118,7 @@ if (!Function.prototype.bm_bind) (function(){
   'exporters/standaloneExporter.jsx',
   'exporters/demoExporter.jsx',
   'exporters/avdExporter.jsx',
+  'exporters/smilExporter.jsx',
   'exporters/riveExporter.jsx',
   'importers/lottieImporter.jsx',
   'esprima.jsx',
