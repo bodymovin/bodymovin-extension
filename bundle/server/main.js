@@ -50,8 +50,10 @@ const app = express.createServer();
 app.use(bodyParser.json())
 app.use(express.static('public'))
 app.use(function (req, res, next) {
+	console.log('localStoredId', localStoredId);
 	if (!localStoredId) {
 		localStoredId = fs.readFileSync(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt', "utf8");
+		console.log(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt');
 	}
 	if (!req.headers || req.headers['bodymovin-id'] !== localStoredId) {
 		res.status(403).send('Client unauthorized');
@@ -440,5 +442,5 @@ function writeFile(path, content, encoding = 'utf8') {
 ////  TESTING ULRS
 
 ////  END TESTING ULRS
-console.log('START 5');
+console.log('START 7');
 app.listen(port, '127.0.0.1');
