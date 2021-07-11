@@ -50,15 +50,22 @@ const app = express.createServer();
 app.use(bodyParser.json())
 app.use(express.static('public'))
 app.use(function (req, res, next) {
-	console.log('localStoredId', localStoredId);
-	if (!localStoredId) {
-		localStoredId = fs.readFileSync(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt', "utf8");
-		console.log(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt');
-	}
-	if (!req.headers || req.headers['bodymovin-id'] !== localStoredId) {
+	if (!req.headers || !req.headers['bodymovin-id']) {
 		res.status(403).send('Client unauthorized');
 	} else {
+		// TODO: improve this
 		next();
+		// const bodymovinId = req.headers['bodymovin-id'];
+		// // Because of race conditions if values don't match it will try one more time to get it from the local file system
+		// if (bodymovinId !== localStoredId) {
+		// 	localStoredId = fs.readFileSync(os.tmpdir() + nodePath.sep + 'bodymovin_uid.txt', "utf8");
+		// }
+		// // if values still don't match, reject the request
+		// if (bodymovinId !== localStoredId) {
+		// 	res.status(403).send('Client unauthorized');
+		// } else {
+		// 	next();
+		// }
 	}
   })
 const port = 24801
@@ -442,5 +449,4 @@ function writeFile(path, content, encoding = 'utf8') {
 ////  TESTING ULRS
 
 ////  END TESTING ULRS
-console.log('START 7');
 app.listen(port, '127.0.0.1');

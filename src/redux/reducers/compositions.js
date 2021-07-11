@@ -12,6 +12,10 @@ let initialState = {
   current: 0,
   show_only_selected: false,
   shouldUseCompNameAsDefault: false,
+  shouldUseAEPathAsDestinationFolder: false,
+  shouldUsePathAsDefaultFolder: false,
+  shouldIncludeCompNameAsFolder: false,
+  defaultFolderPath: '',
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -680,6 +684,34 @@ function toggleCompNameAsDefault(state, action) {
   }
 }
 
+function toggleAEPathAsDestinationFolder(state, action) {
+  return {
+    ...state,
+    shouldUseAEPathAsDestinationFolder: !state.shouldUseAEPathAsDestinationFolder,
+  }
+}
+
+function toggleDefaultFolder(state, action) {
+  return {
+    ...state,
+    shouldUsePathAsDefaultFolder: !state.shouldUsePathAsDefaultFolder,
+  }
+}
+function toggleIncludeCompNameAsFolder(state, action) {
+  return {
+    ...state,
+    shouldIncludeCompNameAsFolder: !state.shouldIncludeCompNameAsFolder,
+  }
+}
+
+function setDefaultFolderPath(state, action) {
+  console.log(action)
+  return {
+    ...state,
+    defaultFolderPath: action.value,
+  }
+}
+
 function storeReportsPath(state, action) {
   var comp = {
     ...state.items[action.compId],
@@ -723,6 +755,14 @@ export default function compositions(state = initialState, action) {
       return updateSettingsValue(state, action)
     case actionTypes.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE:
       return toggleCompNameAsDefault(state, action)
+    case actionTypes.SETTINGS_AE_AS_PATH_TOGGLE:
+      return toggleAEPathAsDestinationFolder(state, action)
+    case actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER:
+      return toggleDefaultFolder(state, action)
+    case actionTypes.SETTINGS_INCLUDE_COMP_NAME_AS_FOLDER_TOGGLE:
+      return toggleIncludeCompNameAsFolder(state, action)
+    case actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_SELECTED:
+      return setDefaultFolderPath(state, action)
     case actionTypes.SETTINGS_TOGGLE_SELECTED:
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:

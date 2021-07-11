@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
-import BodymovinRefresh from '../bodymovin/bodymovin_refresh'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
@@ -16,7 +15,14 @@ const styles = StyleSheet.create({
     	width: '100%',
     	height: '50px',
         display: 'flex',
-        alignItems:'center'
+        alignItems:'center',
+        justifyContent: 'space-between',
+    },
+    buttons_group: {
+        display: 'inline-block',
+    },
+    buttons_group: {
+        display: 'inline-block',
     },
     button: {
         marginRight:'7px',
@@ -59,10 +65,23 @@ function Main_header(props) {
 				</div>
 				<div className={css(styles.separator)}></div>
                 <div className={css(styles.buttons_container)}>
-                    <div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
-                        <BodymovinRefresh />
+                    <div className={css(styles.buttons_group)}>
+                        <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
                     </div>
-                    <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
+                    <div className={css(styles.buttons_group)}>
+                        <BaseButton
+                            text='Refresh list'
+                            type='gray'
+                            classes={styles.button}
+                            onClick={props.refresh}
+                        />
+                        <BaseButton
+                            text='Project Settings'
+                            type='gray'
+                            classes={styles.button}
+                            onClick={props.openGlobalSettings}
+                        />
+                    </div>
                 </div>
 			</div>)
 }

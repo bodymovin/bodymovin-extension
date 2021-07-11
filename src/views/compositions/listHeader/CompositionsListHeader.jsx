@@ -96,15 +96,6 @@ class CompositionsListHeader extends React.Component {
     		<li 
           className={css(styles.item, styles.destination, textEllipsis)}
         >
-          <div className={css(styles.itemCompName)}>
-            <input 
-              type="checkbox" 
-              onChange={this.props.onCompNameAsDefaultToggle}
-              checked={this.props.shouldUseCompNameAsDefault}
-              className={css(styles.itemCompNameInput)}
-            />
-            <span>Use comp name</span>
-          </div>
           <div>../Destination Folder</div>
         </li>
     	</ul>

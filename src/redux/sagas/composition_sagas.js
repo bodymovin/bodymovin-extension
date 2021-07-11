@@ -9,8 +9,10 @@ import compositionsSelector from '../selectors/compositions_selector'
 import {
 	applySettingsFromCache,
 	settingsBannerLibraryFileSelected,
+	settingsDefaultFolderPathSelected,
 } from '../actions/compositionActions'
 import fileBrowser from '../../helpers/FileBrowser'
+import folderBrowser from '../../helpers/FolderBrowser'
 
 function *getCSCompositions(action) {
 	while(true) {
@@ -25,8 +27,18 @@ function *getCompositionDestination() {
 		let action = yield take(actions.COMPOSITION_GET_DESTINATION)
 		try{
 			let paths = yield select(storingPathsSelector)
-			let {shouldUseCompNameAsDefault} = yield select(compositionsSelector)
-			const compositions = yield call(getDestinationPath, action.comp, paths.destinationPath, shouldUseCompNameAsDefault)
+			let {
+				shouldUseCompNameAsDefault,
+				shouldUseAEPathAsDestinationFolder,
+				shouldUsePathAsDefaultFolder,
+				defaultFolderPath,
+			} = yield select(compositionsSelector)
+			let destinationPath = shouldUseAEPathAsDestinationFolder
+				? paths.projectPath
+				: shouldUsePathAsDefaultFolder && defaultFolderPath
+					? `${defaultFolderPath.fsName}\\`
+					: paths.destinationPath
+			const compositions = yield call(getDestinationPath, action.comp, destinationPath, shouldUseCompNameAsDefault)
 			if (compositions) {
 				yield put({ 
 						type: actions.COMPOSITIONS_UPDATED,
@@ -43,8 +55,24 @@ function *startRender() {
 	while(true) {
 		yield take([actions.RENDER_START,actions.RENDER_COMPLETE])
 		let comp = yield select(getRenderComposition)
+		console.log('aab')
 		if(comp) {
-			yield call(renderNextComposition, comp)
+			console.log(comp)
+			const {
+				shouldIncludeCompNameAsFolder,
+			} = yield select(compositionsSelector)
+			const compData = {
+				...comp,
+			}
+			if (shouldIncludeCompNameAsFolder) {
+				const absoluteURISplit = compData.absoluteURI.split('/')
+				absoluteURISplit.splice(absoluteURISplit.length - 1, 0, [comp.name])
+				compData.absoluteURI = absoluteURISplit.join('/')
+				const destinationSplit = compData.destination.split('\\')
+				destinationSplit.splice(destinationSplit.length - 1, 0, [comp.name])
+				compData.destination = destinationSplit.join('\\')
+			}
+			yield call(renderNextComposition, compData)
 		} else {
 			yield put({ 
 				type: actions.RENDER_FINISHED
@@ -87,6 +115,16 @@ function *searchLottiePath(action) {
 	}
 }
 
+function *searchDefaultDestinationPath(action) {
+	try{
+		let paths = yield select(storingPathsSelector)
+		const initialPath = action.value ? action.value.path : paths.destinationPath
+		let filePath = yield call(folderBrowser, initialPath)
+		yield put(settingsDefaultFolderPathSelected(filePath))
+	} catch(err) {
+	}
+}
+
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
@@ -96,4 +134,5 @@ export default [
   takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
   takeEvery(actions.SETTINGS_APPLY, applySettings),
   takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
+  takeEvery(actions.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE, searchDefaultDestinationPath),
 ]

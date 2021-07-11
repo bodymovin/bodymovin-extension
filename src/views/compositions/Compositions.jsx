@@ -15,6 +15,10 @@ import {
 	toggleShowSelected, 
 	applySettingsToSelectedComps,
 	toggleCompNameAsDefault,
+	toggleCompNameAsFolder,
+	toggleAEAsPath,
+	toggleDefaultPathAsFolder,
+	defaultFolderFileChange,
 	goToImportFile,
 	goToAnnotations,
 	goToReports,
@@ -22,6 +26,7 @@ import {
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
 import Variables from '../../helpers/styles/variables'
+import GlobalSettings from './globalSettings/GlobalSettings'
 
 const styles = StyleSheet.create({
 	wrapper: {
@@ -61,7 +66,9 @@ class Compositions extends React.Component {
 		this.selectDestination = this.selectDestination.bind(this)
 		this.showSettings = this.showSettings.bind(this)
 		this.renderComps = this.renderComps.bind(this)
-		//this.goToPreview = this.goToPreview.bind(this)
+		this.state = {
+			globalSettings: false,
+		}
 	}
 
 	selectDestination(comp) {
@@ -76,24 +83,25 @@ class Compositions extends React.Component {
 		this.props.goToReports(path);
 	}
 
+	openGlobalSettings = () => {
+		this.setState({
+			globalSettings: true,
+		})
+	}
 
+	closeGlobalSettings = () => {
+		this.setState({
+			globalSettings: false,
+		})
+	}
 
 	renderComps() {
 		if(!this.props.canRender){
 			this.props.showRenderBlock(['There are no Compositions to render.','Make sure you have at least one selected and a Destination Path set.'])
 		} else {
 			this.props.startRender()
-			//browserHistory.push('/render')
 		}
-		
 	}
-	/*goToPreview() {
-		//browserHistory.push('/preview')
-	}*/
-	
-	/*goToPlayer() {
-		browserHistory.push('/player')
-	}*/
 
 	render() {
 		return (
@@ -108,15 +116,13 @@ class Compositions extends React.Component {
 						goToPlayer={this.props.goToPlayer}
 						goToAnnotations={this.props.goToAnnotations}
 						goToReports={this.props.goToReports}
+						openGlobalSettings={this.openGlobalSettings}
 					/>
 				</div>
 				<div className={css(styles.content)} >
 					<CompositionsListHeader 
 						filterValue={this.props.filter} 
 						filterChange={this.props.filterChange} 
-						shouldUseCompNameAsDefault={this.props.shouldUseCompNameAsDefault} 
-						onCompNameAsDefaultToggle={this.props.onCompNameAsDefaultToggle} 
-
 					/>
 					<CompositionsList 
 						items={this.props.visibleItems} 
@@ -136,6 +142,21 @@ class Compositions extends React.Component {
 							{'Apply Stored Settings to Selected Comps'}
 					</div>
 				</div>
+				{this.state.globalSettings && 
+					<GlobalSettings
+						onClose={this.closeGlobalSettings}
+						onCompNameAsDefaultToggle={this.props.onCompNameAsDefaultToggle}
+						onIncludeCompNameAsFolderToggle={this.props.onIncludeCompNameAsFolderToggle}
+						shouldUseCompNameAsDefault={this.props.shouldUseCompNameAsDefault}
+						onAEAsPathToggle={this.props.onAEAsPathToggle}
+						shouldUseAEPathAsDestinationFolder={this.props.shouldUseAEPathAsDestinationFolder}
+						onDefaultPathAsFolder={this.props.onDefaultPathAsFolder}
+						shouldUsePathAsDefaultFolder={this.props.shouldUsePathAsDefaultFolder}
+						onDefaultPathChange={this.props.onDefaultPathChange}
+						defaultFolderPath={this.props.defaultFolderPath}
+						shouldIncludeCompNameAsFolder={this.props.shouldIncludeCompNameAsFolder}
+					/>
+				}
 			</div>
 			)
 	}
@@ -159,6 +180,10 @@ const mapDispatchToProps = {
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
 	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
+	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
+	onAEAsPathToggle: toggleAEAsPath,
+	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
+	onDefaultPathChange: defaultFolderFileChange,
 	goToAnnotations: goToAnnotations,
 	goToReports: goToReports,
 }

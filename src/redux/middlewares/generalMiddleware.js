@@ -23,7 +23,6 @@ function handleLayerNavigation(action, store) {
 }
 
 function handleTempId(action) {
-	console.log('handleTempIdhandleTempId', action)
 	setTempId(action.id);
 }
 

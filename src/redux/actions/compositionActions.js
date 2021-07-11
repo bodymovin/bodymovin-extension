@@ -236,9 +236,41 @@ function toggleCompNameAsDefault() {
 	}
 }
 
+function toggleCompNameAsFolder() {
+	return {
+		type: actionTypes.SETTINGS_INCLUDE_COMP_NAME_AS_FOLDER_TOGGLE,
+	}
+}
+
+function toggleAEAsPath() {
+	return {
+		type: actionTypes.SETTINGS_AE_AS_PATH_TOGGLE,
+	}
+}
+
+function toggleDefaultPathAsFolder() {
+	return {
+		type: actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER,
+	}
+}
+
+function defaultFolderFileChange(value) {
+	return {
+		type: actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE,
+		value,
+	}
+}
+
 function settingsBannerLibraryFileSelected(value) {
 	return {
 		type: actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED,
+		value,
+	}
+}
+
+function settingsDefaultFolderPathSelected(value) {
+	return {
+		type: actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_SELECTED,
 		value,
 	}
 }
@@ -298,6 +330,11 @@ export {
 	lottieHandleLoopToggleChange,
 	lottieHandleLoopCountChange,
 	toggleCompNameAsDefault,
+	toggleCompNameAsFolder,
+	toggleAEAsPath,
+	toggleDefaultPathAsFolder,
+	settingsDefaultFolderPathSelected,
+	defaultFolderFileChange,
 	settingsBannerLibraryFileSelected,
 	goToAnnotations,
 	goToReports,

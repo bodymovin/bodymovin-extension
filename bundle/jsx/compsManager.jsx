@@ -83,6 +83,7 @@ $.__bodymovin.bm_compsManager = (function () {
     }
 
     function renderComposition(compositionData) {
+        bm_eventDispatcher.log('START RENDER 4')
         ob.cancelled = false;
         currentComposition = compositionData;
         projectComps = bm_projectManager.getCompositions();
@@ -99,6 +100,12 @@ $.__bodymovin.bm_compsManager = (function () {
         bm_eventDispatcher.sendEvent('bm:render:start', currentComposition.id);
         var destination = currentComposition.absoluteURI;
         var fsDestination = currentComposition.destination;
+        var destinationFile = new File(destination);
+        var destinationFolder = destinationFile.parent;
+        if (!destinationFolder.exists) {
+            destinationFolder.create();
+        }
+
         $.__bodymovin.bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings);
     }
     
