@@ -26,7 +26,7 @@ function browseFolder(path) {
     
       extensionLoader.then(function(){
           path = path ? path.replace(/\\/g,"\\\\") : ''
-          var eScript = '$.__bodymovin.bm_main.browseFolder("' + path + '")';
+          var eScript = '$.__bodymovin.bm_compsManager.browseFolderFromPath("' + path + '")';
           csInterface.evalScript(eScript);
       })
     })

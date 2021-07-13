@@ -67,6 +67,22 @@ $.__bodymovin.bm_compsManager = (function () {
         file.parent.execute();
     }
     
+    function browseFolderFromPath(path) {
+        path = path ? path : Folder.desktop.absoluteURI
+        var f = new Folder(path);
+        var openFileData = f.selectDlg();
+        if (openFileData !== null) {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:uri', {
+                absoluteURI: openFileData.absoluteURI,
+                fsName: openFileData.fsName,
+                path: openFileData.absoluteURI,
+            });
+        } else {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:cancel');
+        }
+
+    }
+    
     function updateData(){
         bm_projectManager.checkProject();
         getCompositions();
@@ -173,6 +189,7 @@ $.__bodymovin.bm_compsManager = (function () {
         searchCompositionDestination : searchCompositionDestination,
         renderComplete : renderComplete,
         browseFolder : browseFolder,
+        browseFolderFromPath : browseFolderFromPath,
         renderComposition : renderComposition,
         getTimelinePosition : getTimelinePosition,
         setTimelinePosition : setTimelinePosition,

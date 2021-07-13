@@ -115,6 +115,7 @@ $.__bodymovin.bm_layerElement = (function () {
             } else {
                 //layerData.compId = bm_generalUtils.random(7);
                 layerData.compId = 'comp_' + compCount;
+                layerData.compName = layerInfo.source.name;
                 compCount += 1;
                 layerData.refId = layerData.compId;
                 bm_sourceHelper.setCompSourceId(layerInfo.source, layerData.compId);

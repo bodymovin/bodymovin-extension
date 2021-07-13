@@ -51,11 +51,13 @@ $.__bodymovin.bm_dataManager = (function () {
             if (layers[i].ty === layerTypes.precomp && layers[i].compId) {
                 comps.push({
                     id: layers[i].compId,
+                    nm: layers[i].compName,
                     layers: layers[i].layers
                 });
                 separateComps(layers[i].layers, comps);
                 delete layers[i].compId;
                 delete layers[i].layers;
+                delete layers[i].compName;
             }
         }
     }

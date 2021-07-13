@@ -705,7 +705,6 @@ function toggleIncludeCompNameAsFolder(state, action) {
 }
 
 function setDefaultFolderPath(state, action) {
-  console.log(action)
   return {
     ...state,
     defaultFolderPath: action.value,

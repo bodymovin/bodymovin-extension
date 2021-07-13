@@ -86,6 +86,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         while (i < len) {
             if (compSources[i].source === source) {
                 compSources[i].id = id;
+                compSources[i].nm = 'test';
             }
             i += 1;
         }

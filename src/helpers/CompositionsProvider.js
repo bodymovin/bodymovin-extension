@@ -9,6 +9,7 @@ import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
 import {saveFile as smilSaveFile} from './smilHelper'
 import {splitAnimation} from './splitAnimationHelper'
+import { getSimpleSeparator } from './osHelper'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -323,6 +324,10 @@ function getDestinationPath(comp, alternatePath, shouldUseCompNameAsDefault) {
 		destinationPath = comp.absoluteURI
 	} else if(alternatePath) {
 		alternatePath = alternatePath.split('\\').join('\\\\')
+		const delimiter = getSimpleSeparator()
+		if (alternatePath.charAt(alternatePath.length - 1) !== delimiter) {
+			alternatePath += delimiter;
+		}
 		alternatePath += fileName
 		if(comp.settings.export_modes.standalone) {
 			alternatePath += '.js'

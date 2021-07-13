@@ -1,6 +1,8 @@
 import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveSettingsToLocalStorage, getSettingsFromLocalStorage} from '../../helpers/localStorageHelper'
+import getDelimiter from '../../helpers/delimiter'
+import {getSimpleSeparator} from '../../helpers/osHelper'
 import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions, getProjectPath} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
@@ -34,9 +36,9 @@ function *getCompositionDestination() {
 				defaultFolderPath,
 			} = yield select(compositionsSelector)
 			let destinationPath = shouldUseAEPathAsDestinationFolder
-				? paths.projectPath
+				? `${paths.projectPath}${getSimpleSeparator()}`
 				: shouldUsePathAsDefaultFolder && defaultFolderPath
-					? `${defaultFolderPath.fsName}\\`
+					? `${defaultFolderPath.fsName}${getSimpleSeparator()}`
 					: paths.destinationPath
 			const compositions = yield call(getDestinationPath, action.comp, destinationPath, shouldUseCompNameAsDefault)
 			if (compositions) {
@@ -55,7 +57,7 @@ function *startRender() {
 	while(true) {
 		yield take([actions.RENDER_START,actions.RENDER_COMPLETE])
 		let comp = yield select(getRenderComposition)
-		console.log('aab')
+		console.log('aabaaadddd')
 		if(comp) {
 			console.log(comp)
 			const {
@@ -68,9 +70,10 @@ function *startRender() {
 				const absoluteURISplit = compData.absoluteURI.split('/')
 				absoluteURISplit.splice(absoluteURISplit.length - 1, 0, [comp.name])
 				compData.absoluteURI = absoluteURISplit.join('/')
-				const destinationSplit = compData.destination.split('\\')
+				const delimiter = getSimpleSeparator()
+				const destinationSplit = compData.destination.split(delimiter)
 				destinationSplit.splice(destinationSplit.length - 1, 0, [comp.name])
-				compData.destination = destinationSplit.join('\\')
+				compData.destination = destinationSplit.join(delimiter)
 			}
 			yield call(renderNextComposition, compData)
 		} else {
@@ -118,7 +121,7 @@ function *searchLottiePath(action) {
 function *searchDefaultDestinationPath(action) {
 	try{
 		let paths = yield select(storingPathsSelector)
-		const initialPath = action.value ? action.value.path : paths.destinationPath
+		const initialPath = action.value ? action.value.path : paths.defaultFolderPath
 		let filePath = yield call(folderBrowser, initialPath)
 		yield put(settingsDefaultFolderPathSelected(filePath))
 	} catch(err) {

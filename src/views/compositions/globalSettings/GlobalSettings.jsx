@@ -77,7 +77,7 @@ class GlobalSettings extends React.Component {
               />}
               <SettingsListItem 
                 title='Use AE location'
-                description='defaults to AE location as detination folder'
+                description='defaults to AE location as destination folder'
                 toggleItem={this.props.onAEAsPathToggle}
                 active={this.props.shouldUseAEPathAsDestinationFolder}
               />
