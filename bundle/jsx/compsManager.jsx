@@ -99,7 +99,6 @@ $.__bodymovin.bm_compsManager = (function () {
     }
 
     function renderComposition(compositionData) {
-        bm_eventDispatcher.log('START RENDER 4')
         ob.cancelled = false;
         currentComposition = compositionData;
         projectComps = bm_projectManager.getCompositions();

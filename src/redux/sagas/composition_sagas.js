@@ -57,9 +57,7 @@ function *startRender() {
 	while(true) {
 		yield take([actions.RENDER_START,actions.RENDER_COMPLETE])
 		let comp = yield select(getRenderComposition)
-		console.log('aabaaadddd')
 		if(comp) {
-			console.log(comp)
 			const {
 				shouldIncludeCompNameAsFolder,
 			} = yield select(compositionsSelector)

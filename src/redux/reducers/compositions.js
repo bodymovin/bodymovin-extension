@@ -4,6 +4,7 @@ import LottieVersions, {findLottieVersion} from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
 import audioBitOptions from '../../helpers/enums/audioBitOptions'
 import Variables from '../../helpers/styles/variables'
+import random from '../../helpers/randomGenerator'
 
 let initialState = {
 	list: [],
@@ -94,6 +95,10 @@ let defaultComposition = {
           isEnabled: true,
           shouldRaterizeWaveform: true,
           bitrate: audioBitOptions[0].value,
+        },
+        metadata: {
+          includeFileName: false,
+          customProps: [],
         }
     }
   }
@@ -157,6 +162,10 @@ function setStoredData(state, action) {
           audio: {
             ...defaultComposition.settings.audio,
             ...item.settings.audio,
+          },
+          metadata: {
+            ...defaultComposition.settings.metadata,
+            ...item.settings.metadata,
           }
         }
       }
@@ -399,6 +408,18 @@ function cancelSettings(state, action) {
   return newState
 }
 
+function toggleCustomProps(props, nameArray) {
+  return props.map(prop => {
+    if(prop.id === nameArray[0]) {
+      return {
+        ...prop,
+        active: !prop.active,
+      }
+    }
+    return prop
+  })
+}
+
 function toggleSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
@@ -412,6 +433,13 @@ function toggleSettingsValue(state, action) {
     var object = newSettings;
     while (nameArray.length) {
       var name = nameArray.shift();
+      if (name === '[CUSTOM_PROP]') {
+        object.customProps = toggleCustomProps(object.customProps, nameArray)
+        break;
+      }
+      if (name === '[TESTTssa]') {
+
+      }
       if (nameArray.length) {
         object[name] = {
           ...object[name],
@@ -725,6 +753,115 @@ function storeReportsPath(state, action) {
   }
 }
 
+const defaultMetadataCustomProp = {
+  name: '',
+  active: true,
+  value: 1,
+}
+
+function addMetadataCustomProp(state) {
+  const item = state.items[state.current]
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [state.current]: {
+        ...item,
+        settings: {
+          ...item.settings,
+          metadata: {
+            ...item.settings.metadata,
+            customProps: [
+              ...item.settings.metadata.customProps,
+              {
+                ...defaultMetadataCustomProp,
+                name: `Custom Property ${item.settings.metadata.customProps.length + 1}`,
+                id: random(10),
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
+function deleteMetadataCustomProp(state, action) {
+  const item = state.items[state.current]
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [state.current]: {
+        ...item,
+        settings: {
+          ...item.settings,
+          metadata: {
+            ...item.settings.metadata,
+            customProps: item.settings.metadata.customProps.filter(item => item.id !== action.id)
+          }
+        }
+      }
+    }
+  }
+}
+
+function updateMetadataCustomPropTitle(state, action) {
+  const item = state.items[state.current]
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [state.current]: {
+        ...item,
+        settings: {
+          ...item.settings,
+          metadata: {
+            ...item.settings.metadata,
+            customProps: item.settings.metadata.customProps.map(item => {
+              if(item.id === action.id) {
+                return {
+                  ...item,
+                  name: action.value,
+                }
+              }
+              return item
+            })
+          }
+        }
+      }
+    }
+  }
+}
+
+function updateMetadataCustomPropValue(state, action) {
+  const item = state.items[state.current]
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [state.current]: {
+        ...item,
+        settings: {
+          ...item.settings,
+          metadata: {
+            ...item.settings.metadata,
+            customProps: item.settings.metadata.customProps.map(item => {
+              if(item.id === action.id) {
+                return {
+                  ...item,
+                  value: action.value,
+                }
+              }
+              return item
+            })
+          }
+        }
+      }
+    }
+  }
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -786,6 +923,14 @@ export default function compositions(state = initialState, action) {
       return storeReportsPath(state, action)
     case actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE:
       return updateDemo(state, action)
+    case actionTypes.SETTINGS_METADATA_CUSTOM_PROP_ADD:
+      return addMetadataCustomProp(state, action)
+    case actionTypes.SETTINGS_METADATA_CUSTOM_PROP_DELETE:
+      return deleteMetadataCustomProp(state, action)
+    case actionTypes.SETTINGS_METADATA_CUSTOM_PROP_TITLE_CHANGE:
+      return updateMetadataCustomPropTitle(state, action)
+    case actionTypes.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE:
+      return updateMetadataCustomPropValue(state, action)
     default:
       return state
   }

@@ -7,7 +7,21 @@ import SettingsListDropdown from './list/SettingsListDropdown'
 import SettingsExportMode from './SettingsExportMode'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import SettingsAssets from './SettingsAssets'
-import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
+import SettingsMetadata from './SettingsMetadata'
+import {
+  setCurrentCompId,
+  cancelSettings,
+  toggleSettingsValue,
+  updateSettingsValue,
+  toggleExtraComp,
+  goToComps,
+  rememberSettings,
+  applySettings,
+  addMetadataCustomProp,
+  deleteMetadataCustomProp,
+	metadataCustomPropTitleChange,
+	metadataCustomPropValueChange,
+} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
 import audioBitOptions from '../../helpers/enums/audioBitOptions'
@@ -126,6 +140,7 @@ class Settings extends React.PureComponent {
     super()
     this.storedSettings = null
     this.cancelSettings = this.cancelSettings.bind(this)
+    this.toggleValue = this.toggleValue.bind(this)
     this.toggleGlyphs = this.toggleValue.bind(this,'glyphs')
     this.toggleGuideds = this.toggleValue.bind(this,'guideds')
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
@@ -363,6 +378,14 @@ class Settings extends React.PureComponent {
                 toggleItem={this.togglePrettyPrint}
                 active={this.props.settings ? this.props.settings.pretty_print : false}  />
             </SettingsCollapsableItem>
+            <SettingsMetadata
+              data={this.props.settings.metadata}
+              toggle={this.toggleValue}
+              onTitleChange={this.props.onMetadataTitleChange}
+              onValueChange={this.props.onMetadataValueChange}
+              onDeleteCustomProp={this.props.onMetadataDeleteCustomProp}
+              addProp={this.props.addCustomProp}
+            />
             <SettingsCollapsableItem 
               title={'Audio'}
               description={'Audio Settings'}
@@ -408,6 +431,10 @@ const mapDispatchToProps = {
   cancelSettings: cancelSettings,
   goToComps: goToComps,
   toggleSettingsValue: toggleSettingsValue,
+  addCustomProp: addMetadataCustomProp,
+  onMetadataDeleteCustomProp: deleteMetadataCustomProp,
+  onMetadataTitleChange: metadataCustomPropTitleChange,
+  onMetadataValueChange: metadataCustomPropValueChange,
   updateSettingsValue: updateSettingsValue,
   toggleExtraComp: toggleExtraComp,
 }

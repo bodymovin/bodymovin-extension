@@ -58,7 +58,37 @@ function cancelSettings(storedSettings) {
 function toggleSettingsValue(name) {
 	return {
 		type: actionTypes.SETTINGS_TOGGLE_VALUE,
-		name: name
+		name: name,
+	}
+}
+
+function addMetadataCustomProp(name) {
+	return {
+		type: actionTypes.SETTINGS_METADATA_CUSTOM_PROP_ADD,
+		name: name,
+	}
+}
+
+function deleteMetadataCustomProp(id) {
+	return {
+		type: actionTypes.SETTINGS_METADATA_CUSTOM_PROP_DELETE,
+		id,
+	}
+}
+
+function metadataCustomPropTitleChange(value, id) {
+	return {
+		type: actionTypes.SETTINGS_METADATA_CUSTOM_PROP_TITLE_CHANGE,
+		id,
+		value,
+	}
+}
+
+function metadataCustomPropValueChange(value, id) {
+	return {
+		type: actionTypes.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE,
+		id,
+		value,
 	}
 }
 
@@ -339,4 +369,8 @@ export {
 	goToAnnotations,
 	goToReports,
 	handleDemoBackgroundColorChange,
+	addMetadataCustomProp,
+	deleteMetadataCustomProp,
+	metadataCustomPropTitleChange,
+	metadataCustomPropValueChange,
 }

@@ -87,6 +87,10 @@ function *saveStoredData() {
 			actions.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE,
 			actions.PREVIEW_COLOR_UPDATE,
 			actions.SETTINGS_UPDATE_VALUE,
+			actions.SETTINGS_METADATA_CUSTOM_PROP_ADD,
+			actions.SETTINGS_METADATA_CUSTOM_PROP_DELETE,
+			actions.SETTINGS_METADATA_CUSTOM_PROP_TITLE_CHANGE,
+			actions.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)

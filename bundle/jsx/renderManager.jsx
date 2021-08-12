@@ -196,6 +196,39 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
 
+    function buildCompositionMetadata(metadata) {
+        var metadataData = {};
+        var hasMetadata = false;
+        if (metadata) {
+            if (metadata.includeFileName) {
+                var projectName = "Untitled";
+                if (app.project.file != null) {
+                    projectName = decodeURIComponent(app.project.file.name);
+                }
+                metadataData.filename = projectName;
+                hasMetadata = true;
+            }
+            if (metadata.customProps && metadata.customProps.length > 0) {
+                for( var i = 0; i < metadata.customProps.length; i += 1) {
+                    var customProp = metadata.customProps[i];
+                    if (customProp.active === true) {
+                        if (!metadataData.customProps) {
+                            metadataData.customProps = [];
+                            hasMetadata = true;
+                        }
+                        metadataData.customProps.push({
+                            name: customProp.name,
+                            value: customProp.value,
+                        })
+                    }
+                }
+            }
+        }
+        if (hasMetadata) {
+            return metadataData;
+        }
+    }
+
     function render(comp, destination, fsDestination, compSettings) {
         $.__bodymovin.bm_sourceHelper.reset();
         $.__bodymovin.bm_textShapeHelper.reset();
@@ -238,7 +271,8 @@ $.__bodymovin.bm_renderManager = (function () {
             comps : [],
             fonts : [],
             layers : [],
-            markers : []
+            markers : [],
+            metadata: buildCompositionMetadata(compSettings.metadata),
         };
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
