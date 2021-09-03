@@ -22,6 +22,8 @@ import {
 	goToImportFile,
 	goToAnnotations,
 	goToReports,
+	selectAllComps,
+	unselectAllComps,
 } from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
@@ -103,6 +105,27 @@ class Compositions extends React.Component {
 		}
 	}
 
+	renderSelectAllButton() {
+		const hasUnselectedItems = this.props.visibleItems.some(item => item.selected === false)
+		if (hasUnselectedItems) {
+			return (
+				<div 
+					className={css(styles.toggleButton)} 
+					onClick={this.props.selectAllComps}>
+						{'Select All Comps'}
+				</div>
+			)
+		} else {
+			return (
+				<div 
+					className={css(styles.toggleButton)} 
+					onClick={this.props.unselectAllComps}>
+						{'Unselect All Comps'}
+				</div>
+			)
+		}
+	}
+
 	render() {
 		return (
 			<div className={css(styles.wrapper)}>
@@ -112,6 +135,7 @@ class Compositions extends React.Component {
 						startRender={this.renderComps} 
 						goToPreview={this.props.goToPreview} 
 						refresh={this.props.getCompositions} 
+						applySettings={this.props.applySettingsToSelectedComps} 
 						goToImportFile={this.props.goToImportFile} 
 						goToPlayer={this.props.goToPlayer}
 						goToAnnotations={this.props.goToAnnotations}
@@ -136,11 +160,7 @@ class Compositions extends React.Component {
 						onClick={this.props.toggleShowSelected}>
 							{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
 					</div>
-					<div 
-						className={css(styles.toggleButton)} 
-						onClick={this.props.applySettingsToSelectedComps}>
-							{'Apply Stored Settings to Selected Comps'}
-					</div>
+					{this.renderSelectAllButton()}
 				</div>
 				{this.state.globalSettings && 
 					<GlobalSettings
@@ -177,6 +197,8 @@ const mapDispatchToProps = {
 	goToPlayer: goToPlayer,
 	showRenderBlock: showRenderBlock,
 	toggleShowSelected: toggleShowSelected,
+	selectAllComps: selectAllComps,
+	unselectAllComps: unselectAllComps,
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
 	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,

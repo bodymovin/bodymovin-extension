@@ -9,11 +9,11 @@ $.__bodymovin.bm_annotationsManager = (function () {
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var presetHelper = $.__bodymovin.presetHelper;
     var layers = [];
-    var textPropertyMatchName = 'Pseudo/Bodymovin Text Props 4'
+    var textPropertyMatchName = 'Pseudo/Bodymovin Text Props 5'
 
     var pseudoEffects = [
         {
-            path: '/assets/annotations/bodymovin_text_props_2.ffx',
+            path: '/assets/annotations/bodymovin_text_props_5.ffx',
             matchName: textPropertyMatchName,
             name: 'Text Properties',
         }
@@ -26,6 +26,14 @@ $.__bodymovin.bm_annotationsManager = (function () {
         'Pseudo/Bodymovin Text Props 4-0003',
         'Pseudo/Bodymovin Text Props 4-0004',
         'Pseudo/Bodymovin Text Props 4-0005',
+        'Pseudo/Bodymovin Text Props 4-0006',
+        'Pseudo/Bodymovin Text Props 5',
+        'Pseudo/Bodymovin Text Props 5-0001',
+        'Pseudo/Bodymovin Text Props 5-0002',
+        'Pseudo/Bodymovin Text Props 5-0003',
+        'Pseudo/Bodymovin Text Props 5-0004',
+        'Pseudo/Bodymovin Text Props 5-0005',
+        'Pseudo/Bodymovin Text Props 5-0006',
     ]
 
     function createLayerReference(layer) {
@@ -125,7 +133,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
         // DO NOT DELETE. USE WHEN ADDING NEW PSEUDO EFFECT TO SAVE AS FFX
         // var layer = findLayerById(layerId);
         // if (layer) {
-        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 4');
+        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 5');
         // }
     }
 
@@ -137,15 +145,30 @@ $.__bodymovin.bm_annotationsManager = (function () {
         // matchnames are not working for inner elements
         // Pseudo/Bodymovin Text Props 3-0001 -> Pseudo/BM Vert Alignment
         // Pseudo/Bodymovin Text Props 3-0002 -> Pseudo/BM Resize Behavior
-        // Pseudo/Bodymovin Text Props 3-0003 -> Pseudo/BM Max Chars
-        // Pseudo/Bodymovin Text Props 3-0004 -> Pseudo/BM Min Font
-        // Pseudo/Bodymovin Text Props 3-0005 -> Pseudo/BM Max Font
+        // Pseudo/Bodymovin Text Props 3-0003 -> Pseudo/BM Multiline Behavior
+        // Pseudo/Bodymovin Text Props 3-0004 -> Pseudo/BM Max Chars
+        // Pseudo/Bodymovin Text Props 3-0005 -> Pseudo/BM Min Font
+        // Pseudo/Bodymovin Text Props 3-0006 -> Pseudo/BM Max Font
         var i, len = effect.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = effect.property(i + 1);
             // bm_eventDispatcher.log('prop: ' + prop.matchName);
             // bm_eventDispatcher.log('VALUE: ' + prop.value);
-            if (prop.matchName === 'Pseudo/Bodymovin Text Props 4-0001') {
+            if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0001') {
+                data.vj = prop.value - 1;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0002') {
+                data.rs = prop.value - 1;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0003') {
+                if (prop.value !== 1) {
+                    data.m = prop.value - 2;
+                }
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0004') {
+                data.mc = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0005') {
+                data.mf = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0006') {
+                data.xf = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 4-0001') {
                 data.vj = prop.value - 1;
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 4-0002') {
                 data.rs = prop.value - 1;

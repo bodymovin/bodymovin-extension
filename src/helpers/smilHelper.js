@@ -17,8 +17,10 @@ async function saveFile(origin, destination) {
 	if (0 !== jsonDataResult.err) {
 		throw new Error(jsonDataResult.err)
 	} else {
+		window._bodymovin2SMIL = bodymovin2SMIL;
 		var jsonData = jsonDataResult.data;
 		var jsonObject = JSON.parse(jsonData);
+		console.log(jsonObject);
 		var smilData = await bodymovin2SMIL(jsonObject);
 		await writeFile(destination, smilData);
 	}

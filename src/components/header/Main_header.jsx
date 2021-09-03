@@ -70,6 +70,13 @@ function Main_header(props) {
                     </div>
                     <div className={css(styles.buttons_group)}>
                         <BaseButton
+                            text='Apply Settings'
+                            alt='Apply Settings to Selected Comps'
+                            type='gray'
+                            classes={styles.button}
+                            onClick={props.applySettings}
+                        />
+                        <BaseButton
                             text='Refresh list'
                             type='gray'
                             classes={styles.button}

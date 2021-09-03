@@ -152,10 +152,10 @@ function applySettingsToSelectedComps(settings) {
 	}
 }
 
-function applySettingsFromCache(settings, allComps) {
+function applySettingsFromCache(comp, allComps) {
 	return {
 		type: actionTypes.SETTINGS_APPLY_FROM_CACHE,
-		settings,
+		comp,
 		allComps
 	}
 }
@@ -324,6 +324,18 @@ function goToReports(path) {
 	}
 }
 
+function selectAllComps() {
+	return {
+		type: actionTypes.COMPOSITIONS_SELECT_ALL,
+	}
+}
+
+function unselectAllComps() {
+	return {
+		type: actionTypes.COMPOSITIONS_UNSELECT_ALL,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -373,4 +385,6 @@ export {
 	deleteMetadataCustomProp,
 	metadataCustomPropTitleChange,
 	metadataCustomPropValueChange,
+	selectAllComps,
+	unselectAllComps,
 }

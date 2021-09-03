@@ -96,7 +96,9 @@ $.__bodymovin.bm_textHelper = (function () {
             len = ob.t.length;
             ob.j = getJustification(textDocument.justification);
             ob.tr = textDocument.tracking;
-            if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
+            if (textDocument.leading) {
+                ob.lh = textDocument.leading;
+            } else if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
                 if(textDocument.baselineLocs[5] > textDocument.baselineLocs[1]){
                     ob.lh = findLineHeight(textDocument)
                 } else {

@@ -5,6 +5,7 @@ import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
 import audioBitOptions from '../../helpers/enums/audioBitOptions'
 import Variables from '../../helpers/styles/variables'
 import random from '../../helpers/randomGenerator'
+import {getSimpleSeparator, getSeparator} from '../../helpers/osHelper'
 
 let initialState = {
 	list: [],
@@ -518,7 +519,10 @@ function applySettingsToAllComps(state, action) {
   const items = state.items
   const itemKeys = Object.keys(items)
   const newItems = itemKeys.reduce((accumulator, key) => {
-    const settingsClone = JSON.parse(JSON.stringify(action.settings))
+    // checking for the id field to identify old versions of this data stored in local storage
+    const settings = action.comp.id ? action.comp.settings : action.comp
+    const comp = action.comp.id ? action.comp : {}
+    const settingsClone = JSON.parse(JSON.stringify(settings))
     const item = items[key]
     if (item.selected) {
       const itemSettings = {
@@ -527,6 +531,8 @@ function applySettingsToAllComps(state, action) {
       }
       accumulator[key] = {
         ...item,
+        destination: setFilePath(state, item.destination, comp.destination, item.name, getSimpleSeparator()),
+        absoluteURI: setFilePath(state, item.absoluteURI, comp.absoluteURI, item.name, '/'),
          settings: itemSettings
       }
     } else {
@@ -540,13 +546,31 @@ function applySettingsToAllComps(state, action) {
   }
 }
 
+function setFilePath(state, originalPath, suggestedPath, name, separator) {
+  if (originalPath) {
+    return originalPath;
+  }
+  if (!state.shouldUseCompNameAsDefault) {
+    return suggestedPath;
+  }
+  if(!suggestedPath) {
+    return '';
+  }
+  console.log(suggestedPath)
+  const lastFolderIndex = suggestedPath.lastIndexOf(separator)
+  return suggestedPath.substr(0, lastFolderIndex) + separator + name + '.json'
+}
+
 function applySettingsFromCache(state, action) {
 
   if(action.allComps) {
     return applySettingsToAllComps(state, action)
   }
 
-  const settingsClone = JSON.parse(JSON.stringify(action.settings))
+  // checking for the id field to identify old versions of this data stored in local storage
+  const settings = action.comp.id ? action.comp.settings : action.comp
+  const comp = action.comp.id ? action.comp : {}
+  const settingsClone = JSON.parse(JSON.stringify(settings))
 
   let item = state.items[state.current]
   const newSettings = {
@@ -559,7 +583,9 @@ function applySettingsFromCache(state, action) {
       ...state.items,
       [state.current]: {
         ...item,
-        settings: newSettings
+        destination: setFilePath(state, item.destination, comp.destination, item.name, getSimpleSeparator()),
+        absoluteURI: setFilePath(state, item.absoluteURI, comp.absoluteURI, item.name, '/'),
+        settings: newSettings,
       }
     }
   }
@@ -862,6 +888,31 @@ function updateMetadataCustomPropValue(state, action) {
   }
 }
 
+function setCompsSelection(state, value) {
+  const items = state.items
+  const itemKeys = Object.keys(items)
+  const newItems = itemKeys.reduce((accumulator, key) => {
+    const item = items[key]
+      accumulator[key] = {
+        ...item,
+        selected: value,
+      }
+    return accumulator
+  }, {})
+  return {
+    ...state,
+    items: newItems,
+  }
+}
+
+function selectAllComps(state, action) {
+  return setCompsSelection(state, true);
+}
+
+function unselectAllComps(state, action) {
+  return setCompsSelection(state, false);
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -931,6 +982,10 @@ export default function compositions(state = initialState, action) {
       return updateMetadataCustomPropTitle(state, action)
     case actionTypes.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE:
       return updateMetadataCustomPropValue(state, action)
+    case actionTypes.COMPOSITIONS_SELECT_ALL:
+      return selectAllComps(state, action)
+      case actionTypes.COMPOSITIONS_UNSELECT_ALL:
+        return unselectAllComps(state, action)
     default:
       return state
   }

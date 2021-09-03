@@ -213,13 +213,10 @@ $.__bodymovin.bm_renderManager = (function () {
                     var customProp = metadata.customProps[i];
                     if (customProp.active === true) {
                         if (!metadataData.customProps) {
-                            metadataData.customProps = [];
+                            metadataData.customProps = {};
                             hasMetadata = true;
                         }
-                        metadataData.customProps.push({
-                            name: customProp.name,
-                            value: customProp.value,
-                        })
+                        metadataData.customProps[customProp.name] = customProp.value;
                     }
                 }
             }

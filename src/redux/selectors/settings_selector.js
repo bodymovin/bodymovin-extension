@@ -9,7 +9,7 @@ const settingsSelector = createSelector(
   	const current = compositions.current
   	const currentComp = items[current] || {}
 
-  	return currentComp.settings
+  	return currentComp
   }
 )
 

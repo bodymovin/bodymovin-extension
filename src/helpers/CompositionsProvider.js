@@ -181,6 +181,7 @@ csInterface.addEventListener('bm:create:smil', async function (ev) {
 			const eScript = "$.__bodymovin.bm_smilExporter.saveSMILDataSuccess()";
 	    	csInterface.evalScript(eScript);
 		} catch(err) {
+			console.log('errerr', err)
 	    	const eScript = '$.__bodymovin.bm_smilExporter.saveSMILFailed()';
 	    	csInterface.evalScript(eScript);
 		} 

@@ -91,6 +91,8 @@ function *saveStoredData() {
 			actions.SETTINGS_METADATA_CUSTOM_PROP_DELETE,
 			actions.SETTINGS_METADATA_CUSTOM_PROP_TITLE_CHANGE,
 			actions.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE,
+			actions.COMPOSITIONS_SELECT_ALL,
+			actions.COMPOSITIONS_UNSELECT_ALL,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
