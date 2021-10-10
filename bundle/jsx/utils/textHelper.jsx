@@ -175,9 +175,12 @@ $.__bodymovin.bm_textHelper = (function () {
             ob.m = pathOptions.property("Path").value - 1;
             ob.f = bm_keyframeHelper.exportKeyframes(pathOptions.property("First Margin"), frameRate, stretch);
             ob.l = bm_keyframeHelper.exportKeyframes(pathOptions.property("Last Margin"), frameRate, stretch);
-            ob.a = pathOptions.property("Force Alignment").value;
-            ob.p = pathOptions.property("Perpendicular To Path").value;
-            ob.r = pathOptions.property("Reverse Path").value;
+            ob.a = bm_keyframeHelper.exportKeyframes(pathOptions.property("Force Alignment"), frameRate, stretch);
+            // ob.a = pathOptions.property("Force Alignment").value;
+            ob.p = bm_keyframeHelper.exportKeyframes(pathOptions.property("Perpendicular To Path"), frameRate, stretch);
+            // ob.p = pathOptions.property("Perpendicular To Path").value;
+            ob.r = bm_keyframeHelper.exportKeyframes(pathOptions.property("Reverse Path"), frameRate, stretch);
+            // ob.r = pathOptions.property("Reverse Path").value;
         }
     }
     
