@@ -36,7 +36,7 @@ function addKeyframes(keyframes, propertyName, elementId) {
 		: 
 		keyframes[0].s.length;
 	keyframes.forEach((keyframe, index) => {
-		if (keyframe.i && keyframe.o) {
+		if (keyframe.i && keyframe.o && index < keyframes.length - 1) {
 			outSpeeds[index] = []
 			outInfluences[index] = []
 			inSpeeds[index + 1] = []
