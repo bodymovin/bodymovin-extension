@@ -5,6 +5,7 @@ import {
 	saveProjectToLocalStorage, 
 	savePathsToLocalStorage, 
 	getPathsFromLocalStorage,
+	clearLocalStorage,
 } from '../../helpers/localStorageHelper'
 import {
 	loadFileData
@@ -99,6 +100,13 @@ function *saveStoredData() {
 	}
 }
 
+function *clearCache() {
+	try {
+		yield call(clearLocalStorage)
+	} catch(err) {
+	}
+}
+
 function *savePathsData() {
 	while(true) {
 		yield take([actions.COMPOSITION_SET_DESTINATION, actions.PREVIEW_FILE_BROWSED, actions.IMPORT_LOTTIE_IMPORT_FILE_SUCCESS])
@@ -144,6 +152,7 @@ export default [
   takeEvery([actions.APP_INITIALIZED], getVersion),
   takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
   takeEvery([actions.APP_INITIALIZED], start),
+  takeEvery([actions.APP_CLEAR_CACHE_CONFIRMED], clearCache),
   fork(saveStoredData),
   fork(savePathsData)
 ]

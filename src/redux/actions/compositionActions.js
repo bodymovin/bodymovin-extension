@@ -125,6 +125,24 @@ function goToComps() {
 	}
 }
 
+function clearCache() {
+	return {
+		type: actionTypes.APP_CLEAR_CACHE,
+	}
+}
+
+function clearCacheConfirmed() {
+	return {
+		type: actionTypes.APP_CLEAR_CACHE_CONFIRMED,
+	}
+}
+
+function clearCacheCancelled() {
+	return {
+		type: actionTypes.APP_CLEAR_CACHE_CANCELLED,
+	}
+}
+
 function toggleShowSelected() {
 	return {
 		type: actionTypes.SETTINGS_TOGGLE_SELECTED,
@@ -387,4 +405,7 @@ export {
 	metadataCustomPropValueChange,
 	selectAllComps,
 	unselectAllComps,
+	clearCache,
+	clearCacheConfirmed,
+	clearCacheCancelled,
 }

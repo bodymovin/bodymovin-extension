@@ -143,6 +143,13 @@ function getSettingsFromLocalStorage(paths) {
 	})
 }
 
+function clearLocalStorage() {
+	while (localStorage.length) {
+		var key = localStorage.key(0);
+		localStorage.removeItem(key);
+	}
+}
+
 export {
 	getProjectFromLocalStorage,
 	saveProjectToLocalStorage,
@@ -152,4 +159,5 @@ export {
 	savePathsToLocalStorage,
 	getSettingsFromLocalStorage,
 	saveSettingsToLocalStorage,
+	clearLocalStorage,
 }

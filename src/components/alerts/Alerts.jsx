@@ -6,6 +6,8 @@ import alertAnim from '../../assets/animations/alert.json'
 import Bodymovin from '../bodymovin/bodymovin'
 import BaseButton from '../buttons/Base_button'
 import Variables from '../../helpers/styles/variables'
+import CacheAlert from './CacheAlert'
+import BaseAlert from './BaseAlert'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -38,27 +40,26 @@ const styles = StyleSheet.create({
 
 class Alerts extends React.Component {
 
-	createPars(pars){
-		return pars.map(function(par, index){
-			return <p key={index} className={css(styles.par)}>{par}</p>
-		})
-	}
-
 	render() {
 		if(!this.props.alerts.show){
 			return null
+		} else if (this.props.alerts.type === 'cache') {
+			return <CacheAlert />
 		}else{
-			return (<div className={css(styles.wrapper)}>
-				<Bodymovin autoplay={true} loop={true} animationData={alertAnim}>
-					<div className={css(styles.bm_container)}></div>
-				</Bodymovin>
-				<div className={css(styles.pars_container)}>
-					{this.createPars(this.props.alerts.pars)}
-				</div>
-				<div className={css(styles.aligner)}>
-					<BaseButton text='OK' type='green' onClick={this.props.hideAlert} />
-				</div>
-			</div>)
+			return (
+				<BaseAlert 
+					pars={this.props.alerts.pars}
+					buttons={
+						[
+							{
+								text: 'OK',
+								type: 'green',
+								action: this.props.hideAlert,
+							}
+						]
+					}
+				/>
+			)
 		}
 		
 	}

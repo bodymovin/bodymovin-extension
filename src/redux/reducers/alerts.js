@@ -15,9 +15,13 @@ export default function project(state = initialState, action) {
       return {...state, ...{show: true, pars:['You have no current renders to preview','Try browsing your files to select a .json file']}}
     case actionTypes.PREVIEW_ANIMATION_LOAD_FAILED:
       return {...state, ...{show: true, pars:['The animation could not be loaded']}}
+    case actionTypes.APP_CLEAR_CACHE:
+      return {...state, ...{show: true, type: 'cache'}}
     /*case actionTypes.GENERAL_LOG:
       return {...state, ...{show: true, pars:[action.data]}}*/
     case actionTypes.ALERT_HIDE:
+    case actionTypes.APP_CLEAR_CACHE_CONFIRMED:
+    case actionTypes.APP_CLEAR_CACHE_CANCELLED:
       return {...state, ...{show: false}}
     default:
       return state
