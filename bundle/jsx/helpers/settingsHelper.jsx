@@ -36,6 +36,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.export_old_format;
     }
 
+    function shouldUseSourceNames() {
+        return _settings.use_source_names;
+    }
+
     function shouldSkipDefaultProperties() {
         return _settings.skip_default_properties;
     }
@@ -119,6 +123,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldTrimData = shouldTrimData;
     ob.shouldRasterizeWaveform = shouldRasterizeWaveform;
     ob.shouldUserOriginalNames = shouldUserOriginalNames;
+    ob.shouldUseSourceNames = shouldUseSourceNames;
 
     return ob;
 }());

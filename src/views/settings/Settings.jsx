@@ -152,6 +152,7 @@ class Settings extends React.PureComponent {
     this.toggleIncludeVideo = this.toggleValue.bind(this,'should_include_av_assets')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
+    this.toggleSourceNames = this.toggleValue.bind(this,'use_source_names')
     this.toggleTrimData = this.toggleValue.bind(this,'shouldTrimData')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
@@ -302,6 +303,7 @@ class Settings extends React.PureComponent {
               settings={this.props.settings}
               canCompressAssets={this.props.canCompressAssets}
               toggleOriginalNames={this.toggleOriginalNames}
+              toggleSourceNames={this.toggleSourceNames}
               toggleOriginalAssets={this.toggleOriginalAssets}
               toggleCompressImages={this.toggleCompressImages}
               qualityChange={this.qualityChange}

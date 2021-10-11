@@ -20,6 +20,11 @@ class SettingsAssets extends React.PureComponent {
           toggleItem={this.props.toggleOriginalNames}
           active={this.props.settings ? this.props.settings.original_names : false}  />
         <SettingsListItem 
+          title='Use Source names as asset ids'
+          description='uses project source names as asset ids'
+          toggleItem={this.props.toggleSourceNames}
+          active={this.props.settings ? this.props.settings.use_source_names : false}  />
+        <SettingsListItem 
           title='Copy Original Assets'
           description='Uses actual project source files (does not work with AI layers)'
           toggleItem={this.props.toggleOriginalAssets}

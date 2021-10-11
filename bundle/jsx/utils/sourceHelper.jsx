@@ -59,6 +59,16 @@ $.__bodymovin.bm_sourceHelper = (function () {
     function checkAudioSource(item) {
         return audioSourceHelper.checkAudioSource(item);
     }
+
+    function buildId(item) {
+        if (settingsHelper.shouldUseSourceNames()) {
+            return item.source.name;
+        } else {
+            var name = 'image_' + imageCount;
+            imageCount += 1;
+            return name;
+        }
+    }
     
     function checkImageSource(item) {
         var arr = imageSources;
@@ -75,9 +85,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
             height: item.source.height,
             source_name: item.source.name,
             name: item.name,
-            id: 'image_' + imageCount,
+            id: buildId(item),
         });
-        imageCount += 1;
         return arr[arr.length - 1].id;
     }
     
@@ -194,12 +203,24 @@ $.__bodymovin.bm_sourceHelper = (function () {
         return sequenceSource.id;
     }
 
+    function buildSeqId(source) {
+        var name = ''
+        if (settingsHelper.shouldUseSourceNames()) {
+            name = source.name + '_' + sequenceSourcesStillsCount;
+        } else {
+            name = 'imgSeq_' + sequenceSourcesStillsCount;
+        }
+        sequenceSourcesStillsCount += 1;
+        return name;
+    }
+
     function addImageSequenceStills(source, totalFrames) {
 
         var i = 0;
         var sequenceRange = []
         for(i = 0; i < totalFrames; i += 1) {
-            sequenceRange.push('imgSeq_' + sequenceSourcesStillsCount++)
+            sequenceRange.push(buildSeqId(source));
+            // sequenceRange.push('imgSeq_' + sequenceSourcesStillsCount++)
         }
 
         var sequenceStills = {
