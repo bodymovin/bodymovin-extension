@@ -12,7 +12,6 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
 
         function exportSelector(selectorProperty) {
             if (!selectorProperty) return;
-
             var ob = {};
             var advancedProperty = selectorProperty.property('ADBE Text Range Advanced');
             ob.t = 0;
@@ -22,6 +21,7 @@ $.__bodymovin.bm_textAnimatorHelper = (function () {
             ob.b = advancedProperty.property("ADBE Text Range Type2").value;
             ob.rn = advancedProperty.property("ADBE Text Randomize Order").value;
             ob.sh = advancedProperty.property("ADBE Text Range Shape").value;
+            ob.sm =  bm_keyframeHelper.exportKeyframes(advancedProperty.property('ADBE Text Selector Smoothness'), frameRate, stretch);
 
             // 
             var rangeUnits = advancedProperty.property('ADBE Text Range Units').value;

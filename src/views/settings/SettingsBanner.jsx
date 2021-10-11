@@ -202,7 +202,7 @@ class SettingsBanner extends React.PureComponent {
               active={this.props.zip_files}  />
             <SettingsListItem 
               title='Inline animation data in template'
-              description='Select if you want to json data be part of the template'
+              description='Select if you want the json data be part of the template'
               toggleItem={this.props.handleIncludeDataInTemplateChange}
               active={this.props.shouldIncludeAnimationDataInTemplate}  />
             <SettingsListItem 
