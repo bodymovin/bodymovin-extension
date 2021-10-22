@@ -12,7 +12,7 @@ $.__bodymovin.bm_exporterHelpers = (function () {
 	function getJsonData(rawFiles) {
 		var i = 0, len = rawFiles.length;
 		while(i < len) {
-			if(rawFiles[i].name.indexOf('.json') !== -1) {
+			if(rawFiles[i].type === 'main') {
 				break;
 			}
 			i += 1;
@@ -29,7 +29,7 @@ $.__bodymovin.bm_exporterHelpers = (function () {
 		var i = 0, len = rawFiles.length;
 		// TODO improve this solution
 		while(i < len) {
-			if(rawFiles[i].name.indexOf('.json') === -1) {
+			if(rawFiles[i].type !== 'main') {
 				var fileData = bm_fileManager.getFileById(rawFiles[i].id);
 				if (fileData) {
 					var file = fileData.file;
@@ -79,6 +79,7 @@ $.__bodymovin.bm_exporterHelpers = (function () {
 	
 	ob.exportTypes = {
 		AVD: 'avd',
+		SMIL: 'smil',
 		BANNER: 'banner',
 		DEMO: 'demo',
 		RIVE: 'rive',

@@ -1,5 +1,6 @@
 export default {
-	LOCAL: 'local',
 	CDNJS: 'cdnjs',
 	CUSTOM: 'custom',
+	FILE_SYSTEM: 'file system',
+	LOCAL: 'local',
 }

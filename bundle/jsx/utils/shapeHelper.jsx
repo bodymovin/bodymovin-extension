@@ -7,68 +7,13 @@ $.__bodymovin.bm_shapeHelper = (function () {
     var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     var bm_boundingBox = $.__bodymovin.bm_boundingBox;
     var bm_blendModes = $.__bodymovin.bm_blendModes;
-    var bm_renderManager = $.__bodymovin.bm_renderManager;
-    var ob = {}, shapeItemTypes = {
-        shape: 'sh',
-        rect: 'rc',
-        ellipse: 'el',
-        star: 'sr',
-        fill: 'fl',
-        gfill: 'gf',
-        gStroke: 'gs',
-        stroke: 'st',
-        merge: 'mm',
-        trim: 'tm',
-        twist: 'tw',
-        group: 'gr',
-        repeater: 'rp',
-        roundedCorners: 'rd',
-        offsetPath: 'op'
-    };
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var shapeItemTypes = $.__bodymovin.shapeTypes;
+    var getItemType = $.__bodymovin.getShapeType;
+    var ob = {};
     var navigationShapeTree = [];
     var extraParams = {};
 
-    function getItemType(matchName) {
-        switch (matchName) {
-        case 'ADBE Vector Shape - Group':
-            return shapeItemTypes.shape;
-        case 'ADBE Vector Shape - Star':
-            return shapeItemTypes.star;
-        case 'ADBE Vector Shape - Rect':
-            return shapeItemTypes.rect;
-        case 'ADBE Vector Shape - Ellipse':
-            return shapeItemTypes.ellipse;
-        case 'ADBE Vector Graphic - Fill':
-            return shapeItemTypes.fill;
-        case 'ADBE Vector Graphic - Stroke':
-            return shapeItemTypes.stroke;
-        case 'ADBE Vector Graphic - Merge':
-        case 'ADBE Vector Filter - Merge':
-            return shapeItemTypes.merge;
-        case 'ADBE Vector Graphic - Trim':
-        case 'ADBE Vector Filter - Trim':
-            return shapeItemTypes.trim;
-        case 'ADBE Vector Graphic - Twist':
-        case 'ADBE Vector Filter - Twist':
-            return shapeItemTypes.twist;
-        case 'ADBE Vector Filter - RC':
-            return shapeItemTypes.roundedCorners;
-        case 'ADBE Vector Group':
-            return shapeItemTypes.group;
-        case 'ADBE Vector Graphic - G-Fill':
-            return shapeItemTypes.gfill;
-        case 'ADBE Vector Graphic - G-Stroke':
-            return shapeItemTypes.gStroke;
-        case 'ADBE Vector Filter - Repeater':
-            return shapeItemTypes.repeater;
-        case 'ADBE Vector Filter - Offset':
-            return shapeItemTypes.offsetPath;
-        default:
-            bm_eventDispatcher.log(matchName);
-            return '';
-        }
-    }
-    
     function reverseShape(ks) {
         var newI = [], newO = [], newV = [];
         var i, len,isClosed;
@@ -152,7 +97,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         }
 
         //If keyframe doesn't have any nodes
-        if(interpolatableSides === 0) {
+        if(interpolatableSides <= 0) {
             for(i = 0; i < missingVertices; i += 1) {
                 newV[i] = [0,0];
                 newI[i] = [0,0];
@@ -403,7 +348,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
             } else if (itemType === shapeItemTypes.twist) {
                 ob = {};
                 ob.ty = itemType;
-                bm_generalUtils.iterateProperty(prop);
                 ob.a = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Angle'), frameRate, stretch);
                 ob.c = bm_keyframeHelper.exportKeyframes(prop.property('ADBE Vector Twist Center'), frameRate, stretch);
                 /*ob.e = bm_keyframeHelper.exportKeyframes(prop.property('End'), frameRate, stretch);
@@ -458,11 +402,28 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.lj = prop.property('Line Join').value;
                 ob.ml = bm_keyframeHelper.exportKeyframes(prop.property('Miter Limit'), frameRate, stretch);
                 ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.puckerAndBloat) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.a = bm_keyframeHelper.exportKeyframes(prop.property('Amount'), frameRate, stretch);
+                ob.ix = prop.propertyIndex;
+            } else if (itemType === shapeItemTypes.zigZag) {
+                ob = {
+                    ty : itemType,
+                    nm: prop.name
+                };
+                ob.s = bm_keyframeHelper.exportKeyframes(prop.property('Size'), frameRate, stretch);
+                ob.r = bm_keyframeHelper.exportKeyframes(prop.property('Ridges per segment'), frameRate, stretch);
+                ob.pt = bm_keyframeHelper.exportKeyframes(prop.property('Points'), frameRate, stretch);
+                bm_generalUtils.iterateProperty(prop)
+                ob.ix = prop.propertyIndex;
             }
             if (ob) {
                 ob.nm = prop.name;
                 ob.mn = prop.matchName;
-                if(bm_renderManager.shouldIgnoreExpressionProperties()) {
+                if(settingsHelper.shouldIgnoreExpressionProperties()) {
                     delete ob.mn;
                     delete ob.np;
                     delete ob.cix;
@@ -625,7 +586,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
         navigationShapeTree.push(containingComp.name);
         // Suffix LIST is at the end of layer names, 
         // so it guarantees to correctly find the full layer name when searching the gradient tree path
-        navigationShapeTree.push(layerInfo.name + 'LIST');
+        navigationShapeTree.push(layerInfo.name);
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
         iterateProperties(contents, shapes, frameRate, stretch, isText, true, includeHiddenData);

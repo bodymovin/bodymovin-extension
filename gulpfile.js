@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '5.6.2'
+var version = '5.7.12'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin';
@@ -22,7 +22,6 @@ gulp.task('copy-extension', function() {
         .pipe(gulp.dest(extensionDestination));
 });
 
-gulp.task('copy-extension-bundle', gulpSequence('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-renderManager','copy-debug'))
 
 gulp.task('copy-all', function() {
     return gulp.src(extensionSource+'/**/*')
@@ -36,26 +35,26 @@ gulp.task('create-bm', function() {
 gulp.task('create-bm-extension-player', function() {
     return gulp.src('player/lottie.js')
         .pipe(rename('lottie.js'))
-    	.pipe(insert.prepend('/* eslint-disable */var define = define || null;'))
+        .pipe(insert.prepend('/* eslint-disable */var define = define || null;'))
         .pipe(gulp.dest('./src/'));
 });
 gulp.task('create-standalone', function() {
     return gulp.src('player/lottie.min.js')
-    	.pipe(rename('standalone.js'))
+        .pipe(rename('standalone.js'))
         .pipe(gulp.dest('build/assets/player'));
 });
 gulp.task('create-gzip', function() {
     return gulp.src('player/lottie.min.js')
-    	.pipe(rename('lottie.js'))
-    	.pipe(gzip({ append: true }))
+        .pipe(rename('lottie.js'))
+        .pipe(gzip({ append: true }))
         .pipe(gulp.dest('build/assets/player'));
 });
 
 gulp.task('copy-manifest', function() {
     return gulp.src('bundle/CSXS/manifest.xml')
-    	.pipe(replace(/(<Extension Id="com\.bodymovin\.bodymovin" Version=")(.+)(" \/>)/g,'$1'+version+'$3'))
-    	.pipe(replace(/(<ExtensionManifest Version="5\.0" ExtensionBundleId="com\.bodymovin\.bodymovin" ExtensionBundleVersion=")(.+)(")/g,'$1'+version+'$3'))
-    	.pipe(replace(/(<MainPath>\.\/)(index_dev.html)(<\/MainPath>)/g,'$1'+'index.html'+'$3'))
+        .pipe(replace(/(<Extension Id="com\.bodymovin\.bodymovin" Version=")(.+)(" \/>)/g,'$1'+version+'$3'))
+        .pipe(replace(/(<ExtensionManifest Version="5\.0" ExtensionBundleId="com\.bodymovin\.bodymovin" ExtensionBundleVersion=")(.+)(")/g,'$1'+version+'$3'))
+        .pipe(replace(/(<MainPath>\.\/)(index_dev.html)(<\/MainPath>)/g,'$1'+'index.html'+'$3'))
         .pipe(gulp.dest('build/CSXS/'));
 });
 
@@ -64,11 +63,11 @@ gulp.task('copy-debug', function() {
         .pipe(gulp.dest('build/'));
 });
 
-gulp.task('copy-renderManager', function() {
-    return gulp.src('bundle/jsx/renderManager.jsx')
+gulp.task('copy-versionHelper', function() {
+    return gulp.src('bundle/jsx/helpers/versionHelper.jsx')
         //.pipe(replace(/(v : ')(.+)(',)/g,'$1'+version+'$3'))
-    	.pipe(replace(/(version_number = ')(.+)(';)/g,'$1'+version+'$3'))
-        .pipe(gulp.dest('build/jsx/'));
+        .pipe(replace(/(version_number = ')(.+)(';)/g,'$1'+version+'$3'))
+        .pipe(gulp.dest('build/jsx/helpers/'));
 });
 
 var demoBuiltData = '';
@@ -89,8 +88,7 @@ gulp.task('build-demo-data', function() {
         .pipe(saveToVar());
 });
 
-
-gulp.task('replace-demo-data',['build-demo-data'], function() {
+gulp.task('replace-demo-data', gulp.series('build-demo-data', function() {
     //htmlreplace;
     return gulp.src('bundle/assets/player/demo.html')
         .pipe(htmlreplace({
@@ -100,4 +98,6 @@ gulp.task('replace-demo-data',['build-demo-data'], function() {
             }
         }))
         .pipe(gulp.dest('build/assets/player/'));
-});
+}));
+
+gulp.task('copy-extension-bundle', gulp.series('copy-all', 'build-demo-data', 'replace-demo-data', 'create-bm', 'create-standalone', 'create-gzip', 'copy-manifest', 'copy-versionHelper','copy-debug'))

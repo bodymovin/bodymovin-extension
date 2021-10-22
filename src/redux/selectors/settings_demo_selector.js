@@ -12,10 +12,12 @@ const settingsBannerSelector = createSelector(
   [getItems, getCurrentComp ],
   (items, current) => {
 
-  	const exportModes = items[current].settings.export_modes
+  	const item = items[current]
+  	const exportModes = item.settings.export_modes
 
   	return {
   		_isActive: exportModes.demo,
+  		backgroundColor: item.settings.demoData.backgroundColor,
   	}
   }
 )

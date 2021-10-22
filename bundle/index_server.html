@@ -56,6 +56,9 @@ html, body{
 				case 'ttf':
 					contentType = 'application/octet-stream'
 					break;
+				case 'wasm':
+					contentType = 'application/wasm'
+					break;
 			}
 			if(contentType === undefined) {
 				console.log(req)

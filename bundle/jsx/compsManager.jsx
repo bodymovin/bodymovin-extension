@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $, Folder, File */
+/*global $, Folder, File, app, ViewerType */
 
 $.__bodymovin.bm_compsManager = (function () {
     'use strict';
@@ -31,7 +31,7 @@ $.__bodymovin.bm_compsManager = (function () {
         return compData;
     }
     
-    function searchCompositionDestination(id, absoluteURI, extension) {
+    function searchCompositionDestination(id, absoluteURI, fileName) {
         /*var i = 0, len = compositions.length, compData;
         while (i < len) {
             if (compositions[i].id === id) {
@@ -44,8 +44,7 @@ $.__bodymovin.bm_compsManager = (function () {
         if (absoluteURI) {
             uri = absoluteURI;
         } else {
-            uri = Folder.desktop.absoluteURI + '/data';
-            uri += '.' + extension;
+            uri = Folder.desktop.absoluteURI + '/' + fileName;
         }
 
         var f = new File(uri);
@@ -68,6 +67,22 @@ $.__bodymovin.bm_compsManager = (function () {
         file.parent.execute();
     }
     
+    function browseFolderFromPath(path) {
+        path = path ? path : Folder.desktop.absoluteURI
+        var f = new Folder(path);
+        var openFileData = f.selectDlg();
+        if (openFileData !== null) {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:uri', {
+                absoluteURI: openFileData.absoluteURI,
+                fsName: openFileData.fsName,
+                path: openFileData.absoluteURI,
+            });
+        } else {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:cancel');
+        }
+
+    }
+    
     function updateData(){
         bm_projectManager.checkProject();
         getCompositions();
@@ -84,6 +99,7 @@ $.__bodymovin.bm_compsManager = (function () {
     }
 
     function renderComposition(compositionData) {
+        bm_eventDispatcher.log('START RENDER 4')
         ob.cancelled = false;
         currentComposition = compositionData;
         projectComps = bm_projectManager.getCompositions();
@@ -100,6 +116,12 @@ $.__bodymovin.bm_compsManager = (function () {
         bm_eventDispatcher.sendEvent('bm:render:start', currentComposition.id);
         var destination = currentComposition.absoluteURI;
         var fsDestination = currentComposition.destination;
+        var destinationFile = new File(destination);
+        var destinationFolder = destinationFile.parent;
+        if (!destinationFolder.exists) {
+            destinationFolder.create();
+        }
+
         $.__bodymovin.bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings);
     }
     
@@ -112,14 +134,67 @@ $.__bodymovin.bm_compsManager = (function () {
         $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_eventDispatcher.sendEvent('bm:render:cancel');
     }
+
+    function navigateToLayer(compositionId, layerIndex) {
+        // audioComp.openInViewer();
+        var comps = bm_projectManager.getCompositions();
+        var i = 0, len = comps.length, comp;
+        while (i < len) {
+            comp = projectComps[i];
+            if (comp.id === compositionId) {
+                try {
+                    comp.openInViewer();
+                    app.executeCommand(2004); // Deselect all
+                    var layer = comp.layer(layerIndex);
+                    layer.selected = true;
+                } catch(err) {
+                    bm_eventDispatcher.sendEvent('bm:navigation:cancel');
+                }
+                break;
+            }
+            i += 1;
+        }
+    }
+    function getTimelinePosition() {
+        var activeItem = app.project.activeItem;
+        if (activeItem) {
+            var comp = activeItem
+            bm_eventDispatcher.sendEvent('bm:composition:timelinePosition', {
+                active: true,
+                data: {
+                    inPoint: comp.workAreaStart * comp.frameRate,
+                    outPoint: (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
+                    time: comp.time * comp.frameRate,
+                }
+            });
+        } else {
+            bm_eventDispatcher.sendEvent('bm:composition:timelinePosition', {
+                active: false
+            });
+        }
+    }
+
+    function setTimelinePosition(progress) {
+        var activeItem = app.project.activeItem;
+        if (activeItem) {
+            var comp = activeItem;
+            var timeInSeconds = comp.workAreaStart + comp.workAreaDuration * progress;
+            var timeInFrames = timeInSeconds * comp.frameRate;
+            comp.time = Math.floor(timeInFrames) / comp.frameRate;
+        }
+    }
     
     ob = {
         updateData : updateData,
         searchCompositionDestination : searchCompositionDestination,
         renderComplete : renderComplete,
         browseFolder : browseFolder,
+        browseFolderFromPath : browseFolderFromPath,
         renderComposition : renderComposition,
+        getTimelinePosition : getTimelinePosition,
+        setTimelinePosition : setTimelinePosition,
         cancel : cancel,
+        navigateToLayer : navigateToLayer,
         cancelled: false
     };
     

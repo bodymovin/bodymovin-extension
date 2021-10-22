@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
-import BodymovinRefresh from '../bodymovin/bodymovin_refresh'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
@@ -16,7 +15,14 @@ const styles = StyleSheet.create({
     	width: '100%',
     	height: '50px',
         display: 'flex',
-        alignItems:'center'
+        alignItems:'center',
+        justifyContent: 'space-between',
+    },
+    buttons_group: {
+        display: 'inline-block',
+    },
+    buttons_group: {
+        display: 'inline-block',
     },
     button: {
         marginRight:'7px',
@@ -42,24 +48,41 @@ const styles = StyleSheet.create({
     	width: '100%',
     	height: '1px',
     	backgroundColor: Variables.colors.gray2,
-    	marginTop: '20px',
-    	marginBottom: '20px'
+    	marginTop: '10px',
+    	marginBottom: '10px'
     }
 })
 
 function Main_header(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
-					<div className={css(styles.button, styles.refresh)} onClick={props.refresh}>
-						<BodymovinRefresh />
-					</div>
-					<BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
 					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
                     <div className={css(styles.buttons_separator)}></div>
                     <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-					<BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+                    <BaseButton text='Reports' type='gray' classes={styles.right} onClick={() => props.goToReports()}/>
+					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
 				</div>
 				<div className={css(styles.separator)}></div>
+                <div className={css(styles.buttons_container)}>
+                    <div className={css(styles.buttons_group)}>
+                        <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
+                    </div>
+                    <div className={css(styles.buttons_group)}>
+                        <BaseButton
+                            text='Refresh list'
+                            type='gray'
+                            classes={styles.button}
+                            onClick={props.refresh}
+                        />
+                        <BaseButton
+                            text='Project Settings'
+                            type='gray'
+                            classes={styles.button}
+                            onClick={props.openGlobalSettings}
+                        />
+                    </div>
+                </div>
 			</div>)
 }
 

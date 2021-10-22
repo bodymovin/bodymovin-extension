@@ -55,9 +55,18 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         numKeys = numKeys ? numKeys : 1;
         var gradientIndex = 0, navigationIndex = 0;
         var i = 0, len = shapeNavigation.length;
-        while(i<len){
-            var encoded = unescape(encodeURIComponent(shapeNavigation[i]))
-            navigationIndex = fileString.indexOf(encoded,navigationIndex + 1);
+        while (i < len) {
+            var encoded = unescape(encodeURIComponent(shapeNavigation[i] + 'LIST'));
+            var stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
+            if (stringIndex === -1) {
+                encoded = unescape(encodeURIComponent(shapeNavigation[i] + ' LIST'));
+                stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
+            }
+            if (stringIndex === -1) {
+                encoded = unescape(encodeURIComponent(shapeNavigation[i]));
+                stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
+            }
+            navigationIndex = stringIndex;
             i += 1;
         }
         gradientIndex = fileString.indexOf('ADBE Vector Grad Colors',navigationIndex);

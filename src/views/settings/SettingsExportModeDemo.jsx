@@ -2,8 +2,10 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsListColor from './list/SettingsListColor'
 import {
   handleModeToggle, 
+  handleDemoBackgroundColorChange, 
 } from '../../redux/actions/compositionActions'
 import settings_selector from '../../redux/selectors/settings_demo_selector'
 
@@ -19,7 +21,10 @@ const styles = StyleSheet.create({
       flexGrow: 1,
       overflowY: 'auto',
       overflowX: 'hidden',
-      padding: '0 0 0 10px',
+    },
+    settings: {
+      padding: '10px 10px',
+      backgroundColor: '#111',
     },
 })
 
@@ -27,6 +32,10 @@ class SettingsExportModeStandard extends React.PureComponent {
 
   handleModeToggle = () => {
     this.props.handleModeToggle('demo');
+  }
+
+  colorChange = color => {
+    this.props.handleColorChange(color)
   }
 
 	render(){ 
@@ -39,6 +48,22 @@ class SettingsExportModeStandard extends React.PureComponent {
             toggleItem={this.handleModeToggle}
             active={this.props._isActive} />
         </ul>
+
+        {this.props._isActive && 
+          <div className={css(styles.settings)}>
+            {/*<SettingsCollapsableItem
+                          title={'Settings'}
+                        >*/}
+              <ul className={css(styles.compsList)}>
+                <SettingsListColor 
+                  title='Background Color'
+                  description='Set the background color'
+                  inputValue={this.props.backgroundColor || '#fff'} 
+                  inputValueChange={this.colorChange} />
+              </ul>
+            {/*</SettingsCollapsableItem>*/}
+          </div>
+        }
       </div>
     )
 	}
@@ -50,6 +75,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   handleModeToggle: handleModeToggle,
+  handleColorChange: handleDemoBackgroundColorChange,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsExportModeStandard)

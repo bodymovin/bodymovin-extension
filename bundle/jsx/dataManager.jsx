@@ -15,13 +15,17 @@ $.__bodymovin.bm_dataManager = (function () {
     var bm_standaloneExporter = $.__bodymovin.bm_standaloneExporter;
     var bm_demoExporter = $.__bodymovin.bm_demoExporter;
     var bm_avdExporter = $.__bodymovin.bm_avdExporter;
+    var bm_smilExporter = $.__bodymovin.bm_smilExporter;
     var bm_riveExporter = $.__bodymovin.bm_riveExporter;
     var bm_fileManager = $.__bodymovin.bm_fileManager;
-    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var layerTypes = $.__bodymovin.layerTypes;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
 
     var results = {
         avd: {
+            status: exportStatuses.IDLE
+        },
+        smil: {
             status: exportStatuses.IDLE
         },
         banner: {
@@ -47,11 +51,13 @@ $.__bodymovin.bm_dataManager = (function () {
             if (layers[i].ty === layerTypes.precomp && layers[i].compId) {
                 comps.push({
                     id: layers[i].compId,
+                    nm: layers[i].compName,
                     layers: layers[i].layers
                 });
                 separateComps(layers[i].layers, comps);
                 delete layers[i].compId;
                 delete layers[i].layers;
+                delete layers[i].compName;
             }
         }
     }
@@ -71,6 +77,7 @@ $.__bodymovin.bm_dataManager = (function () {
         for (i = 0; i < len; i += 1) {
             delete layers[i].isValid;
             delete layers[i].isGuide;
+            delete layers[i].isAdjustment;
             delete layers[i].render;
             delete layers[i].enabled;
             if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
@@ -78,7 +85,7 @@ $.__bodymovin.bm_dataManager = (function () {
             }
         }
     }
-    
+
     function deleteExtraParams(data, settings) {
         if (data.fonts.length === 0) {
             delete data.fonts;
@@ -89,7 +96,21 @@ $.__bodymovin.bm_dataManager = (function () {
             }
         }
         deleteAssetParams(data.assets);
+        deleteExcludedLayers(data.layers);
         deleteLayerParams(data.layers);
+    }
+
+    function deleteExcludedLayers(layers) {
+        var i, len = layers.length;
+        for (i = 0; i < len; i += 1) {
+            if (layers[i]._excluded) {
+                layers.splice(i, 1);
+                i -= 1;
+                len -= 1;
+            } else if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
+                deleteExcludedLayers(layers[i].layers);
+            }
+        }
     }
 
     function moveCompsToAssets(data) {
@@ -126,6 +147,7 @@ $.__bodymovin.bm_dataManager = (function () {
 
     function resetStatus() {
         results[exportTypes.AVD].status = exportStatuses.IDLE;
+        results[exportTypes.SMIL].status = exportStatuses.IDLE;
         results[exportTypes.BANNER].status = exportStatuses.IDLE;
         results[exportTypes.DEMO].status = exportStatuses.IDLE;
         results[exportTypes.RIVE].status = exportStatuses.IDLE;
@@ -147,13 +169,21 @@ $.__bodymovin.bm_dataManager = (function () {
         separateComps(data.layers, data.comps);
         moveCompsToAssets(data);
 
-        var stringifiedData = JSON.stringify(data);
-        stringifiedData = stringifiedData.replace(/\n/g, '');
-        bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData);
+        var stringifiedData
+
+        if (settingsHelper.shouldPrettyPrint()) {
+            stringifiedData = JSON.stringify(data, null, '\t');
+        } else {
+            stringifiedData = JSON.stringify(data);
+            stringifiedData = stringifiedData.replace(/\n/g, '');
+        }
+
+        bm_fileManager.addFile(destinationFileNameWithoutExtension + '.json', ['raw'], stringifiedData, 'main');
 
         ////
 
         bm_avdExporter.save(destinationPath, config, onResult);
+        bm_smilExporter.save(destinationPath, config, onResult);
         bm_bannerExporter.save(destinationPath, config, onResult);
         bm_demoExporter.save(destinationPath, config, onResult, data);
         bm_riveExporter.save(destinationPath, config, onResult);
@@ -161,8 +191,29 @@ $.__bodymovin.bm_dataManager = (function () {
         bm_standaloneExporter.save(destinationPath, config, onResult);
 
     }
+
+    function saveReport(reportData, destinationPath) {
+        // var destinationFile = new File(destinationPath);
+        // var destinationFileName = destinationFile.name;
+        // var destinationFileNameWithoutExtension = destinationFileName.substr(0, destinationFileName.lastIndexOf('.'));
+        var destinationData = exporterHelpers.parseDestination(destinationPath, 'report');
+        var demoDestinationFile = new File(destinationData.folder.fsName);
+        demoDestinationFile.changePath('report.json');
+        demoDestinationFile.open('w', 'TEXT', '????');
+        demoDestinationFile.encoding = 'UTF-8';
+        var reportStr = JSON.stringify(reportData);
+        reportStr = reportStr.replace(/\n/g, '');
+        try {
+            demoDestinationFile.write(reportStr);
+            demoDestinationFile.close();
+        } catch (error) {
+            bm_eventDispatcher.log('ERROR SAVE REPORT')
+        }
+        return demoDestinationFile.fsName;
+    }
     
     ob.saveData = saveData;
+    ob.saveReport = saveReport;
     
     return ob;
 }());

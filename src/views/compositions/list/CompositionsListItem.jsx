@@ -7,6 +7,7 @@ import checkbox from '../../../assets/animations/checkbox.json'
 import settings from '../../../assets/animations/settings.json'
 import Variables from '../../../helpers/styles/variables'
 import textEllipsis from '../../../helpers/styles/textEllipsis'
+import report_icon from '../../../assets/svg/report.svg'
 
 const styles = StyleSheet.create({
     composition: {
@@ -21,40 +22,60 @@ const styles = StyleSheet.create({
       background: Variables.gradients.blueGreen
     },
     item: {
-      display: 'inline-block',
       verticalAlign: 'middle',
       backgroundColor:'transparent'
     },
     itemContainer: {
       padding: '4px 0',
       width: '100%',
-      height: '100%'
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
     },
     radio: {
       height: '100%',
       width: '70px',
       padding:'2px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      flex: '0 0 auto',
     },
     settings: {
       height: '100%',
       width: '80px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      flex: '0 0 auto',
+    },
+    reports: {
+      backgroundColor: 'transparent',
+      height: '100%',
+      width: '80px',
+      cursor: 'pointer',
+      flex: '0 0 auto',
+      visibility: 'hidden',
+    },
+    'reposts--active': {
+      visibility: 'visible',
+    },
+    'reports-icon': {
+      height: '100%',
+      width: '100%',
+      padding: '4% 0',
     },
     name: {
-      width: 'calc( 60% - 75px)',
       lineHeight: '22px',
-      padding: '0 10px'
+      padding: '0 10px',
+      flex: '1 1 auto',
     },
     destination: {
-      width: 'calc( 40% - 75px)',
       padding: '0 10px',
-      color: Variables.colors.green
+      color: Variables.colors.green,
+      flex: '1 1 auto',
     },
     destinationPlaceholder: {
-      width: 'calc( 40% - 75px)',
       padding: '0 0 0 10px',
-      height: '100%'
+      width: '40px',
+      height: '100%',
+      flex: '0 0 auto',
     },
     hidden: {
       display: 'none'
@@ -64,7 +85,6 @@ const styles = StyleSheet.create({
       height: '4px',
       borderRadius: '50%',
       backgroundColor: Variables.colors.green,
-      display: 'inline-block',
       marginRight: '2px'
     }
 })
@@ -107,7 +127,13 @@ class CompositionsListItem extends React.Component {
     this.setState({settingsHovered:false})
   }
 
-	render(){ 
+  goToReports = () => {
+    if (this.props.item.reportPath) {
+      this.props.goToReports(this.props.item.reportPath);
+    }
+  }
+
+	render(){
 		return (<li 
 			className={css(styles.composition, this.props.item.hidden && styles.hidden)}>
         <div className={css(styles.itemContainer, this.props.item.selected && this.props.item.destination && styles.composition__selected)}>
@@ -122,7 +148,21 @@ class CompositionsListItem extends React.Component {
                 onMouseLeave={this.settingsLeft}>
                 </button>
             </BodymovinSettings>
-  				<div className={css(styles.item, styles.name, textEllipsis)} title={this.props.item.name}>{this.props.item.name}</div>
+            <button
+              className={css(styles.reports, this.props.item.reportPath && styles['reposts--active'])}
+              onClick={this.goToReports}
+            >
+              <img
+                src={report_icon}
+                alt='Report'
+                className={css(styles['reports-icon'])}
+              />
+            </button>
+  				<div
+            className={css(styles.item, styles.name, textEllipsis)}
+            title={this.props.item.name}>
+              {this.props.item.name}
+          </div>
   				{this.props.item.destination 
             && <div className={css(styles.item, styles.destination, textEllipsis)} onClick={this.selectDestination} title={this.props.item.destination}>{this.props.item.destination}</div>}
           {!this.props.item.destination && <div className={css(styles.item, styles.destinationPlaceholder)}>

@@ -28,5 +28,13 @@
                         
         </HostList>
     </Extension>
+    <Extension Id="com.bodymovin.bodymovin_server">
+        <HostList>
+           
+            <!-- AfterEffects -->
+            <Host Name="AEFT" Port="8192" />
+                        
+        </HostList>
+    </Extension>
 </ExtensionList>
  

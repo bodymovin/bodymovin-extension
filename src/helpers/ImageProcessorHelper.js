@@ -1,3 +1,5 @@
+import { getPort } from './enums/networkData';
+import { fetchWithId } from '../helpers/FileLoader';
 var path = require('path');
 path.parse = function(_path){
 	return {
@@ -5,45 +7,10 @@ path.parse = function(_path){
 	}
 }
 
-function ImageObject(_canvas, _img) {
-	this.canvas = _canvas;
-	this._img = _img;
-	this.updateBitmap();
-}
-
-ImageObject.prototype.updateBitmap = function() {
-	var context = this.canvas.getContext('2d');
-	var imageData = context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-	this.bitmap = imageData;
-}
-
-ImageObject.prototype.clone = function() {
-	return new ImageObject(this.copyCanvas(), this._img);
-}
-
-
-ImageObject.prototype.opaque = function() {
-	var canvasCtx = this.canvas.getContext('2d');
-	canvasCtx.fillStyle = 'white';
-	canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	canvasCtx.drawImage(this._img, 0, 0);
-	this.updateBitmap();
-	return this;
-}
-
-ImageObject.prototype.copyCanvas = function() {
-	var clonedCanvas = document.createElement('canvas');
-	clonedCanvas.width = this.canvas.width;
-	clonedCanvas.height = this.canvas.height;
-	var clonedCanvasCtx = clonedCanvas.getContext('2d');
-	clonedCanvasCtx.drawImage(this._img, 0, 0);
-	return clonedCanvas;
-}
-
 function compressImage(path, compression_rate) {
 	path = path.replace(/\\/g, '/')
 	return new Promise((resolve, reject) => {
-		fetch('http://localhost:3119/processImage/', 
+		fetchWithId(`http://localhost:${getPort()}/processImage/`, 
 			{
 				method: 'post',
 				headers: {
@@ -89,7 +56,7 @@ function handleImageCompression(path, settings) {
 }
 
 async function getEncodedFile(path) {
-	const encodedImageResponse = await fetch('http://localhost:3119/encode/', 
+	const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/encode/`, 
 	{
 		method: 'post',
 		headers: {
@@ -106,7 +73,6 @@ async function getEncodedFile(path) {
 }
 
 async function processImage(actionData) {
-
 	let path = actionData.path
 
 	try {
@@ -116,17 +82,24 @@ async function processImage(actionData) {
 				encoded: false,
 			}
 		}
-
 		const imageCompressedData = await handleImageCompression(path, actionData)
 
 		if (actionData.should_encode_images) {
+
 			const imagePath = imageCompressedData.extension === 'png' ? 
 				imageCompressedData.path
 				:
 				imageCompressedData.path.substr(0, imageCompressedData.path.lastIndexOf('.png')) + '.jpg'
 
+			var fileExtension = imagePath.substr(imagePath.lastIndexOf('.') + 1)
+
 			let encodedImage = await getEncodedFile(imagePath)
-			encodedImage = `data:image/${imageCompressedData.extension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+
+			if (actionData.assetType === 'audio') {
+				encodedImage = `data:audio/mp3;base64,${encodedImage}`
+			} else {
+				encodedImage = `data:image/${fileExtension === 'png' ? 'png' : 'jpeg'};base64,${encodedImage}`
+			}
 			return {
 				encoded_data: encodedImage,
 				encoded: true,

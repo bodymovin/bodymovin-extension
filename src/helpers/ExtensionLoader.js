@@ -23,12 +23,23 @@ function loadJSX(resolve, reject) {
 			resolve();
     	});
 	}
+
 	window.addEventListener('focus', init);
 	window.addEventListener('click', init);
 	window.addEventListener('mousedown', init);
 	window.addEventListener('mouseenter', init);
 	window.addEventListener('mouseover', init);
 	window.addEventListener('mousemove', init);
+
+	try {
+		if (document.hasFocus()) {
+			init()
+		} else {
+			window.focus()
+		}
+	} catch(err) {
+
+	}
 }
 
 export default promise;

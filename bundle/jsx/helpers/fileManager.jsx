@@ -38,8 +38,8 @@ $.__bodymovin.bm_fileManager = (function () {
         return temporaryFolder;
     }
 
-    function addFile(fileName, path, content) {
-        var renderFileData = createFile(fileName, path);
+    function addFile(fileName, path, content, type) {
+        var renderFileData = createFile(fileName, path, type);
         var dataFile = renderFileData.file;
         dataFile.open('w', 'TEXT', '????');
         dataFile.encoding = 'UTF-8';
@@ -53,7 +53,8 @@ $.__bodymovin.bm_fileManager = (function () {
         return renderFileData;
     }
 
-    function createFile(fileName, path) {
+    function createFile(fileName, path, type) {
+        type = type || 'regular';
         var i = 0, len = path.length;
         var fileFolder = new Folder(temporaryFolder.absoluteURI);
         while (i < len) {
@@ -64,15 +65,16 @@ $.__bodymovin.bm_fileManager = (function () {
             i += 1;
         }
         var file = new File(fileFolder.absoluteURI);
-        file.changePath(fileName);
+        file.changePath(decodeURIComponent(fileName));
         
         var renderFile = {
             name: fileName,
             path: path,
             id: bm_generalUtils.random(10),
-            file: file
+            file: file,
+            type: type,
         }
-        renderFiles.push(renderFile)
+        renderFiles.push(renderFile);
         return renderFile;
     }
 

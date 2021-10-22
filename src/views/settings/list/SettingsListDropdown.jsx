@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     dropdown: {
       flexGrow: 1,
       flexShrink: 1,
-      width: '200px',
+      width: '150px',
     },
     item: {
       backgroundColor:'transparent',

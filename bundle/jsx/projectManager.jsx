@@ -9,6 +9,7 @@ $.__bodymovin.bm_projectManager = (function () {
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var commands = {};
     var projectId = '';
+    var tempId = bm_generalUtils.random(32);
     var project;
     function getItemType(item) {
         var getType = {};
@@ -63,6 +64,16 @@ $.__bodymovin.bm_projectManager = (function () {
         }
         
         bm_fileManager.removeOldTemporaryFolder();
+        bm_eventDispatcher.sendEvent('bm:temp:id', {id:tempId});
+        try {
+
+            var tempIdFile = new File(Folder.temp.absoluteURI + '/bodymovin_uid.txt');
+            tempIdFile.open('w', 'TEXT', '????');
+            tempIdFile.encoding = 'UTF-8';
+            tempIdFile.write(tempId);
+            tempIdFile.close();
+        } catch(err) {
+        }
     }
     
     function getCompositions() {
@@ -106,6 +117,10 @@ $.__bodymovin.bm_projectManager = (function () {
             bm_eventDispatcher.sendEvent('bm:project:path', {path: projectFolder.fsName});
         }
     }
+
+    function getUserFolders() {
+        bm_eventDispatcher.sendEvent('bm:user:folders', {userData: Folder.userData.fsName});
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -113,8 +128,9 @@ $.__bodymovin.bm_projectManager = (function () {
         getCompositionById: getCompositionById,
         searchCommands: searchCommands,
         getCommandID: getCommandID,
-        getFile: getFile, 
-        getProjectPath: getProjectPath, 
+        getFile: getFile,
+        getProjectPath: getProjectPath,
+        getUserFolders: getUserFolders,
     };
     return ob;
 }());

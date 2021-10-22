@@ -14,8 +14,8 @@ import catFactHelper from '../../helpers/catFactHelper'
 function *importLottieFile(action) {
 	try{
 		let paths = yield select(storingPathsSelector)
-		let filePath = yield call(fileBrowser, paths.importPath)
-		yield put(lottieImportFileSuccess(filePath))
+		let fileData = yield call(fileBrowser, paths.importPath)
+		yield put(lottieImportFileSuccess(fileData.fsName))
 	} catch(err) {
 		yield put(lottieImportFileFailed())
 	}

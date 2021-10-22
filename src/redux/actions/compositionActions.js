@@ -165,6 +165,13 @@ function handleBannerLibraryPathChange(value) {
 	}
 }
 
+function handleBannerLibraryFileChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LIBRARY_FILE_UPDATE,
+		value,
+	}
+}
+
 function handleModeToggle(value) {
 	return {
 		type: actionTypes.SETTINGS_MODE_TOGGLE,
@@ -198,9 +205,92 @@ function lottieBannerCustomSizeFlagUpdated() {
 	}
 }
 
+function lottieIncludeDataInTemplateUpdated() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED,
+	}
+}
+
+function lottieHandleLoopToggleChange() {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LOOP_TOGGLE,
+	}
+}
+
+function lottieHandleLoopCountChange(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE,
+		value
+	}
+}
+
 function goToImportFile() {
 	return {
 		type: actionTypes.GOTO_IMPORT,
+	}
+}
+
+function toggleCompNameAsDefault() {
+	return {
+		type: actionTypes.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE,
+	}
+}
+
+function toggleCompNameAsFolder() {
+	return {
+		type: actionTypes.SETTINGS_INCLUDE_COMP_NAME_AS_FOLDER_TOGGLE,
+	}
+}
+
+function toggleAEAsPath() {
+	return {
+		type: actionTypes.SETTINGS_AE_AS_PATH_TOGGLE,
+	}
+}
+
+function toggleDefaultPathAsFolder() {
+	return {
+		type: actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER,
+	}
+}
+
+function defaultFolderFileChange(value) {
+	return {
+		type: actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE,
+		value,
+	}
+}
+
+function settingsBannerLibraryFileSelected(value) {
+	return {
+		type: actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED,
+		value,
+	}
+}
+
+function settingsDefaultFolderPathSelected(value) {
+	return {
+		type: actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_SELECTED,
+		value,
+	}
+}
+
+function goToAnnotations(value) {
+	return {
+		type: actionTypes.GOTO_ANNOTATIONS,
+	}
+}
+function handleDemoBackgroundColorChange(value) {
+	return {
+		type: actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE,
+		value,
+	}
+}
+
+function goToReports(path) {
+	return {
+		type: actionTypes.GOTO_REPORTS,
+		path,
 	}
 }
 
@@ -231,8 +321,22 @@ export {
 	handleModeToggle,
 	handleBannerOriginChange,
 	handleBannerLibraryPathChange,
+	handleBannerLibraryFileChange,
 	lottieBannerRendererUpdated,
 	lottieBannerClickTagUpdated,
 	lottieBannerZipFilesUpdated,
 	lottieBannerCustomSizeFlagUpdated,
+	lottieIncludeDataInTemplateUpdated,
+	lottieHandleLoopToggleChange,
+	lottieHandleLoopCountChange,
+	toggleCompNameAsDefault,
+	toggleCompNameAsFolder,
+	toggleAEAsPath,
+	toggleDefaultPathAsFolder,
+	settingsDefaultFolderPathSelected,
+	defaultFolderFileChange,
+	settingsBannerLibraryFileSelected,
+	goToAnnotations,
+	goToReports,
+	handleDemoBackgroundColorChange,
 }

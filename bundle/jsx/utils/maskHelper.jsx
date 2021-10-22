@@ -2,29 +2,11 @@
 /*global $, MaskMode*/
 $.__bodymovin.bm_maskHelper = (function () {
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
+    var getMaskMode = $.__bodymovin.getMaskType;
     var ob = {};
 
-    function getMaskMode(num) {
-        switch (num) {
-        case MaskMode.NONE:
-            return 'n';
-        case MaskMode.ADD:
-            return 'a';
-        case MaskMode.SUBTRACT:
-            return 's';
-        case MaskMode.INTERSECT:
-            return 'i';
-        case MaskMode.LIGHTEN:
-            return 'l';
-        case MaskMode.DARKEN:
-            return 'd';
-        case MaskMode.DIFFERENCE:
-            return 'f';
-        default:
-            return undefined;
-        }
-    }
-    
     function exportMasks(layerInfo, layerData, frameRate) {
         if (!(layerInfo.mask && layerInfo.mask.numProperties > 0)) {
             return;
@@ -34,8 +16,12 @@ $.__bodymovin.bm_maskHelper = (function () {
         layerData.masksProperties = [];
         var masks = layerInfo.mask;
         var i, len = masks.numProperties, maskElement;
+        bm_eventDispatcher.log('PASOSOSSSS!!!');
+        bm_eventDispatcher.log('MaskMode.ADD:' + MaskMode.ADD);
+        bm_eventDispatcher.log('MaskMode.NONE:' + MaskMode.NONE);
         for (i = 0; i < len; i += 1) {
             maskElement = masks(i + 1);
+            bm_eventDispatcher.log('maskElement.maskMode:' + maskElement.maskMode);
             var shapeData = {
                 inv: maskElement.inverted,
                 mode: getMaskMode(maskElement.maskMode)
@@ -44,7 +30,7 @@ $.__bodymovin.bm_maskHelper = (function () {
             $.__bodymovin.bm_shapeHelper.checkVertexCount(shapeData.pt.k);
             shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
             shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
-            if ($.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties()) {
+            if (settingsHelper.shouldIncludeNotSupportedProperties()) {
                 shapeData.f = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Feather'), frameRate, stretch);
             }
             shapeData.nm = maskElement.name;

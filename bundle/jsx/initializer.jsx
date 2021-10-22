@@ -3,54 +3,166 @@
 
 
 $.__bodymovin = $.__bodymovin || {esprima:{}}
-var extensionPath = $.fileName.split('/').slice(0, -1).join('/') + '/';
 
-$.evalFile(extensionPath + 'JSON.jsx');
-$.evalFile(extensionPath + 'enums/layerTypes.jsx');
-$.evalFile(extensionPath + 'eventManager.jsx');
-$.evalFile(extensionPath + 'downloadManager.jsx');
-$.evalFile(extensionPath + 'utils/generalUtils.jsx');
-$.evalFile(extensionPath + 'utils/expressions/reservedPropertiesHelper.jsx');
-$.evalFile(extensionPath + 'utils/expressions/valueAssignmentHelper.jsx');
-$.evalFile(extensionPath + 'utils/expressions/variableDeclarationHelper.jsx');
-$.evalFile(extensionPath + 'utils/expressionHelper.jsx');
-$.evalFile(extensionPath + 'helpers/fileManager.jsx');
-$.evalFile(extensionPath + 'exporters/exporterHelpers.jsx');
-$.evalFile(extensionPath + 'exporters/bannerExporter.jsx');
-$.evalFile(extensionPath + 'exporters/standardExporter.jsx');
-$.evalFile(extensionPath + 'exporters/standaloneExporter.jsx');
-$.evalFile(extensionPath + 'exporters/demoExporter.jsx');
-$.evalFile(extensionPath + 'exporters/avdExporter.jsx');
-$.evalFile(extensionPath + 'exporters/riveExporter.jsx');
-$.evalFile(extensionPath + 'importers/lottieImporter.jsx');
-$.evalFile(extensionPath + 'esprima.jsx');
-$.evalFile(extensionPath + 'escodegen.jsx');
-$.evalFile(extensionPath + 'utils/bez.jsx');
-$.evalFile(extensionPath + 'utils/keyframeHelper.jsx');
-$.evalFile(extensionPath + 'utils/transformHelper.jsx');
-$.evalFile(extensionPath + 'utils/maskHelper.jsx');
-$.evalFile(extensionPath + 'utils/timeremapHelper.jsx');
-$.evalFile(extensionPath + 'utils/effectsHelper.jsx');
-$.evalFile(extensionPath + 'utils/layerStylesHelper.jsx')
-$.evalFile(extensionPath + 'utils/cameraHelper.jsx');
-$.evalFile(extensionPath + 'utils/XMPParser.jsx');
-$.evalFile(extensionPath + 'utils/ProjectParser.jsx');
-$.evalFile(extensionPath + 'utils/markerHelper.jsx');
-$.evalFile(extensionPath + 'utils/textAnimatorHelper.jsx');
-$.evalFile(extensionPath + 'utils/textHelper.jsx');
-$.evalFile(extensionPath + 'utils/imageSeqHelper.jsx');
-$.evalFile(extensionPath + 'helpers/boundingBox.jsx');
-$.evalFile(extensionPath + 'helpers/layerResolver.jsx');
-$.evalFile(extensionPath + 'helpers/blendModes.jsx');
-$.evalFile(extensionPath + 'elements/layerElement.jsx');
-$.evalFile(extensionPath + 'projectManager.jsx');
-$.evalFile(extensionPath + 'compsManager.jsx');
-$.evalFile(extensionPath + 'dataManager.jsx');
-$.evalFile(extensionPath + 'renderManager.jsx');
-$.evalFile(extensionPath + 'utils/sourceHelper.jsx');
-$.evalFile(extensionPath + 'utils/shapeHelper.jsx');
-$.evalFile(extensionPath + 'utils/textShapeHelper.jsx');
-$.evalFile(extensionPath + 'utils/transformation-matrix.jsx');
+
+//  Does not work with `new funcA.bind(thisArg, args)`
+if (!Function.prototype.bm_bind) (function(){
+  var slice = Array.prototype.slice;
+  Function.prototype.bm_bind = function() {
+    var thatFunc = this, thatArg = arguments[0];
+    var args = slice.call(arguments, 1);
+    if (typeof thatFunc !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bm_bind - ' +
+             'what is trying to be bound is not callable');
+    }
+    return function(){
+      var funcArgs = args.concat(slice.call(arguments))
+      return thatFunc.apply(thatArg, funcArgs);
+    };
+  };
+})();
+
+(function() {
+  var files = [
+  'JSON.jsx',
+  'eventManager.jsx',
+  'enums/layerTypes.jsx',
+  'enums/layerStyleTypes.jsx',
+  'enums/shapeTypes.jsx',
+  'enums/maskTypes.jsx',
+  'helpers/layerResolver.jsx',
+  'helpers/layerStyleResolver.jsx',
+  'helpers/shapeTypeResolver.jsx',
+  'helpers/maskTypeResolver.jsx',
+  'helpers/settingsHelper.jsx',
+  'helpers/renderHelper.jsx',
+  'helpers/versionHelper.jsx',
+  'helpers/renderQueueHelper.jsx',
+  'utils/generalUtils.jsx',
+  'reports/rendererTypes.jsx',
+  'reports/builderTypes.jsx',
+  'reports/messageTypes.jsx',
+  'reports/effectsMessageTypes.jsx',
+  'reports/reportMessageFactory.jsx',
+  'reports/reportEffectMessageFactory.jsx',
+  'reports/reportAnimatorSelectorMessageFactory.jsx',
+  'reports/reportAnimatorMessageFactory.jsx',
+  'reports/messageClassReport.jsx',
+  'reports/propertyReport.jsx',
+  'reports/positionReport.jsx',
+  'reports/rotationReport.jsx',
+  'reports/masks/maskReport.jsx',
+  'reports/effectsReport.jsx',
+  'reports/masksReport.jsx',
+  'reports/transformReport.jsx',
+  'reports/layerStyles/strokeStyle.jsx',
+  'reports/layerStyles/dropShadowStyle.jsx',
+  'reports/layerStyles/innerShadowStyle.jsx',
+  'reports/layerStyles/outerGlowStyle.jsx',
+  'reports/layerStyles/innerGlowStyle.jsx',
+  'reports/layerStyles/bevelEmbossStyle.jsx',
+  'reports/layerStyles/satinStyle.jsx',
+  'reports/layerStyles/colorOverlayStyle.jsx',
+  'reports/layerStyles/gradientOverlayStyle.jsx',
+  'reports/layerStylesReport.jsx',
+  'reports/layerReport.jsx',
+  'reports/layers/shapes/shapeGroupReport.jsx',
+  'reports/layers/shapes/shapeRectReport.jsx',
+  'reports/layers/shapes/shapeEllipseReport.jsx',
+  'reports/layers/shapes/shapeStarReport.jsx',
+  'reports/layers/shapes/shapeShapeReport.jsx',
+  'reports/layers/shapes/shapeFillReport.jsx',
+  'reports/layers/shapes/shapeStrokeReport.jsx',
+  'reports/layers/shapes/shapeGradientFillReport.jsx',
+  'reports/layers/shapes/shapeGradientStrokeReport.jsx',
+  'reports/layers/shapes/shapeMergePathsReport.jsx',
+  'reports/layers/shapes/shapeRoundCornersReport.jsx',
+  'reports/layers/shapes/shapePuckerAndBloatReport.jsx',
+  'reports/layers/shapes/shapeTrimPathsReport.jsx',
+  'reports/layers/shapes/shapeRepeaterReport.jsx',
+  'reports/layers/shapes/shapeUnhandledReport.jsx',
+  'reports/layers/shapes/shapeReportHelper.jsx',
+  'reports/layers/shapes/shapeCollectionReport.jsx',
+  'reports/layers/texts/textAnimatorSelectorReport.jsx',
+  'reports/layers/texts/textAnimatorsReport.jsx',
+  'reports/layers/imageLayerReport.jsx',
+  'reports/layers/imageSequenceLayerReport.jsx',
+  'reports/layers/cameraLayerReport.jsx',
+  'reports/layers/audioLayerReport.jsx',
+  'reports/layers/nullLayerReport.jsx',
+  'reports/layers/solidLayerReport.jsx',
+  'reports/layers/adjustmentLayerReport.jsx',
+  'reports/layers/lightLayerReport.jsx',
+  'reports/layers/textLayerReport.jsx',
+  'reports/layers/unhandledLayerReport.jsx',
+  'reports/layers/failedLayerReport.jsx',
+  'reports/layers/compositionLayerReport.jsx',
+  'reports/layers/shapeLayerReport.jsx',
+  'reports/layerReportHelper.jsx',
+  'reports/layerCollectionReport.jsx',
+  'reports/animationReport.jsx',
+  'reports/reportsManager.jsx',
+  'downloadManager.jsx',
+  'utils/expressions/keyframeBakerHelper.jsx',
+  'utils/expressions/reservedPropertiesHelper.jsx',
+  'utils/expressions/valueAssignmentHelper.jsx',
+  'utils/expressions/variableDeclarationHelper.jsx',
+  'utils/expressionHelper.jsx',
+  'helpers/fileManager.jsx',
+  'helpers/presetHelper.jsx',
+  'exporters/exporterHelpers.jsx',
+  'exporters/bannerExporter.jsx',
+  'exporters/standardExporter.jsx',
+  'exporters/standaloneExporter.jsx',
+  'exporters/demoExporter.jsx',
+  'exporters/avdExporter.jsx',
+  'exporters/smilExporter.jsx',
+  'exporters/riveExporter.jsx',
+  'importers/lottieImporter.jsx',
+  'esprima.jsx',
+  'annotationsManager.jsx',
+  'escodegen.jsx',
+  'utils/bez.jsx',
+  'utils/keyframeHelper.jsx',
+  'utils/transformHelper.jsx',
+  'utils/maskHelper.jsx',
+  'utils/timeremapHelper.jsx',
+  'utils/effectsHelper.jsx',
+  'utils/layerStylesHelper.jsx',
+  'utils/cameraHelper.jsx',
+  'utils/audioHelper.jsx',
+  'utils/dataHelper.jsx',
+  'utils/XMPParser.jsx',
+  'utils/ProjectParser.jsx',
+  'utils/markerHelper.jsx',
+  'utils/textAnimatorHelper.jsx',
+  'utils/textHelper.jsx',
+  'utils/imageSeqHelper.jsx',
+  'helpers/boundingBox.jsx',
+  'helpers/blendModes.jsx',
+  'elements/layerElement.jsx',
+  'projectManager.jsx',
+  'compsManager.jsx',
+  'dataManager.jsx',
+  'renderManager.jsx',
+  'utils/audioSourceHelper.jsx',
+  'utils/dataSourceHelper.jsx',
+  'utils/sourceHelper.jsx',
+  'utils/shapeHelper.jsx',
+  'utils/textShapeHelper.jsx',
+  'utils/transformation-matrix.jsx'
+  ]
+
+  var _bmFile = new File($.fileName)
+  _bmFile = _bmFile.parent
+  for(var i = 0; i < files.length; i += 1) {
+    var file = new File(_bmFile.fsName)
+    file.changePath(files[i])
+    $.evalFile(file.fsName);
+  }
+}())
 
 var globalVariables = ['bm_eventDispatcher','bm_generalUtils','bm_expressionHelper','esprima', 'escodegen'
 , 'bez', 'PropertyFactory', 'bm_keyframeHelper', 'bm_transformHelper', 'bm_maskHelper', 'bm_timeremapHelper'

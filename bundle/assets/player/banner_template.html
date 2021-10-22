@@ -41,9 +41,17 @@ body, body * {vertical-align: baseline; border: 0; outline: 0; padding: 0; margi
       lottie.loadAnimation({
         container: document.getElementById('content_dc'),
         autoplay: true,
-        loop: false,
+        loop: __LOOP__,
         renderer: '__LOTTIE_RENDERER__',
-        path: '__FILE_PATH__'
+        __DATA_LOAD__,
+        rendererSettings: {
+          filterSize: {
+              width: '300%',
+              height: '300%',
+              x: '-100%',
+              y: '-100%',
+          }
+        }
       })
       .setSubframe(false)
     </script>

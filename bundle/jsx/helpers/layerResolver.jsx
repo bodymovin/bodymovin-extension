@@ -1,3 +1,6 @@
+/*jslint vars: true , plusplus: true, continue:true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
+/*global $, CompItem, PlaceholderSource, AVLayer, CameraLayer, LightLayer, ShapeLayer, TextLayer */
+
 $.__bodymovin.getLayerType = (function () {
 
     var layerTypes = $.__bodymovin.layerTypes;
@@ -8,9 +11,12 @@ $.__bodymovin.getLayerType = (function () {
             return layerTypes.precomp;
         }
         var lMainSource = lSource.mainSource;
-        var lFile = lMainSource.file;
         if (!lObj.hasVideo) {
-            return layerTypes.audio;
+            if (lObj.hasAudio) {
+                return layerTypes.audio;
+            } else {
+                return layerTypes.data;
+            }
         } else if (lSource instanceof CompItem) {
             return layerTypes.precomp;
         } else if (lSource.frameDuration < 1) {

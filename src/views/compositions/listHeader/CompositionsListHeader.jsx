@@ -9,7 +9,10 @@ const styles = StyleSheet.create({
       width: '100%',
       fontSize: '12px',
       color: '#eee',
-      marginBottom: '10px'
+      marginBottom: '10px',
+      flex: '0 0 auto',
+      display: 'flex',
+      alignItems: 'center',
     },
     item: {
       display: 'inline-block',
@@ -17,8 +20,14 @@ const styles = StyleSheet.create({
       textAlign: 'center',
       padding: '0px 10px',
     },
+    itemCompName: {
+      marginBottom: '4px'
+    },
+    itemCompNameInput: {
+      verticalAlign: 'middle'
+    },
     radio: {
-      width: '70px'
+      width: '80px'
     },
     settings: {
       width: '80px'
@@ -33,13 +42,14 @@ const styles = StyleSheet.create({
       backgroundColor: '#333',
       borderRadius: '6px',
       width: '100%',
-      height: '100%'
+      height: '100%',
+      display: 'flex',
     },
     name_input: {
       display: 'inline-block',
       verticalAlign: 'top',
       height: '100%',
-      width: 'calc( 100% - 30px)',
+      flex: '1 1 auto',
       background: 'none',
       color: '#eee',
       padding: '0px 3px',
@@ -64,7 +74,7 @@ const styles = StyleSheet.create({
       maxWidth: '50%'
     },
     destination: {
-      width: 'calc( 40% - 75px)',
+      flex: '1 1 auto',
       textAlign: 'left'
     }
 });
@@ -75,6 +85,7 @@ class CompositionsListHeader extends React.Component {
     	<ul className={css(styles.container)}>
         <li className={css(styles.item, styles.radio, textEllipsis)}>Selected</li>
         <li className={css(styles.item, styles.settings, textEllipsis)}>Settings</li>
+        <li className={css(styles.item, styles.settings, textEllipsis)}>Report</li>
         <li className={css(styles.item, styles.name, textEllipsis)}>
           <div className={css(styles.nameBox)}>
             <input className={css(styles.name_input)} type="text" placeholder="Name" onChange={this.props.filterChange} value={this.props.filterValue} />
@@ -82,7 +93,11 @@ class CompositionsListHeader extends React.Component {
             </div>
           </div>
         </li>
-    		<li className={css(styles.item, styles.destination, textEllipsis)}>../Destination Folder</li>
+    		<li 
+          className={css(styles.item, styles.destination, textEllipsis)}
+        >
+          <div>../Destination Folder</div>
+        </li>
     	</ul>
     	);
   }

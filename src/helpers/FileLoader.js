@@ -1,20 +1,24 @@
 import csInterface from './CSInterfaceHelper'
 import {getSeparator} from './osHelper'
 import fs from './fs_proxy'
+import { getPort } from './enums/networkData'
+let tempId = ''
 
 function loadBodymovinFileData(path) {
-	var reject, resolve
+    var reject, resolve
     var promise = new Promise(function(_resolve, _reject) {
-    	resolve = _resolve
-    	reject = _reject
+        resolve = _resolve
+        reject = _reject
     })
-    var result = window.cep.fs.readFile(path)
     try {
-	    if(result.err === 0) {
-	    	var jsonData = JSON.parse(result.data)
-	    	if(jsonData.v) {
-    			resolve(jsonData)
-	    	}
+        var result = window.cep.fs.readFile(path);
+        if(result.err === 0) {
+            var jsonData = JSON.parse(result.data);
+            if (jsonData.v || jsonData.version) {
+                resolve(jsonData);
+            } else {
+                reject()
+            }
 	    } else {
             reject()
         }
@@ -23,6 +27,17 @@ function loadBodymovinFileData(path) {
     }
 
     return promise
+}
+
+function loadArrayBuffer(path) {
+    return new Promise(function(resolve, reject) {
+            try {
+                var result = window.__fs.readFileSync(path)
+                resolve(result.buffer)
+            } catch(err) {
+                reject()
+            }
+    })
 }
 
 export default loadBodymovinFileData
@@ -45,8 +60,6 @@ function setLocalPath(key, value) {
 }
 
 async function downloadFile(url, path) {
-    console.log(url)
-    console.log(path)
     const res = await fetch(url);
 
     const arrayBuf = await res.arrayBuffer()
@@ -73,10 +86,60 @@ async function saveFileFromBase64(data, path) {
     })
 }
 
+async function getFileType(path) {
+    const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/getType/`, 
+    {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: encodeURIComponent(path),
+        })
+    })
+    const jsonResponse = await encodedImageResponse.json()
+    return jsonResponse.fileType || { mime: 'font/unn' }
+
+}
+
+async function getEncodedFile(path) {
+    const encodedImageResponse = await fetchWithId(`http://localhost:${getPort()}/encode/`, 
+    {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: encodeURIComponent(path),
+        })
+    })
+    const jsonResponse = await encodedImageResponse.json()
+    const fileType = await getFileType(path)
+    return `data:${fileType.mime};base64,${jsonResponse.data}`
+
+}
+
 async function createFolder(path, folderName) {
     if (!fs.existsSync(path + folderName)){
         fs.mkdirSync(path + folderName);
     }
+}
+
+function setTempId(value) {
+    tempId = value;
+}
+
+async function fetchWithId(resource , init = {}) {
+    const request = {
+        ...init,
+        headers: {
+            ...init.headers,
+            'bodymovin-id': tempId,
+        }
+    }
+    return fetch(resource , request)
 }
 
 export {
@@ -86,4 +149,8 @@ export {
     downloadFile,
     saveFileFromBase64,
     createFolder,
+    loadArrayBuffer,
+    getEncodedFile,
+    setTempId,
+    fetchWithId,
 }

@@ -46,7 +46,7 @@ class App extends Component {
 
     return (
       <Provider store={store}>
-        <div style={{width:'100%',height:'100%'}}>
+        <div style={{width:'101%', height:'100%'}}>
           <ViewsContainer />
           {/*<Router history={browserHistory}>
             <Route path="/" component={Compositions} />

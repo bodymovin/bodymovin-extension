@@ -3,6 +3,7 @@
 $.__bodymovin.bm_effectsHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,
@@ -66,7 +67,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
         case 'ADBE FreePin3':
             return effectTypes.freePin3;
         default:
-            bm_eventDispatcher.log(name)
+            // bm_eventDispatcher.log(name)
             return effectTypes.group;
         }
     }
@@ -215,7 +216,9 @@ $.__bodymovin.bm_effectsHelper = (function () {
         var i, len = elem.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = elem.property(i + 1);
-            if(prop.matchName === "ADBE FreePin3 ARAP Group" 
+            if (annotationsManager.isAnnotation(prop.matchName)) {
+                // skip
+            } else if(prop.matchName === "ADBE FreePin3 ARAP Group" 
                 || prop.matchName === "ADBE FreePin3 Mesh Group" 
                 || prop.matchName === "ADBE FreePin3 Mesh Atom" 
                 || prop.matchName === "ADBE FreePin3 PosPins" 
@@ -249,7 +252,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
                     ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
                 } else {
-                    bm_eventDispatcher.log(prop.matchName)
+                    // bm_eventDispatcher.log(prop.matchName)
                 }
             }
         }
@@ -268,9 +271,14 @@ $.__bodymovin.bm_effectsHelper = (function () {
        
         var i, len = effects.numProperties, effectElement;
         var effectsArray = [];
+        var annotationsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            if(effectElement.enabled || includeHiddenData) {
+            if (effectElement.enabled || includeHiddenData) {
+                // if it is an annotaton, do not save
+                if (annotationsManager.isAnnotation(effectElement.matchName)) {
+                    continue;
+                }
                 var effectType = getEffectType(effectElement.matchName);
                 /*
                 //If the effect is not a Slider Control and is not enabled, it won't be exported.
@@ -278,11 +286,23 @@ $.__bodymovin.bm_effectsHelper = (function () {
                     continue;
                 }
                 */
+                /* Keep this code commented in case i gets used in the future.
+                var annotation = annotationsManager.findAnnotationEffectByMatchName(effectElement.matchName)
+                if (annotation) {
+                    var annotationData = exportCustomEffect(effectElement ,effectType, frameRate, stretch);
+                    annotationData.id = annotation.id;
+                    annotationsArray.push(annotationData)
+                } else {
+                    effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
+                }*/
                 effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
             }
         }
         if (effectsArray.length) {
             layerData.ef = effectsArray;
+        }
+        if (annotationsArray.length) {
+            layerData.annots = annotationsArray;
         }
     }
     

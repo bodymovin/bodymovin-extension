@@ -42,11 +42,34 @@ function showRenderBlock(pars) {
 	}
 }
 
+function previewAnimation(path) {
+	return {
+		type: actionTypes.PREVIEW_ANIMATION,
+		path,
+	}
+}
+
+function toggleBundleFont() {
+	return {
+		type: actionTypes.RENDER_TOGGLE_BUNDLE_FONT,
+	}
+}
+
+function processExpression(data) {
+	return {
+		type: actionTypes.RENDER_PROCESS_EXPRESSION,
+		data,
+	}
+}
+
 export {
 	startRender,
 	stopRender,
 	updateFontOrigin,
 	updateInput,
 	setFonts,
-	showRenderBlock
+	showRenderBlock,
+	previewAnimation,
+	toggleBundleFont,
+	processExpression,
 }

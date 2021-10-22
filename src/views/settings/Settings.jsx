@@ -3,11 +3,14 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsListDropdown from './list/SettingsListDropdown'
 import SettingsExportMode from './SettingsExportMode'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
+import SettingsAssets from './SettingsAssets'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps, rememberSettings, applySettings} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
+import audioBitOptions from '../../helpers/enums/audioBitOptions'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -127,18 +130,30 @@ class Settings extends React.PureComponent {
     this.toggleGuideds = this.toggleValue.bind(this,'guideds')
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
+    this.toggleOriginalAssets = this.toggleValue.bind(this,'original_assets')
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
     this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
+    this.toggleIncludeVideo = this.toggleValue.bind(this,'should_include_av_assets')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
+    this.toggleTrimData = this.toggleValue.bind(this,'shouldTrimData')
     this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
     this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
+    this.togglePrettyPrint = this.toggleValue.bind(this,'pretty_print')
+    this.toggleAudioLayers = this.toggleValue.bind(this,'audio:isEnabled')
+    this.toggleRasterizeWaveform = this.toggleValue.bind(this,'audio:shouldRaterizeWaveform')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.qualityChange = this.qualityChange.bind(this)
+    this.sampleSizeChange = this.sampleSizeChange.bind(this)
+    this.toggleBakeExpressionProperties = this.toggleValue.bind(this,'expressions:shouldBake')
+    this.toggleCacheExpressionProperties = this.toggleValue.bind(this,'expressions:shouldCacheExport')
+    this.toggleExtendBakeBeyondWorkArea = this.toggleValue.bind(this,'expressions:shouldBakeBeyondWorkArea')
+    this.toggleBundleFonts = this.toggleValue.bind(this,'bundleFonts')
+    this.toggleInlineFonts = this.toggleValue.bind(this,'inlineFonts')
   }
 
-	componentDidMount() {
+  componentDidMount() {
     if (this.props.settings) {
       this.storedSettings = this.props.settings
     } else {
@@ -177,6 +192,21 @@ class Settings extends React.PureComponent {
     this.props.updateSettingsValue('compression_rate', segments)
   }
 
+  sampleSizeChange(ev) {
+    let sampleSize = parseInt(ev.target.value, 10)
+    if(ev.target.value === '') {
+      this.props.updateSettingsValue('expressions:sampleSize', 1)
+    }
+    if(isNaN(sampleSize) || sampleSize < 0) {
+      return
+    }
+    this.props.updateSettingsValue('expressions:sampleSize', sampleSize)
+  }
+
+  handleBitRateChange = value => {
+    this.props.updateSettingsValue('audio:bitrate', value)
+  }
+
   getExtraComps() {
     return this.props.extraCompsList.map(function(item){
       return (<div 
@@ -189,6 +219,7 @@ class Settings extends React.PureComponent {
   }
 
   render() {
+
     return (
     	<div className={css(styles.wrapper)}>
         <div className={css(styles.container)}>
@@ -215,6 +246,22 @@ class Settings extends React.PureComponent {
               description='If selected it converts fonts to shapes'
               toggleItem={this.toggleGlyphs}
               active={this.props.settings ? this.props.settings.glyphs : false} />
+            {!this.props.settings.glyphs && 
+              <SettingsListItem 
+                title='Bundle Fonts'
+                description='if fonts are reachable on the file system. They will get exported with the bundle. (Works with Skottie player only)'
+                toggleItem={this.toggleBundleFonts}
+                active={this.props.settings ? this.props.settings.bundleFonts : false} 
+              />
+            }
+            {this.props.settings.bundleFonts && 
+              <SettingsListItem 
+                title='Inline Fonts'
+                description='Inline fonts on the json file'
+                toggleItem={this.toggleInlineFonts}
+                active={this.props.settings ? this.props.settings.inlineFonts : false} 
+              />
+            }
             <SettingsListItem 
               title='Hidden'
               description='Select if you need HIDDEN layers to be exported'
@@ -236,49 +283,70 @@ class Settings extends React.PureComponent {
                 {this.getExtraComps()}
               </div>
             </li>}
-            <SettingsCollapsableItem 
-              title={'Assets'}
-              description={'Rasterized assets settings (jpg, png)'}
-              >
-              <SettingsListItem 
-                title='Original Asset Names'
-                description='Export assets with their original project names'
-                toggleItem={this.toggleOriginalNames}
-                active={this.props.settings ? this.props.settings.original_names : false}  />
-              {this.props.canCompressAssets && <SettingsListItem 
-                title='Enable compression'
-                description='Set compression ratio for image layers (0-100)'
-                toggleItem={this.toggleCompressImages}
-                needsInput={true} 
-                inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
-                inputValueChange={this.qualityChange}
-                active={this.props.settings ? this.props.settings.should_compress : false}  />}
-              <SettingsListItem 
-                title='Include in json'
-                description='Include rasterized images encoded in the json'
-                toggleItem={this.toggleEncodeImages}
-                active={this.props.settings ? this.props.settings.should_encode_images : false}  />
-              <SettingsListItem 
-                title='Skip images export'
-                description='they have not changed since last export'
-                toggleItem={this.toggleSkipImages}
-                active={this.props.settings ? this.props.settings.should_skip_images : false}  />
-            </SettingsCollapsableItem>
+            <SettingsAssets
+              settings={this.props.settings}
+              canCompressAssets={this.props.canCompressAssets}
+              toggleOriginalNames={this.toggleOriginalNames}
+              toggleOriginalAssets={this.toggleOriginalAssets}
+              toggleCompressImages={this.toggleCompressImages}
+              qualityChange={this.qualityChange}
+              toggleEncodeImages={this.toggleEncodeImages}
+              toggleSkipImages={this.toggleSkipImages}
+              toggleIncludeVideo={this.toggleIncludeVideo}
+            />
+            
             <SettingsExportMode />
             <SettingsCollapsableItem 
-              title={'Advanced export settings'}
-              description={'Advanced export features'}
+              title={'Expression options'}
+              description={'Converts expressions to keyframes. This might be a slow process.'}
               >
+              <SettingsListItem 
+                title='Convert expressions to keyframes'
+                description='Exports expressions as keyframes (can increase file size significantly)'
+                toggleItem={this.toggleBakeExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldBake : false}
+              />
+              {/*<SettingsListItem 
+                title='Cache values'
+                description='Caches keyframe values to speed up next render.'
+                toggleItem={this.toggleCacheExpressionProperties}
+                active={this.props.settings ? this.props.settings.expressions.shouldCacheExport : false}
+              />*/}
+              <SettingsListItem 
+                title='Extend conversion beyond work area'
+                description='Use it when you need to convert keyframes beyond the workarea. For example when using time remapping.'
+                toggleItem={this.toggleExtendBakeBeyondWorkArea}
+                active={this.props.settings ? this.props.settings.expressions.shouldBakeBeyondWorkArea : false}
+              />
+              {/*<SettingsListItem 
+                title='Sample size'
+                description='Samples keyframes every n frames. Might reduce file size and speed up export.'
+                active={this.props.settings.expressions.shouldBake} 
+                needsInput={true} 
+                inputValue={this.props.settings ? this.props.settings.expressions.sampleSize : 1} 
+                inputValueChange={this.sampleSizeChange}
+              />*/}
               <SettingsListItem 
                 title='Remove expression properties (Reduces filesize)'
                 description='Removes properties that are only used for expressions. Select if your animation is not using expressions or your expressions are not using special properties.'
                 toggleItem={this.toggleExpressionProperties}
                 active={this.props.settings ? this.props.settings.ignore_expression_properties : false}  />
+
+            </SettingsCollapsableItem>
+            <SettingsCollapsableItem 
+              title={'Advanced export settings'}
+              description={'Advanced export features'}
+              >
               <SettingsListItem 
                 title='Export old json format (for backwards compatibility)'
                 description='Exports old json format in case you are using it with older players'
                 toggleItem={this.toggleJsonFormat}
                 active={this.props.settings ? this.props.settings.export_old_format : false}  />
+              <SettingsListItem 
+                title='Trim unused keyframes and layers'
+                description='Removes layers and keyframes beyond the workarea'
+                toggleItem={this.toggleTrimData}
+                active={this.props.settings ? this.props.settings.shouldTrimData : false}  />
               <SettingsListItem 
                 title='Skip default properties (Reduces filesize)'
                 description='Skips default properties. Uncheck if you are not using the latest Ios, Android or web players.'
@@ -289,6 +357,33 @@ class Settings extends React.PureComponent {
                 description='Only check this if you need specific properties for uses  other that the player.'
                 toggleItem={this.toggleNotSupportedProperties}
                 active={this.props.settings ? this.props.settings.not_supported_properties : false}  />
+              <SettingsListItem 
+                title='Pretty print JSON'
+                description='Export in a more human readable format. Do not use for final file since filesize gets significantly larger.'
+                toggleItem={this.togglePrettyPrint}
+                active={this.props.settings ? this.props.settings.pretty_print : false}  />
+            </SettingsCollapsableItem>
+            <SettingsCollapsableItem 
+              title={'Audio'}
+              description={'Audio Settings'}
+              >
+              <SettingsListItem 
+                title='Enabled'
+                description='Export audio layers (this will process audio layers and export them as mp3 files).'
+                toggleItem={this.toggleAudioLayers}
+                active={this.props.settings ? this.props.settings.audio.isEnabled : false}  />
+              <SettingsListItem 
+                title='Rasterize Waveforms'
+                description='It rasterizes waveform instead of exporting keyframes (unchecked option only works in Skottie)'
+                toggleItem={this.toggleRasterizeWaveform}
+                active={this.props.settings ? this.props.settings.audio.shouldRaterizeWaveform : false}  />
+              <SettingsListDropdown 
+                title='Audio quality'
+                description='Select audio quality for export'
+                onChange={this.handleBitRateChange}
+                current={this.props.settings.audio.bitrate}
+                options={audioBitOptions}  
+              />
             </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>

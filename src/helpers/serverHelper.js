@@ -1,5 +1,8 @@
+import { getPort } from './enums/networkData'
+import { fetchWithId } from './FileLoader'
+
 const ping = async() => {
-	const response = await fetch('http://localhost:3119/ping/');
+	const response = await fetchWithId(`http://localhost:${getPort()}/ping/`);
 	const textResponse = await response.text();
 	return textResponse
 }

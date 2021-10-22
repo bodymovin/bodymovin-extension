@@ -6,6 +6,7 @@ $.__bodymovin.bm_textHelper = (function () {
     var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var ob = {};
     
     function getJustification(value) {
@@ -26,6 +27,28 @@ $.__bodymovin.bm_textHelper = (function () {
             return 6;
         }
     }
+
+    function findLineHeight(textDocument) {
+        var baselineLocs = textDocument.baselineLocs
+        var fontSize = textDocument.fontSize
+        var isFound = false
+        var counter = 1
+        var lineHeight = fontSize
+        while(!isFound) {
+            if (baselineLocs.length > 1 + counter * 4) {
+                lineHeight = (baselineLocs[1 + counter * 4] - baselineLocs[1]) / counter
+                if (lineHeight < 100000) {
+                    isFound = true
+                } else {
+                    lineHeight = fontSize
+                }
+            } else {
+                isFound = true
+            }
+            counter += 1
+        }
+        return lineHeight
+    }
     
     function exportTextDocumentData(layerInfo, data, frameRate, stretch) {
         var duplicatedLayerInfo = layerInfo.duplicate();
@@ -44,6 +67,7 @@ $.__bodymovin.bm_textHelper = (function () {
         if(jLen === 0){
             jLen = 1;
         }
+        var additionalTextDocumentData = annotationsManager.searchTextProperties(layerInfo);
         for(j=0;j<jLen;j+=1){
             var ob = {};
             var textDocument, time;
@@ -61,22 +85,20 @@ $.__bodymovin.bm_textHelper = (function () {
             var i, len;
             ob.s = textDocument.fontSize;
             ob.f = textDocument.font;
-            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
+            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle, textDocument.fontLocation);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
+                ob.ca = 1;
             } else {
                 ob.t = textDocument.text;
+                ob.ca = textDocument.smallCaps ? 2 : 0;
             }
             len = ob.t.length;
             ob.j = getJustification(textDocument.justification);
             ob.tr = textDocument.tracking;
             if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
                 if(textDocument.baselineLocs[5] > textDocument.baselineLocs[1]){
-                    ob.lh = textDocument.baselineLocs[5] - textDocument.baselineLocs[1];
-                    // Fix when there is an empty newLine between first and second line. AE return an extremely large number.
-                    if(ob.lh > 10000) {
-                        ob.lh = ob.s*1.2;
-                    }
+                    ob.lh = findLineHeight(textDocument)
                 } else {
                     ob.lh = ob.s*1.2;
                 }
@@ -104,6 +126,11 @@ $.__bodymovin.bm_textHelper = (function () {
                 ob.sw = textDocument.strokeWidth;
                 if (textDocument.applyFill) {
                     ob.of = textDocument.strokeOverFill;
+                }
+            }
+            for (var s in additionalTextDocumentData) {
+                if (additionalTextDocumentData.hasOwnProperty(s)) {
+                    ob[s] = additionalTextDocumentData[s]
                 }
             }
             //TODO check if it need to be multiplied by stretch

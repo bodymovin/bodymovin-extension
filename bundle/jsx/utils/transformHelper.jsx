@@ -1,13 +1,14 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper*/
+/*global $, PropertyValueType, AutoOrientType*/
 $.__bodymovin.bm_transformHelper = (function () {
     'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
     
     function exportTransform(layerInfo, data, frameRate) {
 
-        var skipDefaultProperties = $.__bodymovin.bm_renderManager.shouldSkipDefaultProperties()
+        var skipDefaultProperties = settingsHelper.shouldSkipDefaultProperties()
 
         if (!layerInfo.transform) {
             return;
@@ -23,7 +24,7 @@ $.__bodymovin.bm_transformHelper = (function () {
             data.ks.ry = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Rotate Y'), frameRate, stretch);
             data.ks.rz = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Rotate Z'), frameRate, stretch);
             data.ks.or = bm_keyframeHelper.exportKeyframes(layerInfo.transform.Orientation, frameRate, stretch);
-        } else {
+        } else if(layerInfo.transform.rotation) {
             data.ks.r = bm_keyframeHelper.exportKeyframes(layerInfo.transform.rotation, frameRate, stretch);
         }
         if (layerInfo.transform.position.dimensionsSeparated) {
@@ -35,12 +36,30 @@ $.__bodymovin.bm_transformHelper = (function () {
             }
         } else {
             data.ks.p = bm_keyframeHelper.exportKeyframes(layerInfo.transform.position, frameRate, stretch);
+            if (!!data.ks.p 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.p.l = 2;
+            }
         }
         if (layerInfo.transform.property('ADBE Anchor Point')) {
             data.ks.a = bm_keyframeHelper.exportKeyframes(layerInfo.transform.property('ADBE Anchor Point'), frameRate, stretch);
+            if (!!data.ks.a 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.a.l = 2;
+            }
         }
         if (layerInfo.transform.Scale) {
             data.ks.s = bm_keyframeHelper.exportKeyframes(layerInfo.transform.Scale, frameRate, stretch);
+            if (!!data.ks.s 
+                && !layerInfo.threeDLayer
+                && !settingsHelper.shouldIgnoreExpressionProperties()
+            ) {
+                data.ks.s.l = 2;
+            }
         }
         if(layerInfo.autoOrient === AutoOrientType.ALONG_PATH){
             data.ao = 1;

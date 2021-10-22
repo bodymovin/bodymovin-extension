@@ -7,19 +7,39 @@ $.__bodymovin.bm_main = (function () {
     var ob = {};
     
     function browseFile(path) {
-        //openDlg()
         path = path ? path : Folder.desktop.absoluteURI
         var f = new File(path);
         var openFileData = f.openDlg();
         if (openFileData !== null) {
-            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:file:uri', openFileData.fsName);
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:file:uri', {
+                absoluteURI: openFileData.absoluteURI,
+                fsName: openFileData.fsName,
+                path: openFileData.path,
+            });
         } else {
             $.__bodymovin.bm_eventDispatcher.sendEvent('bm:file:cancel');
         }
 
     }
     
+    function browseFolder(path) {
+        path = path ? path : Folder.desktop.absoluteURI
+        var f = new Folder(path);
+        var openFileData = f.selectDlg();
+        if (openFileData !== null) {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:uri', {
+                absoluteURI: openFileData.absoluteURI,
+                fsName: openFileData.fsName,
+                path: openFileData.path,
+            });
+        } else {
+            $.__bodymovin.bm_eventDispatcher.sendEvent('bm:folder:cancel');
+        }
+
+    }
+    
     ob.browseFile = browseFile;
+    ob.browseFolder = browseFolder;
 
     return ob;
 }());

@@ -13,5 +13,6 @@ $.__bodymovin.layerTypes = {
     guide : 11,
     adjustment : 12,
     camera : 13,
-    light : 14
+    light : 14,
+    data : 15,
 }

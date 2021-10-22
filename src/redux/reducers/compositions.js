@@ -2,6 +2,8 @@ import actionTypes from '../actions/actionTypes'
 import ExportModes from '../../helpers/ExportModes'
 import LottieVersions, {findLottieVersion} from '../../helpers/LottieVersions'
 import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
+import audioBitOptions from '../../helpers/enums/audioBitOptions'
+import Variables from '../../helpers/styles/variables'
 
 let initialState = {
 	list: [],
@@ -9,6 +11,11 @@ let initialState = {
   items:{},
   current: 0,
   show_only_selected: false,
+  shouldUseCompNameAsDefault: false,
+  shouldUseAEPathAsDestinationFolder: false,
+  shouldUsePathAsDefaultFolder: false,
+  shouldIncludeCompNameAsFolder: false,
+  defaultFolderPath: '',
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -23,14 +30,17 @@ let defaultComposition = {
         segmented: false,
         segmentedTime: 10,
         standalone: false,
-        demo: false,
         avd: false,
         glyphs: true,
+        bundleFonts: false,
+        inlineFonts: false,
         hiddens: false,
+        original_assets: false,
         original_names: false,
         should_encode_images: false,
         should_compress: true,
         should_skip_images: false,
+        should_include_av_assets: false,
         compression_rate: 80,
         extraComps: {
             active: false,
@@ -39,8 +49,10 @@ let defaultComposition = {
         guideds: false,
         ignore_expression_properties: false,
         export_old_format: false,
+        shouldTrimData: false,
         skip_default_properties: false,
         not_supported_properties: false,
+        pretty_print: false,
         export_mode: ExportModes.STANDARD,
         export_modes: {
           standard: true,
@@ -48,7 +60,12 @@ let defaultComposition = {
           standalone: false,
           banner: false,
           avd: false,
+          smil: false,
           rive: false,
+          reports: false,
+        },
+        demoData: {
+          backgroundColor: Variables.colors.white,
         },
         banner: {
           lottie_origin: LottieLibraryOrigins.LOCAL,
@@ -62,6 +79,21 @@ let defaultComposition = {
           original_height: 500,
           click_tag: 'https://',
           zip_files: true,
+          shouldIncludeAnimationDataInTemplate: false,
+          shouldLoop: false,
+          loopCount: 0,
+          localPath: null,
+        },
+        expressions: {
+          shouldBake: false,
+          shouldCacheExport: false,
+          shouldBakeBeyondWorkArea: false,
+          sampleSize: 1,
+        },
+        audio: {
+          isEnabled: true,
+          shouldRaterizeWaveform: true,
+          bitrate: audioBitOptions[0].value,
         }
     }
   }
@@ -95,6 +127,9 @@ function createComp(comp) {
         height: comp.height || 500,
         original_width: comp.width || 500,
         original_height: comp.height || 500,
+      },
+      demoData: {
+        ...defaultComposition.settings.demoData,
       }
     }
   }
@@ -106,11 +141,35 @@ function setStoredData(state, action) {
   for(var comp in compositions) {
     if(compositions.hasOwnProperty(comp)){
       item = compositions[comp]
-      compositions[comp] = {...item, settings:{...defaultComposition.settings, ...item.settings}}
+      compositions[comp] = {
+        ...item, 
+        settings:{
+          ...defaultComposition.settings, 
+          ...item.settings,
+          banner: {
+            ...defaultComposition.settings.banner,
+            ...item.settings.banner,
+          },
+          expressions: {
+            ...defaultComposition.settings.expressions,
+            ...item.settings.expressions,
+          },
+          audio: {
+            ...defaultComposition.settings.audio,
+            ...item.settings.audio,
+          }
+        }
+      }
     }
   }
   let newState = {...state}
   newState.items = compositions
+  if (action.projectData.extraState) {
+    newState = {
+      ...newState,
+      ...action.projectData.extraState,
+    }
+  }
   return newState
 }
 
@@ -343,13 +402,25 @@ function cancelSettings(state, action) {
 function toggleSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
-  if(action.name === 'extraComps') {
+  if (action.name === 'extraComps') {
 
     let newExtraComps = {...newSettings.extraComps}
     newExtraComps.active = !newExtraComps.active
     newSettings.extraComps = newExtraComps
   } else {
-    newSettings[action.name] = !newSettings[action.name]
+    var nameArray = action.name.split(':');
+    var object = newSettings;
+    while (nameArray.length) {
+      var name = nameArray.shift();
+      if (nameArray.length) {
+        object[name] = {
+          ...object[name],
+        };
+        object = object[name];
+      } else {
+        object[name] = !object[name];
+      }
+    }
   } 
   newItem.settings = newSettings
   let newItems = {...state.items}
@@ -386,7 +457,20 @@ function toggleExtraComp(state, action) {
 function updateSettingsValue(state, action) {
   let newItem = {...state.items[state.current]}
   let newSettings = {...newItem.settings}
-  newSettings[action.name] = action.value
+  var nameArray = action.name.split(':');
+  var object = newSettings;
+  while (nameArray.length) {
+    var name = nameArray.shift();
+    if (nameArray.length) {
+      object[name] = {
+        ...object[name],
+      };
+      object = object[name];
+    } else {
+      object[name] = action.value;
+    }
+  }
+
   newItem.settings = newSettings
   let newItems = {...state.items}
   newItems[state.current] = newItem
@@ -534,13 +618,21 @@ function updateBanner(state, action) {
     newBanner.click_tag = action.value
   } else if (action.type === actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED) {
     newBanner.zip_files = !newBanner.zip_files
+  } else if (action.type === actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED) {
+    newBanner.shouldIncludeAnimationDataInTemplate = !newBanner.shouldIncludeAnimationDataInTemplate
   } else if (action.type === actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED) {
     newBanner.use_original_sizes = !newBanner.use_original_sizes
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LOOP_TOGGLE) {
+    newBanner.shouldLoop = !newBanner.shouldLoop
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE) {
+    newBanner.loopCount = action.value
+  } else if (action.type === actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED) {
+    newBanner.localPath = action.value
   }
   if (action.type === actionTypes.SETTINGS_BANNER_ORIGIN_UPDATED 
     || action.type === actionTypes.SETTINGS_BANNER_VERSION_UPDATED) 
   {
-    if (newBanner.lottie_origin !== LottieLibraryOrigins.CUSTOM) {
+    if ([LottieLibraryOrigins.LOCAL, LottieLibraryOrigins.CDNJS].includes(newBanner.lottie_origin)) {
       const lottieVersion = findLottieVersion(newBanner.lottie_library)
       if (!lottieVersion.renderers.includes(newBanner.lottie_renderer)) {
         newBanner.lottie_renderer = lottieVersion.renderers[0]
@@ -567,6 +659,70 @@ function updateBanner(state, action) {
     items: newItems
   }
 
+}
+
+function updateDemo(state, action) {
+
+  let newItem = {...state.items[state.current]}
+  let newSettings = {...newItem.settings}
+  const newDemoData = {...newSettings.demoData}
+  newDemoData.backgroundColor = action.value
+  newSettings.demoData = newDemoData
+  newItem.settings = newSettings 
+  let newItems = {...state.items}
+  newItems[state.current] = newItem
+  return {
+    ...state,
+    items: newItems
+  }
+}
+
+function toggleCompNameAsDefault(state, action) {
+  return {
+    ...state,
+    shouldUseCompNameAsDefault: !state.shouldUseCompNameAsDefault,
+  }
+}
+
+function toggleAEPathAsDestinationFolder(state, action) {
+  return {
+    ...state,
+    shouldUseAEPathAsDestinationFolder: !state.shouldUseAEPathAsDestinationFolder,
+  }
+}
+
+function toggleDefaultFolder(state, action) {
+  return {
+    ...state,
+    shouldUsePathAsDefaultFolder: !state.shouldUsePathAsDefaultFolder,
+  }
+}
+function toggleIncludeCompNameAsFolder(state, action) {
+  return {
+    ...state,
+    shouldIncludeCompNameAsFolder: !state.shouldIncludeCompNameAsFolder,
+  }
+}
+
+function setDefaultFolderPath(state, action) {
+  return {
+    ...state,
+    defaultFolderPath: action.value,
+  }
+}
+
+function storeReportsPath(state, action) {
+  var comp = {
+    ...state.items[action.compId],
+    reportPath: action.reportPath,
+  } || {}
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [action.compId]: comp,
+    }
+  }
 }
 
 export default function compositions(state = initialState, action) {
@@ -596,6 +752,16 @@ export default function compositions(state = initialState, action) {
       return toggleExtraComp(state, action)
     case actionTypes.SETTINGS_UPDATE_VALUE:
       return updateSettingsValue(state, action)
+    case actionTypes.SETTINGS_COMP_NAME_AS_DEFAULT_TOGGLE:
+      return toggleCompNameAsDefault(state, action)
+    case actionTypes.SETTINGS_AE_AS_PATH_TOGGLE:
+      return toggleAEPathAsDestinationFolder(state, action)
+    case actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER:
+      return toggleDefaultFolder(state, action)
+    case actionTypes.SETTINGS_INCLUDE_COMP_NAME_AS_FOLDER_TOGGLE:
+      return toggleIncludeCompNameAsFolder(state, action)
+    case actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_SELECTED:
+      return setDefaultFolderPath(state, action)
     case actionTypes.SETTINGS_TOGGLE_SELECTED:
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:
@@ -608,10 +774,18 @@ export default function compositions(state = initialState, action) {
     case actionTypes.SETTINGS_BANNER_RENDERER_UPDATED:
     case actionTypes.SETTINGS_BANNER_CLICK_TAG_UPDATED:
     case actionTypes.SETTINGS_BANNER_ZIP_FILES_UPDATED:
+    case actionTypes.SETTINGS_BANNER_INCLUDE_DATA_IN_TEMPLATE_UPDATED:
     case actionTypes.SETTINGS_BANNER_CUSTOM_SIZE_UPDATED:
+    case actionTypes.SETTINGS_BANNER_LOOP_TOGGLE:
+    case actionTypes.SETTINGS_BANNER_LOOP_COUNT_CHANGE:
+    case actionTypes.SETTINGS_BANNER_LIBRARY_FILE_SELECTED:
       return updateBanner(state, action)
     case actionTypes.SETTINGS_MODE_TOGGLE:
       return toggleMode(state, action)
+    case actionTypes.REPORTS_SAVED:
+      return storeReportsPath(state, action)
+    case actionTypes.SETTINGS_DEMO_BACKGROUND_COLOR_CHANGE:
+      return updateDemo(state, action)
     default:
       return state
   }

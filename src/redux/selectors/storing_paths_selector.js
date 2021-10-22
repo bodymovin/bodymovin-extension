@@ -1,11 +1,15 @@
 import { createSelector } from 'reselect'
 
 const getPaths = (state) => state.paths
+const getProjectPath = (state) => state.project.path
 
 const storingPathsSelector = createSelector(
-  [ getPaths ],
-  (paths) => {
-  	return paths
+  [ getPaths, getProjectPath ],
+  (paths, projectPath) => {
+  	return {
+      ...paths,
+      projectPath,
+    }
   }
 )
 
