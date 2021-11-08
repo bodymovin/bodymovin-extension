@@ -5,7 +5,7 @@ import LottieLibraryOrigins from '../../helpers/LottieLibraryOrigins'
 import audioBitOptions from '../../helpers/enums/audioBitOptions'
 import Variables from '../../helpers/styles/variables'
 import random from '../../helpers/randomGenerator'
-import {getSimpleSeparator, getSeparator} from '../../helpers/osHelper'
+import {getSimpleSeparator} from '../../helpers/osHelper'
 
 let initialState = {
 	list: [],

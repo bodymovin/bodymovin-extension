@@ -1,7 +1,5 @@
 import React from 'react'
-import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
-import {hideAlert} from '../../redux/actions/generalActions'
 import alertAnim from '../../assets/animations/alert.json'
 import Bodymovin from '../bodymovin/bodymovin'
 import BaseButton from '../buttons/Base_button'

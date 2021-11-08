@@ -2,7 +2,6 @@
 /*global $, esprima, escodegen*/
 
 const valueAssignmentHelper = (function () {
-    'use strict';
     var ob = {
     	assignVariable: assignVariable
     };

@@ -21,9 +21,6 @@ const styles = StyleSheet.create({
     buttons_group: {
         display: 'inline-block',
     },
-    buttons_group: {
-        display: 'inline-block',
-    },
     button: {
         marginRight:'7px',
         flex: '0 0 auto',

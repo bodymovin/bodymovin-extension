@@ -278,7 +278,7 @@ const getLayerMessageCount = memoizeHelper((layer, renderers, messageTypes, buil
     getStylesMessageCount(layer.styles, renderers, messageTypes, builders),
     countMessages(layer.messages, renderers, messageTypes, builders),
     getEffectsMessageCount(layer.effects, renderers, messageTypes, builders),
-    countLayerMessagesByType(layer, renderers, messageTypes, builders),
+    countLayerMessagesByType(layer, renderers, messageTypes, builders), // eslint-disable-line no-use-before-define
   )
 })
 
@@ -297,7 +297,7 @@ const getDictionaryMessageCount = memoizeHelper((dictionary, renderers, messageT
 const getShapeGroupMessagesCount = memoizeHelper((group, renderers, messageTypes, builders) => {
   return addMessagesCount(
     getTransformMessageCount(group.transform, renderers, messageTypes, builders),
-    getShapeCollectionMessagesCount(group.shapes, renderers, messageTypes, builders),
+    getShapeCollectionMessagesCount(group.shapes, renderers, messageTypes, builders), // eslint-disable-line no-use-before-define
   )
 })
 

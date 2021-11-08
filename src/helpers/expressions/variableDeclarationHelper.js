@@ -68,17 +68,6 @@ const variableDeclarationHelper = (function () {
             }
         }
 
-        function addSequenceExpressions(expressions) {
-            var i, len = expressions.length;
-            for (i = 0; i < len; i += 1) {
-                if (expressions[i].type === 'AssignmentExpression') {
-                    addAssignment(expressions[i]);
-                } else if (expressions[i].type === 'SequenceExpression') {
-                    addSequenceExpressions(expressions[i].expressions);
-                }
-            }
-        }
-
         function addDeclaredVariable(variableName) {
             var i = 0, len = declared.length;
             while (i < len) {

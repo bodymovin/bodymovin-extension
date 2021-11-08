@@ -3,7 +3,6 @@ import {
   getStylesMessageCount,
 } from '../../helpers/reports/counter'
 import RowContainer from './components/RowContainer'
-import Message from './components/Message'
 import StrokeStyle from './styles/StrokeStyle'
 import DropShadowStyle from './styles/DropShadowStyle'
 import InnerShadowStyle from './styles/InnerShadowStyle'

@@ -1,7 +1,6 @@
 import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveSettingsToLocalStorage, getSettingsFromLocalStorage} from '../../helpers/localStorageHelper'
-import getDelimiter from '../../helpers/delimiter'
 import {getSimpleSeparator} from '../../helpers/osHelper'
 import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions, getProjectPath} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
