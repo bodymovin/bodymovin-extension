@@ -52,12 +52,14 @@ $.__bodymovin.bm_dataManager = (function () {
                 comps.push({
                     id: layers[i].compId,
                     nm: layers[i].compName,
+                    fr: layers[i].frameRate,
                     layers: layers[i].layers
                 });
                 separateComps(layers[i].layers, comps);
                 delete layers[i].compId;
                 delete layers[i].layers;
                 delete layers[i].compName;
+                delete layers[i].frameRate;
             }
         }
     }
@@ -156,7 +158,6 @@ $.__bodymovin.bm_dataManager = (function () {
     }
     
     function saveData(data, destinationPath, config, callback) {
-
         resetStatus();
 
         _endCallback = callback;
