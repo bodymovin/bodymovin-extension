@@ -296,6 +296,12 @@ function toggleAEAsPath() {
 	}
 }
 
+function toggleCopySettings() {
+	return {
+		type: actionTypes.SETTINGS_PROJECT_SETTINGS_COPY,
+	}
+}
+
 function toggleDefaultPathAsFolder() {
 	return {
 		type: actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER,
@@ -305,6 +311,20 @@ function toggleDefaultPathAsFolder() {
 function defaultFolderFileChange(value) {
 	return {
 		type: actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE,
+		value,
+	}
+}
+
+function settingsCopyPathChange(value) {
+	return {
+		type: actionTypes.SETTINGS_COPY_PATH_UPDATE,
+		value,
+	}
+}
+
+function settingsCopyPathPathSelected(value) {
+	return {
+		type: actionTypes.SETTINGS_COPY_PATH_SELECTED,
 		value,
 	}
 }
@@ -351,6 +371,19 @@ function selectAllComps() {
 function unselectAllComps() {
 	return {
 		type: actionTypes.COMPOSITIONS_UNSELECT_ALL,
+	}
+}
+
+function loadSettings() {
+	return {
+		type: actionTypes.SETTINGS_LOAD,
+	}
+}
+
+function settingsLoaded(projectData) {
+	return {
+		type: actionTypes.SETTINGS_LOADED,
+		projectData,
 	}
 }
 
@@ -408,4 +441,9 @@ export {
 	clearCache,
 	clearCacheConfirmed,
 	clearCacheCancelled,
+	toggleCopySettings,
+	settingsCopyPathChange,
+	settingsCopyPathPathSelected,
+	loadSettings,
+	settingsLoaded,
 }

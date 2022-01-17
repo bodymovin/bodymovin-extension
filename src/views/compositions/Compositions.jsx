@@ -24,6 +24,9 @@ import {
 	goToReports,
 	selectAllComps,
 	unselectAllComps,
+	toggleCopySettings,
+	settingsCopyPathChange,
+	loadSettings,
 } from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
@@ -175,6 +178,11 @@ class Compositions extends React.Component {
 						onDefaultPathChange={this.props.onDefaultPathChange}
 						defaultFolderPath={this.props.defaultFolderPath}
 						shouldIncludeCompNameAsFolder={this.props.shouldIncludeCompNameAsFolder}
+						shouldKeepCopyOfSettings={this.props.shouldKeepCopyOfSettings}
+						onCopySettingsToggle={this.props.onCopySettingsToggle}
+						settingsDestinationCopy={this.props.settingsDestinationCopy}
+						onSettingsCopyChange={this.props.onSettingsCopyChange}
+						onSettingsLoad={this.props.onSettingsLoad}
 					/>
 				}
 			</div>
@@ -204,10 +212,13 @@ const mapDispatchToProps = {
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
 	onAEAsPathToggle: toggleAEAsPath,
+	onCopySettingsToggle: toggleCopySettings,
 	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
 	onDefaultPathChange: defaultFolderFileChange,
 	goToAnnotations: goToAnnotations,
 	goToReports: goToReports,
+	onSettingsCopyChange: settingsCopyPathChange,
+	onSettingsLoad: loadSettings,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

@@ -521,6 +521,32 @@ async function getUserFolders() {
 	
 }
 
+async function getSavingPath(path) {
+	return new Promise(async function(resolve, reject) {
+		function onDestinationSelected(ev) {
+			if (ev.data) {
+				const foldersData = (typeof ev.data === "string")
+				? JSON.parse(ev.data)
+				: ev.data
+				resolve(foldersData)
+			}
+			csInterface.removeEventListener('bm:destination:selected', onDestinationSelected)
+			csInterface.removeEventListener('bm:destination:cancelled', onDestinationSelected)
+		}
+		function onDestinationCancelled(ev) {
+			reject()
+		}
+		csInterface.addEventListener('bm:destination:selected', onDestinationSelected)
+		csInterface.addEventListener('bm:destination:cancelled', onDestinationCancelled)
+
+		await extensionLoader;
+		console.log('path', path);
+		var eScript = '$.__bodymovin.bm_projectManager.setDestinationPath("' + path + '")';
+	    csInterface.evalScript(eScript);
+	})
+	
+}
+
 export {
 	getCompositions,
 	getDestinationPath,
@@ -542,4 +568,5 @@ export {
 	setCompositionTimelinePosition,
 	getUserFolders,
 	expressionProcessed,
+	getSavingPath,
 }

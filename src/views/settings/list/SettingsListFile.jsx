@@ -92,7 +92,7 @@ class SettingsListFile extends React.PureComponent {
                   onClick={this.onChange}
                   className={css(styles['path'])}
                 >
-                  {this.props.value.fsName}
+                  {this.props.value.fsName || 'a'}
                 </div>
               }
               {!this.props.value && 

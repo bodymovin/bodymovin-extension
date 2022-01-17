@@ -37,6 +37,12 @@ $.__bodymovin.bm_lottieImporter = (function () {
 		//'bm_charHelper', 1000, 1000, 1, 1, 1
 	}
 
+	function setCompWorkArea(inPoint, outPoint, id) {
+		var destComp = getElementById(id);
+		destComp.workAreaStart = inPoint;
+		destComp.workAreaDuration = Math.max(0.1, outPoint - inPoint);
+	}
+
 	function createNull(duration, elementId, parentCompId) {
 		var comp = getElementById(parentCompId);
 
@@ -413,6 +419,7 @@ $.__bodymovin.bm_lottieImporter = (function () {
 	ob.reset = reset;
 	ob.createFolder = createFolder;
 	ob.createComp = createComp;
+	ob.setCompWorkArea = setCompWorkArea;
 	ob.createNull = createNull;
 	ob.createSolid = createSolid;
 	ob.createShapeLayer = createShapeLayer;

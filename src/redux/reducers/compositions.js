@@ -6,6 +6,7 @@ import audioBitOptions from '../../helpers/enums/audioBitOptions'
 import Variables from '../../helpers/styles/variables'
 import random from '../../helpers/randomGenerator'
 import {getSimpleSeparator} from '../../helpers/osHelper'
+import deepmerge from 'deepmerge'
 
 let initialState = {
 	list: [],
@@ -18,6 +19,8 @@ let initialState = {
   shouldUsePathAsDefaultFolder: false,
   shouldIncludeCompNameAsFolder: false,
   defaultFolderPath: '',
+  shouldKeepCopyOfSettings: false,
+  settingsDestinationCopy: null,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -142,35 +145,15 @@ function createComp(comp) {
   }
 }
 
+const overwriteMerge = (_, destinationArray) => destinationArray
+
 function setStoredData(state, action) {
   let compositions = action.projectData.compositions
   var item
   for(var comp in compositions) {
     if(compositions.hasOwnProperty(comp)){
       item = compositions[comp]
-      compositions[comp] = {
-        ...item, 
-        settings:{
-          ...defaultComposition.settings, 
-          ...item.settings,
-          banner: {
-            ...defaultComposition.settings.banner,
-            ...item.settings.banner,
-          },
-          expressions: {
-            ...defaultComposition.settings.expressions,
-            ...item.settings.expressions,
-          },
-          audio: {
-            ...defaultComposition.settings.audio,
-            ...item.settings.audio,
-          },
-          metadata: {
-            ...defaultComposition.settings.metadata,
-            ...item.settings.metadata,
-          }
-        }
-      }
+      compositions[comp] = deepmerge(defaultComposition, item, { arrayMerge: overwriteMerge })
     }
   }
   let newState = {...state}
@@ -746,6 +729,13 @@ function toggleAEPathAsDestinationFolder(state, action) {
   }
 }
 
+function toggleSettingSCopy(state, action) {
+  return {
+    ...state,
+    shouldKeepCopyOfSettings: !state.shouldKeepCopyOfSettings,
+  }
+}
+
 function toggleDefaultFolder(state, action) {
   return {
     ...state,
@@ -763,6 +753,13 @@ function setDefaultFolderPath(state, action) {
   return {
     ...state,
     defaultFolderPath: action.value,
+  }
+}
+
+function setSettingsDestinationPath(state, action) {
+  return {
+    ...state,
+    settingsDestinationCopy: action.value,
   }
 }
 
@@ -929,6 +926,7 @@ export default function compositions(state = initialState, action) {
     case actionTypes.RENDER_COMPLETE:
       return completeRender(state, action)
     case actionTypes.PROJECT_STORED_DATA:
+    case actionTypes.SETTINGS_LOADED:
       return setStoredData(state, action)
     case actionTypes.COMPOSITION_DISPLAY_SETTINGS:
     case actionTypes.COMPOSITIONS_SET_CURRENT_COMP_ID:
@@ -945,12 +943,16 @@ export default function compositions(state = initialState, action) {
       return toggleCompNameAsDefault(state, action)
     case actionTypes.SETTINGS_AE_AS_PATH_TOGGLE:
       return toggleAEPathAsDestinationFolder(state, action)
+    case actionTypes.SETTINGS_PROJECT_SETTINGS_COPY:
+      return toggleSettingSCopy(state, action)
     case actionTypes.SETTINGS_PATH_AS_DEFAULT_FOLDER:
       return toggleDefaultFolder(state, action)
     case actionTypes.SETTINGS_INCLUDE_COMP_NAME_AS_FOLDER_TOGGLE:
       return toggleIncludeCompNameAsFolder(state, action)
     case actionTypes.SETTINGS_DEFAULT_FOLDER_PATH_SELECTED:
       return setDefaultFolderPath(state, action)
+    case actionTypes.SETTINGS_COPY_PATH_SELECTED:
+      return setSettingsDestinationPath(state, action)
     case actionTypes.SETTINGS_TOGGLE_SELECTED:
       return toggleSelected(state, action)
     case actionTypes.SETTINGS_APPLY_FROM_CACHE:

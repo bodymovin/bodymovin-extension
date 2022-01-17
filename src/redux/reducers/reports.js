@@ -295,6 +295,7 @@ export default function project(state = initialState, action) {
 		case actionTypes.REPORTS_BUILDERS_UPDATED:
 		return updateBuilders(state, action);
 	    case actionTypes.PROJECT_STORED_DATA:
+				case actionTypes.SETTINGS_LOADED:
 	      return setStoredData(state, action)
 	    case actionTypes.REPORTS_LOAD_FAILED:
 	      return handleLoadError(state, action)

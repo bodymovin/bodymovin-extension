@@ -58,6 +58,10 @@ function createComp(name, width, height, duration, compId) {
 	sendCommand('createComp', [name, width, height, duration, compId]);
 }
 
+function setCompWorkArea(inPoint, outPoint, compId) {
+	sendCommand('setCompWorkArea', [inPoint, outPoint, compId]);
+}
+
 function createSolid(layerData, compId) {
 	const layerId = random(10);
 	layerData.__importId = layerId;
@@ -280,7 +284,9 @@ async function convert(lottieData, onUpdate, onEnd, onFailed) {
 	createFolder(lottieData.nm);
 	const mainCompId = random(10);
 	addFootageToMainFolder(lottieData.assets);
-	createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op - lottieData.ip, mainCompId);
+	
+	createComp(lottieData.nm, lottieData.w, lottieData.h, lottieData.op, mainCompId);
+	setCompWorkArea(lottieData.ip / lottieData.fr, lottieData.op / lottieData.fr, mainCompId);
 	iterateLayers(lottieData.layers, mainCompId, lottieData.assets);
 }
 

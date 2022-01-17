@@ -2,7 +2,14 @@ import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 import actions from '../actions/actionTypes'
 import {saveSettingsToLocalStorage, getSettingsFromLocalStorage} from '../../helpers/localStorageHelper'
 import {getSimpleSeparator} from '../../helpers/osHelper'
-import {getCompositions, getDestinationPath, renderNextComposition, stopRenderCompositions, getProjectPath} from '../../helpers/CompositionsProvider'
+import {
+	getCompositions,
+	getDestinationPath,
+	renderNextComposition,
+	stopRenderCompositions,
+	getProjectPath,
+	getSavingPath,
+} from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import settingsSelector from '../selectors/settings_selector'
@@ -11,6 +18,8 @@ import {
 	applySettingsFromCache,
 	settingsBannerLibraryFileSelected,
 	settingsDefaultFolderPathSelected,
+	settingsCopyPathPathSelected,
+	settingsLoaded,
 } from '../actions/compositionActions'
 import fileBrowser from '../../helpers/FileBrowser'
 import folderBrowser from '../../helpers/FolderBrowser'
@@ -125,6 +134,31 @@ function *searchDefaultDestinationPath(action) {
 	}
 }
 
+function *searchSettingsCopyPath(action) {
+	try{
+		const path = yield call(getSavingPath, action.value ? action.value.absoluteURI: '')
+		yield put(settingsCopyPathPathSelected(path))
+	} catch(err) {
+	}
+}
+
+function *loadSettings() {
+	var result;
+	try {
+		result = window.cep.fs.showOpenDialogEx(false, false);
+		if (result && result.data.length) {
+			var readResult = window.cep.fs.readFile(result.data[0]);
+        if(readResult.err === 0) {
+					var jsonData = JSON.parse(readResult.data);
+					yield put(settingsLoaded(jsonData))
+	    } else {
+			}
+		}
+	} catch(err) {
+		console.log('err', err)
+	}
+}
+
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
@@ -135,4 +169,6 @@ export default [
   takeEvery(actions.SETTINGS_APPLY, applySettings),
   takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
   takeEvery(actions.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE, searchDefaultDestinationPath),
+  takeEvery(actions.SETTINGS_COPY_PATH_UPDATE, searchSettingsCopyPath),
+  takeEvery(actions.SETTINGS_LOAD, loadSettings),
 ]

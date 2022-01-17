@@ -121,6 +121,38 @@ $.__bodymovin.bm_projectManager = (function () {
     function getUserFolders() {
         bm_eventDispatcher.sendEvent('bm:user:folders', {userData: Folder.userData.fsName});
     }
+
+    function setDestinationPath(path) {
+        /*var i = 0, len = compositions.length, compData;
+        while (i < len) {
+            if (compositions[i].id === id) {
+                compData = compositions[i];
+                break;
+            }
+            i += 1;
+        }*/
+        var uri;
+        if (path) {
+            uri = path;
+        } else {
+            uri = Folder.desktop.absoluteURI + '/settings.json';
+        }
+
+        var f = new File(uri);
+        var saveFileData = f.saveDlg();
+        if (saveFileData !== null) {
+            //compData.absoluteURI = saveFileData.absoluteURI;
+            //compData.destination = saveFileData.fsName;
+            var compositionDestinationData = {
+                absoluteURI: saveFileData.absoluteURI,
+                destination: saveFileData.fsName,
+                fsName: saveFileData.fsName,
+            }
+            bm_eventDispatcher.sendEvent('bm:destination:selected', compositionDestinationData);
+        } else {
+            bm_eventDispatcher.sendEvent('bm:destination:cancelled');
+        }
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -131,6 +163,7 @@ $.__bodymovin.bm_projectManager = (function () {
         getFile: getFile,
         getProjectPath: getProjectPath,
         getUserFolders: getUserFolders,
+        setDestinationPath: setDestinationPath,
     };
     return ob;
 }());

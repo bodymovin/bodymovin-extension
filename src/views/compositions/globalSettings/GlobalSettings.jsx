@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   header: {
     width: '100%',
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
   content: {
     width: '100%',
@@ -54,6 +54,12 @@ class GlobalSettings extends React.Component {
         <div className={css(styles.background)} />
         <div className={css(styles.modal)}>
           <div className={css(styles.header)}>
+            <BaseButton
+                text='Load Settings'
+                type='gray'
+                classes={styles.button}
+                onClick={this.props.onSettingsLoad}
+            />
             <BaseButton
                 text='Close'
                 type='gray'
@@ -95,6 +101,20 @@ class GlobalSettings extends React.Component {
                   description='Set the folder path'
                   value={this.props.defaultFolderPath}
                   onChange={this.props.onDefaultPathChange}
+                />
+              }
+              <SettingsListItem 
+                title='Keep live copy of settings'
+                description='In case AE updates and settings are lost'
+                toggleItem={this.props.onCopySettingsToggle}
+                active={this.props.shouldKeepCopyOfSettings}
+              />
+              {this.props.shouldKeepCopyOfSettings &&
+                <SettingsListFile
+                  title='Set Location of live settings'
+                  description='Set the folder path'
+                  value={this.props.settingsDestinationCopy}
+                  onChange={this.props.onSettingsCopyChange}
                 />
               }
             </ul>

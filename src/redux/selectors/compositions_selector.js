@@ -9,6 +9,8 @@ const getDefaultFolderPath = (state) => state.compositions.defaultFolderPath
 const getShouldIncludeCompNameAsFolder = (state) => state.compositions.shouldIncludeCompNameAsFolder
 const getItems = (state) => state.compositions.items
 const getList = (state) => state.compositions.list
+const getShouldKeepSettingsCopy = (state) => state.compositions.shouldKeepCopyOfSettings
+const getSettingsDestinationCopy = (state) => state.compositions.settingsDestinationCopy
 
 function getVisibleItems(items, list, filter, showOnlySelected) {
   filter = filter.toLowerCase();
@@ -48,6 +50,8 @@ const getCompositionsList = createSelector(
     getDefaultPathAsFolder,
     getDefaultFolderPath,
     getShouldIncludeCompNameAsFolder,
+    getShouldKeepSettingsCopy,
+    getSettingsDestinationCopy,
   ],
   (
     filter,
@@ -59,6 +63,8 @@ const getCompositionsList = createSelector(
     shouldUsePathAsDefaultFolder,
     defaultFolderPath,
     shouldIncludeCompNameAsFolder,
+    shouldKeepCopyOfSettings,
+    settingsDestinationCopy,
   ) => {
   	return {
 		canRender: checkRenderable(items, list),
@@ -69,7 +75,9 @@ const getCompositionsList = createSelector(
     shouldUsePathAsDefaultFolder: shouldUsePathAsDefaultFolder,
     defaultFolderPath: defaultFolderPath,
     shouldIncludeCompNameAsFolder: shouldIncludeCompNameAsFolder,
-		visibleItems: getVisibleItems(items, list, filter, showOnlySelected) 
+		visibleItems: getVisibleItems(items, list, filter, showOnlySelected),
+    shouldKeepCopyOfSettings: shouldKeepCopyOfSettings,
+    settingsDestinationCopy: settingsDestinationCopy,
   	}
   }
 )

@@ -15,6 +15,7 @@ import {ping as serverPing} from '../../helpers/serverHelper'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import LottieVersions from '../../helpers/LottieVersions'
+import fs from '../../helpers/fs_proxy'
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
@@ -47,6 +48,16 @@ function *getVersion(action) {
 	try{
 		yield call(getVersionFromExtension)
 	} catch(err){
+	}
+}
+
+function saveProjectDataToPath(data) {
+	try {
+		if (data.extraState.shouldKeepCopyOfSettings
+			&& data.extraState.settingsDestinationCopy) {
+				fs.writeFileSync(data.extraState.settingsDestinationCopy.destination, JSON.stringify(data))
+		}
+	} catch (err) {
 	}
 }
 
@@ -94,8 +105,13 @@ function *saveStoredData() {
 			actions.SETTINGS_METADATA_CUSTOM_PROP_VALUE_CHANGE,
 			actions.COMPOSITIONS_SELECT_ALL,
 			actions.COMPOSITIONS_UNSELECT_ALL,
+			actions.COMPOSITIONS_UNSELECT_ALL,
+			actions.SETTINGS_PROJECT_SETTINGS_COPY,
+			actions.SETTINGS_COPY_PATH_SELECTED,
+			actions.SETTINGS_LOADED,
 		])
 		const storingData = yield select(storingDataSelector)
+		yield call(saveProjectDataToPath, storingData.data)
 		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
 	}
 }

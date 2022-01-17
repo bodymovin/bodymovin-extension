@@ -65,6 +65,7 @@
     "aphrodite": "^1.1.0",
     "bodymovin-to-avd": "^1.0.8",
     "bodymovin-to-smil": "^1.0.10",
+    "deepmerge": "^4.2.2",
     "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
     "jimp": "^0.2.28",

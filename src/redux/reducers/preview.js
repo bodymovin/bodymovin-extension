@@ -61,6 +61,7 @@ export default function project(state = initialState, action) {
     case actionTypes.PREVIEW_LOOP_TOGGLE:
       return {...state, ...{shouldLoop: !state.shouldLoop}}
     case actionTypes.PROJECT_STORED_DATA:
+    case actionTypes.SETTINGS_LOADED:
       return setStoredData(state, action)
     case actionTypes.PREVIEW_TIMELINE_UPDATED:
       return updateTimelineData(state, action)
