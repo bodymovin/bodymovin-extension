@@ -142,6 +142,7 @@ class Settings extends React.PureComponent {
     this.cancelSettings = this.cancelSettings.bind(this)
     this.toggleValue = this.toggleValue.bind(this)
     this.toggleGlyphs = this.toggleValue.bind(this,'glyphs')
+    this.toggleExtraChars = this.toggleValue.bind(this,'includeExtraChars')
     this.toggleGuideds = this.toggleValue.bind(this,'guideds')
     this.toggleHiddens = this.toggleValue.bind(this,'hiddens')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
@@ -262,6 +263,11 @@ class Settings extends React.PureComponent {
               description='If selected it converts fonts to shapes'
               toggleItem={this.toggleGlyphs}
               active={this.props.settings ? this.props.settings.glyphs : false} />
+            <SettingsListItem 
+              title='Replace Characters with Comps'
+              description='Replaces characters with custom compositions from folder'
+              toggleItem={this.toggleExtraChars}
+              active={this.props.settings ? this.props.settings.includeExtraChars : false} />
             {!this.props.settings.glyphs && 
               <SettingsListItem 
                 title='Bundle Fonts'

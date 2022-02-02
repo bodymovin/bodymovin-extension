@@ -5,9 +5,11 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var layerTypes = $.__bodymovin.layerTypes;
     var getLayerType = $.__bodymovin.getLayerType;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var textCompHelper = $.__bodymovin.bm_textCompHelper;
     var ob = {}, chars = [], comp, fontComp, dupl, boxText, layers = [], currentFont, compsAddedFlag = false;
     
     function reset() {
@@ -113,6 +115,30 @@ $.__bodymovin.bm_textShapeHelper = (function () {
             i += 1;
         }
     }
+
+    function searchCompInFolder(folder, compName) {
+
+        var numInFolder = folder.numItems;
+        for (var i = numInFolder; i >= 1; i--) {
+            var curItem = folder.item(i);
+            if (curItem.name === compName) {
+                return curItem;
+            }
+        }
+        return false;
+    }
+
+    function searchFolderAndCharacter(folderName, character) {
+        var items = app.project.items;
+        for ( var i = 0; i < items.length; i+= 1) {
+            var item = items[i + 1];
+            if (item instanceof FolderItem && item.name === folderName) {
+                return searchCompInFolder(item, character);
+            }
+        }
+        return false;
+
+    }
     
     function createNewChar(layerInfo, originalTextDocument, ch, charData) {
         if (bm_compsManager.cancelled) {
@@ -125,6 +151,41 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                 charData.w = 0;
                 return;
             }
+            ////
+            
+            var characterMetadata = textCompHelper.findCharacterData(originalTextDocument, ch);
+            if (characterMetadata) {
+                var yOffset = characterMetadata.compData.h;
+                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.y)  {
+                    yOffset = characterMetadata.textData.y;
+                }
+                var xOffset = 0;
+                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.x)  {
+                    xOffset = characterMetadata.textData.x;
+                }
+                var advance = characterMetadata.compData.w - xOffset;
+                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.advance)  {
+                    advance = characterMetadata.textData.advance;
+                }
+                charData.t = 1;
+                charData.w = advance;
+                charData.data = {
+                    refId: characterMetadata.compData.id,
+                    ip: 0,
+                    op: 99999,
+                    sr: 1,
+                    st: 0,
+                    ks: {
+                        a: { k: [0, 0, 0], a: 0 },
+                        p: { k: [-xOffset, -yOffset, 0], a: 0 },
+                        r: { k: 0, a: 0 },
+                        s: { k: [100, 100], a: 0 },
+                        o: { k: 100, a: 0 },
+                    }
+                };
+                return;
+            }
+            ////
             var shapeLayer;
             var l, lLen;
             var cmdID = bm_projectManager.getCommandID('shapesFromText');
@@ -196,6 +257,10 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                 shapeLayer.remove();
             }
         } catch(err) {
+            bm_eventDispatcher.log('message');
+            bm_eventDispatcher.log(err.message);
+            bm_eventDispatcher.log(err.line);
+            bm_eventDispatcher.log(err.fileName);
             bm_eventDispatcher.alert('Character could not be created: ' + ch); 
         }
     }
@@ -294,6 +359,10 @@ $.__bodymovin.bm_textShapeHelper = (function () {
             compsAddedFlag = false;
         }
     }
+
+    function getExportingComps() {
+        return exportingComps;
+    }
     
     ob.reset = reset;
     ob.addChar = addChar;
@@ -302,6 +371,7 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     ob.exportFonts = exportFonts;
     ob.addComps = addComps;
     ob.removeComps = removeComps;
+    ob.getExportingComps = getExportingComps;
     
     return ob;
 }());

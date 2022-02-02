@@ -40,6 +40,7 @@ if (!Function.prototype.bm_bind) (function(){
   'helpers/renderHelper.jsx',
   'helpers/versionHelper.jsx',
   'helpers/renderQueueHelper.jsx',
+  'utils/textCompHelper.jsx',
   'utils/generalUtils.jsx',
   'reports/rendererTypes.jsx',
   'reports/builderTypes.jsx',

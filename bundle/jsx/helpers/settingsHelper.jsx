@@ -100,6 +100,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.original_names;
     }
 
+    function shouldReplaceCharactersWithComps() {
+        return _settings.includeExtraChars;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -124,6 +128,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldRasterizeWaveform = shouldRasterizeWaveform;
     ob.shouldUserOriginalNames = shouldUserOriginalNames;
     ob.shouldUseSourceNames = shouldUseSourceNames;
+    ob.shouldReplaceCharactersWithComps = shouldReplaceCharactersWithComps;
 
     return ob;
 }());
