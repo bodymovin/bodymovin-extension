@@ -10,8 +10,8 @@ var options = {
 };
 
 function correctElseToken(str){
-	var regElse = / else /g;
-	return str.replace(regElse,'\n else ');
+	var regElse = /(\/\/)?(.*) else /g;
+	return str.replace(regElse,'$1$2\n$1 else ');
 }
 
 function correctKhanyu(str){
