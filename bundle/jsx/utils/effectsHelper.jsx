@@ -202,8 +202,37 @@ $.__bodymovin.bm_effectsHelper = (function () {
             bm_eventDispatcher.log('----------------');
         }
     }*/
+
+    function setChannelDropdownToFirst(elem) {
+        var firstProp = elem.property(1);
+        if (firstProp.value !== 1) {
+            firstProp.setValue(1);
+        }
+    }
+
+    function handleProLevels(elem) {
+        setChannelDropdownToFirst(elem);
+    }
+
+    function handleEasyLevels(elem) {
+        setChannelDropdownToFirst(elem);
+    }
+
+    function handleHueSaturation(elem) {
+        setChannelDropdownToFirst(elem);
+    }
     
     function exportCustomEffect(elem,effectType, frameRate, stretch) {
+        if(effectType === effectTypes.proLevels ) {
+            handleProLevels(elem);
+        }
+        // using matchName here instead of effectType, 
+        // because this effect is still exported as an unknown effect (group)
+        if (elem.matchName === 'ADBE Easy Levels2') { 
+            handleEasyLevels(elem);
+        } else if (elem.matchName === 'ADBE HUE SATURATION') {
+            handleHueSaturation(elem);
+        }
         var ob = {};
         ob.ty = effectType;
         ob.nm = elem.name;
@@ -225,7 +254,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
                 || prop.matchName === "ADBE FreePin3 StarchPins" 
                 || prop.matchName === "ADBE FreePin3 HghtPins" 
                 || prop.matchName === "ADBE FreePin3 PosPin Atom") {
-                ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+                ob.ef.push(exportCustomEffect(prop, '', frameRate, stretch));
             } else if(prop.propertyType === PropertyType.PROPERTY){
                 var type = findEffectPropertyType(prop);
                 //effectTypes.noValue;
@@ -250,7 +279,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
                 }
             } else {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
-                    ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+                    ob.ef.push(exportCustomEffect(prop, '', frameRate, stretch));
                 } else {
                     // bm_eventDispatcher.log(prop.matchName)
                 }

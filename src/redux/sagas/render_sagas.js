@@ -104,8 +104,12 @@ function *saveRiveFile(action) {
 }
 
 function *processExpression(action) {
-	const expressionData = yield call(expressionProcessor, action.data.text);
-	yield call(expressionProcessed, action.data.id, expressionData);
+	try {
+		const expressionData = yield call(expressionProcessor, action.data.text);
+		yield call(expressionProcessed, action.data.id, expressionData);
+	} catch (err) {
+		yield call(expressionProcessed, action.data.id, {});
+	}
 }
 
 export default [
