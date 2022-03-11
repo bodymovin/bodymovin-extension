@@ -8,7 +8,7 @@ var replace = require('gulp-replace');
 var gzip = require('gulp-gzip');
 var insert = require('gulp-insert');
 
-var version = '5.8.3'
+var version = '5.9.1'
 
 var extensionSource = './bundle';
 var extensionDestination = '../../../tropi/AppData/Roaming/Adobe/CEP/extensions/bodymovin';

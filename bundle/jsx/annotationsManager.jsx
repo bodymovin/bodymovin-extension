@@ -9,11 +9,11 @@ $.__bodymovin.bm_annotationsManager = (function () {
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var presetHelper = $.__bodymovin.presetHelper;
     var layers = [];
-    var textPropertyMatchName = 'Pseudo/Bodymovin Text Props 6'
+    var textPropertyMatchName = 'Pseudo/Bodymovin Text Props 7'
 
     var pseudoEffects = [
         {
-            path: '/assets/annotations/bodymovin_text_props_6.ffx',
+            path: '/assets/annotations/bodymovin_text_props_7.ffx',
             matchName: textPropertyMatchName,
             name: 'Text Properties',
         }
@@ -42,6 +42,15 @@ $.__bodymovin.bm_annotationsManager = (function () {
         'Pseudo/Bodymovin Text Props 6-0005',
         'Pseudo/Bodymovin Text Props 6-0006',
         'Pseudo/Bodymovin Text Props 6-0007',
+        'Pseudo/Bodymovin Text Props 7',
+        'Pseudo/Bodymovin Text Props 7-0001',
+        'Pseudo/Bodymovin Text Props 7-0002',
+        'Pseudo/Bodymovin Text Props 7-0003',
+        'Pseudo/Bodymovin Text Props 7-0004',
+        'Pseudo/Bodymovin Text Props 7-0005',
+        'Pseudo/Bodymovin Text Props 7-0006',
+        'Pseudo/Bodymovin Text Props 7-0007',
+        'Pseudo/Bodymovin Text Props 7-0008',
     ]
 
     function createLayerReference(layer) {
@@ -141,12 +150,19 @@ $.__bodymovin.bm_annotationsManager = (function () {
         // DO NOT DELETE. USE WHEN ADDING NEW PSEUDO EFFECT TO SAVE AS FFX
         // var layer = findLayerById(layerId);
         // if (layer) {
-        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 6');
+        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 7');
         // }
     }
 
     function getAvailableAnnotation() {
         bm_eventDispatcher.sendEvent('bm:annotations:annotationsList', pseudoEffects)
+    }
+
+    function calculateLineJoin(value) {
+        if (value === 1) {
+            return 1;
+        }
+        return value - 1;
     }
 
     function addTextProperties(effect, data) {
@@ -162,6 +178,30 @@ $.__bodymovin.bm_annotationsManager = (function () {
             prop = effect.property(i + 1);
             // bm_eventDispatcher.log('prop: ' + prop.matchName);
             // bm_eventDispatcher.log('VALUE: ' + prop.value);
+            //
+            if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0001') {
+                data.vj = prop.value - 1;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0002') {
+                data.rs = prop.value - 1;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0003') {
+                if (prop.value !== 1) {
+                    data.m = prop.value - 2;
+                }
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0004') {
+                data.mc = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0005') {
+                data.mf = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0006') {
+                data.xf = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0007') {
+                data.lj = calculateLineJoin(prop.value);
+            
+            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0008') {
+                data.xl = prop.value;
+            
+            }
+            //
+            //
             if (prop.matchName === 'Pseudo/Bodymovin Text Props 6-0001') {
                 data.vj = prop.value - 1;
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 6-0002') {
@@ -177,8 +217,11 @@ $.__bodymovin.bm_annotationsManager = (function () {
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 6-0006') {
                 data.xf = prop.value;
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 6-0007') {
-                data.lj = prop.value;
-            } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0001') {
+                data.lj = calculateLineJoin(prop.value);
+            
+            }
+            //
+            else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0001') {
                 data.vj = prop.value - 1;
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 5-0002') {
                 data.rs = prop.value - 1;
@@ -216,7 +259,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
         var i, len = effects.numProperties, effectElement;
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            if (effectElement.enabled && effectElement.matchName === textPropertyMatchName) {
+            if (effectElement.enabled && isAnnotation(effectElement.matchName)) {
                 addTextProperties(effectElement, textDocumentData);
             }
         }

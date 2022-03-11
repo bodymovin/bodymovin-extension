@@ -1,4 +1,4 @@
-(function (global, factory) {
+(typeof navigator !== "undefined") && (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.lottie = factory());
@@ -28,22 +28,6 @@
   function createTag(type) {
     // return {appendChild:function(){},setAttribute:function(){},style:{}}
     return document.createElement(type);
-  }
-
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
   }
 
   function extendPrototype(sources, destination) {
@@ -220,10 +204,12 @@
     });
   }
 
+  function _typeof$6(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$6 = function _typeof(obj) { return typeof obj; }; } else { _typeof$6 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$6(obj); }
   var subframeEnabled = true;
   var expressionsPlugin = null;
   var idPrefix = '';
   var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  var _shouldRoundValues = false;
   var bmPow = Math.pow;
   var bmSqrt = Math.sqrt;
   var bmFloor = Math.floor;
@@ -241,10 +227,14 @@
     }
   })();
 
+  function ProjectInterface$1() {
+    return {};
+  }
+
   BMMath.random = Math.random;
 
   BMMath.abs = function (val) {
-    var tOfVal = _typeof(val);
+    var tOfVal = _typeof$6(val);
 
     if (tOfVal === 'object' && val.length) {
       var absArr = createSizedArray(val.length);
@@ -264,6 +254,18 @@
   var defaultCurveSegments = 150;
   var degToRads = Math.PI / 180;
   var roundCorner = 0.5519;
+
+  function roundValues(flag) {
+    _shouldRoundValues = !!flag;
+  }
+
+  function bmRnd(value) {
+    if (_shouldRoundValues) {
+      return Math.round(value);
+    }
+
+    return value;
+  }
 
   function styleDiv(element) {
     element.style.position = 'absolute';
@@ -317,6 +319,11 @@
 
   function BMConfigErrorEvent(nativeError) {
     this.type = 'configError';
+    this.nativeError = nativeError;
+  }
+
+  function BMAnimationConfigErrorEvent(type, nativeError) {
+    this.type = type;
     this.nativeError = nativeError;
   }
 
@@ -379,6 +386,9 @@
         g = p;
         b = q;
         break;
+
+      default:
+        break;
     }
 
     return [r, g, b];
@@ -410,6 +420,9 @@
       case b:
         h = r - g + d * 4;
         h /= 6 * d;
+        break;
+
+      default:
         break;
     }
 
@@ -510,10 +523,16 @@
     idPrefix = value;
   };
 
+  var getIdPrefix = function getIdPrefix() {
+    return idPrefix;
+  };
+
   function createNS(type) {
     // return {appendChild:function(){},setAttribute:function(){},style:{}}
     return document.createElementNS(svgNS, type);
   }
+
+  function _typeof$5(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$5 = function _typeof(obj) { return typeof obj; }; } else { _typeof$5 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$5(obj); }
 
   var dataManager = function () {
     var _counterId = 1;
@@ -1093,7 +1112,8 @@
             }
 
             function completeText(data) {
-              if (data.t.a.length === 0 && !('m' in data.t.p)) ;
+              if (data.t.a.length === 0 && !('m' in data.t.p)) {// data.singleShape = true;
+              }
             }
 
             var moduleOb = {};
@@ -1121,7 +1141,7 @@
                   return xhr.response;
                 }
 
-                if (xhr.response && _typeof(xhr.response) === 'object') {
+                if (xhr.response && _typeof$5(xhr.response) === 'object') {
                   return xhr.response;
                 }
 
@@ -1654,6 +1674,8 @@
     return renderers[key];
   }
 
+  function _typeof$4(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$4 = function _typeof(obj) { return typeof obj; }; } else { _typeof$4 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$4(obj); }
+
   var AnimationItem = function AnimationItem() {
     this._cbs = [];
     this.name = '';
@@ -1755,7 +1777,7 @@
 
   AnimationItem.prototype.setData = function (wrapper, animationData) {
     if (animationData) {
-      if (_typeof(animationData) !== 'object') {
+      if (_typeof$4(animationData) !== 'object') {
         animationData = JSON.parse(animationData);
       }
     }
@@ -2226,7 +2248,7 @@
       this.segments.length = 0;
     }
 
-    if (_typeof(arr[0]) === 'object') {
+    if (_typeof$4(arr[0]) === 'object') {
       var i;
       var len = arr.length;
 
@@ -3766,6 +3788,9 @@
           case 1:
             p = new KeyframedMultidimensionalProperty(elem, data, mult, container);
             break;
+
+          default:
+            break;
         }
       }
 
@@ -5062,14 +5087,20 @@
     };
   }();
 
+  function _typeof$3(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$3 = function _typeof(obj) { return typeof obj; }; } else { _typeof$3 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$3(obj); }
   var lottie = {};
+  var standalone = '__[STANDALONE]__';
+  var animationData = '__[ANIMATIONDATA]__';
+  var renderer = '';
 
   function setLocation(href) {
     setLocationHref(href);
   }
 
   function searchAnimations() {
-    {
+    if (standalone === true) {
+      animationManager.searchAnimations(animationData, standalone, renderer);
+    } else {
       animationManager.searchAnimations();
     }
   }
@@ -5083,6 +5114,9 @@
   }
 
   function loadAnimation(params) {
+    if (standalone === true) {
+      params.animationData = JSON.parse(animationData);
+    }
 
     return animationManager.loadAnimation(params);
   }
@@ -5105,6 +5139,12 @@
       }
     } else if (!isNaN(value) && value > 1) {
       setDefaultCurveSegments(value);
+    }
+
+    if (getDefaultCurveSegments() >= 50) {
+      roundValues(false);
+    } else {
+      roundValues(true);
     }
   }
 
@@ -5161,7 +5201,7 @@
   lottie.useWebWorker = setWebWorker;
   lottie.setIDPrefix = setPrefix;
   lottie.__getFactory = getFactory;
-  lottie.version = '[[BM_VERSION]]';
+  lottie.version = '5.9.1';
 
   function checkReady() {
     if (document.readyState === 'complete') {
@@ -5184,9 +5224,10 @@
 
     return null;
   }
+
   var queryString;
 
-  {
+  if (standalone) {
     var scripts = document.getElementsByTagName('script');
     var index = scripts.length - 1;
     var myScript = scripts[index] || {
@@ -5194,10 +5235,18 @@
     };
     queryString = myScript.src.replace(/^[^\?]+\??/, ''); // eslint-disable-line no-useless-escape
 
-    getQueryVariable('renderer');
+    renderer = getQueryVariable('renderer');
   }
 
-  var readyStateCheckInterval = setInterval(checkReady, 100);
+  var readyStateCheckInterval = setInterval(checkReady, 100); // this adds bodymovin to the window object for backwards compatibility
+
+  try {
+    if (!((typeof exports === "undefined" ? "undefined" : _typeof$3(exports)) === 'object' && typeof module !== 'undefined') && !(typeof define === 'function' && define.amd) // eslint-disable-line no-undef
+    ) {
+      window.bodymovin = lottie;
+    }
+  } catch (err) {//
+  }
 
   var ShapeModifiers = function () {
     var ob = {};
@@ -6469,6 +6518,9 @@
         case 'thin':
           fWeight = '200';
           break;
+
+        default:
+          break;
       }
     }
 
@@ -6483,7 +6535,10 @@
     var emptyChar = {
       w: 0,
       size: 0,
-      shapes: []
+      shapes: [],
+      data: {
+        shapes: []
+      }
     };
     var combinedCharacters = []; // Hindi characters
 
@@ -7689,7 +7744,8 @@
           arr.push(strokeInterfaceFactory(shapes[i], view[i], propertyGroup));
         } else if (shapes[i].ty === 'tm') {
           arr.push(trimInterfaceFactory(shapes[i], view[i], propertyGroup));
-        } else if (shapes[i].ty === 'tr') ; else if (shapes[i].ty === 'el') {
+        } else if (shapes[i].ty === 'tr') {// arr.push(transformInterfaceFactory(shapes[i],view[i],propertyGroup));
+        } else if (shapes[i].ty === 'el') {
           arr.push(ellipseInterfaceFactory(shapes[i], view[i], propertyGroup));
         } else if (shapes[i].ty === 'sr') {
           arr.push(starInterfaceFactory(shapes[i], view[i], propertyGroup));
@@ -7704,7 +7760,7 @@
         } else if (shapes[i].ty === 'gf') {
           arr.push(gradientFillInterfaceFactory(shapes[i], view[i], propertyGroup));
         } else {
-          arr.push(defaultInterfaceFactory(shapes[i], view[i]));
+          arr.push(defaultInterfaceFactory(shapes[i], view[i], propertyGroup));
         }
       }
 
@@ -8592,6 +8648,8 @@
     }
   };
 
+  function _typeof$2(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$2 = function _typeof(obj) { return typeof obj; }; } else { _typeof$2 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$2(obj); }
+
   var FootageInterface = function () {
     var outlineInterfaceFactory = function outlineInterfaceFactory(elem) {
       var currentPropertyName = '';
@@ -8608,7 +8666,7 @@
           currentPropertyName = value;
           currentProperty = currentProperty[value];
 
-          if (_typeof(currentProperty) === 'object') {
+          if (_typeof$2(currentProperty) === 'object') {
             return searchProperty;
           }
 
@@ -8621,7 +8679,7 @@
           var index = parseInt(value.substr(propertyNameIndex + currentPropertyName.length), 10);
           currentProperty = currentProperty[index];
 
-          if (_typeof(currentProperty) === 'object') {
+          if (_typeof$2(currentProperty) === 'object') {
             return searchProperty;
           }
 
@@ -8960,7 +9018,8 @@
       } // TODO: check TYPE 11: Guided elements
 
 
-      if (this.data.ty !== 11) ;
+      if (this.data.ty !== 11) {// this.createElements();
+      }
     },
     renderTransform: function renderTransform() {
       this.finalTransform._opMdf = this.finalTransform.mProp.o._mdf || this._isFirstFrame;
@@ -9887,6 +9946,8 @@
     }
   };
 
+  var registeredEffects = {};
+
   function SVGEffects(elem) {
     var i;
     var len = elem.data.ef ? elem.data.ef.length : 0;
@@ -9898,6 +9959,16 @@
 
     for (i = 0; i < len; i += 1) {
       filterManager = null;
+      var type = elem.data.ef[i].ty;
+
+      if (registeredEffects[type]) {
+        var Effect = registeredEffects[type].effect;
+        filterManager = new Effect(fil, elem.effectsManager.effectElements[i], elem);
+
+        if (registeredEffects[type].countsAsEffect) {
+          count += 1;
+        }
+      }
 
       if (elem.data.ef[i].ty === 20) {
         count += 1;
@@ -9947,6 +10018,13 @@
       this.filters[i].renderFrame(_isFirstFrame);
     }
   };
+
+  function registerEffect(id, effect, countsAsEffect) {
+    registeredEffects[id] = {
+      effect: effect,
+      countsAsEffect: countsAsEffect
+    };
+  }
 
   function SVGBaseElement() {}
 
@@ -12496,6 +12574,9 @@
               case 2:
                 currentLength += (totalLength - documentData.lineWidths[letters[i].line]) / 2;
                 break;
+
+              default:
+                break;
             }
 
             currentLine = letters[i].line;
@@ -12832,6 +12913,9 @@
             case 2:
               matrixHelper.translate(letters[i].animatorJustifyOffset + documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[letters[i].line]) / 2, 0, 0);
               break;
+
+            default:
+              break;
           }
 
           matrixHelper.translate(0, -documentData.ls);
@@ -12914,8 +12998,10 @@
     var shapeStr = '';
 
     for (j = 0; j < jLen; j += 1) {
-      pathNodes = shapes[j].ks.k;
-      shapeStr += buildShapeString(pathNodes, pathNodes.i.length, true, matrixHelper);
+      if (shapes[j].ty === 'sh') {
+        pathNodes = shapes[j].ks.k;
+        shapeStr += buildShapeString(pathNodes, pathNodes.i.length, true, matrixHelper);
+      }
     }
 
     return shapeStr;
@@ -12948,6 +13034,9 @@
       case 2:
         matrixHelper.translate(documentData.justifyOffset + (documentData.boxWidth - documentData.lineWidths[lineNumber]) / 2, 0, 0);
         break;
+
+      default:
+        break;
     }
 
     matrixHelper.translate(xPos, yPos, 0);
@@ -12960,6 +13049,10 @@
   ITextElement.prototype.emptyProp = new LetterProps();
 
   ITextElement.prototype.destroy = function () {};
+
+  var emptyShapeData = {
+    shapes: []
+  };
 
   function SVGTextLottieElement(data, globalData, comp) {
     this.textSpans = [];
@@ -13143,7 +13236,13 @@
           if (charData.t === 1) {
             glyphElement = new SVGCompElement(charData.data, this.globalData, this);
           } else {
-            glyphElement = new SVGShapeElement(charData.data, this.globalData, this);
+            var data = emptyShapeData;
+
+            if (charData.data && charData.data.shapes) {
+              data = charData.data;
+            }
+
+            glyphElement = new SVGShapeElement(data, this.globalData, this);
           }
 
           this.textSpans[i].glyph = glyphElement;
@@ -13202,10 +13301,13 @@
 
     for (i = 0; i < len; i += 1) {
       glyphElement = this.textSpans[i].glyph;
-      glyphElement.prepareFrame(this.comp.renderedFrame - this.data.st);
 
-      if (glyphElement._mdf) {
-        this._mdf = true;
+      if (glyphElement) {
+        glyphElement.prepareFrame(this.comp.renderedFrame - this.data.st);
+
+        if (glyphElement._mdf) {
+          this._mdf = true;
+        }
       }
     }
   };
@@ -13230,7 +13332,10 @@
             renderedLetter = renderedLetters[i];
             textSpan = this.textSpans[i].span;
             glyphElement = this.textSpans[i].glyph;
-            glyphElement.renderFrame();
+
+            if (glyphElement) {
+              glyphElement.renderFrame();
+            }
 
             if (renderedLetter._mdf.m) {
               textSpan.setAttribute('transform', renderedLetter.m);
@@ -14386,7 +14491,8 @@
         this.renderGradientFill(items[i], data[i], groupTransform);
       } else if (items[i].ty === 'gr') {
         this.renderShape(groupTransform, items[i].it, data[i].it);
-      } else if (items[i].ty === 'tm') ;
+      } else if (items[i].ty === 'tm') {//
+      }
     }
 
     if (isMain) {
@@ -14638,23 +14744,27 @@
         this.applyTextPropertiesToMatrix(documentData, matrixHelper, letters[i].line, xPos, yPos);
       }
 
-      commands = createSizedArray(jLen);
+      commands = createSizedArray(jLen - 1);
+      var commandsCounter = 0;
 
       for (j = 0; j < jLen; j += 1) {
-        kLen = shapes[j].ks.k.i.length;
-        pathNodes = shapes[j].ks.k;
-        pathArr = [];
+        if (shapes[j].ty === 'sh') {
+          kLen = shapes[j].ks.k.i.length;
+          pathNodes = shapes[j].ks.k;
+          pathArr = [];
 
-        for (k = 1; k < kLen; k += 1) {
-          if (k === 1) {
-            pathArr.push(matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
+          for (k = 1; k < kLen; k += 1) {
+            if (k === 1) {
+              pathArr.push(matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
+            }
+
+            pathArr.push(matrixHelper.applyToX(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToX(pathNodes.i[k][0], pathNodes.i[k][1], 0), matrixHelper.applyToY(pathNodes.i[k][0], pathNodes.i[k][1], 0), matrixHelper.applyToX(pathNodes.v[k][0], pathNodes.v[k][1], 0), matrixHelper.applyToY(pathNodes.v[k][0], pathNodes.v[k][1], 0));
           }
 
-          pathArr.push(matrixHelper.applyToX(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToX(pathNodes.i[k][0], pathNodes.i[k][1], 0), matrixHelper.applyToY(pathNodes.i[k][0], pathNodes.i[k][1], 0), matrixHelper.applyToX(pathNodes.v[k][0], pathNodes.v[k][1], 0), matrixHelper.applyToY(pathNodes.v[k][0], pathNodes.v[k][1], 0));
+          pathArr.push(matrixHelper.applyToX(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToX(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToY(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
+          commands[commandsCounter] = pathArr;
+          commandsCounter += 1;
         }
-
-        pathArr.push(matrixHelper.applyToX(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k - 1][0], pathNodes.o[k - 1][1], 0), matrixHelper.applyToX(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToY(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
-        commands[j] = pathArr;
       }
 
       if (singleShape) {
@@ -15554,7 +15664,8 @@
 
       c |= 0; // eslint-disable-line no-bitwise
 
-      if (a === 0 && b === 0) ; else if (a === 0) {
+      if (a === 0 && b === 0) {//
+      } else if (a === 0) {
         t = -c / b;
 
         if (t > 0 && t < 1) {
@@ -15774,7 +15885,7 @@
 
         matrixHelper.reset();
 
-        if (shapeData && shapeData.shapes) {
+        if (shapeData && shapeData.shapes && shapeData.shapes.length) {
           shapes = shapeData.shapes[0].it;
           matrixHelper.scale(documentData.finalSize / 100, documentData.finalSize / 100);
           shapeStr = this.createPathShape(matrixHelper, shapes);
@@ -16642,6 +16753,8 @@
     return ob;
   }();
 
+  function _typeof$1(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$1 = function _typeof(obj) { return typeof obj; }; } else { _typeof$1 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$1(obj); }
+
   /* eslint-disable */
 
   /*
@@ -16837,7 +16950,7 @@
 
     function flatten(obj, depth) {
       var result = [],
-          typ = _typeof(obj),
+          typ = _typeof$1(obj),
           prop;
 
       if (depth && typ == 'object') {
@@ -16875,7 +16988,9 @@
 
     function autoseed() {
       try {
-        if (nodecrypto) ;
+        if (nodecrypto) {
+          return tostring(nodecrypto.randomBytes(width));
+        }
 
         var out = new Uint8Array(width);
         (global.crypto || global.msCrypto).getRandomValues(out);
@@ -16909,7 +17024,9 @@
     // End anonymous scope, and pass initial values.
   }
 
-  function initialize$1(BMMath) {
+  ;
+
+  function initialize$2(BMMath) {
     seedRandom([], BMMath);
   }
 
@@ -16917,7 +17034,10 @@
     SHAPE: 'shape'
   };
 
+  function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
   var ExpressionManager = function () {
+    'use strict';
 
     var ob = {};
     var Math = BMMath;
@@ -16926,7 +17046,7 @@
     var XMLHttpRequest = null;
     var fetch = null;
     var frames = null;
-    initialize$1(BMMath);
+    initialize$2(BMMath);
 
     function $bm_isInstanceOfArray(arr) {
       return arr.constructor === Array || arr.constructor === Float32Array;
@@ -17239,6 +17359,9 @@
 
           case b:
             h = (r - g) / d + 4;
+            break;
+
+          default:
             break;
         }
 
@@ -18358,8 +18481,47 @@
     };
   }
 
-  function initialize() {
+  function initialize$1() {
     addPropertyDecorator();
+  }
+
+  function addDecorator() {
+    function searchExpressions() {
+      if (this.data.d.x) {
+        this.calculateExpression = ExpressionManager.initiateExpression.bind(this)(this.elem, this.data.d, this);
+        this.addEffect(this.getExpressionValue.bind(this));
+        return true;
+      }
+
+      return null;
+    }
+
+    TextProperty.prototype.getExpressionValue = function (currentValue, text) {
+      var newValue = this.calculateExpression(text);
+
+      if (currentValue.t !== newValue) {
+        var newData = {};
+        this.copyData(newData, currentValue);
+        newData.t = newValue.toString();
+        newData.__complete = false;
+        return newData;
+      }
+
+      return currentValue;
+    };
+
+    TextProperty.prototype.searchProperty = function () {
+      var isKeyframed = this.searchKeyframes();
+      var hasExpressions = this.searchExpressions();
+      this.kf = isKeyframed || hasExpressions;
+      return this.kf;
+    };
+
+    TextProperty.prototype.searchExpressions = searchExpressions;
+  }
+
+  function initialize() {
+    addDecorator();
   }
 
   registerRenderer('canvas', CanvasRenderer);
@@ -18372,7 +18534,17 @@
   ShapeModifiers.registerModifier('rd', RoundCornersModifier); // Registering expression plugin
 
   setExpressionsPlugin(Expressions);
-  initialize();
+  initialize$1();
+  initialize(); // Registering svg effects
+
+  registerEffect(20, SVGTintFilter, true);
+  registerEffect(21, SVGFillFilter, true);
+  registerEffect(22, SVGStrokeEffect, false);
+  registerEffect(23, SVGTritoneFilter, true);
+  registerEffect(24, SVGProLevelsFilter, true);
+  registerEffect(25, SVGDropShadowEffect, true);
+  registerEffect(28, SVGMatte3Effect, false);
+  registerEffect(29, SVGGaussianBlurEffect, true);
 
   return lottie;
 
