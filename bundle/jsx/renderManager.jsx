@@ -16,6 +16,7 @@ $.__bodymovin.bm_renderManager = (function () {
     var versionHelper = $.__bodymovin.bm_versionHelper;
     var renderHelper = $.__bodymovin.bm_renderHelper;
     var expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var textCompHelper = $.__bodymovin.bm_textCompHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentExportedComps = [];
@@ -116,6 +117,26 @@ $.__bodymovin.bm_renderManager = (function () {
             }
         }
     }
+
+    function searchFolderAndCharacter(layer) {
+        try {
+            
+            var comps = textCompHelper.findFolderFont(layer);
+            var exportData = ob.renderData.exportData;
+            for (var i = 0; i < comps.length; i += 1) {
+                var compObject = comps[i];
+                var compData = compObject.compData;
+                var comp = compObject.comp;
+                createLayers(comp, compData.layers, exportData.fr, false, [0, comp.duration]);
+                exportData.comps.push(compData);
+            }
+        } catch (error) {
+            bm_eventDispatcher.log('error');
+            bm_eventDispatcher.log(error.message);
+            bm_eventDispatcher.log(error.line);
+            bm_eventDispatcher.log(error.fileName);
+        }
+    }
     
     function createLayers(comp, layers, framerate, deepTraversing, compTimeRange) {
         var currentCompSettings = settingsHelper.get();
@@ -174,6 +195,7 @@ $.__bodymovin.bm_renderManager = (function () {
             bm_layerElement.checkLayerSource(layerInfo, layerData);
             if (layerData.ty === layerTypes.text) {
                 $.__bodymovin.bm_textShapeHelper.addComps();
+                searchFolderAndCharacter(layerInfo);
             }
             if (layerData.ty === layerTypes.precomp && layerData.render !== false) {
                 if (settingsHelper.shouldBakeBeyondWorkArea()) {
@@ -229,6 +251,7 @@ $.__bodymovin.bm_renderManager = (function () {
     function render(comp, destination, fsDestination, compSettings) {
         $.__bodymovin.bm_sourceHelper.reset();
         $.__bodymovin.bm_textShapeHelper.reset();
+        textCompHelper.reset();
         expressionHelper.setCallbacks(expressionsStarted, expressionsSaved);
         expressionHelper.reset();
 
@@ -239,6 +262,7 @@ $.__bodymovin.bm_renderManager = (function () {
         processesState.render = 'working';
         processesState.report = 'working';
         processesState.fonts = 'working';
+        processesState.charFonts = 'working';
         processesState.expressions = 'ended';
 
         ////
