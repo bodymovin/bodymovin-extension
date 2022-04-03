@@ -140,6 +140,33 @@ $.__bodymovin.bm_textCompHelper = (function () {
         return [];
     }
 
+    function getCharsFromFolder(folder) {
+        var chars = '';
+        var numInFolder = folder.numItems;
+        for (var i = numInFolder; i >= 1; i--) {
+            var comp = folder.item(i);
+            chars += comp.name;
+        }
+        return chars;
+    }
+
+    function getCharsFromFont(textDocument) {
+        var chars = '';
+        if (settingsHelper.shouldReplaceCharactersWithComps()) {
+            var items = app.project.items;
+            var fontName = textDocument.fontFamily + '-' + textDocument.fontStyle;
+            for ( var i = 0; i < items.length; i+= 1) {
+                var item = items[i + 1];
+                if (item instanceof FolderItem) {
+                    if (item.name === fontName) {
+                        chars = getCharsFromFolder(item);
+                    }
+                }
+            }
+        }
+        return chars;
+    }
+
     function reset() {
         fonts.length = 0;
         count = 0;
@@ -147,6 +174,7 @@ $.__bodymovin.bm_textCompHelper = (function () {
     
     ob.findFolderFont = findFolderFont;
     ob.findCharacterData = findCharacterData;
+    ob.getCharsFromFont = getCharsFromFont;
     ob.reset = reset;
     
     return ob;

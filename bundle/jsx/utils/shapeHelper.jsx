@@ -421,7 +421,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.ix = prop.propertyIndex;
             }
             if (ob) {
-                ob.nm = prop.name;
+                ob.nm = bm_generalUtils.sanitizeName(prop.name);
                 ob.mn = prop.matchName;
                 if(settingsHelper.shouldIgnoreExpressionProperties()) {
                     delete ob.mn;

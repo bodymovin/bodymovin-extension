@@ -146,6 +146,36 @@ $.__bodymovin.bm_generalUtils = (function () {
         }
     }
 
+    function sanitizeName(name) {
+        
+        var i, len = name.length;
+        var finalString = '';
+        for (i = 0; i <len; i += 1) {
+            var charCode = name.charCodeAt(i);
+            // High surrogates D800–DBFF
+            // Low surrogates DC00–DFFF
+            try {
+                if (charCode >= 0xD800 &&  charCode <= 0xDBFF) {
+                    var nextCharCode = name.charCodeAt(i + 1);
+                    // if the next character is not part of the low surrogate range
+                    // it means that the character is cut off 
+                    // and we will skip the pair from the sanitized text
+                    if (nextCharCode >= 0xDC00 &&  nextCharCode <= 0xDFFF) {
+                        finalString += name.charAt(i);
+                    } else {
+                        
+                    }
+                } else {
+                    finalString += name.charAt(i);
+                }
+                
+            } catch (error) {
+                finalString += name.charAt(i);
+            }
+        }
+        return finalString;
+    }
+
     ob.random = random;
     ob.roundNumber = roundNumber;
     ob.setTimeout = setTimeout;
@@ -155,6 +185,7 @@ $.__bodymovin.bm_generalUtils = (function () {
     ob.convertPathsToAbsoluteValues = convertPathsToAbsoluteValues;
     ob.findAttributes = findAttributes;
     ob.extendPrototype = extendPrototype;
+    ob.sanitizeName = sanitizeName;
     
     return ob;
     
