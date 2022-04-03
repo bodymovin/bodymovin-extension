@@ -102,6 +102,19 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.pointControl;
         }
     }
+
+    function setupBasicEffect(elem, effectType) {
+        var ob = {};
+        ob.ty = effectType;
+        ob.nm = elem.name;
+        // Apparently numProperties returns 1 less value than the one used on expressions.
+        ob.np = elem.numProperties + 1;
+        ob.mn = elem.matchName;
+        ob.ix = elem.propertyIndex;
+        ob.en = elem.enabled === true ? 1 : 0;
+        ob.ef = [];
+        return ob;
+    }
     
     function exportNoValueControl(effect, frameRate, stretch) {
         var ob = {};
@@ -203,19 +216,407 @@ $.__bodymovin.bm_effectsHelper = (function () {
         }
     }*/
 
-    function setChannelDropdownToFirst(elem) {
+    function setChannelDropdownToValue(elem, value) {
         var firstProp = elem.property(1);
-        if (firstProp.value !== 1) {
-            firstProp.setValue(1);
+        if (firstProp.value !== value) {
+            firstProp.setValue(value);
         }
+    }
+
+    function setChannelDropdownToFirst(elem) {
+        setChannelDropdownToValue(elem, 1);
     }
 
     function handleProLevels(elem) {
         setChannelDropdownToFirst(elem);
     }
 
-    function handleEasyLevels(elem) {
-        setChannelDropdownToFirst(elem);
+    function handleEasyLevels(elem, ob, frameRate, stretch) {
+        ob.ty = effectTypes.proLevels;
+        setChannelDropdownToValue(elem, 1);
+        // Channel dropdown
+        ob.ef.push({
+            "ty": 7,
+            "nm": "Channel:",
+            "mn": "ADBE Pro Levels2-0001",
+            "ix": 1,
+            "v": {
+                "a": 0,
+                "k": 1,
+                "ix": 1
+            }
+        })
+        // empty object
+        ob.ef.push({})
+        // RGB
+        ob.ef.push({
+            "ty": 6,
+            "nm": "RGB",
+            "mn": "ADBE Pro Levels2-0003",
+            "ix": 3,
+            "v": 0
+        })
+        var prop = elem.property(3);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Input Black",
+                "mn": "ADBE Pro Levels2-0004",
+                "ix": 4,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(4);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Input White",
+                "mn": "ADBE Pro Levels2-0005",
+                "ix": 5,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(5);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Gamma",
+                "mn": "ADBE Pro Levels2-0006",
+                "ix": 6,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(6);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Output Black",
+                "mn": "ADBE Pro Levels2-0007",
+                "ix": 7,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(7);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Output White",
+                "mn": "ADBE Pro Levels2-0008",
+                "ix": 8,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "RGB",
+                "mn": "ADBE Pro Levels2-0009",
+                "ix": 9,
+                "v": 0
+            }
+        )
+        // RED
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Red",
+                "mn": "ADBE Pro Levels2-0010",
+                "ix": 10,
+                "v": 0
+            }
+        )
+        setChannelDropdownToValue(elem, 2);
+        prop = elem.property(3);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Red Input Black",
+                "mn": "ADBE Pro Levels2-0011",
+                "ix": 11,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(4);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Red Input White",
+                "mn": "ADBE Pro Levels2-0012",
+                "ix": 12,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(5);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Red Gamma",
+                "mn": "ADBE Pro Levels2-0013",
+                "ix": 13,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(6);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Red Output Black",
+                "mn": "ADBE Pro Levels2-0014",
+                "ix": 14,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(7);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Red Output White",
+                "mn": "ADBE Pro Levels2-0015",
+                "ix": 15,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Red",
+                "mn": "ADBE Pro Levels2-0016",
+                "ix": 16,
+                "v": 0
+            }
+        )
+        // GREEN
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Green",
+                "mn": "ADBE Pro Levels2-0017",
+                "ix": 17,
+                "v": 0
+            }
+        )
+        setChannelDropdownToValue(elem, 3);
+        prop = elem.property(3);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Green Input Black",
+                "mn": "ADBE Pro Levels2-0018",
+                "ix": 18,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(4);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Green Input White",
+                "mn": "ADBE Pro Levels2-0019",
+                "ix": 19,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(5);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Green Gamma",
+                "mn": "ADBE Pro Levels2-0020",
+                "ix": 20,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(6);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Green Output Black",
+                "mn": "ADBE Pro Levels2-0021",
+                "ix": 21,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(7);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Green Output White",
+                "mn": "ADBE Pro Levels2-0022",
+                "ix": 22,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Green",
+                "mn": "ADBE Pro Levels2-0023",
+                "ix": 23,
+                "v": 0
+            }
+        )
+        // BLUE
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Blue",
+                "mn": "ADBE Pro Levels2-0024",
+                "ix": 24,
+                "v": 0
+            }
+        )
+        setChannelDropdownToValue(elem, 4);
+        prop = elem.property(3);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Blue Input Black",
+                "mn": "ADBE Pro Levels2-0025",
+                "ix": 25,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(4);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Blue Input White",
+                "mn": "ADBE Pro Levels2-0026",
+                "ix": 26,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(5);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Blue Gamma",
+                "mn": "ADBE Pro Levels2-0027",
+                "ix": 27,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(6);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Blue Output Black",
+                "mn": "ADBE Pro Levels2-0028",
+                "ix": 28,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(7);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Blue Output White",
+                "mn": "ADBE Pro Levels2-0029",
+                "ix": 29,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Blue",
+                "mn": "ADBE Pro Levels2-0030",
+                "ix": 30,
+                "v": 0
+            }
+        )
+        // ALPHA
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Alpha",
+                "mn": "ADBE Pro Levels2-0031",
+                "ix": 31,
+                "v": 0
+            }
+        )
+        setChannelDropdownToValue(elem, 5);
+        prop = elem.property(3);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Alpha Input Black",
+                "mn": "ADBE Pro Levels2-0032",
+                "ix": 32,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(4);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Alpha Input White",
+                "mn": "ADBE Pro Levels2-0033",
+                "ix": 33,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(5);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Alpha Gamma",
+                "mn": "ADBE Pro Levels2-0034",
+                "ix": 34,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(6);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Alpha Output Black",
+                "mn": "ADBE Pro Levels2-0035",
+                "ix": 35,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(7);
+        ob.ef.push(
+            {
+                "ty": 0,
+                "nm": "Alpha Output White",
+                "mn": "ADBE Pro Levels2-0036",
+                "ix": 36,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        ob.ef.push(
+            {
+                "ty": 6,
+                "nm": "Alpha",
+                "mn": "ADBE Pro Levels2-0037",
+                "ix": 37,
+                "v": 0
+            }
+        )
+        // CLIPS
+        prop = elem.property(8);
+        ob.ef.push(
+            {
+                "ty": 7,
+                "nm": "Clip To Output Black",
+                "mn": "ADBE Pro Levels2-0038",
+                "ix": 38,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        prop = elem.property(9);
+        ob.ef.push(
+            {
+                "ty": 7,
+                "nm": "Clip To Output White",
+                "mn": "ADBE Pro Levels2-0039",
+                "ix": 39,
+                "v": bm_keyframeHelper.exportKeyframes(prop, frameRate, stretch)
+            }
+        )
+        return ob;
     }
 
     function handleHueSaturation(elem) {
@@ -228,20 +629,12 @@ $.__bodymovin.bm_effectsHelper = (function () {
         }
         // using matchName here instead of effectType, 
         // because this effect is still exported as an unknown effect (group)
+        var ob = setupBasicEffect(elem, effectType);
         if (elem.matchName === 'ADBE Easy Levels2') { 
-            handleEasyLevels(elem);
+            return handleEasyLevels(elem, ob, frameRate, stretch);
         } else if (elem.matchName === 'ADBE HUE SATURATION') {
             handleHueSaturation(elem);
         }
-        var ob = {};
-        ob.ty = effectType;
-        ob.nm = elem.name;
-        // Apparently numProperties returns 1 less value than the one used on expressions.
-        ob.np = elem.numProperties + 1;
-        ob.mn = elem.matchName;
-        ob.ix = elem.propertyIndex;
-        ob.en = elem.enabled === true ? 1 : 0;
-        ob.ef = [];
         var i, len = elem.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = elem.property(i + 1);
