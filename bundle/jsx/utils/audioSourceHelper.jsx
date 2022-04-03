@@ -174,14 +174,25 @@ $.__bodymovin.bm_audioSourceHelper = (function () {
         while (compCopy.layers.length > 1) {
             compCopy.layer(2).remove()
         }
-
-        var maxPosition = Math.min(comp.duration, layer.outPoint);
         compCopy.name = '__bodymovin_copy';
-        compCopy.workAreaStart = layer.inPoint;
+
+        var audioInPoint = layer.inPoint;
+        var audioOutPoint = layer.outPoint;
+        var compDuration = comp.duration;
+        var workAreaStart = audioInPoint >= 0 ? audioInPoint : 0;
+        var workAreaDuration = audioOutPoint - workAreaStart;
+        if (workAreaStart + workAreaDuration > compDuration) {
+            workAreaDuration = compDuration - workAreaStart;
+        }
+        // REPEATING IT MULTIPLE TIMES BECAUSE SOMETIMES IT DOESN'T WORK ONLY ONCE :/
+        compCopy.workAreaStart = workAreaStart;
+        compCopy.workAreaStart = workAreaStart;
+        compCopy.workAreaStart = workAreaStart;
         try {
-            compCopy.workAreaDuration = maxPosition - layer.inPoint;
+            compCopy.workAreaDuration = workAreaDuration;
         } catch(err) {
-            compCopy.workAreaDuration = maxPosition - layer.inPoint - comp.frameDuration;
+            workAreaDuration -= comp.frameDuration;
+            compCopy.workAreaDuration = workAreaDuration;
         }
 
         if (!settingsHelper.shouldRasterizeWaveform()) {
