@@ -282,6 +282,7 @@ $.__bodymovin.bm_renderManager = (function () {
         var exportData = {
             v : versionHelper.get(),
             fr : comp.frameRate,
+            pfr: comp.preserveNestedFrameRate ? 1 : undefined,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
             w : comp.width,
