@@ -53,6 +53,7 @@ $.__bodymovin.bm_dataManager = (function () {
                     id: layers[i].compId,
                     nm: layers[i].compName,
                     fr: layers[i].frameRate,
+                    pfr: layers[i].preserveNestedFrameRate,
                     layers: layers[i].layers
                 });
                 separateComps(layers[i].layers, comps);
@@ -60,6 +61,7 @@ $.__bodymovin.bm_dataManager = (function () {
                 delete layers[i].layers;
                 delete layers[i].compName;
                 delete layers[i].frameRate;
+                delete layers[i].preserveNestedFrameRate;
             }
         }
     }

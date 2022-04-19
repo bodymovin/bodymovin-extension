@@ -117,6 +117,7 @@ $.__bodymovin.bm_layerElement = (function () {
                 layerData.compId = 'comp_' + compCount;
                 layerData.compName = layerInfo.source.name;
                 layerData.frameRate = layerInfo.source.frameRate;
+                layerData.preserveNestedFrameRate = layerInfo.source.preserveNestedFrameRate ? 1 : undefined;
                 compCount += 1;
                 layerData.refId = layerData.compId;
                 bm_sourceHelper.setCompSourceId(layerInfo.source, layerData.compId);
