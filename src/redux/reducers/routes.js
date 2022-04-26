@@ -14,7 +14,7 @@ let routes = {
 }
 
 let initialState = {
-	route: routes.supported_features
+	route: routes.compositions
 }
 
 function handleRenderFonts(state, action) {

@@ -139,7 +139,7 @@ class SupportedFeatures extends React.Component {
     if (!this.state.selectedFeature) {
       return (
         <div className={css(styles.instructionsContainer)}>
-            <div>Select one or more properties from your project to get info about their support</div>
+            <div>Select one or more properties from your composition to get information about their support</div>
         </div>
       );
     }

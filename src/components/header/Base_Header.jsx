@@ -83,7 +83,7 @@ function BaseHeader(props) {
                         text='Reports'
                         type='gray'
                         classes={styles.right}
-                        onClick={props.goToReports}
+                        onClick={() => props.goToReports()}
                         selected={props.currentRoute === routes.reports}
                     />
                     <BaseLink
