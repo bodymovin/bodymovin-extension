@@ -7,6 +7,7 @@ import anim from '../../assets/animations/bm.json'
 import {openInBrowser, getPlayer} from '../../helpers/CompositionsProvider'
 import Variables from '../../helpers/styles/variables'
 import {goToComps, clearCache} from '../../redux/actions/compositionActions'
+import BaseHeader from '../../components/header/Base_Header'
 
 const styles = StyleSheet.create({
     container: {
@@ -14,7 +15,7 @@ const styles = StyleSheet.create({
       height: '100%',
       display: 'flex',
       flexDirection:'column',
-      padding: '10px 30px',
+      padding: '10px 10px 30px 10px',
       backgroundColor :'#474747'
     },
     back_container: {
@@ -75,9 +76,9 @@ class Player extends React.Component {
   render() {
     return (
       <div className={css(styles.container)}>
+        <BaseHeader />
         <div className={css(styles.back_container)}>
           <BaseButton text={'Clear Caché'} type='green' onClick={this.props.clearCache} />
-          <BaseButton text={'‹ Back'} onClick={this.props.goToComps} type="gray" />
         </div>
         <div className={css(styles.anim_container)}>
           <Bodymovin animationData={anim} autoplay={true} loop={true}>

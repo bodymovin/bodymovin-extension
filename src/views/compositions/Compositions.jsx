@@ -10,8 +10,6 @@ import {
 	toggleItem, 
 	displaySettings, 
 	getCompositions, 
-	goToPreview, 
-	goToPlayer, 
 	toggleShowSelected, 
 	applySettingsToSelectedComps,
 	toggleCompNameAsDefault,
@@ -19,10 +17,7 @@ import {
 	toggleAEAsPath,
 	toggleDefaultPathAsFolder,
 	defaultFolderFileChange,
-	goToImportFile,
-	goToAnnotations,
 	goToReports,
-	goToSupportedFeatures,
 	selectAllComps,
 	unselectAllComps,
 	toggleCopySettings,
@@ -85,10 +80,6 @@ class Compositions extends React.Component {
 		this.props.displaySettings(item.id);
 	}
 
-	goToReports = path => {
-		this.props.goToReports(path);
-	}
-
 	openGlobalSettings = () => {
 		this.setState({
 			globalSettings: true,
@@ -137,15 +128,9 @@ class Compositions extends React.Component {
 					<MainHeader 
 						canRender={this.props.canRender}
 						startRender={this.renderComps} 
-						goToPreview={this.props.goToPreview} 
 						refresh={this.props.getCompositions} 
 						applySettings={this.props.applySettingsToSelectedComps} 
-						goToImportFile={this.props.goToImportFile} 
-						goToPlayer={this.props.goToPlayer}
-						goToAnnotations={this.props.goToAnnotations}
-						goToReports={this.props.goToReports}
 						openGlobalSettings={this.openGlobalSettings}
-						goToSupportedFeatures={this.props.goToSupportedFeatures}
 					/>
 				</div>
 				<div className={css(styles.content)} >
@@ -203,23 +188,18 @@ const mapDispatchToProps = {
 	getCompositions: getCompositions,
 	filterChange: filterChange,
 	startRender: startRender,
-	goToPreview: goToPreview,
-	goToPlayer: goToPlayer,
 	showRenderBlock: showRenderBlock,
 	toggleShowSelected: toggleShowSelected,
 	selectAllComps: selectAllComps,
 	unselectAllComps: unselectAllComps,
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
-	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
 	onAEAsPathToggle: toggleAEAsPath,
 	onCopySettingsToggle: toggleCopySettings,
 	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
 	onDefaultPathChange: defaultFolderFileChange,
-	goToAnnotations: goToAnnotations,
 	goToReports: goToReports,
-	goToSupportedFeatures: goToSupportedFeatures,
 	onSettingsCopyChange: settingsCopyPathChange,
 	onSettingsLoad: loadSettings,
 }

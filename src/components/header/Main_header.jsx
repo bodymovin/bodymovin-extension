@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../buttons/Base_button'
 import Variables from '../../helpers/styles/variables'
+import BaseHeader from './Base_Header'
 
 const styles = StyleSheet.create({
     container: {
@@ -10,6 +11,12 @@ const styles = StyleSheet.create({
     },
     right: {
       marginRight:'7px',
+    },
+    links_container: {
+    	width: '100%',
+        display: 'flex',
+        alignItems:'center',
+        justifyContent: 'flex-start',
     },
     buttons_container: {
     	width: '100%',
@@ -28,19 +35,6 @@ const styles = StyleSheet.create({
     buttons_separator: {
         flex: '1 1 auto',
     },
-    refresh: {
-    	width: '40px',
-    	height: '31px',
-    	backgroundColor: 'transparent',
-      	verticalAlign:'middle',
-        cursor: 'pointer',
-        transition: 'transform 500ms ease-out',
-        webkitFilter: 'saturate(100%)'
-    },
-    refresh_image: {
-    	maxWidth: '100%',
-    	maxHeight: '100%'
-    },
     separator: {
     	width: '100%',
     	height: '1px',
@@ -52,20 +46,11 @@ const styles = StyleSheet.create({
 
 function Main_header(props) {
 	return (<div className={css(styles.container)}>
-				<div className={css(styles.buttons_container)}>
-					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
-                    <div className={css(styles.buttons_separator)}></div>
-                    <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
-                    <BaseButton text='Reports' type='gray' classes={styles.right} onClick={() => props.goToReports()}/>
-					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
-					<BaseButton text='Supported Features' type='gray' classes={styles.right} onClick={props.goToSupportedFeatures}/>
+				<div className={css(styles.links_container)}>
+                    <BaseHeader />
 				</div>
-				<div className={css(styles.separator)}></div>
                 <div className={css(styles.buttons_container)}>
-                    <div className={css(styles.buttons_group)}>
-                        <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
-                    </div>
+                    <BaseButton text='Render' type='green' classes={styles.button} disabled={!props.canRender} onClick={props.startRender} />
                     <div className={css(styles.buttons_group)}>
                         <BaseButton
                             text='Apply Settings'

@@ -8,12 +8,13 @@ import {
 import supported_features_selector from '../../redux/selectors/supported_features_view_selector'
 import BaseHeader from '../../components/header/Base_Header'
 import Variables from '../../helpers/styles/variables'
+import Title from '../../components/header/Title'
 
 const styles = StyleSheet.create({
 	wrapper: {
 		width: '100%',
 		height: '100%',
-		padding: '10px',
+    padding: '10px 10px 30px 10px',
 		backgroundColor: '#474747',
 		display: 'flex',
     flexDirection:'column',
