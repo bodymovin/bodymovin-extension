@@ -22,6 +22,7 @@ import {
 	goToImportFile,
 	goToAnnotations,
 	goToReports,
+	goToSupportedFeatures,
 	selectAllComps,
 	unselectAllComps,
 	toggleCopySettings,
@@ -144,6 +145,7 @@ class Compositions extends React.Component {
 						goToAnnotations={this.props.goToAnnotations}
 						goToReports={this.props.goToReports}
 						openGlobalSettings={this.openGlobalSettings}
+						goToSupportedFeatures={this.props.goToSupportedFeatures}
 					/>
 				</div>
 				<div className={css(styles.content)} >
@@ -217,6 +219,7 @@ const mapDispatchToProps = {
 	onDefaultPathChange: defaultFolderFileChange,
 	goToAnnotations: goToAnnotations,
 	goToReports: goToReports,
+	goToSupportedFeatures: goToSupportedFeatures,
 	onSettingsCopyChange: settingsCopyPathChange,
 	onSettingsLoad: loadSettings,
 }

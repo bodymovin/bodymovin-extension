@@ -59,6 +59,7 @@ function Main_header(props) {
                     <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
                     <BaseButton text='Reports' type='gray' classes={styles.right} onClick={() => props.goToReports()}/>
 					<BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
+					<BaseButton text='Supported Features' type='gray' classes={styles.right} onClick={props.goToSupportedFeatures}/>
 				</div>
 				<div className={css(styles.separator)}></div>
                 <div className={css(styles.buttons_container)}>

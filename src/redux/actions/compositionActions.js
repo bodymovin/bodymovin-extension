@@ -362,6 +362,12 @@ function goToReports(path) {
 	}
 }
 
+function goToSupportedFeatures() {
+	return {
+		type: actionTypes.GOTO_SUPPORTED_FEATURES,
+	}
+}
+
 function selectAllComps() {
 	return {
 		type: actionTypes.COMPOSITIONS_SELECT_ALL,
@@ -446,4 +452,5 @@ export {
 	settingsCopyPathPathSelected,
 	loadSettings,
 	settingsLoaded,
+	goToSupportedFeatures,
 }

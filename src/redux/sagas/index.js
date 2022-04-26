@@ -6,6 +6,7 @@ import render from './render_sagas'
 import importFiles from './import_sagas'
 import annotations from './annotations_sagas'
 import reports from './reports_sagas'
+import supported_features from './supported_features_sagas'
 
 export default function* rootSaga() {	
   yield all([
@@ -16,5 +17,6 @@ export default function* rootSaga() {
     ...importFiles,
     ...annotations,
   	...reports,
+		...supported_features,
   ])
 }
