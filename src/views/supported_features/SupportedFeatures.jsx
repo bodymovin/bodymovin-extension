@@ -49,15 +49,7 @@ class SupportedFeatures extends React.Component {
     selectedFeature: null,
   }
 
-  componentDidMount() {
-    this.props.initialize()
-  }
-
-  componentWillUnmount() {
-    this.props.finalize()
-  }
-
-  componentDidUpdate() {
+  updateSelectedFeature = () => {
     if (!this.state.selectedFeature && this.props.features.length) {
       this.setState({
         selectedFeature: this.props.features[0]
@@ -74,6 +66,19 @@ class SupportedFeatures extends React.Component {
         })
       }
     }
+  }
+
+  componentDidMount() {
+    this.props.initialize()
+    this.updateSelectedFeature()
+  }
+
+  componentWillUnmount() {
+    this.props.finalize()
+  }
+
+  componentDidUpdate() {
+    this.updateSelectedFeature()
   }
 
   buildFeature(feature, documentedFeatures) {
@@ -133,8 +138,7 @@ class SupportedFeatures extends React.Component {
     if (!this.state.selectedFeature) {
       return (
         <div className={css(styles.instructionsContainer)}>
-            <div>Select one or more properties from your project</div>
-            <div>To get info about their support</div>
+            <div>Select one or more properties from your project to get info about their support</div>
         </div>
       );
     }
@@ -154,7 +158,7 @@ class SupportedFeatures extends React.Component {
   }
 
 	render() {
-    console.log(this.state.selectedFeature);
+    console.log(this.props.features.map(f => `"${f.matchName}"`).join(","));
 		return (
 			<div className={css(styles.wrapper)}>
         <div className={css(styles.header)} >

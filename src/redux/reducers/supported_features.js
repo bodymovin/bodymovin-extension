@@ -22,12 +22,23 @@ function setStatusAsFailed(state) {
 }
 
 function updateSelectedFeatures(state, action) {
-  if (JSON.stringify(state.selectedFeatures) === JSON.stringify(action.features)) {
+  const flattenedFeaturesDictionary = action.features.reduce((acc, feature)=>{
+    acc[feature.matchName] = feature;
+    return acc;
+  }, {});
+  const flattenedFeatures = [];
+  for (var s in flattenedFeaturesDictionary) {
+    if (flattenedFeaturesDictionary.hasOwnProperty(s)) {
+      flattenedFeatures.push(flattenedFeaturesDictionary[s]);
+    }
+  }
+
+  if (JSON.stringify(state.selectedFeatures) === JSON.stringify(flattenedFeatures)) {
     return state;
   }
   return {
     ...state,
-    selectedFeatures: action.features,
+    selectedFeatures: flattenedFeatures,
   }
 }
 

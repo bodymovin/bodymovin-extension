@@ -19,7 +19,6 @@ function buildFeaturesList(documentedFeatures, selectedFeatures) {
 const supportedFeaturesViewSelector = createSelector(
   [ supportedFeaturesSelector ],
   (featuresReducer) => {
-    console.log(featuresReducer);
   	return {
       features: buildFeaturesList(featuresReducer.documentedFeatures, featuresReducer.selectedFeatures)
     }

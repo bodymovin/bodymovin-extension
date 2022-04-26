@@ -6,12 +6,12 @@ import {
 } from '../../helpers/SupportedFeaturesBridge'
 import supportedFeaturesSelector from '../selectors/supported_features_selector'
 import { featuresLoaded, featuresLoadFailed, featuresSelectionUpdated } from '../actions/supportedFeaturesActions'
+import callApi from '../../helpers/sync/canilottie'
 
 function *ping() {
 	while(true) {
 		const selectedProperties = yield call(getSelectedProperties)
     yield put(featuresSelectionUpdated(selectedProperties));
-    console.log('APSOS')
 		yield call(delay, 250)
 	}
 }
@@ -24,17 +24,6 @@ function *initialize(action) {
 		})
 	} catch(err) {
 	}
-}
-
-async function callApi() {
-  const response = await fetch(
-    'http://192.168.1.8:8080/api/index.json',
-    {
-      mode: 'no-cors',
-    }
-  );
-  const jsonResponse = await response.json();
-  return jsonResponse;
 }
 
 function *getTemplates() {
