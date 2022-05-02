@@ -223,15 +223,24 @@ $.__bodymovin.bm_effectsHelper = (function () {
         }
     }
 
+    function refreshChannelDropdownValue(elem) {
+        elem.selected = true;
+        var firstProp = elem.property(1);
+        var value_2 = firstProp.value;
+        firstProp.setValue(value_2);
+    }
+
     function setChannelDropdownToFirst(elem) {
         setChannelDropdownToValue(elem, 1);
     }
 
     function handleProLevels(elem) {
+        elem.selected = true;
         setChannelDropdownToFirst(elem);
     }
 
     function handleEasyLevels(elem, ob, frameRate, stretch) {
+        elem.selected = true;
         ob.ty = effectTypes.proLevels;
         setChannelDropdownToValue(elem, 1);
         // Channel dropdown
@@ -620,7 +629,7 @@ $.__bodymovin.bm_effectsHelper = (function () {
     }
 
     function handleHueSaturation(elem) {
-        setChannelDropdownToFirst(elem);
+        refreshChannelDropdownValue(elem);
     }
     
     function exportCustomEffect(elem,effectType, frameRate, stretch) {
