@@ -8,7 +8,7 @@ import {
 import supported_features_selector from '../../redux/selectors/supported_features_view_selector'
 import BaseHeader from '../../components/header/Base_Header'
 import Variables from '../../helpers/styles/variables'
-import Title from '../../components/header/Title'
+import {openInBrowser} from '../../helpers/CompositionsProvider'
 
 const styles = StyleSheet.create({
 	wrapper: {
@@ -59,11 +59,15 @@ class SupportedFeatures extends React.Component {
       this.setState({
         selectedFeature: null
       })
-    } else if(this.state.selectedFeature) {
+    } else if (this.state.selectedFeature) {
       const feature = this.props.features.find(feature => feature.matchName === this.state.selectedFeature.matchName)
       if (!feature) {
         this.setState({
           selectedFeature: this.props.features[0]
+        })
+      } else if(this.state.selectedFeature !== feature) {
+        this.setState({
+          selectedFeature: feature
         })
       }
     }
@@ -82,35 +86,9 @@ class SupportedFeatures extends React.Component {
     this.updateSelectedFeature()
   }
 
-  buildFeature(feature, documentedFeatures) {
-    if (documentedFeatures.features[feature.matchName]) {
-      const featureData = documentedFeatures.features[feature.matchName];
-      return <li onClick={() => this.setState({selectedFeature: featureData})}>
-        {feature.name || featureData.name}
-      </li>
-    } else {
-      return <li>{feature.name}</li>
-    }
-  }
-
   handleChange = (ev) => {
     this.setState({
       selectedFeature: this.props.features.find(feature => feature.matchName === ev.target.value)
-    })
-  }
-
-  buildFeaturesList(documentedFeatures, selectedFeatures) {
-    return selectedFeatures.map(selectedFeature => {
-      const featureData = {
-        name: selectedFeature.name,
-        matchName: selectedFeature.matchName,
-      }
-      if (documentedFeatures.features[selectedFeature.matchName]) {
-        var documentData = documentedFeatures.features[selectedFeature.matchName]
-        featureData.link = documentedFeatures.rootPath + documentData.file_name
-        featureData.name = featureData.name || documentData.name;
-      }
-      return featureData;
     })
   }
 
@@ -135,6 +113,21 @@ class SupportedFeatures extends React.Component {
     )
   }
 
+  setRef(elem) {
+    if (elem) {
+      if (elem.contentWindow) {
+        window.addEventListener('message', function(ev) {
+          if (ev.data.name === 'lottieEvent') {
+            var payload = ev.data.payload;
+            if (payload.type === 'link') {
+              openInBrowser(payload.link);
+            }
+          }
+        })
+      }
+    }
+  }
+
   buildInfo() {
     if (!this.state.selectedFeature) {
       return (
@@ -152,14 +145,15 @@ class SupportedFeatures extends React.Component {
     }
     return (
       <iframe
-        src={this.state.selectedFeature.link}
+        src={`${this.state.selectedFeature.link}?mode=embed`}
         className={css(styles.frameContainer)}
+        ref={this.setRef}
       />
     )
   }
 
 	render() {
-    console.log(this.props.features.map(f => `"${f.matchName}"`).join(","));
+    // console.log(this.props.features.map(f => `"${f.matchName}"`).join(","));
 		return (
 			<div className={css(styles.wrapper)}>
         <div className={css(styles.header)} >

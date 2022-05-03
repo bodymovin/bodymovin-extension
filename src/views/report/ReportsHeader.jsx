@@ -2,7 +2,6 @@ import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseHeader from '../../components/header/Base_Header'
 import BaseButton from '../../components/buttons/Base_button'
-import Title from '../../components/header/Title'
 
 const styles = StyleSheet.create({
     wrapper: {
