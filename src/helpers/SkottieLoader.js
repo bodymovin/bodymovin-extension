@@ -1,5 +1,6 @@
 import {
-	getSavedVersion
+	getSavedVersion,
+	lockedMinorVersion,
 } from './skottie/skottie'
 import { getPort } from './enums/networkData'
 
@@ -18,11 +19,13 @@ async function loadCanvasJs() {
 		const savedVersions = await getSavedVersion()
 		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
-			var jsFilePath = lastVersion.js
-			jsPath = `http://localhost:${getPort()}/fileFromPath?path=${jsFilePath}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
+			// jsPath = `http://localhost:${getPort()}/fileFromPath?path=${encodeURIComponent(jsFilePath)}&type=${encodeURIComponent('text/javascript; charset=UTF-8')}`
+			jsPath = `https://unpkg.com/canvaskit-wasm@${lastVersion.version}/bin/full/canvaskit.js`
 		} else {
-			jsPath = `http://localhost:${getPort()}/canvaskit.js`
+			// jsPath = `http://localhost:${getPort()}/canvaskit.js`
+			jsPath = `https://unpkg.com/canvaskit-wasm@${lockedMinorVersion.join('.')}/bin/full/canvaskit.js`
 		}
+		// jsPath = 'https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.js'
 		scriptTag.src = jsPath
 		scriptTag.id = 'canvasKitElement'
 		document.body.appendChild(scriptTag)
@@ -44,10 +47,12 @@ async function getCanvasKit() {
 		const savedVersions = await getSavedVersion()
 		if (savedVersions.length) {
 			var lastVersion = savedVersions[savedVersions.length - 1]
-			var wasmFilePath = lastVersion.wasm
-			wasmPath = `http://localhost:${getPort()}/fileFromPath?path=${wasmFilePath}&type=${encodeURIComponent('application/wasm')}`
+			// var wasmFilePath = lastVersion.wasm
+			// wasmPath = `http://localhost:${getPort()}/fileFromPath?path=${encodeURIComponent(wasmFilePath)}&type=${encodeURIComponent('application/wasm')}`
+			wasmPath = `https://unpkg.com/canvaskit-wasm@${lastVersion.version}/bin/full/canvaskit.wasm`
 		} else {
-			wasmPath = `http://localhost:${getPort()}/canvaskit.wasm`
+			// wasmPath = `http://localhost:${getPort()}/canvaskit.wasm`
+			wasmPath = `https://unpkg.com/canvaskit-wasm@${lockedMinorVersion.join('.')}/bin/full/canvaskit.wasm`
 		}
 		_canvasKit = await window.CanvasKitInit({
 		    locateFile: (file) => wasmPath, 

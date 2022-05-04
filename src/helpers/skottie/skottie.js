@@ -3,7 +3,8 @@ import nodePath from '../path_proxy'
 import {getUserFolders} from '../CompositionsProvider'
 
 let storingFolder = ''
-let storingDataFileName = 'data.json'
+let storingDataFileName = 'data2.json'
+const lockedMinorVersion = [0,33,0];
 
 const createDataFile = async () => {
 	return {
@@ -24,7 +25,7 @@ const getFolder = async () => {
 
 		for (let i = 0; i < path.length; i += 1) {
 			currentPath += path[i];
-			console.log(currentPath)
+			// console.log(currentPath)
 			if (!fs.existsSync(currentPath)) {
 				fs.mkdirSync(currentPath);
 			}
@@ -35,11 +36,14 @@ const getFolder = async () => {
 }
 
 const getLatestVersion = async () => {
-	// const response = await fetch('https://unpkg.com/canvaskit-wasm/package.json');
-	// return packageResponse.version
-	const response = await fetch('https://particles.skia.org/static/VERSION');
-	const packageResponse = await response.text();
-	return packageResponse.replace(/\W/g, '')
+	const packageResponse = await fetch('https://unpkg.com/canvaskit-wasm@latest/package.json');
+	const packageData = await packageResponse.json();
+	const versionParts = packageData.version.split('.');
+	if (Number(versionParts[1]) === Number(lockedMinorVersion[1])) {
+		return packageData.version;
+		// return packageData.version.replace(/\W/g, '');
+	}
+	return '';
 }
 
 const saveDataFile = async data => {
@@ -73,29 +77,23 @@ const getSavedVersion = async () => {
 }
 
 const saveLatestVersion = async version => {
-	// const files = await Promise.all([
-	// 	fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.js'),
-	// 	fetch('https://unpkg.com/canvaskit-wasm/bin/canvaskit.wasm'),
-	// ])
 	const files = await Promise.all([
-		fetch('https://particles.skia.org/static/canvaskit.js'),
-		fetch('https://particles.skia.org/static/canvaskit.wasm'),
+		fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.js'),
+		fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.wasm'),
 	])
 	const savingFolder = await getFolder()
-	const fileName = version.split('.').join('_').replace(/\W/g, '')
-	const jsBuffer = await files[0].arrayBuffer()
-	const jsFilePath = savingFolder + nodePath.sep + fileName + '.js'
-	console.log('fileName', fileName)
-	console.log('jsFilePath', jsFilePath)
-	fs.writeFileSync(jsFilePath, Buffer.from(jsBuffer))
-	const wasmBuffer = await files[1].arrayBuffer()
-	const wasmFilePath = savingFolder + nodePath.sep + fileName + '.wasm'
-	fs.writeFileSync(wasmFilePath, Buffer.from(wasmBuffer))
+	// const fileName = version.split('.').join('_').replace(/\W/g, '')
+	// const jsBuffer = await files[0].arrayBuffer()
+	// const jsFilePath = savingFolder + nodePath.sep + fileName + '.js'
+	// fs.writeFileSync(jsFilePath, Buffer.from(jsBuffer))
+	// const wasmBuffer = await files[1].arrayBuffer()
+	// const wasmFilePath = savingFolder + nodePath.sep + fileName + '.wasm'
+	// fs.writeFileSync(wasmFilePath, Buffer.from(wasmBuffer))
 	const dataFile = await getDataFile()
 	dataFile.versions.push({
 		version,
-		wasm: wasmFilePath,
-		js: jsFilePath,
+		// wasm: wasmFilePath,
+		// js: jsFilePath,
 	})
 	await saveDataFile(dataFile)
 }
@@ -106,4 +104,5 @@ export {
 	getDataFile,
 	getSavedVersion,
 	saveLatestVersion,
+	lockedMinorVersion,
 }

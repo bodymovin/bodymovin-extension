@@ -45,13 +45,10 @@ class SkottiePreviewer extends React.PureComponent {
     const CanvasKit = this.CanvasKit
     const totalFrames = this.props.animationData.op - this.props.animationData.ip;
     const frame = parseInt(totalFrames * this.props.progress, 10)
-    CanvasKit.setCurrentContext(this.skottieContext);
     this.skottieInstance.seekFrame(frame);
-    this.skottieInstance.render(this.skottieCanvas, {
-    fLeft: 0,
-    fTop:  0,
-    fRight:  this.props.animationData.w * window.devicePixelRatio,
-    fBottom: this.props.animationData.h * window.devicePixelRatio });
+    var bounds = CanvasKit.LTRBRect(0, 0, this.props.animationData.w * window.devicePixelRatio,
+      this.props.animationData.h * window.devicePixelRatio);
+    this.skottieInstance.render(this.skottieCanvas, bounds);
     this.skottieSurface.flush();
   }
 
@@ -75,7 +72,7 @@ class SkottiePreviewer extends React.PureComponent {
         this.skottieSurface = CanvasKit.MakeCanvasSurface(container);
         this.skottieCanvas = this.skottieSurface.getCanvas();
         this.skottieInstance = CanvasKit.MakeManagedAnimation(JSON.stringify(data), this.props.assetsData);
-        this.skottieContext = CanvasKit.currentContext();
+        // this.skottieContext = CanvasKit.currentContext();
         this.CanvasKit = CanvasKit;
         this.updateFrame();
       }

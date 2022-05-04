@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^2.4.6",
     "file-type": "^14.6.2",
     "imagemin": "^7.0.1",
