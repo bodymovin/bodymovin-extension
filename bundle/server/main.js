@@ -4,6 +4,7 @@ const imagemin = require('imagemin');
 const imageminPngquant = require('imagemin-pngquant');
 const pngToJpeg = require('png-to-jpeg');
 const express = require('express')
+const cors = require('cors')
 var fs = require('fs');
 var nodePath = require('path');
 var bodyParser = require('body-parser');
@@ -47,6 +48,7 @@ async function processImage(path, compression, hasTransparency) {
 }
 
 const app = express.createServer();
+app.use(cors());
 app.use(bodyParser.json())
 app.use(express.static('public'))
 app.use(function (req, res, next) {
@@ -99,7 +101,7 @@ app.get('/canvaskit.js', (req, res) => {
 })
 
 app.get('/fileFromPath', (req, res) => {
-	const filePath = req.query.path
+	const filePath = decodeURIComponent(req.query.path)
 	const buffer = fs.readFileSync(filePath)
 	if (buffer) {
 		res.setHeader('Content-Type', decodeURIComponent(req.query.type));

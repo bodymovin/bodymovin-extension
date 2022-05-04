@@ -136,6 +136,9 @@ function *searchSkottieUpdates() {
 	try {
 		yield call(initializeSkottie)
 		const latestVersion = yield call(getLatestSkottieVersion)
+		if (!latestVersion) {
+			return;
+		}
 		const savedVersions = yield call(getSkottieSavedVersions)
 		if (!savedVersions.length || savedVersions[savedVersions.length - 1].version !== latestVersion) {
 			saveSkottieLatestVersion(latestVersion)
