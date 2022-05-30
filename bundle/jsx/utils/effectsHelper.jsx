@@ -103,13 +103,13 @@ $.__bodymovin.bm_effectsHelper = (function () {
         }
     }
 
-    function setupBasicEffect(elem, effectType) {
+    function setupBasicEffect(elem, effectType, matchName) {
         var ob = {};
         ob.ty = effectType;
         ob.nm = elem.name;
         // Apparently numProperties returns 1 less value than the one used on expressions.
         ob.np = elem.numProperties + 1;
-        ob.mn = elem.matchName;
+        ob.mn = matchName;
         ob.ix = elem.propertyIndex;
         ob.en = elem.enabled === true ? 1 : 0;
         ob.ef = [];
@@ -638,10 +638,14 @@ $.__bodymovin.bm_effectsHelper = (function () {
         }
         // using matchName here instead of effectType, 
         // because this effect is still exported as an unknown effect (group)
-        var ob = setupBasicEffect(elem, effectType);
-        if (elem.matchName === 'ADBE Easy Levels2') { 
+        if (elem.matchName === 'ADBE Easy Levels2') {
+            // Convert to ProLevels.
+            var ob = setupBasicEffect(elem, effectType, 'ADBE Pro Levels2');
             return handleEasyLevels(elem, ob, frameRate, stretch);
-        } else if (elem.matchName === 'ADBE HUE SATURATION') {
+        }
+
+        var ob = setupBasicEffect(elem, effectType, elem.matchName);
+        if (elem.matchName === 'ADBE HUE SATURATION') {
             handleHueSaturation(elem);
         }
         var i, len = elem.numProperties, prop;
