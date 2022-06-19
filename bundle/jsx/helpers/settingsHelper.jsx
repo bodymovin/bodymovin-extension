@@ -28,6 +28,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.should_skip_images && !_settings.should_encode_images;
     }
 
+    function shouldReuseImages() {
+        return _settings.should_reuse_images;
+    }
+
     function shouldIgnoreExpressionProperties() {
         return _settings.ignore_expression_properties;
     }
@@ -110,6 +114,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.getCompressionQuality = getCompressionQuality;
     ob.shouldEncodeImages = shouldEncodeImages;
     ob.shouldSkipImages = shouldSkipImages;
+    ob.shouldReuseImages = shouldReuseImages;
     ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
     ob.shouldExportOldFormat = shouldExportOldFormat;
     ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;

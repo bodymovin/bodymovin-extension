@@ -121,7 +121,7 @@ $.__bodymovin.bm_compsManager = (function () {
             destinationFolder.create();
         }
 
-        $.__bodymovin.bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings);
+        $.__bodymovin.bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings, currentComposition.uid);
     }
     
     function renderComplete() {

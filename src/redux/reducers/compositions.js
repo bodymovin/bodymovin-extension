@@ -7,6 +7,7 @@ import Variables from '../../helpers/styles/variables'
 import random from '../../helpers/randomGenerator'
 import {getSimpleSeparator} from '../../helpers/osHelper'
 import deepmerge from 'deepmerge'
+import { v4 as uuidv4 } from 'uuid';
 
 let initialState = {
 	list: [],
@@ -46,6 +47,7 @@ let defaultComposition = {
         should_encode_images: false,
         should_compress: true,
         should_skip_images: false,
+        should_reuse_images: false,
         should_include_av_assets: false,
         compression_rate: 80,
         extraComps: {
@@ -129,6 +131,7 @@ function createComp(comp) {
   return {
     ...defaultComposition, 
     id: comp.id, 
+    uid: uuidv4(), 
     name: comp.name, 
     settings: {
       ...defaultComposition.settings,
@@ -154,6 +157,9 @@ function setStoredData(state, action) {
   for(var comp in compositions) {
     if(compositions.hasOwnProperty(comp)){
       item = compositions[comp]
+      if (!item.uid) {
+        item.uid = uuidv4();
+      }
       compositions[comp] = deepmerge(defaultComposition, item, { arrayMerge: overwriteMerge })
     }
   }

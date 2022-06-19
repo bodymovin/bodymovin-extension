@@ -17,8 +17,10 @@ $.__bodymovin.bm_renderManager = (function () {
     var renderHelper = $.__bodymovin.bm_renderHelper;
     var expressionHelper = $.__bodymovin.bm_expressionHelper;
     var textCompHelper = $.__bodymovin.bm_textCompHelper;
+    var assetsStorage = $.__bodymovin.assetsStorage;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
+    var currentCompUID;
     var currentExportedComps = [];
     var processesState = {
         render: 'idle',
@@ -248,7 +250,13 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
 
-    function render(comp, destination, fsDestination, compSettings) {
+    function render(
+        comp,
+        destination,
+        fsDestination,
+        compSettings,
+        compUid,
+    ) {
         $.__bodymovin.bm_sourceHelper.reset();
         $.__bodymovin.bm_textShapeHelper.reset();
         textCompHelper.reset();
@@ -270,6 +278,7 @@ $.__bodymovin.bm_renderManager = (function () {
         currentExportedComps = [];
         hasExpressionsFlag = false;
         currentCompID = comp.id;
+        currentCompUID = compUid;
         settingsHelper.set(compSettings)
 
         bm_ProjectHelper.init();
@@ -343,7 +352,7 @@ $.__bodymovin.bm_renderManager = (function () {
 
     function checkProcesses() {
         if (processesState.report === 'ended'
-                && processesState.render === 'ended') {
+            && processesState.render === 'ended') {
                 clearData();
                 bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
         } else if(processesState.render === 'ended') {
@@ -448,6 +457,7 @@ $.__bodymovin.bm_renderManager = (function () {
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
             try {
                 bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
+                assetsStorage.storeAssets(ob.renderData.exportData.assets, currentCompUID);
             } catch(err) {
                 bm_eventDispatcher.sendEvent('bm:alert', {message: 'Could not export files <br /> Is Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network enabled?'});
                 bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render Failed ', compId: currentCompID, progress: 1, isFinished: false, fsPath: fsDestinationPath});
@@ -510,12 +520,18 @@ $.__bodymovin.bm_renderManager = (function () {
                 }*/
             } else {
                 removeExtraData();
-                $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names, currentCompSettings.original_assets);
+                $.__bodymovin.bm_sourceHelper.exportImages(
+                    destinationPath,
+                    ob.renderData.exportData.assets,
+                    currentCompID,
+                    currentCompUID,
+                );
             }
         } catch(error) {
              
             // Uncomment for debugging
             if (error) {
+                bm_eventDispatcher.log('ERROR:renderNextLayer');
                 bm_eventDispatcher.log(error.message);
                 bm_eventDispatcher.log(error.line);
                 bm_eventDispatcher.log(error.fileName);

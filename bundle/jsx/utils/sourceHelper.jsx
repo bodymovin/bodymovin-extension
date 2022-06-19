@@ -9,6 +9,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var renderQueueHelper = $.__bodymovin.bm_renderQueueHelper;
+    var assetsStorage = $.__bodymovin.assetsStorage;
     var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
     , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0
@@ -637,7 +638,14 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
     }
 
-    function exportImages(path, assets, compId, _originalNamesFlag, _originalAssetsFlag) {
+    function copyAssetsToArray(assets, renderAssetsArray) {
+        var i, len = assets.length;
+        for (i = 0; i < len; i += 1) {
+            renderAssetsArray.push(assets[i]);
+        }
+    }
+
+    function exportImages(path, assets, compId, compUid) {
         if ((imageSources.length === 0 && sequenceSourcesStills.length === 0 && videoSources.length === 0 && audioSourceHelper.isEmpty() && dataSourceHelper.isEmpty()) || settingsHelper.shouldSkipImages()) {
             bm_renderManager.imagesReady();
             return;
@@ -647,8 +655,17 @@ $.__bodymovin.bm_sourceHelper = (function () {
             return;
         }
         currentCompID = compId;
-        originalNamesFlag = _originalNamesFlag;
-        originalAssetsFlag = _originalAssetsFlag;
+        const settings = settingsHelper.get();
+        originalNamesFlag = settings.original_names;
+        originalAssetsFlag = settings.original_assets;
+        if (settingsHelper.shouldReuseImages()) {
+            var storedAssets = assetsStorage.getAssets(compUid);
+            if (storedAssets) {
+                copyAssetsToArray(storedAssets, assets);
+                bm_renderManager.imagesReady();
+                return;
+            }
+        }
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting images', compId: currentCompID, progress: 0});
         currentExportingImage = 0;
         currentExportingImageSequenceIndex = 0;

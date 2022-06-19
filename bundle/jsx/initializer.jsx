@@ -33,6 +33,7 @@ if (!Function.prototype.bm_bind) (function(){
   'enums/shapeTypes.jsx',
   'enums/maskTypes.jsx',
   'helpers/layerResolver.jsx',
+  'helpers/assetsStorage.jsx',
   'helpers/layerStyleResolver.jsx',
   'helpers/shapeTypeResolver.jsx',
   'helpers/maskTypeResolver.jsx',

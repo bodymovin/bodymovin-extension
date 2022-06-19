@@ -150,6 +150,7 @@ class Settings extends React.PureComponent {
     this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
     this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
     this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
+    this.toggleReuseImages = this.toggleValue.bind(this,'should_reuse_images')
     this.toggleIncludeVideo = this.toggleValue.bind(this,'should_include_av_assets')
     this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
     this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
@@ -315,6 +316,7 @@ class Settings extends React.PureComponent {
               qualityChange={this.qualityChange}
               toggleEncodeImages={this.toggleEncodeImages}
               toggleSkipImages={this.toggleSkipImages}
+              toggleReuseImages={this.toggleReuseImages}
               toggleIncludeVideo={this.toggleIncludeVideo}
             />
             
