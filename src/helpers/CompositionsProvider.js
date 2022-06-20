@@ -542,9 +542,82 @@ async function getSavingPath(path) {
 		await extensionLoader;
 		console.log('path', path);
 		var eScript = '$.__bodymovin.bm_projectManager.setDestinationPath("' + path + '")';
-	    csInterface.evalScript(eScript);
+	  csInterface.evalScript(eScript);
 	})
 	
+}
+
+async function saveProjectDataToXMP(data) {
+	return new Promise(async function(resolve, reject) {
+		var eScript = '$.__bodymovin.bm_XMPHelper.setMetadata("config", \'' + JSON.stringify(data) + '\')';
+		csInterface.evalScript(eScript);
+		setStorageLocation('xmp');
+		resolve();
+	})
+}
+
+async function getProjectDataFromXMP() {
+	return new Promise(async function(resolve, reject) {
+		function onData(ev) {
+			if (ev.data) {
+				const data = (typeof ev.data === "string")
+				? JSON.parse(ev.data)
+				: ev.data
+
+				if(data.property === 'config') {
+					resolve(data.value)
+				}
+			}
+			csInterface.removeEventListener('bm:xmpData:success', onData)
+			csInterface.removeEventListener('bm:xmpData:failed', onFail)
+		}
+		function onFail(ev) {
+			if (ev.data && ev.data.property === 'config') {
+				reject()
+			}
+		}
+		csInterface.addEventListener('bm:xmpData:success', onData)
+		csInterface.addEventListener('bm:xmpData:failed', onFail)
+		await extensionLoader;
+		var eScript = '$.__bodymovin.bm_XMPHelper.getMetadataFromCep("config", true)';
+	  csInterface.evalScript(eScript);
+	})
+}
+
+async function setStorageLocation(location) {
+	return new Promise(async function(resolve, reject) {
+		var eScript = '$.__bodymovin.bm_XMPHelper.setMetadata("storageLocation", "' + location + '")';
+		csInterface.evalScript(eScript);
+		resolve();
+	})
+}
+
+async function getStorageLocation() {
+	return new Promise(async function(resolve, reject) {
+		function onData(ev) {
+			if (ev.data) {
+				const data = (typeof ev.data === "string")
+				? JSON.parse(ev.data)
+				: ev.data
+
+				if(data.property === 'storageLocation') {
+					resolve(data.value)
+				}
+			}
+			csInterface.removeEventListener('bm:xmpData:success', onData)
+			csInterface.removeEventListener('bm:xmpData:failed', onFail)
+		}
+		function onFail(ev) {
+			if (ev.data && ev.data.property === 'storageLocation') {
+				reject()
+			}
+		}
+		csInterface.addEventListener('bm:xmpData:success', onData)
+		csInterface.addEventListener('bm:xmpData:failed', onFail)
+		await extensionLoader;
+		var eScript = '$.__bodymovin.bm_XMPHelper.getMetadataFromCep("storageLocation", false)';
+	  csInterface.evalScript(eScript);
+	})
 }
 
 export {
@@ -569,4 +642,8 @@ export {
 	getUserFolders,
 	expressionProcessed,
 	getSavingPath,
+	saveProjectDataToXMP,
+	getProjectDataFromXMP,
+	setStorageLocation,
+	getStorageLocation,
 }

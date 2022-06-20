@@ -22,6 +22,7 @@ let initialState = {
   defaultFolderPath: '',
   shouldKeepCopyOfSettings: false,
   settingsDestinationCopy: null,
+  shouldSaveInProjectFile: false,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -756,6 +757,13 @@ function toggleIncludeCompNameAsFolder(state, action) {
   }
 }
 
+function toggleSaveInProjectFile(state, action) {
+  return {
+    ...state,
+    shouldSaveInProjectFile: !state.shouldSaveInProjectFile,
+  }
+}
+
 function setDefaultFolderPath(state, action) {
   return {
     ...state,
@@ -994,8 +1002,10 @@ export default function compositions(state = initialState, action) {
       return updateMetadataCustomPropValue(state, action)
     case actionTypes.COMPOSITIONS_SELECT_ALL:
       return selectAllComps(state, action)
-      case actionTypes.COMPOSITIONS_UNSELECT_ALL:
-        return unselectAllComps(state, action)
+    case actionTypes.COMPOSITIONS_UNSELECT_ALL:
+      return unselectAllComps(state, action)
+    case actionTypes.SETTINGS_SAVE_IN_PROJECT_FILE:
+      return toggleSaveInProjectFile(state, action)
     default:
       return state
   }

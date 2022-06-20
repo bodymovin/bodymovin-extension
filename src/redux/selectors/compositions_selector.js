@@ -11,6 +11,7 @@ const getItems = (state) => state.compositions.items
 const getList = (state) => state.compositions.list
 const getShouldKeepSettingsCopy = (state) => state.compositions.shouldKeepCopyOfSettings
 const getSettingsDestinationCopy = (state) => state.compositions.settingsDestinationCopy
+const getShouldSaveInProjectFile = (state) => state.compositions.shouldSaveInProjectFile
 
 function getVisibleItems(items, list, filter, showOnlySelected) {
   filter = filter.toLowerCase();
@@ -52,6 +53,7 @@ const getCompositionsList = createSelector(
     getShouldIncludeCompNameAsFolder,
     getShouldKeepSettingsCopy,
     getSettingsDestinationCopy,
+    getShouldSaveInProjectFile,
   ],
   (
     filter,
@@ -65,6 +67,7 @@ const getCompositionsList = createSelector(
     shouldIncludeCompNameAsFolder,
     shouldKeepCopyOfSettings,
     settingsDestinationCopy,
+    shouldSaveInProjectFile
   ) => {
   	return {
 		canRender: checkRenderable(items, list),
@@ -78,6 +81,7 @@ const getCompositionsList = createSelector(
 		visibleItems: getVisibleItems(items, list, filter, showOnlySelected),
     shouldKeepCopyOfSettings: shouldKeepCopyOfSettings,
     settingsDestinationCopy: settingsDestinationCopy,
+    shouldSaveInProjectFile: shouldSaveInProjectFile,
   	}
   }
 )

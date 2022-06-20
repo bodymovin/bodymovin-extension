@@ -387,6 +387,12 @@ function settingsLoaded(projectData) {
 	}
 }
 
+function toggleSaveInProjectFile() {
+	return {
+		type: actionTypes.SETTINGS_SAVE_IN_PROJECT_FILE,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -446,4 +452,5 @@ export {
 	settingsCopyPathPathSelected,
 	loadSettings,
 	settingsLoaded,
+	toggleSaveInProjectFile,
 }

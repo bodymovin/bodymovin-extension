@@ -10,7 +10,15 @@ import {
 import {
 	loadFileData
 } from '../../helpers/FileLoader'
-import {getVersionFromExtension, setLottiePaths, initializeServer} from '../../helpers/CompositionsProvider'
+import {
+	getVersionFromExtension,
+	setLottiePaths,
+	initializeServer,
+	saveProjectDataToXMP,
+	getProjectDataFromXMP,
+	setStorageLocation,
+	getStorageLocation,
+} from '../../helpers/CompositionsProvider'
 import {ping as serverPing} from '../../helpers/serverHelper'
 import storingDataSelector from '../selectors/storing_data_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
@@ -21,7 +29,13 @@ const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 function *projectGetStoredData(action) {
 	try{
-		let projectData = yield call(getProjectFromLocalStorage, action.id)
+		const storageLocation = yield call(getStorageLocation);
+		let projectData;
+		if (storageLocation === 'xmp') {
+			projectData = yield call(getProjectDataFromXMP);
+		} else {
+			projectData = yield call(getProjectFromLocalStorage, action.id);
+		}
 		if(projectData) {
 			yield put({ 
 					type: actions.PROJECT_STORED_DATA,
@@ -66,7 +80,6 @@ function *saveStoredData() {
 		yield take([
 			actions.COMPOSITION_SET_DESTINATION, 
 			actions.COMPOSITIONS_TOGGLE_ITEM, 
-			actions.COMPOSITIONS_UPDATED, 
 			actions.SETTINGS_TOGGLE_VALUE, 
 			actions.SETTINGS_TOGGLE_EXTRA_COMP, 
 			actions.SETTINGS_CANCEL,
@@ -109,10 +122,16 @@ function *saveStoredData() {
 			actions.SETTINGS_PROJECT_SETTINGS_COPY,
 			actions.SETTINGS_COPY_PATH_SELECTED,
 			actions.SETTINGS_LOADED,
+			actions.SETTINGS_SAVE_IN_PROJECT_FILE,
 		])
 		const storingData = yield select(storingDataSelector)
 		yield call(saveProjectDataToPath, storingData.data)
-		yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
+		if (storingData.data.extraState.shouldSaveInProjectFile) {
+			yield call(saveProjectDataToXMP, storingData.data)
+		} else {
+			yield call(setStorageLocation, 'localStorage');
+			yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
+		}
 	}
 }
 

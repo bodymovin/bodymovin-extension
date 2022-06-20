@@ -1,10 +1,15 @@
+/*global app, $, ExternalObject, XMPMeta */
+
 $.__bodymovin.bm_XMPHelper = (function(){
     var ob = {};
     ob.init = init;
     ob.created = true;
     ob.setMetadata = setMetadata;
     ob.getMetadata = getMetadata;
+    ob.getMetadataFromCep = getMetadataFromCep;
     var namespace = 'bodymovin';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var JSON = $.__bodymovin.JSON;
     
     function init(){
         var proj = app.project;
@@ -58,6 +63,18 @@ $.__bodymovin.bm_XMPHelper = (function(){
         }
         return metaValue.value;
     } 
+
+    function getMetadataFromCep(property, returnAsJson) {
+        var data = getMetadata(property);
+        if (data) {
+            if (returnAsJson) {
+                data = JSON.parse(data)
+            }
+            bm_eventDispatcher.sendEvent('bm:xmpData:success', {value: data, property: property});
+        } else {
+            bm_eventDispatcher.sendEvent('bm:xmpData:failed', {property: property});
+        }
+    }
     
     init();
     

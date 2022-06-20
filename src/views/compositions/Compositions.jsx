@@ -17,6 +17,7 @@ import {
 	toggleCompNameAsDefault,
 	toggleCompNameAsFolder,
 	toggleAEAsPath,
+	toggleSaveInProjectFile,
 	toggleDefaultPathAsFolder,
 	defaultFolderFileChange,
 	goToImportFile,
@@ -183,6 +184,8 @@ class Compositions extends React.Component {
 						settingsDestinationCopy={this.props.settingsDestinationCopy}
 						onSettingsCopyChange={this.props.onSettingsCopyChange}
 						onSettingsLoad={this.props.onSettingsLoad}
+						onSaveInProjectFile={this.props.onSaveInProjectFile}
+						shouldSaveInProjectFile={this.props.shouldSaveInProjectFile}
 					/>
 				}
 			</div>
@@ -212,6 +215,7 @@ const mapDispatchToProps = {
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
 	onAEAsPathToggle: toggleAEAsPath,
+	onSaveInProjectFile: toggleSaveInProjectFile,
 	onCopySettingsToggle: toggleCopySettings,
 	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
 	onDefaultPathChange: defaultFolderFileChange,

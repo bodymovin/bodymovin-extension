@@ -23,6 +23,7 @@ const storingDataSelector = createSelector(
 					defaultFolderPath: compositionState.defaultFolderPath,
 					shouldKeepCopyOfSettings: compositionState.shouldKeepCopyOfSettings,
 					settingsDestinationCopy: compositionState.settingsDestinationCopy,
+					shouldSaveInProjectFile: compositionState.shouldSaveInProjectFile,
   			},
         reports: {
           renderers: reports.settings.renderers,

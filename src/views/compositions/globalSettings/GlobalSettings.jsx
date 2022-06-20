@@ -117,6 +117,12 @@ class GlobalSettings extends React.Component {
                   onChange={this.props.onSettingsCopyChange}
                 />
               }
+              <SettingsListItem 
+                title='Save settings with AE file'
+                description='If you want your settings to be ported together with the aep file, select this option'
+                toggleItem={this.props.onSaveInProjectFile}
+                active={this.props.shouldSaveInProjectFile}
+              />
             </ul>
           </div>
         </div>
