@@ -167,6 +167,7 @@ class Settings extends React.PureComponent {
     this.toggleBakeExpressionProperties = this.toggleValue.bind(this,'expressions:shouldBake')
     this.toggleCacheExpressionProperties = this.toggleValue.bind(this,'expressions:shouldCacheExport')
     this.toggleExtendBakeBeyondWorkArea = this.toggleValue.bind(this,'expressions:shouldBakeBeyondWorkArea')
+    this.toggleCompNamesAsIds = this.toggleValue.bind(this,'useCompNamesAsIds')
     this.toggleBundleFonts = this.toggleValue.bind(this,'bundleFonts')
     this.toggleInlineFonts = this.toggleValue.bind(this,'inlineFonts')
   }
@@ -387,6 +388,11 @@ class Settings extends React.PureComponent {
                 description='Export in a more human readable format. Do not use for final file since filesize gets significantly larger.'
                 toggleItem={this.togglePrettyPrint}
                 active={this.props.settings ? this.props.settings.pretty_print : false}  />
+              <SettingsListItem 
+                title='Use composition names as ids'
+                description='Composition names will be used as reference ids'
+                toggleItem={this.toggleCompNamesAsIds}
+                active={this.props.settings ? this.props.settings.useCompNamesAsIds : false}  />
             </SettingsCollapsableItem>
             <SettingsMetadata
               data={this.props.settings.metadata}

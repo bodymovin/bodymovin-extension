@@ -108,6 +108,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.includeExtraChars;
     }
 
+    function shouldUseCompNamesAsIds() {
+        return _settings.useCompNamesAsIds;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -134,6 +138,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldUserOriginalNames = shouldUserOriginalNames;
     ob.shouldUseSourceNames = shouldUseSourceNames;
     ob.shouldReplaceCharactersWithComps = shouldReplaceCharactersWithComps;
+    ob.shouldUseCompNamesAsIds = shouldUseCompNamesAsIds;
 
     return ob;
 }());

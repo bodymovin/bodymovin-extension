@@ -63,6 +63,7 @@ let defaultComposition = {
         skip_default_properties: false,
         not_supported_properties: false,
         pretty_print: false,
+        useCompNamesAsIds: false,
         export_mode: ExportModes.STANDARD,
         export_modes: {
           standard: true,

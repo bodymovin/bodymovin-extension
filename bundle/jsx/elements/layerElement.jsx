@@ -114,7 +114,11 @@ $.__bodymovin.bm_layerElement = (function () {
                 layerData.refId = sourceId;
             } else {
                 //layerData.compId = bm_generalUtils.random(7);
-                layerData.compId = 'comp_' + compCount;
+                if (settingsHelper.shouldUseCompNamesAsIds()) {
+                    layerData.compId = layerInfo.source.name;
+                } else {
+                    layerData.compId = + compCount;
+                }
                 layerData.compName = layerInfo.source.name;
                 layerData.frameRate = layerInfo.source.frameRate;
                 layerData.preserveNestedFrameRate = layerInfo.source.preserveNestedFrameRate ? 1 : undefined;
