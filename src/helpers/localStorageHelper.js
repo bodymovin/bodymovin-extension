@@ -1,21 +1,39 @@
-function getProjectFromLocalStorage(id) {
-	let resolve, reject
-	let prom = new Promise(function(_resolve, _reject){
-		resolve = _resolve
-		reject = _reject
-	})
-	try {
-		var project = localStorage.getItem('project_' + id);
-		if(project) {
-			resolve(JSON.parse(project))
-		} else {
-			reject()
+import LZString from 'lz-string';
+
+const PROJECT_PREFIX = 'project_';
+
+function getProjectFromLocalStorageById(id) {
+	return new Promise(function(resolve, reject){
+		try {
+			var project = localStorage.getItem(id);
+			if(project) {
+				try {
+					var decompressed = LZString.decompress(project);
+					if (decompressed) {
+						project = decompressed;
+					} else { 
+						console.log('NOT COMPRESSED');
+					}
+				} catch (error) {
+				}
+				resolve(JSON.parse(project));
+			} else {
+				reject();
+			}
+		} catch(err) {
+			reject();
 		}
-	} catch(err) {
-		reject()
-	}
-	return prom
+	})
 }
+
+async function getProjectFromLocalStorage(id) {
+	return getProjectFromLocalStorageById(PROJECT_PREFIX + id);
+}
+
+// var overflow = 'a';
+// for(var i = 0; i < 1000000; i += 1) {
+// 	overflow += 'a';
+// }
 
 function saveProjectToLocalStorage(data, id) {
 	let resolve, reject
@@ -25,10 +43,12 @@ function saveProjectToLocalStorage(data, id) {
 	})
 	try {
 		let serialized = JSON.stringify(data)
-		localStorage.setItem('project_' + id, serialized)
+		var compressed = LZString.compress(serialized);
+		localStorage.setItem(PROJECT_PREFIX + id, compressed)
+		// localStorage.setItem('overflow_', overflow)
 		resolve()
 	} catch(err) {
-		reject()
+		reject(err)
 	}
 	return prom
 }
@@ -143,9 +163,46 @@ function getSettingsFromLocalStorage(paths) {
 	})
 }
 
+async function getAllProjectsNamedFromLocalStorage() {
+	const namedProjects = [];
+	for (let key in localStorage) {
+		if (!localStorage.hasOwnProperty(key)) {
+				continue;
+		}
+		if (key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX) {
+			try {
+				
+				const project = await getProjectFromLocalStorageById(key);
+				if (project.name) {
+					const jsonString = JSON.stringify(project);
+					const size = (jsonString.length * 2);
+					namedProjects.push({
+						id: key,
+						size: (size / 1024).toFixed(2) + " KB",
+						name: decodeURIComponent(project.name),
+					})
+				}
+			} catch (error) {
+				// continue
+			}
+		}
+	}
+	return namedProjects;
+}
+
 function clearLocalStorage() {
 	while (localStorage.length) {
 		var key = localStorage.key(0);
+		localStorage.removeItem(key);
+	}
+}
+
+function clearProjectsInLocalStorage(ids) {
+	for (let key in localStorage) {
+		if (!localStorage.hasOwnProperty(key)) {
+				continue;
+		}
+		if (ids.includes(key) || (ids.length === 0 && key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX))
 		localStorage.removeItem(key);
 	}
 }
@@ -160,4 +217,6 @@ export {
 	getSettingsFromLocalStorage,
 	saveSettingsToLocalStorage,
 	clearLocalStorage,
+	getAllProjectsNamedFromLocalStorage,
+	clearProjectsInLocalStorage,
 }

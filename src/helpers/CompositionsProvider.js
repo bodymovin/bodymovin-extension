@@ -112,10 +112,12 @@ csInterface.addEventListener('bm:image:process', function (ev) {
 csInterface.addEventListener('bm:project:id', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-		let id = data.id
+		const id = data.id
+		const name = data.name
 		dispatcher({ 
 				type: actions.PROJECT_SET_ID,
-				id: id
+				id: id,
+				name: name,
 		})
 	} else {
 	}

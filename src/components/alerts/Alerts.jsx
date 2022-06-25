@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {hideAlert} from '../../redux/actions/generalActions'
 import CacheAlert from './CacheAlert'
 import BaseAlert from './BaseAlert'
+import StorageAlert from './StorageAlert'
 
 class Alerts extends React.Component {
 
@@ -11,7 +12,11 @@ class Alerts extends React.Component {
 			return null
 		} else if (this.props.alerts.type === 'cache') {
 			return <CacheAlert />
-		}else{
+		} else if (this.props.alerts.type === 'storage') {
+			return <StorageAlert
+				data={this.props.alerts}
+			/>
+		} else{
 			return (
 				<BaseAlert 
 					pars={this.props.alerts.pars}

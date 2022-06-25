@@ -143,6 +143,13 @@ function clearCacheCancelled() {
 	}
 }
 
+function clearProjectsFromCache(ids) {
+	return {
+		type: actionTypes.APP_CLEAR_CACHE_PROJECTS,
+		ids: ids,
+	}
+}
+
 function toggleShowSelected() {
 	return {
 		type: actionTypes.SETTINGS_TOGGLE_SELECTED,
@@ -453,4 +460,5 @@ export {
 	loadSettings,
 	settingsLoaded,
 	toggleSaveInProjectFile,
+	clearProjectsFromCache,
 }

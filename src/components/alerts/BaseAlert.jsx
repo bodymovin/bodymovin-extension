@@ -14,7 +14,9 @@ const styles = StyleSheet.create({
     top:'0',
     left:'0',
     backgroundColor:'rgba(71,71,71,.9)',
-    overflow: 'auto'
+    overflow: 'auto',
+    display: 'flex',
+    'flex-direction': 'column',
   },
   aligner: {
   	textAlign: 'center'
@@ -30,7 +32,9 @@ const styles = StyleSheet.create({
   	color: Variables.colors.white
   },
   bm_container: {
-  	height: '250px'
+  	height: '1px',
+  	'min-height': '50px',
+    flex: '1 1 auto',
   },
   buttonContainer: {
     padding: '0 10px',
@@ -68,6 +72,7 @@ class BaseAlert extends React.Component {
       <div className={css(styles.pars_container)}>
         {this.createPars(this.props.pars)}
       </div>
+      {this.props.children}
       <div className={css(styles.aligner)}>
         {this.buildButtons(this.props.buttons)}
       </div>

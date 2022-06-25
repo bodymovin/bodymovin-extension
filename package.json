@@ -70,6 +70,7 @@
     "esprima": "^4.0.1",
     "jimp": "^0.2.28",
     "jszip": "^3.2.2",
+    "lz-string": "^1.4.4",
     "png-to-jpeg": "^1.0.1",
     "react": "^15.4.2",
     "react-color": "^2.18.1",

@@ -6,6 +6,8 @@ import {
 	savePathsToLocalStorage, 
 	getPathsFromLocalStorage,
 	clearLocalStorage,
+	clearProjectsInLocalStorage,
+	getAllProjectsNamedFromLocalStorage,
 } from '../../helpers/localStorageHelper'
 import {
 	loadFileData
@@ -125,12 +127,23 @@ function *saveStoredData() {
 			actions.SETTINGS_SAVE_IN_PROJECT_FILE,
 		])
 		const storingData = yield select(storingDataSelector)
-		yield call(saveProjectDataToPath, storingData.data)
-		if (storingData.data.extraState.shouldSaveInProjectFile) {
-			yield call(saveProjectDataToXMP, storingData.data)
-		} else {
-			yield call(setStorageLocation, 'localStorage');
-			yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
+		try {
+			yield call(saveProjectDataToPath, storingData.data)
+			if (storingData.data.extraState.shouldSaveInProjectFile) {
+				yield call(saveProjectDataToXMP, storingData.data)
+			} else {
+				yield call(setStorageLocation, 'localStorage');
+				yield call(saveProjectToLocalStorage, storingData.data, storingData.id)
+			}
+		} catch (error) {
+			// Local storage exceeded
+			if (error && error.code === 22) {
+				const projects = yield call(getAllProjectsNamedFromLocalStorage);
+				yield put({ 
+					type: actions.SETTINGS_SAVE_FAILED,
+					projects,
+			})
+			}
 		}
 	}
 }
@@ -138,6 +151,13 @@ function *saveStoredData() {
 function *clearCache() {
 	try {
 		yield call(clearLocalStorage)
+	} catch(err) {
+	}
+}
+
+function *clearProjectsFromCache(action) {
+	try {
+		yield call(clearProjectsInLocalStorage, action.ids)
 	} catch(err) {
 	}
 }
@@ -188,6 +208,7 @@ export default [
   takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
   takeEvery([actions.APP_INITIALIZED], start),
   takeEvery([actions.APP_CLEAR_CACHE_CONFIRMED], clearCache),
+  takeEvery([actions.APP_CLEAR_CACHE_PROJECTS], clearProjectsFromCache),
   fork(saveStoredData),
   fork(savePathsData)
 ]

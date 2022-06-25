@@ -60,7 +60,7 @@ $.__bodymovin.bm_projectManager = (function () {
         }
         if(projectId !== storedProjectId){
             projectId = storedProjectId;
-            bm_eventDispatcher.sendEvent('bm:project:id', {id:projectId});
+            bm_eventDispatcher.sendEvent('bm:project:id', {id:projectId, name: app.project.file.name});
         }
         
         bm_fileManager.removeOldTemporaryFolder();

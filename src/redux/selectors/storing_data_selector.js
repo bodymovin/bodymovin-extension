@@ -4,10 +4,11 @@ const getCompositionState = (state) => state.compositions
 const getPreviewState = (state) => state.preview
 const getID = (state) => state.project.id
 const getReports = (state) => state.reports
+const getName = (state) => state.project.name
 
 const storingDataSelector = createSelector(
-  [ getCompositionState, getPreviewState, getID, getReports ],
-  (compositionState, previewState, id, reports) => {
+  [ getCompositionState, getPreviewState, getID, getReports, getName ],
+  (compositionState, previewState, id, reports, name) => {
 
   	const compositions = compositionState.items
   	return {
@@ -33,9 +34,10 @@ const storingDataSelector = createSelector(
         preview: {
           backgroundColor: previewState.backgroundColor,
           shouldLockTimelineToComposition: previewState.shouldLockTimelineToComposition,
-        }
+        },
+				name: name, 
   		},
-  		id: id
+  		id: id,
   	}
   }
 )
