@@ -70,9 +70,9 @@ $.__bodymovin.bm_XMPHelper = (function(){
             if (returnAsJson) {
                 data = JSON.parse(data)
             }
-            bm_eventDispatcher.sendEvent('bm:xmpData:success', {value: data, property: property});
+            bm_eventDispatcher.sendEvent('bm:xmpData:success:' + property, {value: data, property: property});
         } else {
-            bm_eventDispatcher.sendEvent('bm:xmpData:failed', {property: property});
+            bm_eventDispatcher.sendEvent('bm:xmpData:failed:' + property, {property: property});
         }
     }
     

@@ -8,6 +8,7 @@ import {
 	clearLocalStorage,
 	clearProjectsInLocalStorage,
 	getAllProjectsNamedFromLocalStorage,
+	compressAllProjects,
 } from '../../helpers/localStorageHelper'
 import {
 	loadFileData
@@ -20,6 +21,8 @@ import {
 	getProjectDataFromXMP,
 	setStorageLocation,
 	getStorageLocation,
+	getCompressedState,
+	setCompressedState,
 } from '../../helpers/CompositionsProvider'
 import {ping as serverPing} from '../../helpers/serverHelper'
 import storingDataSelector from '../selectors/storing_data_selector'
@@ -45,7 +48,6 @@ function *projectGetStoredData(action) {
 			})
 		}
 	} catch(err){
-		
 	}
 }
 function *getPaths(action) {
@@ -201,12 +203,25 @@ function *start() {
 	}
 }
 
+function *compressAllSettings() {
+	try {
+		const isCompressed = yield call(getCompressedState);
+		if (!isCompressed) {
+			yield call(compressAllProjects);
+			yield call(setCompressedState, true);
+		}
+	} catch (error) {
+		// console.log(error);
+	}
+}
+
 export default [
   takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
   takeEvery([actions.APP_INITIALIZED], getPaths),
   takeEvery([actions.APP_INITIALIZED], getVersion),
   takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
   takeEvery([actions.APP_INITIALIZED], start),
+  takeEvery([actions.PROJECT_SET_ID], compressAllSettings),
   takeEvery([actions.APP_CLEAR_CACHE_CONFIRMED], clearCache),
   takeEvery([actions.APP_CLEAR_CACHE_PROJECTS], clearProjectsFromCache),
   fork(saveStoredData),

@@ -1,4 +1,8 @@
-import csInterface from './CSInterfaceHelper'
+import csInterface, {
+	sendAsyncCommand,
+	sendCommandWithListeners,
+	getXMPValue,
+} from './CSInterfaceHelper'
 import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
@@ -183,7 +187,6 @@ csInterface.addEventListener('bm:create:smil', async function (ev) {
 			const eScript = "$.__bodymovin.bm_smilExporter.saveSMILDataSuccess()";
 	    	csInterface.evalScript(eScript);
 		} catch(err) {
-			console.log('errerr', err)
 	    	const eScript = '$.__bodymovin.bm_smilExporter.saveSMILFailed()';
 	    	csInterface.evalScript(eScript);
 		} 
@@ -472,81 +475,47 @@ function navigateToLayer(compositionId, layerIndex) {
 }
 
 async function getCompositionTimelinePosition() {
-	return new Promise(async function(resolve, reject) {
-		function handleTimelineUpdate(ev) {
-			if (ev.data) {
-				const timelineData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
-				resolve(timelineData)
-			}
-			csInterface.removeEventListener('bm:composition:timelinePosition', handleTimelineUpdate)
-		}
-		csInterface.addEventListener('bm:composition:timelinePosition', handleTimelineUpdate)
-
-		await extensionLoader;
-		var eScript = '$.__bodymovin.bm_compsManager.getTimelinePosition()';
-	    csInterface.evalScript(eScript);
-	})
-	
+	return sendCommandWithListeners(
+		'$.__bodymovin.bm_compsManager.getTimelinePosition',
+		[],
+		'bm:composition:timelinePosition',
+		''
+	);
 }
 
 async function setCompositionTimelinePosition(progress) {
-	await extensionLoader;
-	var eScript = '$.__bodymovin.bm_compsManager.setTimelinePosition(' + progress + ')';
-    csInterface.evalScript(eScript);
+	return sendAsyncCommand(
+		'$.__bodymovin.bm_compsManager.setTimelinePosition',
+		[progress],
+	)
 	
 }
 
 function expressionProcessed(id, data) {
-	extensionLoader.then(function(){
-		var eScript = `$.__bodymovin.bm_expressionHelper.saveExpression(${JSON.stringify(data)}, "${id}")`;
-	    csInterface.evalScript(eScript);
-	})
+	sendAsyncCommand(
+		'$.__bodymovin.bm_expressionHelper.saveExpression',
+		[data, id],
+	)
 }
 
 async function getUserFolders() {
-	return new Promise(async function(resolve, reject) {
-		function onUserFoldersFetched(ev) {
-			if (ev.data) {
-				const foldersData = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
-				resolve(foldersData)
-			}
-			csInterface.removeEventListener('bm:user:folders', onUserFoldersFetched)
-		}
-		csInterface.addEventListener('bm:user:folders', onUserFoldersFetched)
-
-		await extensionLoader;
-		var eScript = '$.__bodymovin.bm_projectManager.getUserFolders()';
-	    csInterface.evalScript(eScript);
-	})
-	
+	return sendCommandWithListeners(
+		'$.__bodymovin.bm_projectManager.getUserFolders',
+		[],
+		'bm:user:folders',
+		''
+	)
 }
 
 async function getSavingPath(path) {
-	return new Promise(async function(resolve, reject) {
-		function onDestinationSelected(ev) {
-			if (ev.data) {
-				const foldersData = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
-				resolve(foldersData)
-			}
-			csInterface.removeEventListener('bm:destination:selected', onDestinationSelected)
-			csInterface.removeEventListener('bm:destination:cancelled', onDestinationSelected)
-		}
-		function onDestinationCancelled(ev) {
-			reject()
-		}
-		csInterface.addEventListener('bm:destination:selected', onDestinationSelected)
-		csInterface.addEventListener('bm:destination:cancelled', onDestinationCancelled)
-
-		await extensionLoader;
-		console.log('path', path);
-		var eScript = '$.__bodymovin.bm_projectManager.setDestinationPath("' + path + '")';
-	  csInterface.evalScript(eScript);
-	})
-	
+	return sendCommandWithListeners(
+		'$.__bodymovin.bm_projectManager.setDestinationPath',
+		[
+			path,
+		],
+		'bm:destination:selected',
+		'bm:destination:cancelled'
+	)
 }
 
 async function saveProjectDataToXMP(data) {
@@ -559,67 +528,43 @@ async function saveProjectDataToXMP(data) {
 }
 
 async function getProjectDataFromXMP() {
-	return new Promise(async function(resolve, reject) {
-		function onData(ev) {
-			if (ev.data) {
-				const data = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
-
-				if(data.property === 'config') {
-					resolve(data.value)
-				}
-			}
-			csInterface.removeEventListener('bm:xmpData:success', onData)
-			csInterface.removeEventListener('bm:xmpData:failed', onFail)
-		}
-		function onFail(ev) {
-			if (ev.data && ev.data.property === 'config') {
-				reject()
-			}
-		}
-		csInterface.addEventListener('bm:xmpData:success', onData)
-		csInterface.addEventListener('bm:xmpData:failed', onFail)
-		await extensionLoader;
-		var eScript = '$.__bodymovin.bm_XMPHelper.getMetadataFromCep("config", true)';
-	  csInterface.evalScript(eScript);
-	})
+	return getXMPValue(
+		"config",
+		true,
+	)
 }
 
 async function setStorageLocation(location) {
-	return new Promise(async function(resolve, reject) {
-		var eScript = '$.__bodymovin.bm_XMPHelper.setMetadata("storageLocation", "' + location + '")';
-		csInterface.evalScript(eScript);
-		resolve();
-	})
+	return sendAsyncCommand(
+		'$.__bodymovin.bm_XMPHelper.setMetadata',
+		["storageLocation", location],
+	)
 }
 
 async function getStorageLocation() {
-	return new Promise(async function(resolve, reject) {
-		function onData(ev) {
-			if (ev.data) {
-				const data = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
+	return getXMPValue(
+		"storageLocation",
+		false,
+	)
+}
 
-				if(data.property === 'storageLocation') {
-					resolve(data.value)
-				}
-			}
-			csInterface.removeEventListener('bm:xmpData:success', onData)
-			csInterface.removeEventListener('bm:xmpData:failed', onFail)
-		}
-		function onFail(ev) {
-			if (ev.data && ev.data.property === 'storageLocation') {
-				reject()
-			}
-		}
-		csInterface.addEventListener('bm:xmpData:success', onData)
-		csInterface.addEventListener('bm:xmpData:failed', onFail)
-		await extensionLoader;
-		var eScript = '$.__bodymovin.bm_XMPHelper.getMetadataFromCep("storageLocation", false)';
-	  csInterface.evalScript(eScript);
-	})
+async function getCompressedState() {
+	try {
+		const isCompressed = await getXMPValue(
+			"isCompressed",
+			false,
+		)
+		return isCompressed;
+	} catch (error) {
+		return false;
+	}
+}
+
+async function setCompressedState(value) {
+	return sendAsyncCommand(
+		'$.__bodymovin.bm_XMPHelper.setMetadata',
+		["isCompressed", value],
+	)
 }
 
 export {
@@ -648,4 +593,6 @@ export {
 	getProjectDataFromXMP,
 	setStorageLocation,
 	getStorageLocation,
+	getCompressedState,
+	setCompressedState,
 }

@@ -11,8 +11,6 @@ function getProjectFromLocalStorageById(id) {
 					var decompressed = LZString.decompress(project);
 					if (decompressed) {
 						project = decompressed;
-					} else { 
-						console.log('NOT COMPRESSED');
 					}
 				} catch (error) {
 				}
@@ -207,6 +205,30 @@ function clearProjectsInLocalStorage(ids) {
 	}
 }
 
+async function compressAllProjects() {
+	for (let key in localStorage) {
+		if (!localStorage.hasOwnProperty(key)) {
+				continue;
+		}
+		if (key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX) {
+			try {
+				
+				var project = localStorage.getItem(key);
+				if (project) {
+						var decompressed = LZString.decompress(project);
+						if (!decompressed) {
+							var compressed = LZString.compress(project);
+							localStorage.setItem(key, compressed)
+						} else { 
+						}
+				}
+			} catch (error) {
+				// continue
+			}
+		}
+	}
+}
+
 export {
 	getProjectFromLocalStorage,
 	saveProjectToLocalStorage,
@@ -219,4 +241,5 @@ export {
 	clearLocalStorage,
 	getAllProjectsNamedFromLocalStorage,
 	clearProjectsInLocalStorage,
+	compressAllProjects,
 }
