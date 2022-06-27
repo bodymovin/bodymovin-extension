@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import BaseButton from '../buttons/Base_button'
+import BaseLink from '../buttons/Base_Link'
 import Variables from '../../helpers/styles/variables'
 import {
     goToPreview, 
@@ -9,6 +9,7 @@ import {
     goToAnnotations,
     goToComps,
     goToReports,
+    goToSupportedFeatures,
 } from '../../redux/actions/compositionActions'
 import {connect} from 'react-redux'
 import {routes} from '../../redux/reducers/routes'
@@ -23,7 +24,6 @@ const styles = StyleSheet.create({
     },
     buttons_container: {
     	width: '100%',
-    	height: '50px',
         display: 'flex',
         alignItems:'center'
     },
@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
     separator: {
     	width: '100%',
     	height: '1px',
-    	backgroundColor: Variables.colors.gray2,
     	marginTop: '10px',
     	marginBottom: '10px'
     }
@@ -59,18 +58,55 @@ const styles = StyleSheet.create({
 function BaseHeader(props) {
 	return (<div className={css(styles.container)}>
 				<div className={css(styles.buttons_container)}>
-                    {props.currentRoute !== routes.compositions &&
-                        <BaseButton text='Compositions' type='gray' classes={styles.right} onClick={props.goToComps}/>
-                    }
-                    {props.currentRoute !== routes.reports &&
-                        <BaseButton text='Reports' type='gray' classes={styles.right} onClick={props.goToReports}/>
-                    }
-					<BaseButton text='Preview' type='gray' classes={styles.button} onClick={props.goToPreview} />
-                    <BaseButton text='Import Lottie Animation' type='gray' classes={styles.right} onClick={props.goToImportFile}/>
-                    {props.currentRoute !== routes.annotations &&
-                        <BaseButton text='Annotations' type='gray' classes={styles.right} onClick={props.goToAnnotations}/>
-                    }
-                    <BaseButton text='Get the Player' type='gray' classes={styles.right} onClick={props.goToPlayer}/>
+                    <BaseLink
+                        text='Compositions'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={props.goToComps}
+                        selected={props.currentRoute === routes.compositions}
+                    />
+					<BaseLink
+                        text='Preview'
+                        type='gray'
+                        classes={styles.button}
+                        onClick={props.goToPreview}
+                        selected={props.currentRoute === routes.preview}
+                    />
+                    <BaseLink
+                        text='Import Lottie Animation'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={props.goToImportFile}
+                        selected={props.currentRoute === routes.importFile}
+                    />
+                    <BaseLink
+                        text='Reports'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={() => props.goToReports()}
+                        selected={props.currentRoute === routes.reports}
+                    />
+                    <BaseLink
+                        text='Get the Player'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={props.goToPlayer}
+                        selected={props.currentRoute === routes.player}
+                    />
+                    <BaseLink
+                        text='Supported Features'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={props.goToSupportedFeatures}
+                        selected={props.currentRoute === routes.supported_features}
+                    />
+                    <BaseLink
+                        text='Annotations'
+                        type='gray'
+                        classes={styles.right}
+                        onClick={props.goToAnnotations}
+                        selected={props.currentRoute === routes.annotations}
+                    />
                     <div className={css(styles.buttons_separator)}></div>
 				</div>
                 <div className={css(styles.separator)} />
@@ -90,6 +126,7 @@ const mapDispatchToProps = {
     goToImportFile: goToImportFile,
     goToAnnotations: goToAnnotations,
     goToReports: goToReports,
+	goToSupportedFeatures: goToSupportedFeatures,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseHeader)

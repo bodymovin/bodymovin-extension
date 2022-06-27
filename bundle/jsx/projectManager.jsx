@@ -153,6 +153,27 @@ $.__bodymovin.bm_projectManager = (function () {
             bm_eventDispatcher.sendEvent('bm:destination:cancelled');
         }
     }
+
+    function getSelectedProperties() {
+        var props = [];
+        if (app.project && app.project.activeItem && app.project.activeItem.selectedLayers) {
+            var selectedLayers = app.project.activeItem.selectedLayers
+            var i = 0;
+            for (i = 0; i < selectedLayers.length; i += 1) {
+                var layer = selectedLayers[i];
+                try {
+                    for (var j = 0; j < layer.selectedProperties.length; j += 1) {
+                        props.push({
+                            matchName: layer.selectedProperties[j].matchName,
+                            name: layer.selectedProperties[j].name,
+                        });
+                    }
+                } catch (error) {
+                }
+            }
+        }
+        bm_eventDispatcher.sendEvent('bm:properties:list', props);
+    }
     
     var ob = {
         checkProject: checkProject,
@@ -164,6 +185,7 @@ $.__bodymovin.bm_projectManager = (function () {
         getProjectPath: getProjectPath,
         getUserFolders: getUserFolders,
         setDestinationPath: setDestinationPath,
+        getSelectedProperties: getSelectedProperties,
     };
     return ob;
 }());

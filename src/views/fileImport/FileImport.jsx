@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      padding: '10px 30px 30px 30px',
+      padding: '10px 10px 30px 10px',
       backgroundColor :'#474747',
     },
     body: {

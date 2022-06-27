@@ -10,8 +10,6 @@ import {
 	toggleItem, 
 	displaySettings, 
 	getCompositions, 
-	goToPreview, 
-	goToPlayer, 
 	toggleShowSelected, 
 	applySettingsToSelectedComps,
 	toggleCompNameAsDefault,
@@ -20,8 +18,6 @@ import {
 	toggleSaveInProjectFile,
 	toggleDefaultPathAsFolder,
 	defaultFolderFileChange,
-	goToImportFile,
-	goToAnnotations,
 	goToReports,
 	selectAllComps,
 	unselectAllComps,
@@ -85,10 +81,6 @@ class Compositions extends React.Component {
 		this.props.displaySettings(item.id);
 	}
 
-	goToReports = path => {
-		this.props.goToReports(path);
-	}
-
 	openGlobalSettings = () => {
 		this.setState({
 			globalSettings: true,
@@ -137,13 +129,8 @@ class Compositions extends React.Component {
 					<MainHeader 
 						canRender={this.props.canRender}
 						startRender={this.renderComps} 
-						goToPreview={this.props.goToPreview} 
 						refresh={this.props.getCompositions} 
 						applySettings={this.props.applySettingsToSelectedComps} 
-						goToImportFile={this.props.goToImportFile} 
-						goToPlayer={this.props.goToPlayer}
-						goToAnnotations={this.props.goToAnnotations}
-						goToReports={this.props.goToReports}
 						openGlobalSettings={this.openGlobalSettings}
 					/>
 				</div>
@@ -204,14 +191,11 @@ const mapDispatchToProps = {
 	getCompositions: getCompositions,
 	filterChange: filterChange,
 	startRender: startRender,
-	goToPreview: goToPreview,
-	goToPlayer: goToPlayer,
 	showRenderBlock: showRenderBlock,
 	toggleShowSelected: toggleShowSelected,
 	selectAllComps: selectAllComps,
 	unselectAllComps: unselectAllComps,
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
-	goToImportFile: goToImportFile,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
 	onAEAsPathToggle: toggleAEAsPath,
@@ -219,7 +203,6 @@ const mapDispatchToProps = {
 	onCopySettingsToggle: toggleCopySettings,
 	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
 	onDefaultPathChange: defaultFolderFileChange,
-	goToAnnotations: goToAnnotations,
 	goToReports: goToReports,
 	onSettingsCopyChange: settingsCopyPathChange,
 	onSettingsLoad: loadSettings,

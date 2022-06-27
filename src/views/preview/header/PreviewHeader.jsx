@@ -6,6 +6,7 @@ import {previewTypes} from '../viewer/PreviewViewer'
 import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
 import checkbox from '../../../assets/animations/checkbox.json'
 import { SketchPicker } from 'react-color'
+import BaseHeader from '../../../components/header/Base_Header'
 
 const styles = StyleSheet.create({
     container: {
@@ -118,11 +119,10 @@ class PreviewHeader extends PureComponent {
         const props = this.props
     	return (
             <div className={css(styles.container)}>
+                <BaseHeader />
 				<div className={css(styles.buttons_container)}>
                     <BaseButton text='Browse Local Files' type='green' classes={styles.button} onClick={props.browseFiles}/>
                     <BaseButton text='Current Renders' type='green' classes={styles.button} onClick={props.selectCurrentRenders}/>
-                    <div className={css(styles.buttons_separator)}></div>
-					<BaseButton text='‹ Back' type='gray' classes={styles.button} onClick={props.goToComps}/>
 				</div>
                 <div className={css(styles.separator)}></div>
                     <div className={css(styles.renderersContainer)}>
