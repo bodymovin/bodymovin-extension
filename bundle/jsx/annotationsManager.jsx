@@ -16,10 +16,15 @@ $.__bodymovin.bm_annotationsManager = (function () {
             path: '/assets/annotations/bodymovin_text_props_7.ffx',
             matchName: textPropertyMatchName,
             name: 'Text Properties',
+        },
+        {
+            path: '/assets/annotations/bodymovin_image_props.ffx',
+            matchName: 'Pseudo/Bodymovin Asset Props',
+            name: 'Asset Properties',
         }
     ]
 
-    var annotationMatchNames = [
+    var textAnnotationMatchNames = [
         'Pseudo/Bodymovin Text Props 4',
         'Pseudo/Bodymovin Text Props 4-0001',
         'Pseudo/Bodymovin Text Props 4-0002',
@@ -52,6 +57,20 @@ $.__bodymovin.bm_annotationsManager = (function () {
         'Pseudo/Bodymovin Text Props 7-0007',
         'Pseudo/Bodymovin Text Props 7-0008',
     ]
+
+    var assetAnnotationMatchNames = [
+        'Pseudo/Bodymovin Asset Props',
+        'Pseudo/Bodymovin Asset Props-0001',
+        'Pseudo/Bodymovin Asset Props-0002',
+        'Pseudo/Bodymovin Asset Props-0003',
+        'Pseudo/Bodymovin Asset Props-0004',
+        'Pseudo/Bodymovin Asset Props-0005',
+        'Pseudo/Bodymovin Asset Props-0006',
+        'Pseudo/Bodymovin Asset Props-0007',
+        'Pseudo/Bodymovin Asset Props-0008',
+    ]
+
+    var allAnnotations = textAnnotationMatchNames.concat(assetAnnotationMatchNames);
 
     function createLayerReference(layer) {
         return {
@@ -150,7 +169,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
         // DO NOT DELETE. USE WHEN ADDING NEW PSEUDO EFFECT TO SAVE AS FFX
         // var layer = findLayerById(layerId);
         // if (layer) {
-        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Text Props 7');
+        //     layer.property("Effects").addProperty('Pseudo/Bodymovin Asset Props');
         // }
     }
 
@@ -249,6 +268,33 @@ $.__bodymovin.bm_annotationsManager = (function () {
         }
     }
 
+    function addAssetProperties(effect) {
+        var i, len = effect.numProperties, prop;
+        var data = {};
+        for (i = 0; i < len; i += 1) {
+            prop = effect.property(i + 1);
+            // bm_eventDispatcher.log('prop: ' + prop.matchName);
+            // bm_eventDispatcher.log('VALUE: ' + prop.value);
+            //
+            if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0001') {
+                data.originalAsset = prop.value === 1 ? false : true;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0002') {
+                data.sourceAsId = prop.value === 1 ? false : true;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0003') {
+                data.copyAsset = prop.value === 1 ? false : true;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0004') {
+                data.enableCompression = prop.value === 1 ? false : true;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0005') {
+                data.compression = prop.value;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0006') {
+                data.includeInJson = prop.value === 1 ? false : true;
+            } else if (prop.matchName === 'Pseudo/Bodymovin Asset Props-0007') {
+                data.usePreviousExport = prop.value === 1 ? false : true;
+            }
+        }
+        return data;
+    }
+
     function searchTextProperties(layerInfo) {
         var textDocumentData = {};
         if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
@@ -259,22 +305,46 @@ $.__bodymovin.bm_annotationsManager = (function () {
         var i, len = effects.numProperties, effectElement;
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            if (effectElement.enabled && isAnnotation(effectElement.matchName)) {
+            if (effectElement.enabled && isTextAnnotation(effectElement.matchName)) {
                 addTextProperties(effectElement, textDocumentData);
             }
         }
         return textDocumentData;
     }
 
-    function isAnnotation(matchName) {
-        var i, len = annotationMatchNames.length;
+    function searchAnnotationInList(matchName, list) {
+        var i, len = list.length;
         // bm_eventDispatcher.log('matchName: ' + matchName);
         for (i = 0; i < len; i += 1) {
-            if (annotationMatchNames[i] === matchName) {
+            if (list[i] === matchName) {
                 return true;
             }
         }
         return false;
+    }
+
+    function isTextAnnotation(matchName) {
+        return searchAnnotationInList(matchName, textAnnotationMatchNames);
+    }
+
+    function isAnnotation(matchName) {
+        return searchAnnotationInList(matchName, allAnnotations);
+    }
+
+    function searchAssetAnnotationInLayer(layerInfo) {
+        if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
+            return null;
+        }
+        var effects = layerInfo.effect;
+        
+        var i, len = effects.numProperties, effectElement;
+        for (i = 0; i < len; i += 1) {
+            effectElement = effects(i + 1);
+            if (effectElement.enabled && searchAnnotationInList(effectElement.matchName, assetAnnotationMatchNames)) {
+                return addAssetProperties(effectElement);
+            }
+        }
+        return null;
     }
 
     ob = {
@@ -284,6 +354,7 @@ $.__bodymovin.bm_annotationsManager = (function () {
         findAnnotationEffectByMatchName: findPseudoEffectByMatchName,
         searchTextProperties: searchTextProperties,
         isAnnotation: isAnnotation,
+        searchAssetAnnotationInLayer: searchAssetAnnotationInLayer,
     };
     
     return ob;

@@ -10,9 +10,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var renderQueueHelper = $.__bodymovin.bm_renderQueueHelper;
     var assetsStorage = $.__bodymovin.assetsStorage;
+    var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
-    , originalNamesFlag, originalAssetsFlag, imageCount = 0, videoCount = 0
+    , imageCount = 0, videoCount = 0
     , imageNameIndex = 0, fontCount = 0;
     var currentSavingAsset;
     var _lastSecond = -1;
@@ -61,14 +62,17 @@ $.__bodymovin.bm_sourceHelper = (function () {
         return audioSourceHelper.checkAudioSource(item);
     }
 
-    function buildId(item) {
-        if (settingsHelper.shouldUseSourceNames()) {
+    function buildId(item, metadata) {
+        if (metadata) {
+            if (metadata.sourceAsId) {
+                return item.source.name;
+            }
+        } else if (settingsHelper.shouldUseSourceNames()) {
             return item.source.name;
-        } else {
-            var name = 'image_' + imageCount;
-            imageCount += 1;
-            return name;
         }
+        var name = 'image_' + imageCount;
+        imageCount += 1;
+        return name;
     }
     
     function checkImageSource(item) {
@@ -80,13 +84,15 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
             i += 1;
         }
+        var assetAnnotation = annotationsManager.searchAssetAnnotationInLayer(item);
         arr.push({
             source: item.source,
             width: item.source.width,
             height: item.source.height,
             source_name: item.source.name,
             name: item.name,
-            id: buildId(item),
+            id: buildId(item, assetAnnotation),
+            metadata: assetAnnotation,
         });
         return arr[arr.length - 1].id;
     }
@@ -154,9 +160,12 @@ $.__bodymovin.bm_sourceHelper = (function () {
         return sanitizedName + extension;
     }
 
-    function getImageName(originalName, generatedName, extension) {
+    function getImageName(originalName, generatedName, extension, metadata) {
         
         var imageName;
+
+        var originalNamesFlag = metadata ? metadata.originalAsset : settingsHelper.shouldUserOriginalNames();
+        var originalAssetsFlag = metadata ? metadata.copyAsset : settingsHelper.shouldCopyOriginalAsset();
 
         if (originalNamesFlag) {
             imageName = formatImageName(originalName);
@@ -204,9 +213,15 @@ $.__bodymovin.bm_sourceHelper = (function () {
         return sequenceSource.id;
     }
 
-    function buildSeqId(source) {
+    function buildSeqId(source, metadata) {
         var name = ''
-        if (settingsHelper.shouldUseSourceNames()) {
+        if (metadata) {
+            if (metadata.sourceAsId) {
+                name = source.name + '_' + sequenceSourcesStillsCount;
+            } else {
+                name = 'imgSeq_' + sequenceSourcesStillsCount;
+            }
+        } else if (settingsHelper.shouldUseSourceNames()) {
             name = source.name + '_' + sequenceSourcesStillsCount;
         } else {
             name = 'imgSeq_' + sequenceSourcesStillsCount;
@@ -215,12 +230,15 @@ $.__bodymovin.bm_sourceHelper = (function () {
         return name;
     }
 
-    function addImageSequenceStills(source, totalFrames) {
+    function addImageSequenceStills(layer, totalFrames) {
+
+        var source = layer.source;
 
         var i = 0;
         var sequenceRange = []
+        var assetAnnotation = annotationsManager.searchAssetAnnotationInLayer(layer);
         for(i = 0; i < totalFrames; i += 1) {
-            sequenceRange.push(buildSeqId(source));
+            sequenceRange.push(buildSeqId(source, assetAnnotation));
             // sequenceRange.push('imgSeq_' + sequenceSourcesStillsCount++)
         }
 
@@ -232,6 +250,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
             range: sequenceRange,
             width: source.width,
             height: source.height,
+            metadata: assetAnnotation,
             
         }
         sequenceSourcesStills.push(sequenceStills);
@@ -255,6 +274,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         var now = new Date();
         var newSecond = now.getSeconds();
         var newMilliSeconds = now.getMilliseconds();
+        var originalAssetsFlag = settingsHelper.shouldCopyOriginalAsset();
         if (newSecond !== _lastSecond || originalAssetsFlag) {
             _lastSecond = newSecond;
             _lastMilliseconds = newMilliSeconds;
@@ -297,6 +317,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
         }
 
         var currentSourceData = sequenceSourcesStills[currentExportingImageSequenceIndex];
+        var metadata = currentSourceData.metadata;
         var totalFrames = currentSourceData.totalFrames;
 
         bm_eventDispatcher.sendEvent('bm:render:update', 
@@ -308,7 +329,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
             }
         );
 
-        var imageName = getImageName(currentSourceData.source_name, 'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex, 'png');
+        var imageName = getImageName(currentSourceData.source_name, 'seq_' + currentExportingImageSequenceIndex + '_' + currentStillIndex, 'png', metadata);
 
         var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
         var file = renderFileData.file;
@@ -324,6 +345,8 @@ $.__bodymovin.bm_sourceHelper = (function () {
             fileId: renderFileData.id,
         }
         assetsArray.push(currentSavingAsset);
+
+        var originalAssetsFlag = metadata ? metadata.copyAsset : settingsHelper.shouldCopyOriginalAsset();
 
         if (!originalAssetsFlag) {
 
@@ -367,10 +390,12 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         path: temporaryFolder.fsName + '/' + imageName, 
                         ***/
                         path: file.fsName, 
-                        should_compress: settingsHelper.shouldCompressImages(), 
-                        compression_rate: settingsHelper.getCompressionQuality()/100,
-                        should_encode_images: settingsHelper.shouldEncodeImages(),
+                        should_compress: metadata ? metadata.enableCompression : settingsHelper.shouldCompressImages(), 
+                        compression_rate: (metadata ? metadata.compression : settingsHelper.getCompressionQuality())/100,
+                        should_encode_images: metadata ? metadata.includeInJson : settingsHelper.shouldEncodeImages(),
                         assetType: 'image',
+
+
                     })
 
                 }
@@ -400,9 +425,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 path: temporaryFolder.fsName + '/' + imageName, 
                 ***/
                 path: file.fsName, 
-                should_compress: settingsHelper.shouldCompressImages(), 
-                compression_rate: settingsHelper.getCompressionQuality()/100,
-                should_encode_images: settingsHelper.shouldEncodeImages(),
+                should_compress: metadata ? metadata.enableCompression : settingsHelper.shouldCompressImages(), 
+                compression_rate: (metadata ? metadata.compression : settingsHelper.getCompressionQuality())/100,
+                should_encode_images: metadata ? metadata.includeInJson : settingsHelper.shouldEncodeImages(),
                 assetType: 'image',
             })
         }
@@ -439,9 +464,11 @@ $.__bodymovin.bm_sourceHelper = (function () {
 
     function saveSequence() {
         var currentSourceData = sequenceSourcesStills[currentExportingImageSequenceIndex];
+        var metadata = currentSourceData.metadata;
         currentStillIndex = 0;
         currentSequenceTotalFrames = currentSourceData.totalFrames;
         var frameRate = currentSourceData.source.frameRate;
+        var originalAssetsFlag = metadata ? metadata.copyAsset : settingsHelper.shouldCopyOriginalAsset();
 
         if (!originalAssetsFlag) {
             helperSequenceComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSourceData.width), Math.max(4, currentSourceData.height), 1, (currentSourceData.totalFrames + 1) / frameRate, frameRate);
@@ -530,9 +557,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
             return;
         }
         var currentSourceData = imageSources[currentExportingImage];
+        var metadata = currentSourceData.metadata;
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
-        var imageName = getImageName(currentSourceData.source_name, 'img_' + currentExportingImage, 'png');
+        var imageName = getImageName(currentSourceData.source_name, 'img_' + currentExportingImage, 'png', metadata);
         
         var renderFileData = bm_fileManager.createFile(imageName, ['raw','images']);
         var file = renderFileData.file;
@@ -547,6 +575,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
             fileId: renderFileData.id
         }
         assetsArray.push(currentSavingAsset);
+        var originalAssetsFlag = metadata ? metadata.copyAsset : settingsHelper.shouldCopyOriginalAsset();
 
         if (!originalAssetsFlag) {
             var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
@@ -588,9 +617,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                         path: temporaryFolder.fsName + '/' + imageName, 
                         ***/
                         path: file.fsName, 
-                        should_compress: settingsHelper.shouldCompressImages(), 
-                        compression_rate: settingsHelper.getCompressionQuality()/100,
-                        should_encode_images: settingsHelper.shouldEncodeImages()
+                        should_compress: metadata ? metadata.enableCompression : settingsHelper.shouldCompressImages(), 
+                        compression_rate: (metadata ? metadata.compression : settingsHelper.getCompressionQuality())/100,
+                        should_encode_images: metadata ? metadata.includeInJson : settingsHelper.shouldEncodeImages()
                     })
                 }
             };
@@ -609,9 +638,9 @@ $.__bodymovin.bm_sourceHelper = (function () {
                 path: temporaryFolder.fsName + '/' + imageName, 
                 ***/
                 path: file.fsName, 
-                should_compress: settingsHelper.shouldCompressImages(), 
-                compression_rate: settingsHelper.getCompressionQuality()/100,
-                should_encode_images: settingsHelper.shouldEncodeImages()
+                should_compress: metadata ? metadata.enableCompression : settingsHelper.shouldCompressImages(), 
+                compression_rate: (metadata ? metadata.compression : settingsHelper.getCompressionQuality())/100,
+                should_encode_images: metadata ? metadata.includeInJson : settingsHelper.shouldEncodeImages()
             })
         }
     }
@@ -655,9 +684,6 @@ $.__bodymovin.bm_sourceHelper = (function () {
             return;
         }
         currentCompID = compId;
-        const settings = settingsHelper.get();
-        originalNamesFlag = settings.original_names;
-        originalAssetsFlag = settings.original_assets;
         if (settingsHelper.shouldReuseImages()) {
             var storedAssets = assetsStorage.getAssets(compUid);
             if (storedAssets) {

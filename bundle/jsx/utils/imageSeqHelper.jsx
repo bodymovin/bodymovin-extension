@@ -22,7 +22,7 @@ $.__bodymovin.bm_imageSeqHelper = (function () {
         layerOb.ty = layerTypes.precomp;
         if (layerOb.compId) {
             var totalFrames = Math.round(layerInfo.source.duration / layerInfo.source.frameDuration);
-            var sequenceIds = sourceHelper.addImageSequenceStills(layerInfo.source, totalFrames);
+            var sequenceIds = sourceHelper.addImageSequenceStills(layerInfo, totalFrames);
             var i;
             var layers = [];
             for( i = 0; i < totalFrames; i += 1) {

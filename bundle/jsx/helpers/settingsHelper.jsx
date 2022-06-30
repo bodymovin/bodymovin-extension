@@ -112,6 +112,10 @@ $.__bodymovin.bm_settingsHelper = (function () {
         return _settings.useCompNamesAsIds;
     }
 
+    function shouldCopyOriginalAsset() {
+        return _settings.original_assets;
+    }
+
     ob.set = setData
     ob.get = getData
     ob.shouldCompressImages = shouldCompressImages;
@@ -139,6 +143,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldUseSourceNames = shouldUseSourceNames;
     ob.shouldReplaceCharactersWithComps = shouldReplaceCharactersWithComps;
     ob.shouldUseCompNamesAsIds = shouldUseCompNamesAsIds;
+    ob.shouldCopyOriginalAsset = shouldCopyOriginalAsset;
 
     return ob;
 }());
