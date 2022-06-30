@@ -116,7 +116,7 @@ $.__bodymovin.bm_layerStylesHelper = (function () {
         // Size
         ob.s = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/blur'), frameRate, stretch);
         // Soften
-        ob.so = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/softness'), frameRate, stretch);
+        ob.sf = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/softness'), frameRate, stretch);
         // Use Global Light
         ob.ga = bm_keyframeHelper.exportKeyframes(style.property('bevelEmboss/useGlobalAngle'), frameRate, stretch);
         // Angle
