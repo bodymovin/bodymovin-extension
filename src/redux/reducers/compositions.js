@@ -166,7 +166,10 @@ function setStoredData(state, action) {
     }
   }
   let newState = {...state}
-  newState.items = compositions
+  newState.items = {
+    ...newState.items,
+    ...compositions,
+  }
   if (action.projectData.extraState) {
     newState = {
       ...newState,
@@ -251,7 +254,8 @@ function updateCompsSize(settings, composition) {
 }
 
 function addCompositions(state, action) {
-  let newItems = {...state.items}
+  const currentItems = state.items;
+  let newItems = {}
   let listChanged = false
   let itemsChanged = false
   let newList = []
@@ -260,24 +264,23 @@ function addCompositions(state, action) {
   for(i = 0; i < len; i += 1) {
     item = action.compositions[i]
     index = i
-    if(!newItems[item.id]) {
+    if(!currentItems[item.id]) {
       newItems[item.id] = createComp(item)
       itemsChanged = true
     } else{
-      let itemData = newItems[item.id]
-      if(newItems[item.id].name !== item.name) {
-        itemData = {...state.items[item.id], ...{name: item.name}}
-        newItems[item.id] = itemData
+      let itemData = currentItems[item.id]
+      if(currentItems[item.id].name !== item.name) {
+        itemData = {...currentItems[item.id], ...{name: item.name}}
         //newItems[item.id].name = item.name
         itemsChanged = true
       }
       let settings = searchRemovedExtraComps(itemData.settings, action.compositions)
       settings = updateCompsSize(itemData.settings, item)
       if(settings !== itemData.settings){
-        itemData = {...state.items[item.id], ...{settings: settings}}
-        newItems[item.id] = itemData
+        itemData = {...currentItems[item.id], ...{settings: settings}}
         itemsChanged = true
       }
+      newItems[item.id] = itemData;
     } 
     newList.push(item.id)
     if(state.list[index] !== item.id) {
@@ -549,7 +552,6 @@ function setFilePath(state, originalPath, suggestedPath, name, separator) {
   if(!suggestedPath) {
     return '';
   }
-  console.log(suggestedPath)
   const lastFolderIndex = suggestedPath.lastIndexOf(separator)
   return suggestedPath.substr(0, lastFolderIndex) + separator + name + '.json'
 }

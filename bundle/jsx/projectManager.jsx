@@ -47,13 +47,11 @@ $.__bodymovin.bm_projectManager = (function () {
     function checkProject() {
         //bm:application:id
         var storedProjectId;
-        if(!bm_XMPHelper.created){
-        } else {
-            storedProjectId = bm_XMPHelper.getMetadata('project_id');
-        }
+        storedProjectId = bm_XMPHelper.getMetadata('project_id');
         if(!app.project || app.project.numItems === 0) {
             return;
         }
+
         if(!storedProjectId) {
             storedProjectId = bm_generalUtils.random(20);
             bm_XMPHelper.setMetadata('project_id',storedProjectId);
@@ -61,18 +59,36 @@ $.__bodymovin.bm_projectManager = (function () {
         if(projectId !== storedProjectId){
             projectId = storedProjectId;
             bm_eventDispatcher.sendEvent('bm:project:id', {id:projectId, name: app.project.file.name});
+        } else {
+            // This try catch will identify if the project was updated but the stored id is the same.
+            // If that's the case, the project is very likely a copy of the original one
+            // So we are assigning a new id to the current one.
+            try {
+                // This comparison will throw an error because we're keeping a reference to and old project
+                // And AE crashes when trying to use it.
+                var areEqual = app.project === project;
+            } catch (err) {
+                storedProjectId = bm_generalUtils.random(20);
+                bm_XMPHelper.setMetadata('project_id',storedProjectId);
+                projectId = storedProjectId;
+                bm_eventDispatcher.sendEvent('bm:project:id', {id:projectId, name: app.project.file.name});
+            }
         }
         
         bm_fileManager.removeOldTemporaryFolder();
         bm_eventDispatcher.sendEvent('bm:temp:id', {id:tempId});
-        try {
 
+        try {
             var tempIdFile = new File(Folder.temp.absoluteURI + '/bodymovin_uid.txt');
             tempIdFile.open('w', 'TEXT', '????');
             tempIdFile.encoding = 'UTF-8';
             tempIdFile.write(tempId);
             tempIdFile.close();
-        } catch(err) {
+        } catch(error) {
+            // bm_eventDispatcher.log('error');
+            // bm_eventDispatcher.log(error.message);
+            // bm_eventDispatcher.log(error.line);
+            // bm_eventDispatcher.log(error.fileName);
         }
     }
     

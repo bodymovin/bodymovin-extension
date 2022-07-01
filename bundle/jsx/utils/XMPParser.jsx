@@ -3,7 +3,6 @@
 $.__bodymovin.bm_XMPHelper = (function(){
     var ob = {};
     ob.init = init;
-    ob.created = true;
     ob.setMetadata = setMetadata;
     ob.getMetadata = getMetadata;
     ob.getMetadataFromCep = getMetadataFromCep;
@@ -35,9 +34,7 @@ $.__bodymovin.bm_XMPHelper = (function(){
         } else {
             try {
                 metaData.setProperty(schemaNS, namespace+":"+property, value);
-                ob.created = true;
             } catch(err) {
-                ob.created = false;
             }
         }
         proj.xmpPacket = metaData.serialize();
@@ -68,7 +65,10 @@ $.__bodymovin.bm_XMPHelper = (function(){
         var data = getMetadata(property);
         if (data) {
             if (returnAsJson) {
-                data = JSON.parse(data)
+                try {
+                    data = JSON.parse(data.replace(/\\/g,'\\\\'))
+                } catch (error) {
+                }
             }
             bm_eventDispatcher.sendEvent('bm:xmpData:success:' + property, {value: data, property: property});
         } else {
