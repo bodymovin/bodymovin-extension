@@ -9,6 +9,7 @@ import {
 	stopRenderCompositions,
 	getProjectPath,
 	getSavingPath,
+	createTempIdHeader,
 } from '../../helpers/CompositionsProvider'
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
@@ -29,6 +30,7 @@ function *getCSCompositions(action) {
 		yield take([actions.COMPOSITIONS_GET_COMPS, actions.APP_INITIALIZED, actions.APP_FOCUSED])
 		yield call(getCompositions)
 		yield call(getProjectPath)
+		yield call(createTempIdHeader)
 	}
 }
 

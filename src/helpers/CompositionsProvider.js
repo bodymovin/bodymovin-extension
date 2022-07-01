@@ -293,13 +293,21 @@ csInterface.addEventListener('bm:expression:process', async function (ev) {
 })
 
 function getCompositions() {
-	let prom = new Promise(function(resolve, reject){
+	return new Promise(function(resolve, reject){
 		extensionLoader.then(function(){
 			csInterface.evalScript('$.__bodymovin.bm_compsManager.updateData()');
 			resolve();
 		})
 	})
-	return prom
+}
+
+function createTempIdHeader() {
+	return new Promise(function(resolve, reject){
+		extensionLoader.then(function(){
+			csInterface.evalScript('$.__bodymovin.bm_projectManager.createTempId()');
+			resolve();
+		})
+	})
 }
 
 function getProjectPath() {
@@ -595,4 +603,5 @@ export {
 	getStorageLocation,
 	getCompressedState,
 	setCompressedState,
+	createTempIdHeader,
 }

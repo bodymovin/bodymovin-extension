@@ -9,7 +9,7 @@ $.__bodymovin.bm_projectManager = (function () {
     var bm_fileManager = $.__bodymovin.bm_fileManager;
     var commands = {};
     var projectId = '';
-    var tempId = bm_generalUtils.random(32);
+    var tempId = '';
     var project;
     function getItemType(item) {
         var getType = {};
@@ -75,7 +75,16 @@ $.__bodymovin.bm_projectManager = (function () {
             }
         }
         
+    }
+
+    function createTempId() {
+        if (tempId) {
+            return;
+        }
+        tempId = bm_generalUtils.random(32);
         bm_fileManager.removeOldTemporaryFolder();
+
+        // This tempId is used to send requests with a specific header so localhost open port can't be exploited
         bm_eventDispatcher.sendEvent('bm:temp:id', {id:tempId});
 
         try {
@@ -193,6 +202,7 @@ $.__bodymovin.bm_projectManager = (function () {
     
     var ob = {
         checkProject: checkProject,
+        createTempId: createTempId,
         getCompositions: getCompositions,
         getCompositionById: getCompositionById,
         searchCommands: searchCommands,
