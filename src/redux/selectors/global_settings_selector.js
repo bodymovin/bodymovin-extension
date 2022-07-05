@@ -9,6 +9,7 @@ const getShouldKeepSettingsCopy = (state) => state.compositions.shouldKeepCopyOf
 const getSettingsDestinationCopy = (state) => state.compositions.settingsDestinationCopy
 const getShouldSaveInProjectFile = (state) => state.compositions.shouldSaveInProjectFile
 const getShouldSkipDoneView = (state) => state.compositions.shouldSkipDoneView
+const getShouldReuseFontData = (state) => state.compositions.shouldReuseFontData
 
 const getCompositionsList = createSelector(
   [
@@ -21,6 +22,7 @@ const getCompositionsList = createSelector(
     getSettingsDestinationCopy,
     getShouldSaveInProjectFile,
     getShouldSkipDoneView,
+    getShouldReuseFontData,
   ],
   (
     shouldUseCompNameAsDefault,
@@ -32,6 +34,7 @@ const getCompositionsList = createSelector(
     settingsDestinationCopy,
     shouldSaveInProjectFile,
     shouldSkipDoneView,
+    shouldReuseFontData,
   ) => {
   	return {
       shouldUseCompNameAsDefault: shouldUseCompNameAsDefault,
@@ -43,6 +46,7 @@ const getCompositionsList = createSelector(
       settingsDestinationCopy: settingsDestinationCopy,
       shouldSaveInProjectFile: shouldSaveInProjectFile,
       shouldSkipDoneView: shouldSkipDoneView,
+      shouldReuseFontData: shouldReuseFontData,
   	}
   }
 )

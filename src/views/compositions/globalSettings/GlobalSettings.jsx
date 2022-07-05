@@ -16,6 +16,7 @@ import {
 	settingsCopyPathChange,
 	loadSettings,
 	toggleSkipDoneView,
+	toggleReuseFontData,
 } from '../../../redux/actions/compositionActions'
 
 const styles = StyleSheet.create({
@@ -144,6 +145,12 @@ class GlobalSettings extends React.Component {
                 toggleItem={this.props.onSkipDoneViewToggle}
                 active={this.props.shouldSkipDoneView}
               />
+              <SettingsListItem 
+                title='Reuse font data'
+                description='If available, reuse font data'
+                toggleItem={this.props.onReuseFontDataToggle}
+                active={this.props.shouldReuseFontData}
+              />
             </ul>
           </div>
         </div>
@@ -163,6 +170,7 @@ const mapDispatchToProps = {
 	onSettingsLoad: loadSettings,
 	onSaveInProjectFile: toggleSaveInProjectFile,
 	onSkipDoneViewToggle: toggleSkipDoneView,
+	onReuseFontDataToggle: toggleReuseFontData,
 }
 
 export default connect(global_settings_selector, mapDispatchToProps)(GlobalSettings)

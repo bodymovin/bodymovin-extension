@@ -412,6 +412,12 @@ function toggleSkipDoneView() {
 	}
 }
 
+function toggleReuseFontData() {
+	return {
+		type: actionTypes.SETTINGS_REUSE_FONT_DATA,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -475,4 +481,5 @@ export {
 	clearProjectsFromCache,
 	goToSupportedFeatures,
 	toggleSkipDoneView,
+	toggleReuseFontData,
 }

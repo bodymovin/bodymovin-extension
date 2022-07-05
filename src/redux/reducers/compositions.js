@@ -24,6 +24,7 @@ let initialState = {
   settingsDestinationCopy: null,
   shouldSaveInProjectFile: false,
   shouldSkipDoneView: false,
+  shouldReuseFontData: false,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -775,6 +776,13 @@ function toggleSkipDoneView(state, action) {
   }
 }
 
+function toggleReuseFontData(state, action) {
+  return {
+    ...state,
+    shouldReuseFontData: !state.shouldReuseFontData,
+  }
+}
+
 function setDefaultFolderPath(state, action) {
   return {
     ...state,
@@ -1019,6 +1027,8 @@ export default function compositions(state = initialState, action) {
       return toggleSaveInProjectFile(state, action)
     case actionTypes.SETTINGS_SKIP_DONE_VIEW:
       return toggleSkipDoneView(state, action)
+    case actionTypes.SETTINGS_REUSE_FONT_DATA:
+      return toggleReuseFontData(state, action)
     default:
       return state
   }
