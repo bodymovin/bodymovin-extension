@@ -14,16 +14,9 @@ import {
 	applySettingsToSelectedComps,
 	toggleCompNameAsDefault,
 	toggleCompNameAsFolder,
-	toggleAEAsPath,
-	toggleSaveInProjectFile,
-	toggleDefaultPathAsFolder,
-	defaultFolderFileChange,
 	goToReports,
 	selectAllComps,
 	unselectAllComps,
-	toggleCopySettings,
-	settingsCopyPathChange,
-	loadSettings,
 } from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
@@ -156,23 +149,6 @@ class Compositions extends React.Component {
 				{this.state.globalSettings && 
 					<GlobalSettings
 						onClose={this.closeGlobalSettings}
-						onCompNameAsDefaultToggle={this.props.onCompNameAsDefaultToggle}
-						onIncludeCompNameAsFolderToggle={this.props.onIncludeCompNameAsFolderToggle}
-						shouldUseCompNameAsDefault={this.props.shouldUseCompNameAsDefault}
-						onAEAsPathToggle={this.props.onAEAsPathToggle}
-						shouldUseAEPathAsDestinationFolder={this.props.shouldUseAEPathAsDestinationFolder}
-						onDefaultPathAsFolder={this.props.onDefaultPathAsFolder}
-						shouldUsePathAsDefaultFolder={this.props.shouldUsePathAsDefaultFolder}
-						onDefaultPathChange={this.props.onDefaultPathChange}
-						defaultFolderPath={this.props.defaultFolderPath}
-						shouldIncludeCompNameAsFolder={this.props.shouldIncludeCompNameAsFolder}
-						shouldKeepCopyOfSettings={this.props.shouldKeepCopyOfSettings}
-						onCopySettingsToggle={this.props.onCopySettingsToggle}
-						settingsDestinationCopy={this.props.settingsDestinationCopy}
-						onSettingsCopyChange={this.props.onSettingsCopyChange}
-						onSettingsLoad={this.props.onSettingsLoad}
-						onSaveInProjectFile={this.props.onSaveInProjectFile}
-						shouldSaveInProjectFile={this.props.shouldSaveInProjectFile}
 					/>
 				}
 			</div>
@@ -198,14 +174,7 @@ const mapDispatchToProps = {
 	applySettingsToSelectedComps: applySettingsToSelectedComps,
 	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
 	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
-	onAEAsPathToggle: toggleAEAsPath,
-	onSaveInProjectFile: toggleSaveInProjectFile,
-	onCopySettingsToggle: toggleCopySettings,
-	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
-	onDefaultPathChange: defaultFolderFileChange,
 	goToReports: goToReports,
-	onSettingsCopyChange: settingsCopyPathChange,
-	onSettingsLoad: loadSettings,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

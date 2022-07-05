@@ -127,6 +127,7 @@ function *saveStoredData() {
 			actions.SETTINGS_COPY_PATH_SELECTED,
 			actions.SETTINGS_LOADED,
 			actions.SETTINGS_SAVE_IN_PROJECT_FILE,
+			actions.SETTINGS_SKIP_DONE_VIEW,
 		])
 		const storingData = yield select(storingDataSelector)
 		try {

@@ -25,6 +25,7 @@ const storingDataSelector = createSelector(
 					shouldKeepCopyOfSettings: compositionState.shouldKeepCopyOfSettings,
 					settingsDestinationCopy: compositionState.settingsDestinationCopy,
 					shouldSaveInProjectFile: compositionState.shouldSaveInProjectFile,
+					shouldSkipDoneView: compositionState.shouldSkipDoneView,
   			},
         reports: {
           renderers: reports.settings.renderers,

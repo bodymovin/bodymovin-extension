@@ -2,16 +2,8 @@ import { createSelector } from 'reselect'
 
 const getFilter = (state) => state.compositions.filter
 const getSelected = (state) => state.compositions.show_only_selected
-const getCompNamesAsDefault = (state) => state.compositions.shouldUseCompNameAsDefault
-const getAEAsPath = (state) => state.compositions.shouldUseAEPathAsDestinationFolder
-const getDefaultPathAsFolder = (state) => state.compositions.shouldUsePathAsDefaultFolder
-const getDefaultFolderPath = (state) => state.compositions.defaultFolderPath
-const getShouldIncludeCompNameAsFolder = (state) => state.compositions.shouldIncludeCompNameAsFolder
 const getItems = (state) => state.compositions.items
 const getList = (state) => state.compositions.list
-const getShouldKeepSettingsCopy = (state) => state.compositions.shouldKeepCopyOfSettings
-const getSettingsDestinationCopy = (state) => state.compositions.settingsDestinationCopy
-const getShouldSaveInProjectFile = (state) => state.compositions.shouldSaveInProjectFile
 
 function getVisibleItems(items, list, filter, showOnlySelected) {
   filter = filter.toLowerCase();
@@ -46,42 +38,18 @@ const getCompositionsList = createSelector(
     getItems,
     getList,
     getSelected,
-    getCompNamesAsDefault,
-    getAEAsPath,
-    getDefaultPathAsFolder,
-    getDefaultFolderPath,
-    getShouldIncludeCompNameAsFolder,
-    getShouldKeepSettingsCopy,
-    getSettingsDestinationCopy,
-    getShouldSaveInProjectFile,
   ],
   (
     filter,
     items,
     list,
     showOnlySelected,
-    shouldUseCompNameAsDefault,
-    shouldUseAEPathAsDestinationFolder,
-    shouldUsePathAsDefaultFolder,
-    defaultFolderPath,
-    shouldIncludeCompNameAsFolder,
-    shouldKeepCopyOfSettings,
-    settingsDestinationCopy,
-    shouldSaveInProjectFile
   ) => {
   	return {
 		canRender: checkRenderable(items, list),
 		filter: filter,
     showOnlySelected: showOnlySelected,
-    shouldUseCompNameAsDefault: shouldUseCompNameAsDefault,
-    shouldUseAEPathAsDestinationFolder: shouldUseAEPathAsDestinationFolder,
-    shouldUsePathAsDefaultFolder: shouldUsePathAsDefaultFolder,
-    defaultFolderPath: defaultFolderPath,
-    shouldIncludeCompNameAsFolder: shouldIncludeCompNameAsFolder,
 		visibleItems: getVisibleItems(items, list, filter, showOnlySelected),
-    shouldKeepCopyOfSettings: shouldKeepCopyOfSettings,
-    settingsDestinationCopy: settingsDestinationCopy,
-    shouldSaveInProjectFile: shouldSaveInProjectFile,
   	}
   }
 )

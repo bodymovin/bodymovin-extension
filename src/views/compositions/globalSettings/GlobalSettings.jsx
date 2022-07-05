@@ -1,8 +1,22 @@
 import React from 'react'
+import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../../components/buttons/Base_button'
 import SettingsListItem from '../../settings/list/SettingsListItem'
 import SettingsListFile from '../../settings/list/SettingsListFile'
+import global_settings_selector from '../../../redux/selectors/global_settings_selector'
+import {
+	toggleCompNameAsDefault,
+	toggleCompNameAsFolder,
+	toggleAEAsPath,
+	toggleSaveInProjectFile,
+	toggleDefaultPathAsFolder,
+	defaultFolderFileChange,
+	toggleCopySettings,
+	settingsCopyPathChange,
+	loadSettings,
+	toggleSkipDoneView,
+} from '../../../redux/actions/compositionActions'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -40,6 +54,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: '1 1 auto',
     padding: '10px 0',
+    'overflow-y': 'auto',
   },
   settingsList: {
     background: 'green',
@@ -123,6 +138,12 @@ class GlobalSettings extends React.Component {
                 toggleItem={this.props.onSaveInProjectFile}
                 active={this.props.shouldSaveInProjectFile}
               />
+              <SettingsListItem 
+                title='Skip Done view'
+                description='Go back to composition list when render is done'
+                toggleItem={this.props.onSkipDoneViewToggle}
+                active={this.props.shouldSkipDoneView}
+              />
             </ul>
           </div>
         </div>
@@ -131,4 +152,17 @@ class GlobalSettings extends React.Component {
   }
 }
 
-export default GlobalSettings
+const mapDispatchToProps = {
+	onCompNameAsDefaultToggle: toggleCompNameAsDefault,
+	onIncludeCompNameAsFolderToggle: toggleCompNameAsFolder,
+	onAEAsPathToggle: toggleAEAsPath,
+	onDefaultPathAsFolder: toggleDefaultPathAsFolder,
+	onDefaultPathChange: defaultFolderFileChange,
+	onCopySettingsToggle: toggleCopySettings,
+	onSettingsCopyChange: settingsCopyPathChange,
+	onSettingsLoad: loadSettings,
+	onSaveInProjectFile: toggleSaveInProjectFile,
+	onSkipDoneViewToggle: toggleSkipDoneView,
+}
+
+export default connect(global_settings_selector, mapDispatchToProps)(GlobalSettings)

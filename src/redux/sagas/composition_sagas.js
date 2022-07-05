@@ -14,7 +14,7 @@ import {
 import getRenderComposition from '../selectors/render_composition_selector'
 import storingPathsSelector from '../selectors/storing_paths_selector'
 import settingsSelector from '../selectors/settings_selector'
-import compositionsSelector from '../selectors/compositions_selector'
+import globalSettingsSelector from '../selectors/global_settings_selector'
 import {
 	applySettingsFromCache,
 	settingsBannerLibraryFileSelected,
@@ -44,7 +44,7 @@ function *getCompositionDestination() {
 				shouldUseAEPathAsDestinationFolder,
 				shouldUsePathAsDefaultFolder,
 				defaultFolderPath,
-			} = yield select(compositionsSelector)
+			} = yield select(globalSettingsSelector)
 			let destinationPath = shouldUseAEPathAsDestinationFolder
 				? `${paths.projectPath}${getSimpleSeparator()}`
 				: shouldUsePathAsDefaultFolder && defaultFolderPath
@@ -70,7 +70,7 @@ function *startRender() {
 		if(comp) {
 			const {
 				shouldIncludeCompNameAsFolder,
-			} = yield select(compositionsSelector)
+			} = yield select(globalSettingsSelector)
 			const compData = {
 				...comp,
 			}
@@ -161,6 +161,17 @@ function *loadSettings() {
 	}
 }
 
+function *handleRenderFinished() {
+	const {
+		shouldSkipDoneView,
+	} = yield select(globalSettingsSelector)
+	if (shouldSkipDoneView) {
+		yield put({
+			type: actions.GOTO_COMPS
+		})
+	}
+}
+
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
@@ -173,4 +184,5 @@ export default [
   takeEvery(actions.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE, searchDefaultDestinationPath),
   takeEvery(actions.SETTINGS_COPY_PATH_UPDATE, searchSettingsCopyPath),
   takeEvery(actions.SETTINGS_LOAD, loadSettings),
+  takeEvery(actions.RENDER_FINISHED, handleRenderFinished),
 ]

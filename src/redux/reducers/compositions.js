@@ -23,6 +23,7 @@ let initialState = {
   shouldKeepCopyOfSettings: false,
   settingsDestinationCopy: null,
   shouldSaveInProjectFile: false,
+  shouldSkipDoneView: false,
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -767,6 +768,13 @@ function toggleSaveInProjectFile(state, action) {
   }
 }
 
+function toggleSkipDoneView(state, action) {
+  return {
+    ...state,
+    shouldSkipDoneView: !state.shouldSkipDoneView,
+  }
+}
+
 function setDefaultFolderPath(state, action) {
   return {
     ...state,
@@ -1009,6 +1017,8 @@ export default function compositions(state = initialState, action) {
       return unselectAllComps(state, action)
     case actionTypes.SETTINGS_SAVE_IN_PROJECT_FILE:
       return toggleSaveInProjectFile(state, action)
+    case actionTypes.SETTINGS_SKIP_DONE_VIEW:
+      return toggleSkipDoneView(state, action)
     default:
       return state
   }

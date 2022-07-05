@@ -406,6 +406,12 @@ function toggleSaveInProjectFile() {
 	}
 }
 
+function toggleSkipDoneView() {
+	return {
+		type: actionTypes.SETTINGS_SKIP_DONE_VIEW,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -468,4 +474,5 @@ export {
 	toggleSaveInProjectFile,
 	clearProjectsFromCache,
 	goToSupportedFeatures,
+	toggleSkipDoneView,
 }
