@@ -25,6 +25,11 @@ let initialState = {
   shouldSaveInProjectFile: false,
   shouldSkipDoneView: false,
   shouldReuseFontData: false,
+  templates: {
+    active: true,
+    list: [
+    ]
+  }
 }
 let extensionReplacer = /\.\w*$/g
 
@@ -111,6 +116,10 @@ let defaultComposition = {
         metadata: {
           includeFileName: false,
           customProps: [],
+        },
+        template: {
+          active: false,
+          id: 0,
         }
     }
   }
@@ -435,9 +444,6 @@ function toggleSettingsValue(state, action) {
       if (name === '[CUSTOM_PROP]') {
         object.customProps = toggleCustomProps(object.customProps, nameArray)
         break;
-      }
-      if (name === '[TESTTssa]') {
-
       }
       if (nameArray.length) {
         object[name] = {
@@ -945,6 +951,31 @@ function unselectAllComps(state, action) {
   return setCompsSelection(state, false);
 }
 
+function deleteTemplate(state, action) {
+  const templates = state.templates;
+  const list = templates.list;
+  const templateIndex = list.findIndex(template => template.value === action.value)
+  return {
+    ...state,
+    templates: {
+      ...state.templates,
+      list: [ ...list.slice(0, templateIndex), ...list.slice(templateIndex + 1) ]
+    }
+  }
+}
+
+function addTemplate(state, action) {
+  const templates = state.templates;
+  const list = templates.list;
+  return {
+    ...state,
+    templates: {
+      ...state.templates,
+      list: [ ...list, action.templateData]
+    }
+  }
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -1029,6 +1060,10 @@ export default function compositions(state = initialState, action) {
       return toggleSkipDoneView(state, action)
     case actionTypes.SETTINGS_REUSE_FONT_DATA:
       return toggleReuseFontData(state, action)
+    case actionTypes.SETTINGS_TEMPLATES_DELETE:
+      return deleteTemplate(state, action)
+    case actionTypes.SETTINGS_TEMPLATES_LOADED:
+      return addTemplate(state, action)
     default:
       return state
   }

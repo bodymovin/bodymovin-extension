@@ -25,6 +25,7 @@ import {
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
 import audioBitOptions from '../../helpers/enums/audioBitOptions'
+import SettingsTemplate from './SettingsTemplate'
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -402,6 +403,7 @@ class Settings extends React.PureComponent {
               onDeleteCustomProp={this.props.onMetadataDeleteCustomProp}
               addProp={this.props.addCustomProp}
             />
+            <SettingsTemplate/>
             <SettingsCollapsableItem 
               title={'Audio'}
               description={'Audio Settings'}

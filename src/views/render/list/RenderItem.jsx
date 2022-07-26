@@ -52,7 +52,8 @@ const styles = StyleSheet.create({
         width: '30px',
         height: '100%',
         flexGrow: 0,
-        padding: '5px'
+        padding: '5px',
+        cursor: 'pointer',
     },
     'compElementContentToggle--clickable': {
     	width: '30px',
@@ -98,6 +99,13 @@ let RenderItem = (props) => {
                         onClick={()=>props.preview(props.item)}
                         className={css(styles.compElementContentToggle)}
                         title={'Preview'}
+                    >
+                    <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
+                    </div>
+                    <div
+                        onClick={()=>props.template(props.item)}
+                        className={css(styles.compElementContentToggle)}
+                        title={'Template report'}
                     >
                        <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                     </div>

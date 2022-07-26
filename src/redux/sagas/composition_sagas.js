@@ -21,6 +21,7 @@ import {
 	settingsDefaultFolderPathSelected,
 	settingsCopyPathPathSelected,
 	settingsLoaded,
+	templateLoaded,
 } from '../actions/compositionActions'
 import fileBrowser from '../../helpers/FileBrowser'
 import folderBrowser from '../../helpers/FolderBrowser'
@@ -172,6 +173,25 @@ function *handleRenderFinished() {
 	}
 }
 
+function *loadTemplate() {
+	var result;
+	try {
+		result = window.cep.fs.showOpenDialogEx(false, false);
+		if (result && result.data.length) {
+			var readResult = window.cep.fs.readFile(result.data[0]);
+        if(readResult.err === 0) {
+					var jsonData = JSON.parse(readResult.data);
+					if (jsonData.type === 'template') {
+						yield put(templateLoaded(jsonData))
+					}
+	    } else {
+			}
+		}
+	} catch(err) {
+		console.log('err', err)
+	}
+}
+
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
@@ -185,4 +205,5 @@ export default [
   takeEvery(actions.SETTINGS_COPY_PATH_UPDATE, searchSettingsCopyPath),
   takeEvery(actions.SETTINGS_LOAD, loadSettings),
   takeEvery(actions.RENDER_FINISHED, handleRenderFinished),
+  takeEvery(actions.SETTINGS_TEMPLATES_LOAD, loadTemplate),
 ]

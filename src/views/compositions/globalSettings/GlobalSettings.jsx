@@ -18,6 +18,7 @@ import {
 	toggleSkipDoneView,
 	toggleReuseFontData,
 } from '../../../redux/actions/compositionActions'
+import GlobalTemplateSettings from './GlobalTemplateSettings'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -152,6 +153,7 @@ class GlobalSettings extends React.Component {
                 active={this.props.shouldReuseFontData}
               />
             </ul>
+            <GlobalTemplateSettings />
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ const getSettingsDestinationCopy = (state) => state.compositions.settingsDestina
 const getShouldSaveInProjectFile = (state) => state.compositions.shouldSaveInProjectFile
 const getShouldSkipDoneView = (state) => state.compositions.shouldSkipDoneView
 const getShouldReuseFontData = (state) => state.compositions.shouldReuseFontData
+const getTemplatesList = (state) => state.compositions.templates
 
 const getCompositionsList = createSelector(
   [

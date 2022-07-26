@@ -418,6 +418,26 @@ function toggleReuseFontData() {
 	}
 }
 
+function deleteTemplate(value) {
+	return {
+		type: actionTypes.SETTINGS_TEMPLATES_DELETE,
+		value,
+	}
+}
+
+function templateLoaded(templateData) {
+	return {
+		type: actionTypes.SETTINGS_TEMPLATES_LOADED,
+		templateData,
+	}
+}
+
+function loadTemplate() {
+	return {
+		type: actionTypes.SETTINGS_TEMPLATES_LOAD,
+	}
+}
+
 export {
 	filterChange,
 	toggleShowSelected,
@@ -482,4 +502,7 @@ export {
 	goToSupportedFeatures,
 	toggleSkipDoneView,
 	toggleReuseFontData,
+	deleteTemplate,
+	loadTemplate,
+	templateLoaded,
 }

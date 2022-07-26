@@ -101,7 +101,39 @@ const styles = StyleSheet.create({
       marginBottom: '20px',
       marginTop: '20px',
       textAlign: 'center'
-    }
+    },
+    templateModal: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      padding: '20px',
+      backgroundColor: 'rgba(0,0,0,0.75)',
+
+    },
+    templateModalContent: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#474747',
+      padding: '8px',
+    },
+    templateModalContentTitle: {
+      color: Variables.colors.white,
+      fontSize: '16px',
+      marginBottom: '24px',
+    },
+    templateModalContentList: {
+      color: Variables.colors.white,
+      fontSize: '12px',
+    },
+    templateModalContentListItem: {
+      color: Variables.colors.green,
+      textDecoration: 'underline',
+      backgroundColor: Variables.colors.gray_darkest,
+      padding: '8px 4px',
+      margin: '4px 0',
+    },
 })
 
 class Render extends React.Component {
@@ -110,6 +142,9 @@ class Render extends React.Component {
     super()
     this.endRender = this.endRender.bind(this)
     this.getItem = this.getItem.bind(this)
+    this.state = {
+      template: null,
+    }
   }
 
   getItem(item) {
@@ -120,6 +155,7 @@ class Render extends React.Component {
         navigateToFolder={this.navigateToFolder} 
         navigateToReports={this.props.goToReports} 
         preview={this.preview} 
+        template={this.template} 
       />)
   }
 
@@ -142,6 +178,18 @@ class Render extends React.Component {
 
   preview = (item) => {
     this.props.previewAnimation(item.destination)
+  }
+
+  template = (item) => {
+    this.setState({
+      template: item,
+    })
+  }
+
+  closeTemplate = () => {
+    this.setState({
+      template: null,
+    })
   }
 
 
@@ -171,6 +219,17 @@ class Render extends React.Component {
 	    			<BaseButton text={finishText} type='green' onClick={this.endRender}></BaseButton>
 	    		</div>
     		</div>
+        {this.state.template && <div className={css(styles.templateModal)} onClick={this.closeTemplate}>
+          <div className={css(styles.templateModalContent)}>
+            <div className={css(styles.templateModalContentTitle)}>The animation has some missing features:</div>
+            <ul className={css(styles.templateModalContentList)}>
+              <li className={css(styles.templateModalContentListItem)}>Metadata has not the right labels</li>
+              <li className={css(styles.templateModalContentListItem)}>Total colors exceed the maximum allowed colors</li>
+              <li className={css(styles.templateModalContentListItem)}>Colors don't match the palette</li>
+              <li className={css(styles.templateModalContentListItem)}>Text layer is missing the right naming convention</li>
+            </ul>
+          </div>
+        </div>}
     	</div>
     	);
   }
