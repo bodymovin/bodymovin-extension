@@ -22,7 +22,8 @@ $.__bodymovin.bm_blendModes = (function () {
         saturation : 13,
         color : 14,
         luminosity :15,
-        add: 16
+        add: 16,
+        hardMix: 17
     };
 
     var BlendingModeShape = {
@@ -105,6 +106,9 @@ $.__bodymovin.bm_blendModes = (function () {
             case BlendingMode.ADD:
                 blendModeValue = blendModes.add;
                 break;
+            case BlendingMode.HARD_MIX:
+                blendModeValue = blendModes.hardMix;
+                break;
             default:
                 blendModeValue = blendModes.normal;
         }
@@ -159,6 +163,9 @@ $.__bodymovin.bm_blendModes = (function () {
                 break;
             case BlendingModeShape.LUMINOSITY:
                 blendModeValue = blendModes.luminosity;
+                break;
+            case BlendingModeShape.HARD_MIX:
+                blendModeValue = blendModes.hardMix;
                 break;
             default:
                 blendModeValue = blendModes.normal;
