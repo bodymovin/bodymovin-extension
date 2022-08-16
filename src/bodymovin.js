@@ -3965,6 +3965,10 @@
     return newPath;
   };
 
+  ShapePath.prototype.length = function () {
+    return this._length;
+  };
+
   var shapePool = function () {
     function create() {
       return new ShapePath();
@@ -5218,7 +5222,7 @@
   lottie.useWebWorker = setWebWorker;
   lottie.setIDPrefix = setPrefix;
   lottie.__getFactory = getFactory;
-  lottie.version = '5.9.6';
+  lottie.version = '5.9.7';
 
   function checkReady() {
     if (document.readyState === 'complete') {
@@ -6487,6 +6491,611 @@
 
           for (j = 0; j < jLen; j += 1) {
             localShapeCollection.addShape(this.processPath(shapePaths[j], rd));
+          }
+        }
+
+        shapeData.shape.paths = shapeData.localShapeCollection;
+      }
+    }
+
+    if (!this.dynamicProperties.length) {
+      this._mdf = false;
+    }
+  };
+
+  function floatEqual(a, b) {
+    return Math.abs(a - b) * 100000 <= Math.min(Math.abs(a), Math.abs(b));
+  }
+
+  function floatZero(f) {
+    return Math.abs(f) <= 0.00001;
+  }
+
+  function lerp(p0, p1, amount) {
+    return p0 * (1 - amount) + p1 * amount;
+  }
+
+  function lerpPoint(p0, p1, amount) {
+    return [lerp(p0[0], p1[0], amount), lerp(p0[1], p1[1], amount)];
+  }
+
+  function quadRoots(a, b, c) {
+    // no root
+    if (a === 0) return [];
+    var s = b * b - 4 * a * c; // Complex roots
+
+    if (s < 0) return [];
+    var singleRoot = -b / (2 * a); // 1 root
+
+    if (s === 0) return [singleRoot];
+    var delta = Math.sqrt(s) / (2 * a); // 2 roots
+
+    return [singleRoot - delta, singleRoot + delta];
+  }
+
+  function polynomialCoefficients(p0, p1, p2, p3) {
+    return [-p0 + 3 * p1 - 3 * p2 + p3, 3 * p0 - 6 * p1 + 3 * p2, -3 * p0 + 3 * p1, p0];
+  }
+
+  function singlePoint(p) {
+    return new PolynomialBezier(p, p, p, p, false);
+  }
+
+  function PolynomialBezier(p0, p1, p2, p3, linearize) {
+    if (linearize && pointEqual(p0, p1)) {
+      p1 = lerpPoint(p0, p3, 1 / 3);
+    }
+
+    if (linearize && pointEqual(p2, p3)) {
+      p2 = lerpPoint(p0, p3, 2 / 3);
+    }
+
+    var coeffx = polynomialCoefficients(p0[0], p1[0], p2[0], p3[0]);
+    var coeffy = polynomialCoefficients(p0[1], p1[1], p2[1], p3[1]);
+    this.a = [coeffx[0], coeffy[0]];
+    this.b = [coeffx[1], coeffy[1]];
+    this.c = [coeffx[2], coeffy[2]];
+    this.d = [coeffx[3], coeffy[3]];
+    this.points = [p0, p1, p2, p3];
+  }
+
+  PolynomialBezier.prototype.point = function (t) {
+    return [((this.a[0] * t + this.b[0]) * t + this.c[0]) * t + this.d[0], ((this.a[1] * t + this.b[1]) * t + this.c[1]) * t + this.d[1]];
+  };
+
+  PolynomialBezier.prototype.derivative = function (t) {
+    return [(3 * t * this.a[0] + 2 * this.b[0]) * t + this.c[0], (3 * t * this.a[1] + 2 * this.b[1]) * t + this.c[1]];
+  };
+
+  PolynomialBezier.prototype.tangentAngle = function (t) {
+    var p = this.derivative(t);
+    return Math.atan2(p[1], p[0]);
+  };
+
+  PolynomialBezier.prototype.normalAngle = function (t) {
+    var p = this.derivative(t);
+    return Math.atan2(p[0], p[1]);
+  };
+
+  PolynomialBezier.prototype.inflectionPoints = function () {
+    var denom = this.a[1] * this.b[0] - this.a[0] * this.b[1];
+    if (floatZero(denom)) return [];
+    var tcusp = -0.5 * (this.a[1] * this.c[0] - this.a[0] * this.c[1]) / denom;
+    var square = tcusp * tcusp - 1 / 3 * (this.b[1] * this.c[0] - this.b[0] * this.c[1]) / denom;
+    if (square < 0) return [];
+    var root = Math.sqrt(square);
+
+    if (floatZero(root)) {
+      if (root > 0 && root < 1) return [tcusp];
+      return [];
+    }
+
+    return [tcusp - root, tcusp + root].filter(function (r) {
+      return r > 0 && r < 1;
+    });
+  };
+
+  PolynomialBezier.prototype.split = function (t) {
+    if (t <= 0) return [singlePoint(this.points[0]), this];
+    if (t >= 1) return [this, singlePoint(this.points[this.points.length - 1])];
+    var p10 = lerpPoint(this.points[0], this.points[1], t);
+    var p11 = lerpPoint(this.points[1], this.points[2], t);
+    var p12 = lerpPoint(this.points[2], this.points[3], t);
+    var p20 = lerpPoint(p10, p11, t);
+    var p21 = lerpPoint(p11, p12, t);
+    var p3 = lerpPoint(p20, p21, t);
+    return [new PolynomialBezier(this.points[0], p10, p20, p3, true), new PolynomialBezier(p3, p21, p12, this.points[3], true)];
+  };
+
+  function extrema(bez, comp) {
+    var min = bez.points[0][comp];
+    var max = bez.points[bez.points.length - 1][comp];
+
+    if (min > max) {
+      var e = max;
+      max = min;
+      min = e;
+    } // Derivative roots to find min/max
+
+
+    var f = quadRoots(3 * bez.a[comp], 2 * bez.b[comp], bez.c[comp]);
+
+    for (var i = 0; i < f.length; i += 1) {
+      if (f[i] > 0 && f[i] < 1) {
+        var val = bez.point(f[i])[comp];
+        if (val < min) min = val;else if (val > max) max = val;
+      }
+    }
+
+    return {
+      min: min,
+      max: max
+    };
+  }
+
+  PolynomialBezier.prototype.bounds = function () {
+    return {
+      x: extrema(this, 0),
+      y: extrema(this, 1)
+    };
+  };
+
+  PolynomialBezier.prototype.boundingBox = function () {
+    var bounds = this.bounds();
+    return {
+      left: bounds.x.min,
+      right: bounds.x.max,
+      top: bounds.y.min,
+      bottom: bounds.y.max,
+      width: bounds.x.max - bounds.x.min,
+      height: bounds.y.max - bounds.y.min,
+      cx: (bounds.x.max + bounds.x.min) / 2,
+      cy: (bounds.y.max + bounds.y.min) / 2
+    };
+  };
+
+  function intersectData(bez, t1, t2) {
+    var box = bez.boundingBox();
+    return {
+      cx: box.cx,
+      cy: box.cy,
+      width: box.width,
+      height: box.height,
+      bez: bez,
+      t: (t1 + t2) / 2,
+      t1: t1,
+      t2: t2
+    };
+  }
+
+  function splitData(data) {
+    var split = data.bez.split(0.5);
+    return [intersectData(split[0], data.t1, data.t), intersectData(split[1], data.t, data.t2)];
+  }
+
+  function boxIntersect(b1, b2) {
+    return Math.abs(b1.cx - b2.cx) * 2 < b1.width + b2.width && Math.abs(b1.cy - b2.cy) * 2 < b1.height + b2.height;
+  }
+
+  function intersectsImpl(d1, d2, depth, tolerance, intersections, maxRecursion) {
+    if (!boxIntersect(d1, d2)) return;
+
+    if (depth >= maxRecursion || d1.width <= tolerance && d1.height <= tolerance && d2.width <= tolerance && d2.height <= tolerance) {
+      intersections.push([d1.t, d2.t]);
+      return;
+    }
+
+    var d1s = splitData(d1);
+    var d2s = splitData(d2);
+    intersectsImpl(d1s[0], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[0], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[1], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[1], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
+  }
+
+  PolynomialBezier.prototype.intersections = function (other, tolerance, maxRecursion) {
+    if (tolerance === undefined) tolerance = 2;
+    if (maxRecursion === undefined) maxRecursion = 7;
+    var intersections = [];
+    intersectsImpl(intersectData(this, 0, 1), intersectData(other, 0, 1), 0, tolerance, intersections, maxRecursion);
+    return intersections;
+  };
+
+  PolynomialBezier.shapeSegment = function (shapePath, index) {
+    var nextIndex = (index + 1) % shapePath.length();
+    return new PolynomialBezier(shapePath.v[index], shapePath.o[index], shapePath.i[nextIndex], shapePath.v[nextIndex], true);
+  };
+
+  PolynomialBezier.shapeSegmentInverted = function (shapePath, index) {
+    var nextIndex = (index + 1) % shapePath.length();
+    return new PolynomialBezier(shapePath.v[nextIndex], shapePath.i[nextIndex], shapePath.o[index], shapePath.v[index], true);
+  };
+
+  function crossProduct(a, b) {
+    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  }
+
+  function lineIntersection(start1, end1, start2, end2) {
+    var v1 = [start1[0], start1[1], 1];
+    var v2 = [end1[0], end1[1], 1];
+    var v3 = [start2[0], start2[1], 1];
+    var v4 = [end2[0], end2[1], 1];
+    var r = crossProduct(crossProduct(v1, v2), crossProduct(v3, v4));
+    if (floatZero(r[2])) return null;
+    return [r[0] / r[2], r[1] / r[2]];
+  }
+
+  function polarOffset(p, angle, length) {
+    return [p[0] + Math.cos(angle) * length, p[1] - Math.sin(angle) * length];
+  }
+
+  function pointDistance(p1, p2) {
+    return Math.hypot(p1[0] - p2[0], p1[1] - p2[1]);
+  }
+
+  function pointEqual(p1, p2) {
+    return floatEqual(p1[0], p2[0]) && floatEqual(p1[1], p2[1]);
+  }
+
+  function ZigZagModifier() {}
+
+  extendPrototype([ShapeModifier], ZigZagModifier);
+
+  ZigZagModifier.prototype.initModifierProperties = function (elem, data) {
+    this.getValue = this.processKeys;
+    this.amplitude = PropertyFactory.getProp(elem, data.s, 0, null, this);
+    this.frequency = PropertyFactory.getProp(elem, data.r, 0, null, this);
+    this.pointsType = PropertyFactory.getProp(elem, data.pt, 0, null, this);
+    this._isAnimated = this.amplitude.effectsSequence.length !== 0 || this.frequency.effectsSequence.length !== 0 || this.pointsType.effectsSequence.length !== 0;
+  };
+
+  function setPoint(outputBezier, point, angle, direction, amplitude, outAmplitude, inAmplitude) {
+    var angO = angle - Math.PI / 2;
+    var angI = angle + Math.PI / 2;
+    var px = point[0] + Math.cos(angle) * direction * amplitude;
+    var py = point[1] - Math.sin(angle) * direction * amplitude;
+    outputBezier.setTripleAt(px, py, px + Math.cos(angO) * outAmplitude, py - Math.sin(angO) * outAmplitude, px + Math.cos(angI) * inAmplitude, py - Math.sin(angI) * inAmplitude, outputBezier.length());
+  }
+
+  function getPerpendicularVector(pt1, pt2) {
+    var vector = [pt2[0] - pt1[0], pt2[1] - pt1[1]];
+    var rot = -Math.PI * 0.5;
+    var rotatedVector = [Math.cos(rot) * vector[0] - Math.sin(rot) * vector[1], Math.sin(rot) * vector[0] + Math.cos(rot) * vector[1]];
+    return rotatedVector;
+  }
+
+  function getProjectingAngle(path, cur) {
+    var prevIndex = cur === 0 ? path.length() - 1 : cur - 1;
+    var nextIndex = (cur + 1) % path.length();
+    var prevPoint = path.v[prevIndex];
+    var nextPoint = path.v[nextIndex];
+    var pVector = getPerpendicularVector(prevPoint, nextPoint);
+    return Math.atan2(0, 1) - Math.atan2(pVector[1], pVector[0]);
+  }
+
+  function zigZagCorner(outputBezier, path, cur, amplitude, frequency, pointType, direction) {
+    var angle = getProjectingAngle(path, cur);
+    var point = path.v[cur % path._length];
+    var prevPoint = path.v[cur === 0 ? path._length - 1 : cur - 1];
+    var nextPoint = path.v[(cur + 1) % path._length];
+    var prevDist = pointType === 2 ? Math.sqrt(Math.pow(point[0] - prevPoint[0], 2) + Math.pow(point[1] - prevPoint[1], 2)) : 0;
+    var nextDist = pointType === 2 ? Math.sqrt(Math.pow(point[0] - nextPoint[0], 2) + Math.pow(point[1] - nextPoint[1], 2)) : 0;
+    setPoint(outputBezier, path.v[cur % path._length], angle, direction, amplitude, nextDist / ((frequency + 1) * 2), prevDist / ((frequency + 1) * 2), pointType);
+  }
+
+  function zigZagSegment(outputBezier, segment, amplitude, frequency, pointType, direction) {
+    for (var i = 0; i < frequency; i += 1) {
+      var t = (i + 1) / (frequency + 1);
+      var dist = pointType === 2 ? Math.sqrt(Math.pow(segment.points[3][0] - segment.points[0][0], 2) + Math.pow(segment.points[3][1] - segment.points[0][1], 2)) : 0;
+      var angle = segment.normalAngle(t);
+      var point = segment.point(t);
+      setPoint(outputBezier, point, angle, direction, amplitude, dist / ((frequency + 1) * 2), dist / ((frequency + 1) * 2), pointType);
+      direction = -direction;
+    }
+
+    return direction;
+  }
+
+  ZigZagModifier.prototype.processPath = function (path, amplitude, frequency, pointType) {
+    var count = path._length;
+    var clonedPath = shapePool.newElement();
+    clonedPath.c = path.c;
+
+    if (!path.c) {
+      count -= 1;
+    }
+
+    if (count === 0) return clonedPath;
+    var direction = -1;
+    var segment = PolynomialBezier.shapeSegment(path, 0);
+    zigZagCorner(clonedPath, path, 0, amplitude, frequency, pointType, direction);
+
+    for (var i = 0; i < count; i += 1) {
+      direction = zigZagSegment(clonedPath, segment, amplitude, frequency, pointType, -direction);
+
+      if (i === count - 1 && !path.c) {
+        segment = null;
+      } else {
+        segment = PolynomialBezier.shapeSegment(path, (i + 1) % count);
+      }
+
+      zigZagCorner(clonedPath, path, i + 1, amplitude, frequency, pointType, direction);
+    }
+
+    return clonedPath;
+  };
+
+  ZigZagModifier.prototype.processShapes = function (_isFirstFrame) {
+    var shapePaths;
+    var i;
+    var len = this.shapes.length;
+    var j;
+    var jLen;
+    var amplitude = this.amplitude.v;
+    var frequency = Math.max(0, Math.round(this.frequency.v));
+    var pointType = this.pointsType.v;
+
+    if (amplitude !== 0) {
+      var shapeData;
+      var localShapeCollection;
+
+      for (i = 0; i < len; i += 1) {
+        shapeData = this.shapes[i];
+        localShapeCollection = shapeData.localShapeCollection;
+
+        if (!(!shapeData.shape._mdf && !this._mdf && !_isFirstFrame)) {
+          localShapeCollection.releaseShapes();
+          shapeData.shape._mdf = true;
+          shapePaths = shapeData.shape.paths.shapes;
+          jLen = shapeData.shape.paths._length;
+
+          for (j = 0; j < jLen; j += 1) {
+            localShapeCollection.addShape(this.processPath(shapePaths[j], amplitude, frequency, pointType));
+          }
+        }
+
+        shapeData.shape.paths = shapeData.localShapeCollection;
+      }
+    }
+
+    if (!this.dynamicProperties.length) {
+      this._mdf = false;
+    }
+  };
+
+  function linearOffset(p1, p2, amount) {
+    var angle = Math.atan2(p2[0] - p1[0], p2[1] - p1[1]);
+    return [polarOffset(p1, angle, amount), polarOffset(p2, angle, amount)];
+  }
+
+  function offsetSegment(segment, amount) {
+    var p0;
+    var p1a;
+    var p1b;
+    var p2b;
+    var p2a;
+    var p3;
+    var e;
+    e = linearOffset(segment.points[0], segment.points[1], amount);
+    p0 = e[0];
+    p1a = e[1];
+    e = linearOffset(segment.points[1], segment.points[2], amount);
+    p1b = e[0];
+    p2b = e[1];
+    e = linearOffset(segment.points[2], segment.points[3], amount);
+    p2a = e[0];
+    p3 = e[1];
+    var p1 = lineIntersection(p0, p1a, p1b, p2b);
+    if (p1 === null) p1 = p1a;
+    var p2 = lineIntersection(p2a, p3, p1b, p2b);
+    if (p2 === null) p2 = p2a;
+    return new PolynomialBezier(p0, p1, p2, p3);
+  }
+
+  function joinLines(outputBezier, seg1, seg2, lineJoin, miterLimit) {
+    var p0 = seg1.points[3];
+    var p1 = seg2.points[0]; // Bevel
+
+    if (lineJoin === 3) return p0; // Connected, they don't need a joint
+
+    if (pointEqual(p0, p1)) return p0; // Round
+
+    if (lineJoin === 2) {
+      var angleOut = -seg1.tangentAngle(1);
+      var angleIn = -seg2.tangentAngle(0) + Math.PI;
+      var center = lineIntersection(p0, polarOffset(p0, angleOut + Math.PI / 2, 100), p1, polarOffset(p1, angleOut + Math.PI / 2, 100));
+      var radius = center ? pointDistance(center, p0) : pointDistance(p0, p1) / 2;
+      var tan = polarOffset(p0, angleOut, 2 * radius * roundCorner);
+      outputBezier.setXYAt(tan[0], tan[1], 'o', outputBezier.length() - 1);
+      tan = polarOffset(p1, angleIn, 2 * radius * roundCorner);
+      outputBezier.setTripleAt(p1[0], p1[1], p1[0], p1[1], tan[0], tan[1], outputBezier.length());
+      return p1;
+    } // Miter
+
+
+    var t0 = pointEqual(p0, seg1.points[2]) ? seg1.points[0] : seg1.points[2];
+    var t1 = pointEqual(p1, seg2.points[1]) ? seg2.points[3] : seg2.points[1];
+    var intersection = lineIntersection(t0, p0, p1, t1);
+
+    if (intersection && pointDistance(intersection, p0) < miterLimit) {
+      outputBezier.setTripleAt(intersection[0], intersection[1], intersection[0], intersection[1], intersection[0], intersection[1], outputBezier.length());
+      return intersection;
+    }
+
+    return p0;
+  }
+
+  function getIntersection(a, b) {
+    var intersect = a.intersections(b);
+    if (intersect.length && floatEqual(intersect[0][0], 1)) intersect.shift();
+    if (intersect.length) return intersect[0];
+    return null;
+  }
+
+  function pruneSegmentIntersection(a, b) {
+    var outa = a.slice();
+    var outb = b.slice();
+    var intersect = getIntersection(a[a.length - 1], b[0]);
+
+    if (intersect) {
+      outa[a.length - 1] = a[a.length - 1].split(intersect[0])[0];
+      outb[0] = b[0].split(intersect[1])[1];
+    }
+
+    if (a.length > 1 && b.length > 1) {
+      intersect = getIntersection(a[0], b[b.length - 1]);
+
+      if (intersect) {
+        return [[a[0].split(intersect[0])[0]], [b[b.length - 1].split(intersect[1])[1]]];
+      }
+    }
+
+    return [outa, outb];
+  }
+
+  function pruneIntersections(segments) {
+    var e;
+
+    for (var i = 1; i < segments.length; i += 1) {
+      e = pruneSegmentIntersection(segments[i - 1], segments[i]);
+      segments[i - 1] = e[0];
+      segments[i] = e[1];
+    }
+
+    if (segments.length > 1) {
+      e = pruneSegmentIntersection(segments[segments.length - 1], segments[0]);
+      segments[segments.length - 1] = e[0];
+      segments[0] = e[1];
+    }
+
+    return segments;
+  }
+
+  function offsetSegmentSplit(segment, amount) {
+    /*
+      We split each bezier segment into smaller pieces based
+      on inflection points, this ensures the control point
+      polygon is convex.
+        (A cubic bezier can have none, one, or two inflection points)
+    */
+    var flex = segment.inflectionPoints();
+    var left;
+    var right;
+    var split;
+    var mid;
+
+    if (flex.length === 0) {
+      return [offsetSegment(segment, amount)];
+    }
+
+    if (flex.length === 1 || floatEqual(flex[1], 1)) {
+      split = segment.split(flex[0]);
+      left = split[0];
+      right = split[1];
+      return [offsetSegment(left, amount), offsetSegment(right, amount)];
+    }
+
+    split = segment.split(flex[0]);
+    left = split[0];
+    var t = (flex[1] - flex[0]) / (1 - flex[0]);
+    split = split[1].split(t);
+    mid = split[0];
+    right = split[1];
+    return [offsetSegment(left, amount), offsetSegment(mid, amount), offsetSegment(right, amount)];
+  }
+
+  function OffsetPathModifier() {}
+
+  extendPrototype([ShapeModifier], OffsetPathModifier);
+
+  OffsetPathModifier.prototype.initModifierProperties = function (elem, data) {
+    this.getValue = this.processKeys;
+    this.amount = PropertyFactory.getProp(elem, data.a, 0, null, this);
+    this.miterLimit = PropertyFactory.getProp(elem, data.ml, 0, null, this);
+    this.lineJoin = data.lj;
+    this._isAnimated = this.amount.effectsSequence.length !== 0;
+  };
+
+  OffsetPathModifier.prototype.processPath = function (inputBezier, amount, lineJoin, miterLimit) {
+    var outputBezier = shapePool.newElement();
+    outputBezier.c = inputBezier.c;
+    var count = inputBezier.length();
+
+    if (!inputBezier.c) {
+      count -= 1;
+    }
+
+    var i;
+    var j;
+    var segment;
+    var multiSegments = [];
+
+    for (i = 0; i < count; i += 1) {
+      segment = PolynomialBezier.shapeSegment(inputBezier, i);
+      multiSegments.push(offsetSegmentSplit(segment, amount));
+    }
+
+    if (!inputBezier.c) {
+      for (i = count - 1; i >= 0; i -= 1) {
+        segment = PolynomialBezier.shapeSegmentInverted(inputBezier, i);
+        multiSegments.push(offsetSegmentSplit(segment, amount));
+      }
+    }
+
+    multiSegments = pruneIntersections(multiSegments); // Add bezier segments to the output and apply line joints
+
+    var lastPoint = null;
+    var lastSeg = null;
+
+    for (i = 0; i < multiSegments.length; i += 1) {
+      var multiSegment = multiSegments[i];
+      if (lastSeg) lastPoint = joinLines(outputBezier, lastSeg, multiSegment[0], lineJoin, miterLimit);
+      lastSeg = multiSegment[multiSegment.length - 1];
+
+      for (j = 0; j < multiSegment.length; j += 1) {
+        segment = multiSegment[j];
+
+        if (lastPoint && pointEqual(segment.points[0], lastPoint)) {
+          outputBezier.setXYAt(segment.points[1][0], segment.points[1][1], 'o', outputBezier.length() - 1);
+        } else {
+          outputBezier.setTripleAt(segment.points[0][0], segment.points[0][1], segment.points[1][0], segment.points[1][1], segment.points[0][0], segment.points[0][1], outputBezier.length());
+        }
+
+        outputBezier.setTripleAt(segment.points[3][0], segment.points[3][1], segment.points[3][0], segment.points[3][1], segment.points[2][0], segment.points[2][1], outputBezier.length());
+        lastPoint = segment.points[3];
+      }
+    }
+
+    if (multiSegments.length) joinLines(outputBezier, lastSeg, multiSegments[0][0], lineJoin, miterLimit);
+    return outputBezier;
+  };
+
+  OffsetPathModifier.prototype.processShapes = function (_isFirstFrame) {
+    var shapePaths;
+    var i;
+    var len = this.shapes.length;
+    var j;
+    var jLen;
+    var amount = this.amount.v;
+    var miterLimit = this.miterLimit.v;
+    var lineJoin = this.lineJoin;
+
+    if (amount !== 0) {
+      var shapeData;
+      var localShapeCollection;
+
+      for (i = 0; i < len; i += 1) {
+        shapeData = this.shapes[i];
+        localShapeCollection = shapeData.localShapeCollection;
+
+        if (!(!shapeData.shape._mdf && !this._mdf && !_isFirstFrame)) {
+          localShapeCollection.releaseShapes();
+          shapeData.shape._mdf = true;
+          shapePaths = shapeData.shape.paths.shapes;
+          jLen = shapeData.shape.paths._length;
+
+          for (j = 0; j < jLen; j += 1) {
+            localShapeCollection.addShape(this.processPath(shapePaths[j], amount, lineJoin, miterLimit));
           }
         }
 
@@ -10883,7 +11492,7 @@
         }
 
         this.setElementStyles(itemsData[i]);
-      } else if (arr[i].ty === 'tm' || arr[i].ty === 'rd' || arr[i].ty === 'ms' || arr[i].ty === 'pb') {
+      } else if (arr[i].ty === 'tm' || arr[i].ty === 'rd' || arr[i].ty === 'ms' || arr[i].ty === 'pb' || arr[i].ty === 'zz' || arr[i].ty === 'op') {
         if (!processedPos) {
           modifier = ShapeModifiers.getModifier(arr[i].ty);
           modifier.init(this, arr[i]);
@@ -13857,7 +14466,7 @@
         if (!processedPos) {
           itemsData[i] = this.createShapeElement(arr[i]);
         }
-      } else if (arr[i].ty === 'tm' || arr[i].ty === 'rd' || arr[i].ty === 'pb') {
+      } else if (arr[i].ty === 'tm' || arr[i].ty === 'rd' || arr[i].ty === 'pb' || arr[i].ty === 'zz' || arr[i].ty === 'op') {
         if (!processedPos) {
           modifier = ShapeModifiers.getModifier(arr[i].ty);
           modifier.init(this, arr[i]);
@@ -18657,7 +19266,9 @@
   ShapeModifiers.registerModifier('tm', TrimModifier);
   ShapeModifiers.registerModifier('pb', PuckerAndBloatModifier);
   ShapeModifiers.registerModifier('rp', RepeaterModifier);
-  ShapeModifiers.registerModifier('rd', RoundCornersModifier); // Registering expression plugin
+  ShapeModifiers.registerModifier('rd', RoundCornersModifier);
+  ShapeModifiers.registerModifier('zz', ZigZagModifier);
+  ShapeModifiers.registerModifier('op', OffsetPathModifier); // Registering expression plugin
 
   setExpressionsPlugin(Expressions);
   initialize$1();
