@@ -117,7 +117,7 @@ $.__bodymovin.bm_layerElement = (function () {
                 if (settingsHelper.shouldUseCompNamesAsIds()) {
                     layerData.compId = layerInfo.source.name;
                 } else {
-                    layerData.compId = + compCount;
+                    layerData.compId = 'comp_' + compCount;
                 }
                 layerData.compName = layerInfo.source.name;
                 layerData.frameRate = layerInfo.source.frameRate;
