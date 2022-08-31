@@ -102,13 +102,15 @@ let RenderItem = (props) => {
                     >
                     <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                     </div>
-                    <div
-                        onClick={()=>props.template(props.item)}
-                        className={css(styles.compElementContentToggle)}
-                        title={'Template report'}
-                    >
-                       <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
-                    </div>
+                    {props.item.settings.template && !!props.item.settings.template.errors.length && 
+                        <div
+                            onClick={()=>props.template(props.item)}
+                            className={css(styles.compElementContentToggle)}
+                            title={'Template report'}
+                        >
+                        <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
+                        </div>
+                    }
 				<div className={css(styles.compElementContentFolder)}>
                     <div className={css(styles.compElementContentFolder__button)} onClick={()=>props.navigateToFolder(props.item)}>
                         <BodymovinFolder />

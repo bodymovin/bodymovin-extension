@@ -128,8 +128,7 @@ const styles = StyleSheet.create({
       fontSize: '12px',
     },
     templateModalContentListItem: {
-      color: Variables.colors.green,
-      textDecoration: 'underline',
+      color: Variables.colors.white,
       backgroundColor: Variables.colors.gray_darkest,
       padding: '8px 4px',
       margin: '4px 0',
@@ -143,7 +142,7 @@ class Render extends React.Component {
     this.endRender = this.endRender.bind(this)
     this.getItem = this.getItem.bind(this)
     this.state = {
-      template: null,
+      templateErrors: null,
     }
   }
 
@@ -182,13 +181,13 @@ class Render extends React.Component {
 
   template = (item) => {
     this.setState({
-      template: item,
+      templateErrors: item.settings.template.errors,
     })
   }
 
   closeTemplate = () => {
     this.setState({
-      template: null,
+      templateErrors: null,
     })
   }
 
@@ -219,14 +218,13 @@ class Render extends React.Component {
 	    			<BaseButton text={finishText} type='green' onClick={this.endRender}></BaseButton>
 	    		</div>
     		</div>
-        {this.state.template && <div className={css(styles.templateModal)} onClick={this.closeTemplate}>
+        {this.state.templateErrors && <div className={css(styles.templateModal)} onClick={this.closeTemplate}>
           <div className={css(styles.templateModalContent)}>
-            <div className={css(styles.templateModalContentTitle)}>The animation has some missing features:</div>
+            <div className={css(styles.templateModalContentTitle)}>The animation does not comply to the template requirements</div>
             <ul className={css(styles.templateModalContentList)}>
-              <li className={css(styles.templateModalContentListItem)}>Metadata has not the right labels</li>
-              <li className={css(styles.templateModalContentListItem)}>Total colors exceed the maximum allowed colors</li>
-              <li className={css(styles.templateModalContentListItem)}>Colors don't match the palette</li>
-              <li className={css(styles.templateModalContentListItem)}>Text layer is missing the right naming convention</li>
+              {this.state.templateErrors.map((templateError, templateErrorIndex) => {
+                return <li key={templateErrorIndex} className={css(styles.templateModalContentListItem)}>{templateError.message}</li>
+              })}
             </ul>
           </div>
         </div>}

@@ -6,6 +6,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var bakeExpressions = $.__bodymovin.bm_keyframeBakerHelper;
+    var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
     var renderHelper = $.__bodymovin.bm_renderHelper;
     var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
@@ -437,8 +438,13 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     }
     
     function exportKeyframes(prop, frRate, stretch, keyframeValues) {
+        settingsHelper = $.__bodymovin.bm_settingsHelper;
+        essentialPropertiesHelper.searchProperty(prop);
         var returnOb = {}
-        if (bm_expressionHelper.shouldBakeExpression(prop)) {
+        var essentialProp = essentialPropertiesHelper.searchProperty(prop);
+        if (essentialProp) {
+            returnOb.pid = essentialProp.id;
+        } else if (bm_expressionHelper.shouldBakeExpression(prop)) {
             returnOb = bakeExpressions(prop, frRate);
         } else {
             if (prop.numKeys <= 1) {

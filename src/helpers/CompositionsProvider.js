@@ -13,6 +13,7 @@ import {saveFile as bannerSaveFile} from './bannerHelper'
 import {saveFile as avdSaveFile} from './avdHelper'
 import {saveFile as smilSaveFile} from './smilHelper'
 import {splitAnimation} from './splitAnimationHelper'
+import {createSlots} from './lottieSlots'
 import { getSimpleSeparator } from './osHelper'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
@@ -256,6 +257,21 @@ csInterface.addEventListener('bm:split:animation', async function (ev) {
 			////
 			const splitResponse = await splitAnimation(data.origin, data.destination, decodeURIComponent(data.fileName), data.time);
 			csInterface.evalScript('$.__bodymovin.bm_standardExporter.splitSuccess(' + splitResponse + ')');
+		} else {
+			throw new Error('Missing data')
+		}
+	} catch(err) {
+		csInterface.evalScript('$.__bodymovin.bm_bannerExporter.splitFailed()');
+	}
+})
+
+csInterface.addEventListener('bm:create:slots', async function (ev) {
+	try {
+		if(ev.data) {
+			const data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+			////
+			await createSlots(data.origin, data.destination, decodeURIComponent(data.fileName), data.prettyPrint);
+			csInterface.evalScript('$.__bodymovin.bm_standardExporter.slotsSuccess()');
 		} else {
 			throw new Error('Missing data')
 		}

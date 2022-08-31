@@ -77,11 +77,11 @@ const getSavedVersion = async () => {
 }
 
 const saveLatestVersion = async version => {
-	const files = await Promise.all([
-		fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.js'),
-		fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.wasm'),
-	])
-	const savingFolder = await getFolder()
+	// const files = await Promise.all([
+	// 	fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.js'),
+	// 	fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.wasm'),
+	// ])
+	// const savingFolder = await getFolder()
 	// const fileName = version.split('.').join('_').replace(/\W/g, '')
 	// const jsBuffer = await files[0].arrayBuffer()
 	// const jsFilePath = savingFolder + nodePath.sep + fileName + '.js'

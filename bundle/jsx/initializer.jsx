@@ -2,7 +2,9 @@
 /*global $*/
 
 
-$.__bodymovin = $.__bodymovin || {esprima:{}}
+// $.__bodymovin = $.__bodymovin || {esprima:{}}
+// Recreating the __bodymovin object every time to avoid usage of previous instance
+$.__bodymovin = {esprima:{}};
 
 
 //  Does not work with `new funcA.bind(thisArg, args)`
@@ -127,6 +129,7 @@ if (!Function.prototype.bm_bind) (function(){
   'annotationsManager.jsx',
   'escodegen.jsx',
   'utils/bez.jsx',
+  'utils/essentialPropertiesHelper.jsx',
   'utils/keyframeHelper.jsx',
   'utils/transformHelper.jsx',
   'utils/maskHelper.jsx',
@@ -160,9 +163,15 @@ if (!Function.prototype.bm_bind) (function(){
   var _bmFile = new File($.fileName)
   _bmFile = _bmFile.parent
   for(var i = 0; i < files.length; i += 1) {
-    var file = new File(_bmFile.fsName)
-    file.changePath(files[i])
-    $.evalFile(file.fsName);
+    try {
+      var file = new File(_bmFile.fsName);
+      file.changePath(files[i]);
+      $.evalFile(file.fsName);
+    } catch (error) {
+      if ($.__bodymovin.bm_eventDispatcher) {
+        $.__bodymovin.bm_eventDispatcher.log('EVAL ERROR')
+      }
+    }
   }
 }())
 
@@ -171,7 +180,7 @@ var globalVariables = ['bm_eventDispatcher','bm_generalUtils','bm_expressionHelp
 , 'bm_effectsHelper', 'bm_layerStylesHelper', 'bm_cameraHelper', 'bm_XMPHelper', 'bm_ProjectHelper', 'bm_markerHelper'
 , 'bm_textHelper', 'bm_boundingBox', 'bm_layerElement', 'bm_projectManager', 'bm_compsManager', 'bm_dataManager'
 , 'bm_renderManager', 'bm_downloadManager', 'bm_sourceHelper', 'bm_shapeHelper', 'bm_textAnimatorHelper'
-, 'bm_textShapeHelper']
+, 'bm_textShapeHelper', 'bm_essentialPropertiesHelper', 'bm_settingsHelper']
 var i, len = globalVariables.length;
 for(i = 0; i < len; i += 1) {
 	if(this[globalVariables[i]]) {

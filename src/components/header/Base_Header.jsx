@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import BaseLink from '../buttons/Base_Link'
-import Variables from '../../helpers/styles/variables'
 import {
     goToPreview, 
     goToPlayer, 

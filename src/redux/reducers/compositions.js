@@ -120,6 +120,7 @@ let defaultComposition = {
         template: {
           active: false,
           id: 0,
+          errors: [],
         }
     }
   }
@@ -976,6 +977,28 @@ function addTemplate(state, action) {
   }
 }
 
+function handleTemplateError(state, action) {
+  const item = state.items[action.compId];
+  const newItem = {
+    ...item,
+    settings: {
+      ...item.settings,
+      template: {
+        ...item.settings.template,
+        errors: action.errors,
+      }
+    }
+
+  }
+  return {
+    ...state,
+    items: {
+      ...state.items,
+      [action.compId]: newItem,
+    },
+  }
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -1064,6 +1087,8 @@ export default function compositions(state = initialState, action) {
       return deleteTemplate(state, action)
     case actionTypes.SETTINGS_TEMPLATES_LOADED:
       return addTemplate(state, action)
+    case actionTypes.RENDER_TEMPLATE_ERROR:
+      return handleTemplateError(state, action)
     default:
       return state
   }

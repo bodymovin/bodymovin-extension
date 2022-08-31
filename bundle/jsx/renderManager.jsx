@@ -17,7 +17,9 @@ $.__bodymovin.bm_renderManager = (function () {
     var renderHelper = $.__bodymovin.bm_renderHelper;
     var expressionHelper = $.__bodymovin.bm_expressionHelper;
     var textCompHelper = $.__bodymovin.bm_textCompHelper;
+    var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
     var assetsStorage = $.__bodymovin.assetsStorage;
+    var keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, hasExpressionsFlag;
     var currentCompUID;
@@ -111,6 +113,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 }
                 if (layerData.data.ty === layerTypes.precomp
                     && layerData.data.render !== false) {
+                        
                     var newInPoint = Math.max(0, compTimeRange[0] - layer.startTime);
                     var newOutPoint = Math.min(layer.outPoint, compTimeRange[1]) - layer.startTime;
                     var newTimeRange = [newInPoint, newOutPoint];
@@ -200,6 +203,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 searchFolderAndCharacter(layerInfo);
             }
             if (layerData.ty === layerTypes.precomp && layerData.render !== false) {
+                essentialPropertiesHelper.addCompProperties(layerInfo, framerate);
                 if (settingsHelper.shouldBakeBeyondWorkArea()) {
                     newTimeRange = [0, comp.duration];
                 } else {
@@ -262,6 +266,7 @@ $.__bodymovin.bm_renderManager = (function () {
         textCompHelper.reset();
         expressionHelper.setCallbacks(expressionsStarted, expressionsSaved);
         expressionHelper.reset();
+        essentialPropertiesHelper.reset();
 
         if(!bm_fileManager.createTemporaryFolder()) {
             return;
@@ -302,6 +307,7 @@ $.__bodymovin.bm_renderManager = (function () {
             fonts : [],
             layers : [],
             markers : [],
+            slots: [],
             metadata: buildCompositionMetadata(compSettings.metadata),
         };
         currentExportedComps.push(currentCompID);
@@ -311,6 +317,7 @@ $.__bodymovin.bm_renderManager = (function () {
         exportExtraComps(exportData);
         exportCompMarkers(exportData, comp);
         exportMotionBlur(exportData, comp);
+        exportEssentialProps(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
         createReport();
@@ -369,6 +376,10 @@ $.__bodymovin.bm_renderManager = (function () {
               asl: comp.motionBlurAdaptiveSampleLimit
             };
         }
+    }
+
+    function exportEssentialProps(exportData) {
+        exportData.slots = essentialPropertiesHelper.exportProperties();
     }
 
     function exportCompMarkers(exportData, comp) {

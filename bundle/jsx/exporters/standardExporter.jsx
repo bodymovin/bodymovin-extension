@@ -6,6 +6,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 	var bm_fileManager = $.__bodymovin.bm_fileManager;
 	var exporterHelpers = $.__bodymovin.bm_exporterHelpers;
 	var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+	var settingsHelper = $.__bodymovin.bm_settingsHelper;
 	var ob = {}
 	var _callback;
 	var _destinationData;
@@ -90,6 +91,19 @@ $.__bodymovin.bm_standardExporter = (function () {
 					time: config.segmentedTime,
 				});
 				
+			} else if (true) {
+				var temporaryFolder = bm_fileManager.getTemporaryFolder();
+				var originFolder = new Folder(temporaryFolder.fsName);
+				var destinationFolder = new Folder(temporaryFolder.fsName);
+				destinationFolder.changePath('standard');
+				originFolder.changePath('raw');
+				bm_eventDispatcher.sendEvent('bm:create:slots', 
+				{
+					origin: originFolder.fsName, 
+					fileName: _destinationData.fileName,
+					destination: destinationFolder.fsName,
+					prettyPrint: settingsHelper.shouldPrettyPrint(),
+				});
 			} else {
 				moveAssetsToDestination();
 			}
@@ -98,6 +112,10 @@ $.__bodymovin.bm_standardExporter = (function () {
 			_callback(exporterHelpers.exportTypes.STANDARD, exporterHelpers.exportStatuses.SUCCESS);
 		}
 
+	}
+
+	function slotsSuccess() {
+		moveAssetsToDestination();
 	}
 
 	function splitSuccess(totalSegments) {
@@ -113,6 +131,7 @@ $.__bodymovin.bm_standardExporter = (function () {
 
 	ob.save = save;
 	ob.splitSuccess = splitSuccess;
+	ob.slotsSuccess = slotsSuccess;
 	ob.splitFailed = splitFailed;
 	
 	return ob;

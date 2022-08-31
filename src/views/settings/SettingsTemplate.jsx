@@ -1,6 +1,5 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import { StyleSheet, css } from 'aphrodite'
 import SettingsListItem from './list/SettingsListItem'
 import SettingsListDropdown from './list/SettingsListDropdown'
 import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
@@ -9,19 +8,6 @@ import {
   toggleSettingsValue,
   updateSettingsValue, 
 } from '../../redux/actions/compositionActions'
-
-const styles = StyleSheet.create({
-  customProps: {
-    padding: '10px 0 10px 24px',
-  },
-  customPropsTitle: {
-    fontSize: '14px',
-    padding: '4px 0',
-  },
-  customPropsButton: {
-    padding: '4px 0',
-  }
-})
 
 class SettingsTemplate extends React.PureComponent {
 

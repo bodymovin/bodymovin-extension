@@ -20,9 +20,11 @@ function loadBodymovinFileData(path) {
                 reject()
             }
 	    } else {
+            console.log(result)
             reject()
         }
     } catch(err) {
+        console.log(err)
         reject()
     }
 

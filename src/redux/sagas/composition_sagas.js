@@ -25,6 +25,9 @@ import {
 } from '../actions/compositionActions'
 import fileBrowser from '../../helpers/FileBrowser'
 import folderBrowser from '../../helpers/FolderBrowser'
+import loadBodymovinFileData from '../../helpers/FileLoader'
+import validateTemplate from '../../helpers/templates/template'
+import templateSelector from '../selectors/global_settings_template_selector'
 
 function *getCSCompositions(action) {
 	while(true) {
@@ -64,15 +67,38 @@ function *getCompositionDestination() {
 	}
 }
 
+function *checkTemplateValidation(compData) {
+	try {
+		if (compData && compData.settings && compData.settings.template && compData.settings.template.active) {
+			const templateData = yield select(templateSelector);
+			if (templateData.templates && templateData.templates.list.length > compData.settings.template.id) {
+				const selectedTemplate = templateData.templates.list[compData.settings.template.id];
+				const jsonData = yield call(loadBodymovinFileData,compData.destination);
+				const parser = selectedTemplate.parser;
+				const errors = yield call(validateTemplate, jsonData, parser);
+				if (errors.length) {
+					yield put({ 
+						type: actions.RENDER_TEMPLATE_ERROR,
+						errors,
+						compId: compData.id
+					})
+				}
+			}
+		}
+	} catch (error) {
+		console.log('ERROR', error);
+	}
+}
+
 function *startRender() {
+	let compData
 	while(true) {
-		yield take([actions.RENDER_START,actions.RENDER_COMPLETE])
-		let comp = yield select(getRenderComposition)
+		const comp = yield select(getRenderComposition)
 		if(comp) {
 			const {
 				shouldIncludeCompNameAsFolder,
 			} = yield select(globalSettingsSelector)
-			const compData = {
+			compData = {
 				...comp,
 			}
 			if (shouldIncludeCompNameAsFolder) {
@@ -85,10 +111,13 @@ function *startRender() {
 				compData.destination = destinationSplit.join(delimiter)
 			}
 			yield call(renderNextComposition, compData)
+			yield take([actions.RENDER_COMPLETE])
+			yield call(checkTemplateValidation, compData)
 		} else {
 			yield put({ 
 				type: actions.RENDER_FINISHED
 			})
+			break;
 		}
 	}
 }
@@ -195,7 +224,7 @@ function *loadTemplate() {
 export default [
   fork(getCSCompositions),
   fork(getCompositionDestination),
-  fork(startRender),
+  takeEvery(actions.RENDER_START, startRender),
   takeEvery(actions.RENDER_STOP, stopRender),
   takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
   takeEvery(actions.SETTINGS_REMEMBER, saveSettings),

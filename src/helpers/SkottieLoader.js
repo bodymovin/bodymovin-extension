@@ -2,7 +2,6 @@ import {
 	getSavedVersion,
 	lockedMinorVersion,
 } from './skottie/skottie'
-import { getPort } from './enums/networkData'
 
 let _canvasKit
 
