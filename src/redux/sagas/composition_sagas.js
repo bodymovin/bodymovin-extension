@@ -76,13 +76,11 @@ function *checkTemplateValidation(compData) {
 				const jsonData = yield call(loadBodymovinFileData,compData.destination);
 				const parser = selectedTemplate.parser;
 				const errors = yield call(validateTemplate, jsonData, parser);
-				if (errors.length) {
-					yield put({ 
-						type: actions.RENDER_TEMPLATE_ERROR,
-						errors,
-						compId: compData.id
-					})
-				}
+				yield put({ 
+					type: actions.RENDER_TEMPLATE_ERROR,
+					errors,
+					compId: compData.id
+				})
 			}
 		}
 	} catch (error) {

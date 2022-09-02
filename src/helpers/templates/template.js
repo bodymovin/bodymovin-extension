@@ -1,6 +1,7 @@
 
 const validationTypes = {
   SLOTS: 'slots',
+  ASSETS: 'assets',
 }
 
 const compare = (operation, left, right) => {
@@ -82,16 +83,70 @@ const validateSlot = async (slots, slotValidation) => {
         validationTypes.SLOTS,
         `Missing slot with name '${slotValidation.name}'`,
       ));
-    } else if (slotValidation.count) {
-      if (!compare(slotValidation.count.operation, matchingSlots.length, slotValidation.count.value)) {
-        errors.push(errorFactory(
-          validationTypes.SLOTS,
-          `Slot '${slotValidation.name}' doesn't satisfy count ${slotValidation.count.operation} ${slotValidation.count.value}`,
-        ));
+    } else {
+      if (slotValidation.count) {
+        if (!compare(slotValidation.count.operation, matchingSlots.length, slotValidation.count.value)) {
+          errors.push(errorFactory(
+            validationTypes.SLOTS,
+            `Slot '${slotValidation.name}' doesn't satisfy count ${slotValidation.count.operation} ${slotValidation.count.value}`,
+          ));
+        }
+      }
+      if (slotValidation.property) {
+        matchingSlots.forEach(match => {
+          if (match.mappedProperties.indexOf(slotValidation.property) === -1) {
+            errors.push(errorFactory(
+              validationTypes.SLOTS,
+              `Slot '${slotValidation.name}' is not applied to the correct property '${slotValidation.property}'; it is applied to '${match.mappedProperties.join()}' instead`,
+            ));
+          }
+        })
       }
     }
   }
   return errors;
+}
+
+const mapSlotsWithProperties = (animationData) => {
+  const slots = {}
+  const addPropToSlot = (slotId, propertyType) => {
+    if (!slots[slotId]) {
+      slots[slotId] = [];
+    }
+    if (slots[slotId].indexOf(propertyType) === -1) {
+      slots[slotId].push(propertyType);
+    }
+  }
+  const searchPropsInLayer = (layer) => {
+    if (layer.ks) {
+      if (layer.ks.p && layer.ks.p.pid) {
+        addPropToSlot(layer.ks.p.pid, 'position');
+      }
+      if (layer.ks.s && layer.ks.p.pid) {
+        addPropToSlot(layer.ks.s.pid, 'scale');
+      }
+      if (layer.ks.r && layer.ks.r.pid) {
+        addPropToSlot(layer.ks.r.pid, 'rotation');
+      }
+      if (layer.ks.o && layer.ks.o.pid) {
+        addPropToSlot(layer.ks.o.pid, 'opacity');
+      }
+      if (layer.ks.a && layer.ks.a.pid) {
+        addPropToSlot(layer.ks.a.pid, 'anchor');
+      }
+    }
+  }
+  if (animationData.layers) {
+    animationData.layers.forEach(searchPropsInLayer)
+  }
+  if (animationData.assets) {
+    animationData.assets.forEach(asset => {
+      if (asset.layers) {
+        asset.layers.forEach(searchPropsInLayer)
+      }
+    })
+  }
+  return slots;
 }
 
 const validateSlots = async (data, slotsValidation) => {
@@ -99,26 +154,45 @@ const validateSlots = async (data, slotsValidation) => {
   if (slotsValidation) {
     if (!data.slots) {
       errors.push(errorFactory(validationTypes.SLOTS, 'No slots on the json file'));
-    }
-    const slots = Object.keys(data.slots).map(slotKey => {
-      return {
-        ...data.slots[slotKey],
-        key: slotKey,
-        propertyType: searchPropertyType(data, slotKey),
+    } else {
+      const slotPropertyMap = mapSlotsWithProperties(data);
+      const slots = Object.keys(data.slots).map(slotKey => {
+        return {
+          ...data.slots[slotKey],
+          key: slotKey,
+          propertyType: searchPropertyType(data, slotKey),
+          mappedProperties: slotPropertyMap[slotKey],
+        }
+      });
+      if (slotsValidation.entries) {
+        const slotIdErrors = (await Promise.all(
+          slotsValidation.entries.map(entryData => {
+            return validateSlot(slots, entryData)
+          })
+        ))
+        .filter(errors => errors.length > 0)
+        errors = errors.concat(
+          slotIdErrors.flat()
+        )
       }
-    });
-    console.log('slots', slots);
-    if (slotsValidation.ids) {
-      const slotIdErrors = (await Promise.all(
-        slotsValidation.ids.map(idData => {
-          return validateSlot(slots, idData)
-        })
-      ))
-      .filter(errors => errors.length > 0)
-      console.log('slotIdErrors', slotIdErrors);
-      errors = errors.concat(
-        slotIdErrors.flat()
-      )
+    }
+  }
+  return errors;
+}
+
+const validateAssets = (animationData, assetsValidation) => {
+  let errors = [];
+  if (assetsValidation) {
+    const assets = animationData.assets
+      ? animationData.assets.filter(asset => !asset.layers)
+      : []
+    if (assetsValidation.count) {
+      if (!compare(assetsValidation.count.operation, assets.length, assetsValidation.count.value)) {
+        errors.push(errorFactory(
+          validationTypes.ASSETS,
+          `Total assets (${assets.length}) don't satisfy count ${assetsValidation.count.operation} ${assetsValidation.count.value}`,
+        ));
+      }
     }
   }
   return errors;
@@ -127,15 +201,14 @@ const validateSlots = async (data, slotsValidation) => {
 const validate = async (data, parser) => {
   try {
     const validations = await Promise.all([
-      validateSlots(data, parser.slots)
+      validateSlots(data, parser.slots),
+      validateAssets(data, parser.assets),
     ])
     const errors = validations.filter(error => error.length);
-    console.log('errors', errors);
     return errors.flat();
   } catch (error) {
     throw new Error('Unhandle Error');
   }
-  console.log({data, parser})
 }
 
 export default validate;
