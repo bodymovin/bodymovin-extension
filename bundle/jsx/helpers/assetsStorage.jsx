@@ -21,17 +21,26 @@ $.__bodymovin.assetsStorage = (function () {
     return file;
   }
 
-  function compareAssets() {
-
+  function filterStoringAssets(assets) {
+    var i  = 0;
+    var len = assets.length;
+    var storingAssets = [];
+    for (i = 0; i < len; i += 1) {
+      if (!assets[i].layers) {
+        storingAssets.push(assets[i]);
+      }
+    }
+    return storingAssets;
   }
 
   function storeAssets(assets, compositionUid) {
     var file = createFilePath(compositionUid);
+    var storingAssets = filterStoringAssets(assets);
     if (file) {
       file.open('w', 'TEXT', '????');
       file.encoding = 'UTF-8';
       try {
-        file.write(JSON.stringify(assets)); //DO NOT ERASE, JSON FORMATTED
+        file.write(JSON.stringify(storingAssets)); //DO NOT ERASE, JSON FORMATTED
       } catch (error) {
         bm_eventDispatcher.log(error.message);
         bm_eventDispatcher.log(error.line);
@@ -59,7 +68,6 @@ $.__bodymovin.assetsStorage = (function () {
   }
   
   return {
-    compareAssets: compareAssets,
     storeAssets: storeAssets,
     getAssets: getAssets,
     createFilePath: createFilePath,

@@ -1,16 +1,14 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global app, bm_projectManager, $, ParagraphJustification*/
+/*global app, bm_projectManager, $, ParagraphJustification, FolderItem */
 $.__bodymovin.bm_textShapeHelper = (function () {
-    var bm_projectManager = $.__bodymovin.bm_projectManager;
     var bm_compsManager = $.__bodymovin.bm_compsManager;
     var bm_renderManager = $.__bodymovin.bm_renderManager;
-    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var layerTypes = $.__bodymovin.layerTypes;
     var getLayerType = $.__bodymovin.getLayerType;
     var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var textCompHelper = $.__bodymovin.bm_textCompHelper;
-    var ob = {}, chars = [], comp, fontComp, dupl, boxText, layers = [], currentFont, compsAddedFlag = false;
+    var ob = {}, chars = [], charComp, fontComp, charCompTextLayer, boxText, layers = [], currentFont, compsAddedFlag = false;
     
     function reset() {
         chars.length = 0;
@@ -24,23 +22,23 @@ $.__bodymovin.bm_textShapeHelper = (function () {
             return;
         }
         compsAddedFlag = true;
-        comp = app.project.items.addComp('bm_charHelper', 1000, 1000, 1, 1, 1);
-        fontComp = app.project.items.addComp('bm_fontHelper', 1000, 1000, 1, 1, 1);
-        boxText = fontComp.layers.addBoxText([500, 500], 'm');
-        dupl = comp.layers.addText();
-        var textProp = dupl.property("Source Text");
+        charComp = app.project.items.addComp('bm_charHelper', 1000, 1000, 1, 1, 1);
+        charCompTextLayer = charComp.layers.addText();
+        var textProp = charCompTextLayer.property("Source Text");
         var textDocument = textProp.value;
         textDocument.resetCharStyle();
         textDocument.resetParagraphStyle();
         textDocument.fontSize = 100;
         textDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
-
         textProp.setValue(textDocument);
-        var fontProp = dupl.property("Source Text");
+        var fontProp = charCompTextLayer.property("Source Text");
         var fontDocument = fontProp.value;
         fontDocument.fontSize = 100;
         fontDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
         fontProp.setValue(fontDocument);
+        fontComp = app.project.items.addComp('bm_fontHelper', 1000, 1000, 1, 1, 1);
+        boxText = fontComp.layers.addBoxText([500, 500], 'm');
+
     }
     
     function addTextLayer(layer) {
@@ -65,45 +63,6 @@ $.__bodymovin.bm_textShapeHelper = (function () {
         return charData;
     }
     
-    function resetProp(p, def) {
-        if (!p) {
-            return;
-        }
-        if (p.isModified) {
-            if (p.expression !== "") {
-                p.expression = "";
-            }
-            while (p.numKeys > 0) {
-                p.removeKey(1);
-            }
-            p.setValue(def);
-        }
-        return;
-    }
-    
-    function removeLayerAnimators(textLayer) {
-        var layerInfo = textLayer.property("Text");
-        var i, len = layerInfo.numProperties;
-        for (i = 0; i < len; i += 1) {
-            if (layerInfo.property(i + 1).matchName === "ADBE Text Animators") {
-                var animatorInfo = layerInfo.property(i + 1);
-                var j, jLen = animatorInfo.numProperties;
-                for (j = 0; j < jLen; j += 1) {
-                    if (animatorInfo.property(j + 1).matchName === "ADBE Text Animator") {
-                        animatorInfo.property(j + 1).remove();
-                        j -= 1;
-                        jLen -= 1;
-                    }
-                }
-            }
-        }
-        if ((textLayer.mask && textLayer.mask.numProperties > 0)) {
-            textLayer.mask(1).remove();
-        }
-        resetProp(textLayer.transform.position, [0, 0, 0]);
-        resetProp(textLayer.transform.rotation, 0);
-    }
-
     function getOutlinesLayer(comp) {
         var i = 1, len = comp.layers.length, layer;
         while(i <= len) {
@@ -116,28 +75,40 @@ $.__bodymovin.bm_textShapeHelper = (function () {
         }
     }
 
-    function searchCompInFolder(folder, compName) {
-
-        var numInFolder = folder.numItems;
-        for (var i = numInFolder; i >= 1; i--) {
-            var curItem = folder.item(i);
-            if (curItem.name === compName) {
-                return curItem;
+    function searchCharMetadata(originalTextDocument, ch, charData) {
+        var characterMetadata = textCompHelper.findCharacterData(originalTextDocument, ch);
+        if (characterMetadata) {
+            var yOffset = characterMetadata.compData.h;
+            if (characterMetadata && characterMetadata.textData && characterMetadata.textData.y)  {
+                yOffset = characterMetadata.textData.y;
             }
+            var xOffset = 0;
+            if (characterMetadata && characterMetadata.textData && characterMetadata.textData.x)  {
+                xOffset = characterMetadata.textData.x;
+            }
+            var advance = characterMetadata.compData.w - xOffset;
+            if (characterMetadata && characterMetadata.textData && characterMetadata.textData.advance)  {
+                advance = characterMetadata.textData.advance;
+            }
+            charData.t = 1;
+            charData.w = advance;
+            charData.data = {
+                refId: characterMetadata.compData.id,
+                ip: 0,
+                op: 99999,
+                sr: 1,
+                st: 0,
+                ks: {
+                    a: { k: [0, 0, 0], a: 0 },
+                    p: { k: [-xOffset, -yOffset, 0], a: 0 },
+                    r: { k: 0, a: 0 },
+                    s: { k: [100, 100], a: 0 },
+                    o: { k: 100, a: 0 },
+                }
+            };
+            return true;
         }
         return false;
-    }
-
-    function searchFolderAndCharacter(folderName, character) {
-        var items = app.project.items;
-        for ( var i = 0; i < items.length; i+= 1) {
-            var item = items[i + 1];
-            if (item instanceof FolderItem && item.name === folderName) {
-                return searchCompInFolder(item, character);
-            }
-        }
-        return false;
-
     }
     
     function createNewChar(layerInfo, originalTextDocument, ch, charData) {
@@ -152,48 +123,15 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                 return;
             }
             ////
-            
-            var characterMetadata = textCompHelper.findCharacterData(originalTextDocument, ch);
-            if (characterMetadata) {
-                var yOffset = characterMetadata.compData.h;
-                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.y)  {
-                    yOffset = characterMetadata.textData.y;
-                }
-                var xOffset = 0;
-                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.x)  {
-                    xOffset = characterMetadata.textData.x;
-                }
-                var advance = characterMetadata.compData.w - xOffset;
-                if (characterMetadata && characterMetadata.textData && characterMetadata.textData.advance)  {
-                    advance = characterMetadata.textData.advance;
-                }
-                charData.t = 1;
-                charData.w = advance;
-                charData.data = {
-                    refId: characterMetadata.compData.id,
-                    ip: 0,
-                    op: 99999,
-                    sr: 1,
-                    st: 0,
-                    ks: {
-                        a: { k: [0, 0, 0], a: 0 },
-                        p: { k: [-xOffset, -yOffset, 0], a: 0 },
-                        r: { k: 0, a: 0 },
-                        s: { k: [100, 100], a: 0 },
-                        o: { k: 100, a: 0 },
-                    }
-                };
+            var hasCharMetadata = searchCharMetadata(originalTextDocument, ch, charData);
+            if (hasCharMetadata) {
                 return;
             }
             ////
             var shapeLayer;
             var l, lLen;
-            var cmdID = bm_projectManager.getCommandID('shapesFromText');
-            layerInfo.copyToComp(comp);
-            //var dupl = comp.layers[1];
-            //var dupl = comp.layers.addText();
-            //removeLayerAnimators(dupl);
-            var textProp = dupl.property("Source Text");
+            layerInfo.copyToComp(charComp);
+            var textProp = charCompTextLayer.property("Source Text");
             var textDocument = textProp.value;
             if (charCode !== 32 && charCode !== 9) {
                 textDocument.text = ch + ch;
@@ -205,25 +143,23 @@ $.__bodymovin.bm_textShapeHelper = (function () {
             textDocument.tracking = 0;
             textDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
             textProp.setValue(textDocument);
-            dupl.enabled = true;
-            dupl.selected = true;
-            var hasShapeData = true;
+            charCompTextLayer.enabled = true;
+            charCompTextLayer.selected = true;
             if (charCode !== 32 && charCode !== 9) {
-                hasShapeData = false;
                 app.executeCommand(3781);
             }
-            dupl.selected = false;
+            charCompTextLayer.selected = false;
             var doubleSize, singleSize;
-            doubleSize = dupl.sourceRectAtTime(0, false).width;
+            doubleSize = charCompTextLayer.sourceRectAtTime(0, false).width;
             if (charCode !== 32 && charCode !== 9) {
                 textDocument.text = ch;
             } else {
                 textDocument.text = 'ii';
             }
             textProp.setValue(textDocument);
-            singleSize = dupl.sourceRectAtTime(0, false).width;
+            singleSize = charCompTextLayer.sourceRectAtTime(0, false).width;
             charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
-            shapeLayer = getOutlinesLayer(comp);
+            shapeLayer = getOutlinesLayer(charComp);
             charData.data = {};
             if (charCode !== 32 && charCode !== 9) {
                 $.__bodymovin.bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
@@ -233,15 +169,7 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                 lLen = charData.data.shapes[0].it.length;
                 for (l = 0; l < lLen; l += 1) {
                     var ks = charData.data.shapes[0].it[l].ks;
-                    if (ks) {
-                        var k, kLen = ks.k.i.length;
-                        /*for (k = 0; k < kLen; k += 1) {
-                            ks.k.i[k][0] += ks.k.v[k][0];
-                            ks.k.i[k][1] += ks.k.v[k][1];
-                            ks.k.o[k][0] += ks.k.v[k][0];
-                            ks.k.o[k][1] += ks.k.v[k][1];
-                        }*/
-                    } else {
+                    if (!ks) {
                         charData.data.shapes[0].it.splice(l, 1);
                         l -= 1;
                         lLen -= 1;
@@ -261,13 +189,15 @@ $.__bodymovin.bm_textShapeHelper = (function () {
             bm_eventDispatcher.log(err.message);
             bm_eventDispatcher.log(err.line);
             bm_eventDispatcher.log(err.fileName);
-            bm_eventDispatcher.alert('Character could not be created: ' + ch); 
+            if (ch !== '[]') {
+                bm_eventDispatcher.alert('Character could not be created: ' + ch); 
+            }
         }
     }
     
     function exportChars(fonts) {
         
-        comp.openInViewer();
+        charComp.openInViewer();
         var i, len = layers.length, layerInfo;
         var k, kLen;
         for (i = 0; i < len; i += 1) {
@@ -287,7 +217,6 @@ $.__bodymovin.bm_textShapeHelper = (function () {
                     textDocument = textProp.keyValue(k + 1);
                 }
                 var font = textDocument.font;
-                var fontFamily = textDocument.fontFamily;
                 var fontStyle = textDocument.fontStyle;
                 var fontSize = textDocument.fontSize;
                 var text = textDocument.allCaps ? textDocument.text.toUpperCase() : textDocument.text;
@@ -297,6 +226,8 @@ $.__bodymovin.bm_textShapeHelper = (function () {
 
                 if (currentFont !== font) {
                     currentFont = font;
+                    // Hack to correctly switch from one font to the other.
+                    // Expected to fail throwing an error if the font doesn't support brackets but should not affect output
                     createNewChar(layerInfo, textDocument, '[]', {});
                 }
                 var l, lLen, ch;
@@ -356,14 +287,10 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     
     function removeComps() {
         if (compsAddedFlag) {
-            comp.remove();
+            charComp.remove();
             fontComp.remove();
             compsAddedFlag = false;
         }
-    }
-
-    function getExportingComps() {
-        return exportingComps;
     }
     
     ob.reset = reset;
@@ -373,7 +300,6 @@ $.__bodymovin.bm_textShapeHelper = (function () {
     ob.exportFonts = exportFonts;
     ob.addComps = addComps;
     ob.removeComps = removeComps;
-    ob.getExportingComps = getExportingComps;
     
     return ob;
 }());
