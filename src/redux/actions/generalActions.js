@@ -11,7 +11,30 @@ function getPaths() {
 	}
 }
 
+function getVersion() {
+	return {
+		type: actionTypes.VERSION_GET
+	}
+}
+
+function versionFetched(version) {
+	return {
+		type: actionTypes.VERSION_FETCHED,
+		version: version
+	}
+}
+
+function appVersionFetched(version) {
+	return {
+		type: actionTypes.APP_VERSION_FETCHED,
+		version: version
+	}
+}
+
 export {
 	hideAlert,
-	getPaths
+	getPaths,
+	getVersion,
+	versionFetched,
+	appVersionFetched
 }

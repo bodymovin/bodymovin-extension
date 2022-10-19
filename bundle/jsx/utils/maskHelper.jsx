@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_keyframeHelper, MaskMode, bm_generalUtils*/
-var bm_maskHelper = (function () {
+/*global bm_keyframeHelper, MaskMode*/
+$.__bodymovin.bm_maskHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
 
     function getMaskMode(num) {
@@ -27,6 +28,7 @@ var bm_maskHelper = (function () {
         if (!(layerInfo.mask && layerInfo.mask.numProperties > 0)) {
             return;
         }
+        var stretch = layerData.sr;
         layerData.hasMask = true;
         layerData.masksProperties = [];
         var masks = layerInfo.mask;
@@ -38,11 +40,13 @@ var bm_maskHelper = (function () {
                 inv: maskElement.inverted,
                 mode: getMaskMode(maskElement.maskMode)
             };
-            shapeData.pt = bm_keyframeHelper.exportKeyframes(maskElement.property('maskShape'), frameRate);
-            bm_shapeHelper.checkVertexCount(shapeData.pt.k);
-            //bm_generalUtils.convertPathsToAbsoluteValues(shapeData.pt.k);
-            shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate);
-            shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate);
+            shapeData.pt = bm_keyframeHelper.exportKeyframes(maskElement.property('maskShape'), frameRate, stretch);
+            $.__bodymovin.bm_shapeHelper.checkVertexCount(shapeData.pt.k);
+            shapeData.o = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Opacity'), frameRate, stretch);
+            shapeData.x = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Expansion'), frameRate, stretch);
+            if ($.__bodymovin.bm_renderManager.shouldIncludeNotSupportedProperties()) {
+                shapeData.f = bm_keyframeHelper.exportKeyframes(maskElement.property('Mask Feather'), frameRate, stretch);
+            }
             shapeData.nm = maskElement.name;
             layerData.masksProperties.push(shapeData);
         }

@@ -1,7 +1,11 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
-var bm_textHelper = (function () {
+/*global layerElement, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
+$.__bodymovin.bm_textHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_textAnimatorHelper = $.__bodymovin.bm_textAnimatorHelper;
+    var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function getJustification(value) {
@@ -23,12 +27,16 @@ var bm_textHelper = (function () {
         }
     }
     
-    function exportTextDocumentData(layerInfo, data, frameRate) {
+    function exportTextDocumentData(layerInfo, data, frameRate, stretch) {
         var duplicatedLayerInfo = layerInfo.duplicate();
         duplicatedLayerInfo.locked = false;
         removeLayerAnimators(duplicatedLayerInfo);
         var sourceTextProp = duplicatedLayerInfo.property("Source Text");
         bm_expressionHelper.checkExpression(sourceTextProp, data);
+        var hasExpression = sourceTextProp.expressionEnabled
+        if(sourceTextProp.expressionEnabled) {
+            sourceTextProp.expressionEnabled = false;
+        }
         var arr = [];
         data.k = arr;
         var numKeys = sourceTextProp.numKeys;
@@ -53,7 +61,7 @@ var bm_textHelper = (function () {
             var i, len;
             ob.s = textDocument.fontSize;
             ob.f = textDocument.font;
-            bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
+            $.__bodymovin.bm_sourceHelper.addFont(textDocument.font, textDocument.fontFamily, textDocument.fontStyle);
             if(textDocument.allCaps){
                 ob.t = textDocument.text.toUpperCase();
             } else {
@@ -65,6 +73,10 @@ var bm_textHelper = (function () {
             if(textDocument.baselineLocs && textDocument.baselineLocs.length > 5){
                 if(textDocument.baselineLocs[5] > textDocument.baselineLocs[1]){
                     ob.lh = textDocument.baselineLocs[5] - textDocument.baselineLocs[1];
+                    // Fix when there is an empty newLine between first and second line. AE return an extremely large number.
+                    if(ob.lh > 10000) {
+                        ob.lh = ob.s*1.2;
+                    }
                 } else {
                     ob.lh = ob.s*1.2;
                 }
@@ -80,24 +92,28 @@ var bm_textHelper = (function () {
                 len = textDocument.fillColor.length;
                 ob.fc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.fc[i] = Math.round(100*textDocument.fillColor[i])/100;
+                    ob.fc[i] = Math.round(1000 * textDocument.fillColor[i]) / 1000;
                 }
             }
             if (textDocument.applyStroke) {
                 len = textDocument.strokeColor.length;
                 ob.sc = [];
                 for (i = 0; i < len; i += 1) {
-                    ob.sc[i] = Math.round(100*textDocument.strokeColor[i])/100;
+                    ob.sc[i] = Math.round(1000 * textDocument.strokeColor[i]) / 1000;
                 }
                 ob.sw = textDocument.strokeWidth;
                 if (textDocument.applyFill) {
                     ob.of = textDocument.strokeOverFill;
                 }
             }
+            //TODO check if it need to be multiplied by stretch
             arr.push({s:ob,t:time*frameRate});
         }
+        if(hasExpression) {
+            sourceTextProp.expressionEnabled = true;
+        }
         duplicatedLayerInfo.remove();
-        bm_textShapeHelper.addTextLayer(layerInfo);
+        $.__bodymovin.bm_textShapeHelper.addTextLayer(layerInfo);
 
     }
 
@@ -124,30 +140,30 @@ var bm_textHelper = (function () {
         }
     }
     
-    function exportTextPathData(pathOptions, ob, masksProperties, frameRate) {
+    function exportTextPathData(pathOptions, ob, masksProperties, frameRate, stretch) {
         if (pathOptions.property("Path").value !== 0) {
             masksProperties[pathOptions.property("Path").value - 1].mode = 'n';
             ob.m = pathOptions.property("Path").value - 1;
-            ob.f = bm_keyframeHelper.exportKeyframes(pathOptions.property("First Margin"), frameRate);
-            ob.l = bm_keyframeHelper.exportKeyframes(pathOptions.property("Last Margin"), frameRate);
+            ob.f = bm_keyframeHelper.exportKeyframes(pathOptions.property("First Margin"), frameRate, stretch);
+            ob.l = bm_keyframeHelper.exportKeyframes(pathOptions.property("Last Margin"), frameRate, stretch);
             ob.a = pathOptions.property("Force Alignment").value;
             ob.p = pathOptions.property("Perpendicular To Path").value;
             ob.r = pathOptions.property("Reverse Path").value;
         }
     }
     
-    function exportMoreOptionsData(pathOptions, ob, frameRate) {
+    function exportMoreOptionsData(pathOptions, ob, frameRate, stretch) {
         ob.g = pathOptions.property("Anchor Point Grouping").value;
-        ob.a = bm_keyframeHelper.exportKeyframes(pathOptions.property("Grouping Alignment"), frameRate);
+        ob.a = bm_keyframeHelper.exportKeyframes(pathOptions.property("Grouping Alignment"), frameRate, stretch);
         
     }
     
-    function exportAnimators(layerInfo, animatorArr, frameRate) {
+    function exportAnimators(layerInfo, animatorArr, frameRate, stretch) {
         var i, len = layerInfo.numProperties;
         for (i = 0; i < len; i += 1) {
             if (layerInfo.property(i + 1).matchName === "ADBE Text Animator") {
                 var animatorOb = {};
-                bm_textAnimatorHelper.exportAnimator(layerInfo.property(i + 1), animatorOb, frameRate);
+                bm_textAnimatorHelper.exportAnimator(layerInfo.property(i + 1), animatorOb, frameRate, stretch);
                 animatorArr.push(animatorOb);
             }
         }
@@ -159,23 +175,24 @@ var bm_textHelper = (function () {
             p: {},
             m: {}
         };
-        exportTextDocumentData(layerInfo, layerOb.t.d, frameRate);
+        var stretch = layerOb.sr || 1;
+        exportTextDocumentData(layerInfo, layerOb.t.d, frameRate, stretch);
         var textProperty = layerInfo.property("Text");
         
         var i, len = textProperty.numProperties;
         for (i = 0; i < len; i += 1) {
             switch (textProperty(i + 1).matchName) {
             case "ADBE Text Path Options":
-                exportTextPathData(textProperty(i + 1), layerOb.t.p, layerOb.masksProperties, frameRate);
+                exportTextPathData(textProperty(i + 1), layerOb.t.p, layerOb.masksProperties, frameRate, stretch);
                 break;
             case "ADBE Text More Options":
-                exportMoreOptionsData(textProperty(i + 1), layerOb.t.m, frameRate);
+                exportMoreOptionsData(textProperty(i + 1), layerOb.t.m, frameRate, stretch);
                 break;
             case "ADBE Text Animators":
                 if (!layerOb.t.a) {
                     layerOb.t.a = [];
                 }
-                exportAnimators(textProperty(i + 1), layerOb.t.a, frameRate);
+                exportAnimators(textProperty(i + 1), layerOb.t.a, frameRate, stretch);
                 break;
             }
         }

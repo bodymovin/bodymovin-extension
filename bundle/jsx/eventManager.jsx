@@ -1,9 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global $, Folder, ExternalObject, CSXSEvent*/
 
-var bm_eventDispatcher = (function () {
+$.__bodymovin.bm_eventDispatcher = (function () {
     'use strict';
     
+    var JSON = $.__bodymovin.JSON;
     var xLib;
     try {
         xLib = new ExternalObject('lib:\PlugPlugExternalObject');

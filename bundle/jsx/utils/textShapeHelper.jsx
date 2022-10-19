@@ -1,7 +1,13 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global app, bm_eventDispatcher, bm_projectManager, bm_shapeHelper, bm_renderManager, ParagraphJustification, bm_generalUtils*/
-var bm_textShapeHelper = (function () {
+/*global app, bm_projectManager, bm_shapeHelper, bm_renderManager, ParagraphJustification*/
+$.__bodymovin.bm_textShapeHelper = (function () {
     'use strict';
+    var bm_projectManager = $.__bodymovin.bm_projectManager;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
+    var layerTypes = $.__bodymovin.layerTypes;
+    var getLayerType = $.__bodymovin.getLayerType;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var ob = {}, chars = [], comp, fontComp, dupl, boxText, layers = [], currentFont, compsAddedFlag = false;
     
     function reset() {
@@ -95,13 +101,26 @@ var bm_textShapeHelper = (function () {
         resetProp(textLayer.transform.position, [0, 0, 0]);
         resetProp(textLayer.transform.rotation, 0);
     }
+
+    function getOutlinesLayer(comp) {
+        var i = 1, len = comp.layers.length;
+        while(i <= len) {
+            layer = comp.layers[i];
+            var layerType = getLayerType(layer);
+            if(layerType === layerTypes.shape) {
+                return layer;
+            }
+            i += 1;
+        }
+    }
     
     function createNewChar(layerInfo, originalTextDocument, ch, charData) {
         if (bm_compsManager.cancelled) {
             return;
         }
+        var charCode = ch.charCodeAt(0);
             //"allCaps","applyFill","applyStroke","baselineLocs","baselineShift","boxText","boxTextPos","boxTextSize","fauxBold","fauxItalic","fillColor","font","fontFamily","fontLocation","fontSize","fontStyle","horizontalScale","justification","pointText","resetCharStyle","resetParagraphStyle","smallCaps","strokeColor","strokeOverFill","strokeWidth","subscript","superscript","text","tracking","tsume","verticalScale"
-        if (ch.charCodeAt(0) === 13 || ch.charCodeAt(0) === 160 || ch.charCodeAt(0) === 65279) {
+        if (charCode === 13 || charCode === 3 || charCode === 160 || charCode === 65279) {
             charData.w = 0;
             return;
         }
@@ -114,10 +133,10 @@ var bm_textShapeHelper = (function () {
         //removeLayerAnimators(dupl);
         var textProp = dupl.property("Source Text");
         var textDocument = textProp.value;
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             textDocument.text = ch + ch;
         } else {
-            textDocument.text = 'i i';
+            textDocument.text = 'i' + ch + 'i';
         }
         textDocument.font = originalTextDocument.font;
         textDocument.fontSize = 100;
@@ -126,13 +145,15 @@ var bm_textShapeHelper = (function () {
         textProp.setValue(textDocument);
         dupl.enabled = true;
         dupl.selected = true;
-        if (ch !== ' ') {
+        var hasShapeData = true;
+        if (charCode !== 32 && charCode !== 9) {
+            hasShapeData = false;
             app.executeCommand(3781);
         }
         dupl.selected = false;
         var doubleSize, singleSize;
         doubleSize = dupl.sourceRectAtTime(0, false).width;
-        if (ch !== ' ') {
+        if (charCode !== 32 && charCode !== 9) {
             textDocument.text = ch;
         } else {
             textDocument.text = 'ii';
@@ -140,10 +161,10 @@ var bm_textShapeHelper = (function () {
         textProp.setValue(textDocument);
         singleSize = dupl.sourceRectAtTime(0, false).width;
         charData.w = bm_generalUtils.roundNumber(doubleSize - singleSize, 2);
-        shapeLayer = comp.layers[1];
+        shapeLayer = getOutlinesLayer(comp);
         charData.data = {};
-        if (ch !== ' ') {
-            bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
+        if (charCode !== 32 && charCode !== 9) {
+            $.__bodymovin.bm_shapeHelper.exportShape(shapeLayer, charData.data, 1, true);
             while(charData.data.shapes.length > 1) {
                 charData.data.shapes.pop();
             }
@@ -165,7 +186,14 @@ var bm_textShapeHelper = (function () {
                 }
             }
         }
-        shapeLayer.selected = false;
+
+
+
+
+        if(shapeLayer && shapeLayer.containingComp) {
+            shapeLayer.selected = false;
+            shapeLayer.remove();
+        }
     }
     
     function exportChars(fonts) {
@@ -226,7 +254,7 @@ var bm_textShapeHelper = (function () {
     
     function exportFonts(fonts) {
         fontComp.openInViewer();
-        var i, len = fonts.list.length, rect;
+        var i, len = fonts.list.length, rect, baseLineShift;
         var fontProp = boxText.property("Source Text");
         var fontDocument = fontProp.value;
         fontDocument.text = 'm';
@@ -236,7 +264,11 @@ var bm_textShapeHelper = (function () {
             fontDocument.tracking = 0;
             fontProp.setValue(fontDocument);
             rect = boxText.sourceRectAtTime(0, false);
-            fonts.list[i].ascent = 250 + rect.top + rect.height;
+            baseLineShift = 0;
+            if(fontDocument.baselineShift){
+                baseLineShift = fontDocument.baselineShift;
+            }
+            fonts.list[i].ascent = 250 + rect.top + rect.height + baseLineShift;
         }
     }
     

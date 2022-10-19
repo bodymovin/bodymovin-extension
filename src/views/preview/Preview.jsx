@@ -66,7 +66,7 @@ class Preview extends React.Component {
   saveFile(fileData) {
 
     var svgData = this.previewViewer.snapshot()
-    FileSaver(svgData, ['*.svg'], 'snapshot.svg')
+    FileSaver(svgData, ['svg'], 'snapshot.svg')
   }
 
   itemSelected(item) {

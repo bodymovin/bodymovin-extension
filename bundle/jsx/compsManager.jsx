@@ -1,10 +1,12 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_projectManager, bm_eventDispatcher, bm_renderManager, Folder, File */
+/*global bm_projectManager, bm_eventDispatcher, Folder, File */
 
-var bm_compsManager = (function () {
+$.__bodymovin.bm_compsManager = (function () {
     'use strict';
     
     var compositions = [], projectComps, ob, currentComposition;
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_projectManager = $.__bodymovin.bm_projectManager;
     
     
     function getCompositionData(comp) {
@@ -40,7 +42,7 @@ var bm_compsManager = (function () {
             uri = absoluteURI;
         } else {
             uri = Folder.desktop.absoluteURI + '/data';
-            uri += standalone ? '.js' : '.json';
+            uri += standalone ? '.js' : '.tgs';
         }
         var f = new File(uri);
         var saveFileData = f.saveDlg();
@@ -103,7 +105,7 @@ var bm_compsManager = (function () {
         bm_eventDispatcher.sendEvent('bm:render:start', currentComposition.id);
         var destination = currentComposition.absoluteURI;
         var fsDestination = currentComposition.destination;
-        bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings);
+        $.__bodymovin.bm_renderManager.render(comp, destination, fsDestination, currentComposition.settings);
     }
     
     function renderComplete() {
@@ -112,7 +114,7 @@ var bm_compsManager = (function () {
     
     function cancel() {
         ob.cancelled = true;
-        bm_textShapeHelper.removeComps();
+        $.__bodymovin.bm_textShapeHelper.removeComps();
         bm_eventDispatcher.sendEvent('bm:render:cancel');
     }
     

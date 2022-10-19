@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../components/buttons/Base_button'
 import SettingsListItem from './list/SettingsListItem'
+import SettingsCollapsableItem from './collapsable/SettingsCollapsableItem'
 import {setCurrentCompId, cancelSettings, toggleSettingsValue, updateSettingsValue, toggleExtraComp, goToComps} from '../../redux/actions/compositionActions'
 import settings_view_selector from '../../redux/selectors/settings_view_selector'
 import Variables from '../../helpers/styles/variables'
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class Settings extends React.Component {
+class Settings extends React.PureComponent {
 
   constructor() {
     /*demo: false
@@ -98,9 +99,18 @@ class Settings extends React.Component {
     this.toggleSegmented = this.toggleValue.bind(this,'segmented')
     this.toggleStandalone = this.toggleValue.bind(this,'standalone')
     this.toggleOriginalNames = this.toggleValue.bind(this,'original_names')
+    this.toggleCompressImages = this.toggleValue.bind(this,'should_compress')
+    this.toggleEncodeImages = this.toggleValue.bind(this,'should_encode_images')
+    this.toggleSkipImages = this.toggleValue.bind(this,'should_skip_images')
     this.toggleDemo = this.toggleValue.bind(this,'demo')
+    this.toggleAVD = this.toggleValue.bind(this,'avd')
+    this.toggleExpressionProperties = this.toggleValue.bind(this,'ignore_expression_properties')
+    this.toggleJsonFormat = this.toggleValue.bind(this,'export_old_format')
+    this.toggleSkipDefaultProperties = this.toggleValue.bind(this,'skip_default_properties')
+    this.toggleNotSupportedProperties = this.toggleValue.bind(this,'not_supported_properties')
     this.toggleExtraComps = this.toggleValue.bind(this,'extraComps')
     this.segmentedChange = this.segmentedChange.bind(this)
+    this.qualityChange = this.qualityChange.bind(this)
   }
 
 	componentDidMount() {
@@ -142,6 +152,17 @@ class Settings extends React.Component {
     this.props.updateSettingsValue('segmentedTime', segments)
   }
 
+  qualityChange(ev) {
+    let segments = parseInt(ev.target.value, 10)
+    if(ev.target.value === '') {
+      this.props.updateSettingsValue('compression_rate', 0)
+    }
+    if(isNaN(segments) || segments < 0) {
+      return
+    }
+    this.props.updateSettingsValue('compression_rate', segments)
+  }
+
   getExtraComps() {
     return this.props.extraCompsList.map(function(item){
       return (<div 
@@ -161,7 +182,7 @@ class Settings extends React.Component {
           <ul className={css(styles.compsList)}>
             <SettingsListItem 
               title='Split'
-              description='Splits comp in multiple files every X seconds'
+              description='Splits comp in multiple json files every X seconds'
               toggleItem={this.toggleSegmented}
               active={this.props.settings ? this.props.settings.segmented : false} 
               needsInput={true} 
@@ -169,22 +190,22 @@ class Settings extends React.Component {
               inputValueChange={this.segmentedChange} />
             <SettingsListItem 
               title='Glyphs'
-              description='Checked converts fonts to shapes'
+              description='If selected it converts fonts to shapes'
               toggleItem={this.toggleGlyphs}
               active={this.props.settings ? this.props.settings.glyphs : false} />
             <SettingsListItem 
               title='Hidden'
-              description='Check if you need HIDDEN layers to be exported'
+              description='Select if you need HIDDEN layers to be exported'
               toggleItem={this.toggleHiddens}
               active={this.props.settings ? this.props.settings.hiddens : false}  />
             <SettingsListItem 
               title='Guides'
-              description='Check if you need GUIDED layers to be exported'
+              description='Select if you need GUIDED layers to be exported'
               toggleItem={this.toggleGuideds}
               active={this.props.settings ? this.props.settings.guideds : false}  />
             <SettingsListItem 
               title='Extra Comps'
-              description='Check if expressions are pointing to external comps'
+              description='Select if expressions are pointing to external comps'
               toggleItem={this.toggleExtraComps}
               active={this.props.settings ? this.props.settings.extraComps.active : false}  />
               {this.props.settings && this.props.settings.extraComps.active && 
@@ -193,11 +214,34 @@ class Settings extends React.Component {
                 {this.getExtraComps()}
               </div>
             </li>}
-            <SettingsListItem 
-              title='Original Asset Names'
-              description='Export assets with their original project names'
-              toggleItem={this.toggleOriginalNames}
-              active={this.props.settings ? this.props.settings.original_names : false}  />
+            <SettingsCollapsableItem 
+              title={'Assets'}
+              description={'Rasterized assets settings (jpg, png)'}
+              >
+              <SettingsListItem 
+                title='Original Asset Names'
+                description='Export assets with their original project names'
+                toggleItem={this.toggleOriginalNames}
+                active={this.props.settings ? this.props.settings.original_names : false}  />
+              {this.props.canCompressAssets && <SettingsListItem 
+                title='Enable compression'
+                description='Set compression ratio for jpgs (0-100)'
+                toggleItem={this.toggleCompressImages}
+                needsInput={true} 
+                inputValue={this.props.settings ? this.props.settings.compression_rate : 0} 
+                inputValueChange={this.qualityChange}
+                active={this.props.settings ? this.props.settings.should_compress : false}  />}
+              <SettingsListItem 
+                title='Include in json'
+                description='Include rasterized images encoded in the json'
+                toggleItem={this.toggleEncodeImages}
+                active={this.props.settings ? this.props.settings.should_encode_images : false}  />
+              <SettingsListItem 
+                title='Skip images export'
+                description='they have not changed since last export'
+                toggleItem={this.toggleSkipImages}
+                active={this.props.settings ? this.props.settings.should_skip_images : false}  />
+            </SettingsCollapsableItem>
             <SettingsListItem 
               title='Standalone'
               description='Exports animation and player bundled in a single file'
@@ -208,6 +252,36 @@ class Settings extends React.Component {
               description='Exports an html for local preview'
               toggleItem={this.toggleDemo}
               active={this.props.settings ? this.props.settings.demo : false}  />
+            <SettingsListItem 
+              title='AVD'
+              description='Exports an xml for Androids Animated Vector Drawable'
+              toggleItem={this.toggleAVD}
+              active={this.props.settings ? this.props.settings.avd : false}  />
+            <SettingsCollapsableItem 
+              title={'Advanced'}
+              description={'Advanced export features'}
+              >
+              <SettingsListItem 
+                title='Remove expression properties (Reduces filesize)'
+                description='Removes properties that are only used for expressions. Select if your animation is not using expressions or your expressions are not using special properties.'
+                toggleItem={this.toggleExpressionProperties}
+                active={this.props.settings ? this.props.settings.ignore_expression_properties : false}  />
+              <SettingsListItem 
+                title='Export old json format (for backwards compatibility)'
+                description='Exports old json format in case you are using it with older players'
+                toggleItem={this.toggleJsonFormat}
+                active={this.props.settings ? this.props.settings.export_old_format : false}  />
+              <SettingsListItem 
+                title='Skip default properties (Reduces filesize)'
+                description='Skips default properties. Uncheck if you are not using the latest Ios, Android or web players.'
+                toggleItem={this.toggleSkipDefaultProperties}
+                active={this.props.settings ? this.props.settings.skip_default_properties : false}  />
+              <SettingsListItem 
+                title='Include non supported properties'
+                description='Only check this if you need specific properties for uses  other that the player.'
+                toggleItem={this.toggleNotSupportedProperties}
+                active={this.props.settings ? this.props.settings.not_supported_properties : false}  />
+            </SettingsCollapsableItem>
           </ul>
           <div className={css(styles.bottomNavigation)}>
             <BaseButton text='Cancel' type='gray' onClick={this.cancelSettings}></BaseButton>

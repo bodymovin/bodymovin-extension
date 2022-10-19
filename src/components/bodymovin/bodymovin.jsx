@@ -1,5 +1,5 @@
 import React from 'react'
-import bodymovin from '../../bodymovin'
+import bodymovin from '../../lottie'
 
 class Bodymovin extends React.Component {
 
@@ -84,6 +84,12 @@ class Bodymovin extends React.Component {
 	setSegment(init, end) {
 		if(this.animation){
 			this.animation.setSegment(init, end)
+		}
+	}
+
+	setDirection(dir) {
+		if(this.animation){
+			this.animation.setDirection(dir)
 		}
 	}
 

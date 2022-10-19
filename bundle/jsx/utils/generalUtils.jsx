@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global app, $, PropertyValueType, bm_eventDispatcher*/
-var bm_generalUtils = (function () {
+$.__bodymovin.bm_generalUtils = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     ob.Gtlym = {};
     ob.Gtlym.CALL = {};
@@ -17,7 +18,7 @@ var bm_generalUtils = (function () {
     function setTimeout(func, millis) {
         var guid = random(10);
         ob.Gtlym.CALL["interval_" + guid] = func;
-        return app.scheduleTask('generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
+        return app.scheduleTask('$.__bodymovin.bm_generalUtils.Gtlym.CALL["interval_' + guid + '"]();', millis, false);
     }
 
     function roundArray(arr, decimals) {
@@ -114,7 +115,8 @@ var bm_generalUtils = (function () {
     function findAttributes(name){
         var ob = {
             ln: null,
-            cl: ''
+            cl: '',
+            tg: ''
         }
         var regexElem = /[\.|#][a-zA-Z0-9\-_]*/g;
         var match,firstChar, matchString;
@@ -123,10 +125,16 @@ var bm_generalUtils = (function () {
             firstChar = matchString.substring(0,1);
             if (firstChar === '#') {
                 ob.ln = matchString.substring(1);
-            } else {
+            }else {
                 ob.cl += ob.cl === '' ? '' : ' ';
                 ob.cl += matchString.substring(1);
             }
+        }
+        regexElem = /<([a-zA-Z0-9\-_]*)>/g;
+        while(match = regexElem.exec(name)){
+            bm_eventDispatcher.log('FOUND')
+            bm_eventDispatcher.log(match[1])
+            ob.tg = match[1];
         }
         return ob;
     }

@@ -1,11 +1,19 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_generalUtils, bm_compsManager, bm_downloadManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager*/
+/*global bm_layerElement,bm_projectManager, bm_eventDispatcher, bm_sourceHelper, bm_compsManager, bm_textShapeHelper, bm_markerHelper, app, File, bm_dataManager*/
 
-var bm_renderManager = (function () {
+$.__bodymovin.bm_renderManager = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_projectManager = $.__bodymovin.bm_projectManager;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_dataManager = $.__bodymovin.bm_dataManager;
+    var layerTypes = $.__bodymovin.layerTypes;
+    var bm_layerElement = $.__bodymovin.bm_layerElement;
+    var bm_ProjectHelper = $.__bodymovin.bm_ProjectHelper;
     
     var ob = {}, pendingLayers = [], pendingComps = [], destinationPath, fsDestinationPath, currentCompID, totalLayers, currentLayer, currentCompSettings, hasExpressionsFlag;
     var currentExportedComps = [];
+    var version_number = '4.8.0';
 
     function getParentData(layers, id) {
         var i = 0, len = layers.length;
@@ -27,7 +35,7 @@ var bm_renderManager = (function () {
             if (layerData.parent !== undefined && layerData.render !== false) {
                 parentData = getParentData(layers, layerData.parent);
                 if (parentData.render === false) {
-                    parentData.ty = bm_layerElement.layerTypes.nullLayer;
+                    parentData.ty = layerTypes.nullLayer;
                     hasChangedState = true;
                     parentData.render = true;
                     if (parentData.isValid === false || parentData.isGuide === false) {
@@ -44,6 +52,22 @@ var bm_renderManager = (function () {
         }
         if (hasChangedState) {
             restoreParents(layers);
+        }
+    }
+
+    function removeHiddenContent(shapes) {
+        if(shapes) {
+            var i = 0, len = shapes.length;
+            while(i < len) {
+                if(shapes[i].hd) {
+                    shapes.splice(i,1);
+                    i -= 1;
+                    len -= 1;
+                } else if(shapes[i].ty === 'gr') {
+                    removeHiddenContent(shapes[i].it);
+                }
+                i += 1;
+            }
         }
     }
     
@@ -89,10 +113,10 @@ var bm_renderManager = (function () {
             layerData = layers[i];
             layerInfo = comp.layers[i + 1];
             bm_layerElement.checkLayerSource(layerInfo, layerData);
-            if (layerData.ty === bm_layerElement.layerTypes.text) {
-                bm_textShapeHelper.addComps();
+            if (layerData.ty === layerTypes.text) {
+                $.__bodymovin.bm_textShapeHelper.addComps();
             }
-            if (layerData.ty === bm_layerElement.layerTypes.precomp && layerData.render !== false && layerData.compId) {
+            if (layerData.ty === layerTypes.precomp && layerData.render !== false && layerData.compId) {
                 currentExportedComps.push(layerData.compId);
                 if(deepTraversing){
                     layerData.layers = [];
@@ -103,20 +127,24 @@ var bm_renderManager = (function () {
     }
     
     function render(comp, destination, fsDestination, compSettings) {
+        app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
-        bm_ProjectHelper.init();
         hasExpressionsFlag = false;
         currentCompID = comp.id;
         currentCompSettings = compSettings;
+
+        bm_ProjectHelper.init();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
         destinationPath = destination;
         fsDestinationPath = fsDestination;
-        bm_sourceHelper.reset();
-        bm_textShapeHelper.reset();
+        $.__bodymovin.bm_sourceHelper.reset();
+        $.__bodymovin.bm_textShapeHelper.reset();
+        bm_layerElement.reset();
         pendingLayers.length = 0;
         pendingComps.length = 0;
         var exportData = {
-            v : '4.8.0',
+            tgs: 1,
+            v : version_number,
             fr : comp.frameRate,
             ip : comp.workAreaStart * comp.frameRate,
             op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
@@ -127,17 +155,35 @@ var bm_renderManager = (function () {
             assets : [],
             comps : [],
             fonts : [],
-            layers : []
-            
+            layers : [],
+            markers : []
         };
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
         ob.renderData.firstFrame = exportData.ip * comp.frameRate;
         createLayers(comp, exportData.layers, exportData.fr, true);
         exportExtraComps(exportData);
+        exportCompMarkers(exportData, comp);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
-        app.scheduleTask('bm_renderManager.renderNextLayer();', 20, false);
+        app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
+    }
+
+    function exportCompMarkers(exportData, comp) {
+        
+        if(comp.markerProperty && comp.markerProperty.numKeys >= 1) {
+            var markerProperty = comp.markerProperty;
+            var markersList = exportData.markers;
+            var len = markerProperty.numKeys, markerElement;
+            for (i = 0; i < len; i += 1) {
+                markerData = {};
+                markerElement = markerProperty.keyValue(i + 1);
+                markerData.tm = markerProperty.keyTime(i + 1) * exportData.fr;
+                markerData.cm = markerElement.comment;
+                markerData.dr = markerElement.duration * exportData.fr;
+                markersList.push(markerData);
+            }
+        }
     }
 
     function exportExtraComps(exportData){
@@ -159,7 +205,9 @@ var bm_renderManager = (function () {
                         layers: [],
                         id: comp.id,
                         nm: comp.name,
-                        xt: 1
+                        xt: 1,
+                        w: comp.width,
+                        h: comp.height
                     };
                     createLayers(comp, compData.layers, exportData.fr, false);
                     exportData.comps.push(compData);
@@ -174,14 +222,18 @@ var bm_renderManager = (function () {
         currentCompSettings = null;
         bm_ProjectHelper.end();
     }
+
+    function dataSaved() {
+        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
+        reset();
+        $.__bodymovin.bm_textShapeHelper.removeComps();
+        bm_compsManager.renderComplete();
+        app.endUndoGroup();
+    }
     
     function saveData() {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Saving data ', compId: currentCompID, progress: 1});
-        bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings);
-        bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Render finished ', compId: currentCompID, progress: 1, isFinished: true, fsPath: fsDestinationPath});
-        reset();
-        bm_textShapeHelper.removeComps();
-        bm_compsManager.renderComplete();
+        bm_dataManager.saveData(ob.renderData.exportData, destinationPath, currentCompSettings, dataSaved);
     }
     
     function clearUnrenderedLayers(layers) {
@@ -191,25 +243,35 @@ var bm_renderManager = (function () {
                 layers.splice(i, 1);
                 i -= 1;
                 len -= 1;
-            } else if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].layers) {
+            } else if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 clearUnrenderedLayers(layers[i].layers);
             }
         }
     }
     
     function clearNames(layers) {
-        if (hasExpressionsFlag) {
-            return;
-        }
         var i, len = layers.length;
         for (i = 0; i < len; i += 1) {
             layers[i].nm = null;
             delete layers[i].nm;
-            if (layers[i].ty === bm_layerElement.layerTypes.precomp && layers[i].layers) {
+            if (layers[i].ty === layerTypes.precomp && layers[i].layers) {
                 clearNames(layers[i].layers);
             }
+            if (layers[i].shapes) {
+                clearShapeNames(layers[i].shapes)
+            }
         }
-        
+    }
+
+    function clearShapeNames(shapes) {
+        var i, len = shapes.length;
+        for (i = 0; i < len; i += 1) {
+            shapes[i].nm = null;
+            delete shapes[i].nm;
+            if (shapes[i].it) {
+                clearShapeNames(shapes[i].it)
+            }            
+        }
     }
     
     function removeExtraData() {
@@ -227,15 +289,18 @@ var bm_renderManager = (function () {
             var nextLayerData = pendingLayers.pop();
             currentLayer += 1;
             bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Rendering layer: ' + nextLayerData.layer.name, compId: currentCompID, progress: currentLayer / totalLayers});
-            bm_layerElement.renderLayer(nextLayerData);
+            bm_layerElement.renderLayer(nextLayerData, currentCompSettings.hiddens, renderLayerComplete);
+            /*if (nextLayerData.data.ty === 4 && !currentCompSettings.hiddens) {
+                removeHiddenContent(nextLayerData.data.shapes);
+            }*/
         } else {
             removeExtraData();
-            bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
+            $.__bodymovin.bm_sourceHelper.exportImages(destinationPath, ob.renderData.exportData.assets, currentCompID, currentCompSettings.original_names);
         }
     }
     
     function checkFonts() {
-        var fonts = bm_sourceHelper.getFonts();
+        var fonts = $.__bodymovin.bm_sourceHelper.getFonts();
         var exportData;
         if (fonts.length === 0) {
             saveData();
@@ -255,8 +320,8 @@ var bm_renderManager = (function () {
                 }
                 exportData = ob.renderData.exportData;
                 exportData.fonts = fontsInfo;
-                bm_textShapeHelper.exportFonts(fontsInfo);
-                bm_textShapeHelper.exportChars(fontsInfo);
+                $.__bodymovin.bm_textShapeHelper.exportFonts(fontsInfo);
+                $.__bodymovin.bm_textShapeHelper.exportChars(fontsInfo);
             } else {
                 exportData = ob.renderData.exportData;
                 bm_eventDispatcher.sendEvent('bm:render:fonts', {type: 'save', compId: currentCompID, fonts: fonts});
@@ -279,8 +344,9 @@ var bm_renderManager = (function () {
     function setFontData(fontData) {
         var exportData = ob.renderData.exportData;
         exportData.fonts = fontData;
-        bm_textShapeHelper.exportFonts(fontData);
-        bm_textShapeHelper.exportChars(fontData);
+        $.__bodymovin.bm_textShapeHelper.exportFonts(fontData);
+        //$.__bodymovin.bm_textShapeHelper.exportChars(fontData);
+        saveData();
     }
     
     function setCharsData(charData) {
@@ -294,11 +360,49 @@ var bm_renderManager = (function () {
     }
     
     function renderLayerComplete() {
-        app.scheduleTask('bm_renderManager.renderNextLayer();', 20, false);
+        app.scheduleTask('$.__bodymovin.bm_renderManager.renderNextLayer();', 20, false);
     }
     
     function hasExpressions() {
         hasExpressionsFlag = true;
+    }
+
+    function getVersion() {
+        bm_eventDispatcher.sendEvent('bm:version', {value: version_number});
+        bm_eventDispatcher.sendEvent('app:version', {value: app.version});
+    }
+
+    function shouldCompressImages() {
+        return currentCompSettings.should_compress;
+    }
+
+    function getCompressionQuality() {
+        return currentCompSettings.compression_rate;
+    }
+
+    function shouldEncodeImages() {
+        return currentCompSettings.should_encode_images;
+    }
+
+    function shouldSkipImages() {
+        return currentCompSettings.should_skip_images && !currentCompSettings.should_encode_images;
+    }
+
+    function shouldIgnoreExpressionProperties() {
+        return true;
+    }
+
+    function shouldExportOldFormat() {
+        return currentCompSettings.export_old_format;
+    }
+
+    function shouldSkipDefaultProperties() {
+        return true;
+        //return currentCompSettings.skip_default_properties;
+    }
+
+    function shouldIncludeNotSupportedProperties() {
+        return currentCompSettings.not_supported_properties;
     }
     
     ob.renderData = {
@@ -307,13 +411,21 @@ var bm_renderManager = (function () {
         }
     };
     ob.render = render;
-    ob.renderLayerComplete = renderLayerComplete;
     ob.renderNextLayer = renderNextLayer;
     ob.setChars = setChars;
     ob.imagesReady = imagesReady;
     ob.setFontData = setFontData;
     ob.setCharsData = setCharsData;
     ob.hasExpressions = hasExpressions;
+    ob.getVersion = getVersion;
+    ob.shouldCompressImages = shouldCompressImages;
+    ob.getCompressionQuality = getCompressionQuality;
+    ob.shouldEncodeImages = shouldEncodeImages;
+    ob.shouldSkipImages = shouldSkipImages;
+    ob.shouldIgnoreExpressionProperties = shouldIgnoreExpressionProperties;
+    ob.shouldExportOldFormat = shouldExportOldFormat;
+    ob.shouldSkipDefaultProperties = shouldSkipDefaultProperties;
+    ob.shouldIncludeNotSupportedProperties = shouldIncludeNotSupportedProperties;
     
     return ob;
 }());

@@ -4,9 +4,10 @@ import { StyleSheet, css } from 'aphrodite'
 import CompositionsList from './list/CompositionsList'
 import CompositionsListHeader from './listHeader/CompositionsListHeader'
 import MainHeader from '../../components/header/Main_header'
-import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer} from '../../redux/actions/compositionActions'
+import {getDestination, filterChange, toggleItem, displaySettings, getCompositions, goToPreview, goToPlayer, toggleShowSelected} from '../../redux/actions/compositionActions'
 import {startRender, showRenderBlock} from '../../redux/actions/renderActions'
 import compositions_selector from '../../redux/selectors/compositions_selector'
+import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -14,6 +15,16 @@ const styles = StyleSheet.create({
     height: '100%',
     padding: '10px',
     backgroundColor: '#474747'
+  },
+  toggleButton: {
+      fontSize: '12px',
+      color: '#eee',
+      textDecoration:'underline',
+      cursor: 'pointer',
+      paddingTop: '6px',
+      ':hover': {
+        color: Variables.colors.green,
+      }
   }
 })
 
@@ -34,6 +45,8 @@ class Compositions extends React.Component {
   showSettings(item) {
     this.props.displaySettings(item.id)
   }
+
+
 
   renderComps() {
     if(!this.props.canRender){
@@ -88,7 +101,8 @@ const mapDispatchToProps = {
   startRender: startRender,
   goToPreview: goToPreview,
   goToPlayer: goToPlayer,
-  showRenderBlock: showRenderBlock
+  showRenderBlock: showRenderBlock,
+  toggleShowSelected: toggleShowSelected
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Compositions)

@@ -8,7 +8,7 @@
             height: 100%;
             overflow: hidden;
         }
-        #bodymovin{
+        #lottie{
             background-color:#fff;
             width:100%;
             height:100%;
@@ -35,12 +35,12 @@
 
 
 
-<div id="bodymovin"></div>
+<div id="lottie"></div>
 
 <script>
     var animationData = "__[[ANIMATIONDATA]]__";
     var params = {
-        container: document.getElementById('bodymovin'),
+        container: document.getElementById('lottie'),
         renderer: '__[[RENDERER]]__',
         loop: true,
         autoplay: true,
@@ -49,7 +49,7 @@
 
     var anim;
 
-    anim = bodymovin.loadAnimation(params);
+    anim = lottie.loadAnimation(params);
 
 </script>
 </body>

@@ -1,8 +1,15 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global layerElement, bm_generalUtils, bm_eventDispatcher, bm_renderManager, bm_compsManager, File, app*/
-var bm_sourceHelper = (function () {
+$.__bodymovin.bm_sourceHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_compsManager = $.__bodymovin.bm_compsManager;
+    var bm_renderManager = $.__bodymovin.bm_renderManager;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var compSources = [], imageSources = [], fonts = [], currentExportingImage, destinationPath, assetsArray, folder, helperComp, currentCompID, originalNamesFlag, imageCount = 0, imageName = 0;
+    var currentSavingAsset;
+    var temporaryFolder;
+    var queue, playSound, autoSave, canEditPrefs = true;
 
     function checkCompSource(item) {
         var arr = compSources;
@@ -119,12 +126,41 @@ var bm_sourceHelper = (function () {
         }
         return sanitizedName + '.png';
     }
+
+    function saveFilesToFolder() {
+        var i, len = assetsArray.length;
+        var copyingFile;
+        for(i = 0; i < len; i += 1) {
+            if(!assetsArray[i].e) {
+                copyingFile = new File(temporaryFolder.absoluteURI+'/'+assetsArray[i].p);
+                if(copyingFile.exists) {
+                    if(!folder.exists) {
+                        folder.create()
+                    }
+                    copyingFile.copy(folder.absoluteURI+'/'+copyingFile.name);
+                }
+            }
+        }
+        var files = temporaryFolder.getFiles();
+        len = files.length;
+        for(i = 0; i < len; i += 1) {
+            files[i].remove();
+        }
+        temporaryFolder.remove();
+    }
     
     function saveNextImage() {
         if (bm_compsManager.cancelled) {
             return;
         }
         if (currentExportingImage === imageSources.length) {
+            saveFilesToFolder();
+            restoreRenderQueue(queue);
+
+            if(canEditPrefs) {
+                app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", playSound, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+                app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", autoSave, PREFType.PREF_Type_MACHINE_INDEPENDENT);   
+            }
             bm_renderManager.imagesReady();
             return;
         }
@@ -132,25 +168,113 @@ var bm_sourceHelper = (function () {
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Exporting image: ' + currentSourceData.name, compId: currentCompID, progress: currentExportingImage / imageSources.length});
         var currentSource = currentSourceData.source;
         var imageName = originalNamesFlag ? formatImageName(currentSourceData.source_name) : 'img_' + currentExportingImage + '.png'
-        assetsArray.push({
+        currentSavingAsset = {
             id: currentSourceData.id,
             w: currentSourceData.width,
             h: currentSourceData.height,
             u: 'images/',
-            p: imageName
-        });
+            p: imageName,
+            e: 0
+        }
+        assetsArray.push(currentSavingAsset);
         var helperComp = app.project.items.addComp('tempConverterComp', Math.max(4, currentSource.width), Math.max(4, currentSource.height), 1, 1, 1);
         helperComp.layers.add(currentSource);
-        var file = new File(folder.absoluteURI + '/' + imageName);
-        helperComp.saveFrameToPng(0, file);
+        var file = new File(temporaryFolder.absoluteURI + '/' + imageName);
+
+        // Overwrite any existing file.
+        if (file.exists) {
+            file.remove();
+        }
+
+        // Add composition item to render queue and set to render.
+        var item = app.project.renderQueue.items.add(helperComp);
+        item.render = true;
+
+        // Set output parameters.
+        // NOTE: Use hidden template '_HIDDEN X-Factor 8 Premul', which exports png with alpha.
+        var outputModule = item.outputModule(1);
+        outputModule.applyTemplate("_HIDDEN X-Factor 8 Premul");
+        outputModule.file = file;
+
+        // Set cleanup.
+        item.onStatusChanged = function() {
+            if (item.status === RQItemStatus.DONE) {
+                // Due to an apparent bug, "00000" is appended to the file extension.
+                // NOTE: This appears to be related to the "File Template" setting's
+                //       frame number parameter ('[#####]').
+                //       However, attempts to fix this by setting the "File Template"
+                //       and/or "File Name" parameter of the output module's "Output
+                //       File Info" setting had no effect.
+                // NOTE: Also tried setting output module's "Use Comp Frame Number"
+                //       setting to false.
+                // NOTE: Bug confirmed in Adobe After Effects CC v15.0.1 (build 73).
+                var bug = new File(temporaryFolder.absoluteURI + '/' + imageName + '00000');
+                if (bug.exists) {
+                    bug.rename(imageName);
+                }
+
+                bm_eventDispatcher.sendEvent('bm:image:process', {
+                    path: temporaryFolder.fsName + '/' + imageName, 
+                    should_compress: bm_renderManager.shouldCompressImages(), 
+                    compression_rate: bm_renderManager.getCompressionQuality()/100,
+                    should_encode_images: bm_renderManager.shouldEncodeImages()
+                })
+            }
+        };
+
+        // Render.
+        app.project.renderQueue.render();
+
         helperComp.remove();
+    }
+
+    function imageProcessed(changedFlag, encoded_data) {
+        if(changedFlag) {
+            currentSavingAsset.p = currentSavingAsset.p.replace(new RegExp('png' + '$'), 'jpg')
+        }
+        if(encoded_data) {
+            currentSavingAsset.p = encoded_data;
+            currentSavingAsset.u = '';
+            currentSavingAsset.e = 1;
+        }
         currentExportingImage += 1;
         saveNextImage();
     }
     
+    function renderQueueIsBusy() {
+        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
+            if (app.project.renderQueue.item(i).status == RQItemStatus.RENDERING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function backupRenderQueue() {
+        var queue = [];
+        for (var i = 1; i <= app.project.renderQueue.numItems; i++) {
+            var item = app.project.renderQueue.item(i);
+            if (item.status == RQItemStatus.QUEUED) {
+                queue.push(i);
+                item.render = false;
+            }
+        }
+        return queue;
+    }
+
+    function restoreRenderQueue(queue) {
+        for (var i = 0; i < queue.length; i++) {
+            app.project.renderQueue.item(queue[i]).render = true;
+        }
+    }
+
     function exportImages(path, assets, compId, _originalNamesFlag) {
-        if (imageSources.length === 0) {
+        if (imageSources.length === 0 || bm_renderManager.shouldSkipImages()) {
             bm_renderManager.imagesReady();
+            return;
+        }
+        if (renderQueueIsBusy()) {
+            bm_eventDispatcher.sendEvent('bm:alert', {message: 'Render queue is currently busy. \n\rCan\'t continue with render.\n\rCheck for elements in AE\'s render queue in a Rendering status, remove them and try again.'});
             return;
         }
         currentCompID = compId;
@@ -160,16 +284,28 @@ var bm_sourceHelper = (function () {
         var file = new File(path);
         folder = file.parent;
         folder.changePath('images/');
+        var folder_random_name = bm_generalUtils.random(10);
+        temporaryFolder = new Folder(Folder.temp.absoluteURI);
+        temporaryFolder.changePath('Bodymovin/'+folder_random_name);
         assetsArray = assets;
-        if (!folder.exists) {
-            if (folder.create()) {
-                saveNextImage();
-            } else {
-                bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + folder.fsName);
+        if (!temporaryFolder.exists) {
+            if (!temporaryFolder.create()) {
+                bm_eventDispatcher.sendEvent('alert', 'folder failed to be created at: ' + temporaryFolder.fsName);
+                return;
             }
-        } else {
-            saveNextImage();
         }
+
+        try {
+            playSound = app.preferences.getPrefAsLong("Misc Section", "Play sound when render finishes", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            autoSave = app.preferences.getPrefAsLong("Auto Save", "Enable Auto Save RQ2", PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Misc Section", "Play sound when render finishes", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);  
+            app.preferences.savePrefAsLong("Auto Save", "Enable Auto Save RQ2", 0, PREFType.PREF_Type_MACHINE_INDEPENDENT);
+        }  catch(err) {
+            canEditPrefs = false;
+        }
+
+        queue = backupRenderQueue();
+        saveNextImage();  
     }
     
     function addFont(fontName, fontFamily, fontStyle) {
@@ -201,6 +337,7 @@ var bm_sourceHelper = (function () {
     }
     
     return {
+        imageProcessed: imageProcessed,
         checkCompSource: checkCompSource,
         checkImageSource: checkImageSource,
         setCompSourceId: setCompSourceId,

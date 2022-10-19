@@ -3,12 +3,12 @@ import { StyleSheet, css } from 'aphrodite'
 import BodymovinCheckbox from '../../../components/bodymovin/bodymovin_checkbox'
 import checkbox from '../../../assets/animations/checkbox.json'
 import Variables from '../../../helpers/styles/variables'
-import textEllipsis from '../../../helpers/styles/textEllipsis'
 
 const styles = StyleSheet.create({
     wrapper: {
       width: '100%',
-      height: '40px',
+      paddingBottom: '10px',
+      minHeight: '40px',
       backgroundColor: Variables.colors.gray_darkest,
     },
     composition: {
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
       padding: '4px 0',
       height: '100%',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'end'
     },
     composition__active: {
       background: Variables.gradients.blueGreen
@@ -42,11 +42,13 @@ const styles = StyleSheet.create({
     'name--title': {
       color: '#fff',
       fontSize: '14px',
-      marginRight: '10px'
+      marginRight: '10px',
+      paddingBottom: '4px',
     },
     'name--desc': {
       color: '#ccc',
-      fontSize: '12px'
+      fontSize: '12px',
+      lineHeight: '14px'
     },
     inputBox: {
       border: '1px solid ' + Variables.colors.white,
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class SettingsListItem extends React.Component {
+class SettingsListItem extends React.PureComponent {
 
 	render(){ 
 		return (<li 
@@ -80,9 +82,9 @@ class SettingsListItem extends React.Component {
   	      <BodymovinCheckbox animationData={checkbox} animate={this.props.active}>
   	          <button className={css(styles.item, styles.radio)} onClick={this.props.toggleItem}></button>
   	      </BodymovinCheckbox>
-  				<div className={css(styles.item, styles.name, textEllipsis)}>
-            <span className={css(styles['name--title'])}>{this.props.title}</span>
-            <span title={this.props.description} className={css(styles['name--desc'])}>{this.props.description}</span>
+  				<div className={css(styles.item, styles.name)}>
+            <div className={css(styles['name--title'])}>{this.props.title}</div>
+            <div title={this.props.description} className={css(styles['name--desc'])}>{this.props.description}</div>
           </div>
   				{this.props.needsInput && <div className={css(styles.item, styles.inputBox, this.props.active ? '' : styles.disabled)}>
             <input disabled={!this.props.active} className={css(styles.item, styles.inputInput)} value={this.props.inputValue} onChange={this.props.inputValueChange} type="text" />

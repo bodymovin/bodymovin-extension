@@ -1,7 +1,8 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global Folder, File, bm_eventDispatcher, $ */
-var bm_downloadManager = (function () {
+$.__bodymovin.bm_downloadManager = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var ob = {};
     
     function getPlayer(zippedFlag) {
@@ -10,19 +11,23 @@ var bm_downloadManager = (function () {
         folder = folder.parent;
         var fileName;
         if (zippedFlag) {
-            fileName = 'bm.js.gz';
+            fileName = 'lottie.js.gz';
         } else {
-            fileName = 'bm.js';
+            fileName = 'lottie.js';
         }
         var bmFile = new File(folder.absoluteURI + '/assets/player/' + fileName);
+        bm_eventDispatcher.log(bmFile.exists)
+        bm_eventDispatcher.log(bmFile.absoluteURI)
         
-        var uri = Folder.desktop.absoluteURI + '/bodymovin.js';
+        var uri = Folder.desktop.absoluteURI + '/lottie.js';
         var f = new File(uri);
         var saveFileData = f.saveDlg();
         if (saveFileData !== null) {
+            bm_eventDispatcher.log('PASO 1' + saveFileData.absoluteURI)
             if (bmFile.copy(saveFileData.absoluteURI)) {
                 bm_eventDispatcher.sendEvent('bm:alert', {message: 'File saved', type: 'success'});
             } else {
+                bm_eventDispatcher.log('PASO 2')
                 bm_eventDispatcher.sendEvent('bm:alert', {message: 'File could not be saved', type: 'fail'});
             }
         }

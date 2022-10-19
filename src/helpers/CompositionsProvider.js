@@ -1,6 +1,9 @@
 import csInterface from './CSInterfaceHelper'
+import extensionLoader from './ExtensionLoader'
 import {dispatcher} from './storeDispatcher'
 import actions from '../redux/actions/actionTypes'
+import {versionFetched, appVersionFetched} from '../redux/actions/generalActions'
+import bodymovin2Avd from 'bodymovin-to-avd'
 
 csInterface.addEventListener('bm:compositions:list', function (ev) {
 	if(ev.data) {
@@ -39,6 +42,10 @@ csInterface.addEventListener('bm:render:start', function (ev) {
 
 csInterface.addEventListener('console:log', function (ev) {
 	console.log('LOGGING:', ev.data)
+		dispatcher({ 
+				type: actions.GENERAL_LOG,
+				data: ev.data
+		})
 })
 
 csInterface.addEventListener('bm:render:update', function (ev) {
@@ -67,6 +74,44 @@ csInterface.addEventListener('bm:render:fonts', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:image:process', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		
+		//Fix for AE 2014
+		if(data && data.should_compress === 'false') {
+			data.should_compress = false
+		}
+		if(data && data.should_encode_images === 'false') {
+			data.should_encode_images = false
+
+		}
+		if(data && typeof data.compression_rate === 'string') {
+			data.compression_rate = Number(data.compression_rate)
+		}
+		//End fix for AE 2014
+
+		dispatcher({ 
+				type: actions.RENDER_PROCESS_IMAGE,
+				data: data
+		})
+		//browserHistory.push('/fonts')
+	} else {
+	}
+})
+
+csInterface.addEventListener('tg:compress', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+
+		dispatcher({ 
+			type: actions.TG_COMPRESS,
+			data: data
+		})
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:project:id', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -90,6 +135,17 @@ csInterface.addEventListener('bm:composition:destination_set', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:create:avd', function (ev) {
+	if(ev.data) {
+		let animationData = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data;
+		animationData.layers = (typeof animationData.layers === "string") ? JSON.parse(animationData.layers) :  animationData.layers;
+		animationData.assets = (typeof animationData.assets === "string") ? JSON.parse(animationData.assets) :  animationData.assets;
+		//let animationData = (typeof data.animationData === "string") ? JSON.parse(data.animationData) : data.animationData;
+		saveAVD(animationData);
+	} else {
+	}
+})
+
 csInterface.addEventListener('bm:alert', function (ev) {
 	if(ev.data) {
 		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
@@ -101,10 +157,28 @@ csInterface.addEventListener('bm:alert', function (ev) {
 	}
 })
 
+csInterface.addEventListener('bm:version', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		dispatcher(versionFetched(data.value))
+	} else {
+	}
+})
+
+csInterface.addEventListener('app:version', function (ev) {
+	if(ev.data) {
+		let data = (typeof ev.data === "string") ? JSON.parse(ev.data) : ev.data
+		dispatcher(appVersionFetched(data.value))
+	} else {
+	}
+})
+
 function getCompositions() {
-	csInterface.evalScript('bm_compsManager.updateData()')
 	let prom = new Promise(function(resolve, reject){
-		resolve()
+		extensionLoader.then(function(){
+			csInterface.evalScript('$.__bodymovin.bm_compsManager.updateData()');
+			resolve();
+		})
 	})
 	return prom
 }
@@ -118,12 +192,14 @@ function getDestinationPath(comp, alternatePath) {
 		if(comp.settings.standalone) {
 			alternatePath += 'data.js'
 		} else {
-			alternatePath += 'data.json'
+			alternatePath += 'data.tgs'
 		}
 		destinationPath = alternatePath
 	}
-	var eScript = 'bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_compsManager.searchCompositionDestination(' + comp.id + ',"' + destinationPath+ '",' + comp.settings.standalone + ')'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve, reject){
 		resolve()
 	})
@@ -131,8 +207,10 @@ function getDestinationPath(comp, alternatePath) {
 }
 
 function renderNextComposition(comp) {
-	var eScript = 'bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_compsManager.renderComposition(' + JSON.stringify(comp) + ')'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve, reject){
 		resolve()
 	})
@@ -140,8 +218,10 @@ function renderNextComposition(comp) {
 }
 
 function stopRenderCompositions() {
-	var eScript = 'bm_compsManager.cancel()'
-	csInterface.evalScript(eScript)
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_compsManager.cancel()'
+		csInterface.evalScript(eScript)
+	})
 	let prom = new Promise(function(resolve){
 		resolve()
 	})
@@ -153,8 +233,11 @@ function setFonts(fontsInfo) {
 		resolve()
 	})
 	var fontsInfoString = JSON.stringify({list:fontsInfo})
-    var eScript = 'bm_renderManager.setFontData(' + fontsInfoString + ')'
-    csInterface.evalScript(eScript)
+
+	extensionLoader.then(function(){
+	    var eScript = '$.__bodymovin.bm_renderManager.setFontData(' + fontsInfoString + ')'
+	    csInterface.evalScript(eScript)
+	})
 	return prom
 }
 
@@ -165,13 +248,66 @@ function openInBrowser(url) {
 
 function getPlayer(gzipped) {
 	let gzippedString = gzipped ? 'true' : 'false'
-	var eScript = 'bm_downloadManager.getPlayer(' + gzippedString + ')';
-    csInterface.evalScript(eScript);
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_downloadManager.getPlayer(' + gzippedString + ')';
+	    csInterface.evalScript(eScript);
+	})
 }
 
 function goToFolder(path) {
-	var eScript = 'bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
-    csInterface.evalScript(eScript);
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_compsManager.browseFolder("' + path.split('\\').join('\\\\') + '")';
+	    csInterface.evalScript(eScript);
+	})
+}
+
+function saveAVD(data) {
+	bodymovin2Avd(data).then(function(avdData){
+		var eScript = "$.__bodymovin.bm_dataManager.saveAVDData('" + avdData + "')";
+	    csInterface.evalScript(eScript);
+	}).catch(function(){
+		extensionLoader.then(function(){
+			var eScript = '$.__bodymovin.bm_dataManager.saveAVDFailed()';
+			csInterface.evalScript(eScript);
+		})
+		dispatcher({ 
+				type: actions.RENDER_AVD_FAILED
+		})
+	})
+}
+
+function getVersionFromExtension() {
+	let prom = new Promise(function(resolve, reject){
+		resolve()
+	})
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_renderManager.getVersion()';
+	    csInterface.evalScript(eScript);
+	})
+	return prom
+}
+
+function imageProcessed(result) {
+	extensionLoader.then(function(){
+		var eScript = '$.__bodymovin.bm_sourceHelper.imageProcessed(';
+		eScript += result.compressed;
+		eScript += ',';
+		if(result.encoded) {
+			eScript += '"' + result.encoded_data + '"'
+		} else {
+			eScript += 'null';
+		}
+		eScript += ')';
+	    csInterface.evalScript(eScript);
+	})
+}
+
+function dataCompressed(result) {
+	extensionLoader.then(function(){
+		let base64data = result.buf.toString('base64');
+		var eScript = '$.__bodymovin.bm_dataManager.dataCompressed("' + base64data + '")';
+		csInterface.evalScript(eScript);
+	})
 }
 
 export {
@@ -182,5 +318,9 @@ export {
 	setFonts,
 	openInBrowser,
 	getPlayer,
-	goToFolder
+	goToFolder,
+	getVersionFromExtension,
+	imageProcessed,
+	dataCompressed,
+	saveAVD
 }

@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class CompositionsList extends React.Component {
+class CompositionsList extends React.PureComponent {
 
   createItem(item) {
     return <CompositionsListItem 

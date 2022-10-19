@@ -1,6 +1,6 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher*/
-var bm_markerHelper = (function () {
+/*global */
+$.__bodymovin.bm_markerHelper = (function () {
     'use strict';
     var ob = {};
     

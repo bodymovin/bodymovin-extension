@@ -1,7 +1,10 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_keyframeHelper*/
-var bm_effectsHelper = (function () {
+/*global bm_eventDispatcher, bm_keyframeHelper*/
+$.__bodymovin.bm_effectsHelper = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var ob = {};
     var effectTypes = {
         sliderControl: 0,
@@ -22,7 +25,14 @@ var bm_effectsHelper = (function () {
         proLevels: 24,
         dropShadow: 25,
         radialWipe: 26,
-        displacementMap: 27
+        displacementMap: 27,
+        matte3: 28,
+        gaussianBlur2: 29,
+        twirl: 30,
+        mesh_warp: 31,
+        ripple: 32,
+        spherize: 33,
+        freePin3: 34
     };
     
     function getEffectType(name) {
@@ -43,21 +53,36 @@ var bm_effectsHelper = (function () {
             return effectTypes.radialWipe;
         case 'ADBE Displacement Map':
             return effectTypes.displacementMap;
+        case 'ADBE Set Matte3':
+            return effectTypes.matte3;
+        case 'ADBE Gaussian Blur 2':
+            return effectTypes.gaussianBlur2;
+        case 'ADBE Twirl':
+            return effectTypes.twirl;
+        case 'ADBE MESH WARP':
+            return effectTypes.mesh_warp;
+        case 'ADBE Ripple':
+            return effectTypes.ripple;
+        case 'ADBE Spherize':
+            return effectTypes.spherize;
+        case 'ADBE FreePin3':
+            return effectTypes.freePin3;
         default:
+            bm_eventDispatcher.log(name)
             return effectTypes.group;
         }
     }
-    
+
     function findEffectPropertyType(prop) {
         var propertyValueType = prop.propertyValueType;
-                //bm_eventDispatcher.log(prop.name);
-                //bm_eventDispatcher.log(prop.matchName);
+                // bm_eventDispatcher.log(prop.name);
+                // bm_eventDispatcher.log(prop.matchName);
         //customValue
             /*bm_eventDispatcher.log('prop.propertyValueType: ' + prop.propertyValueType);
-            bm_eventDispatcher.log('Prop ertyValueType.LAYER_INDEX: ' + PropertyValueType.LAYER_INDEX);
-            bm_eventDispatcher.log('PropertyValueType.COLOR: ' + PropertyValueType.COLOR);
-            bm_eventDispatcher.log('PropertyValueType.OneD: ' + PropertyValueType.OneD);
-            bm_eventDispatcher.log('PropertyValueType.MASK_INDEX: ' + PropertyValueType.MASK_INDEX);*/
+            for (var s in PropertyValueType) {
+                bm_eventDispatcher.log('Name: ' + s);
+                bm_eventDispatcher.log('Value: ' + PropertyValueType[s]);
+            }*/
         //Prop ertyValueType.NO_VALUE
         if (propertyValueType === PropertyValueType.NO_VALUE) {
             return effectTypes.noValue;
@@ -80,7 +105,7 @@ var bm_effectsHelper = (function () {
         return '';
     }
     
-    function exportNoValueControl(effect, frameRate) {
+    function exportNoValueControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.noValue;
         ob.nm = effect.name;
@@ -90,83 +115,83 @@ var bm_effectsHelper = (function () {
         return ob;
     }
     
-    function exportSliderControl(effect, frameRate) {
+    function exportSliderControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.sliderControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportAngleControl(effect, frameRate) {
+    function exportAngleControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.angleControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportColorControl(effect, frameRate) {
+    function exportColorControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.colorControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportPointControl(effect, frameRate) {
+    function exportPointControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.pointControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportCheckboxControl(effect, frameRate) {
+    function exportCheckboxControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.checkboxControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportDropDownControl(effect, frameRate) {
+    function exportDropDownControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.dropDownControl;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportLayerIndexControl(effect, frameRate) {
+    function exportLayerIndexControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.layerIndex;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
-    function exportMaskIndexControl(effect, frameRate) {
+    function exportMaskIndexControl(effect, frameRate, stretch) {
         var ob = {};
         ob.ty = effectTypes.layerIndex;
         ob.nm = effect.name;
         ob.mn = effect.matchName;
         ob.ix = effect.propertyIndex;
-        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate);
+        ob.v = bm_keyframeHelper.exportKeyframes(effect, frameRate, stretch);
         return ob;
     }
     
@@ -200,10 +225,12 @@ var bm_effectsHelper = (function () {
         }
     }
     
-    function exportCustomEffect(elem,effectType, frameRate) {
+    function exportCustomEffect(elem,effectType, frameRate, stretch) {
         var ob = {};
         ob.ty = effectType;
         ob.nm = elem.name;
+        // Apparently numProperties returns 1 less value than the one used on expressions.
+        ob.np = elem.numProperties + 1;
         ob.mn = elem.matchName;
         ob.ix = elem.propertyIndex;
         ob.en = elem.enabled === true ? 1 : 0;
@@ -211,31 +238,41 @@ var bm_effectsHelper = (function () {
         var i, len = elem.numProperties, prop;
         for (i = 0; i < len; i += 1) {
             prop = elem.property(i + 1);
-            if(prop.propertyType === PropertyType.PROPERTY){
+            if(prop.matchName === "ADBE FreePin3 ARAP Group" 
+                || prop.matchName === "ADBE FreePin3 Mesh Group" 
+                || prop.matchName === "ADBE FreePin3 Mesh Atom" 
+                || prop.matchName === "ADBE FreePin3 PosPins" 
+                || prop.matchName === "ADBE FreePin3 StarchPins" 
+                || prop.matchName === "ADBE FreePin3 HghtPins" 
+                || prop.matchName === "ADBE FreePin3 PosPin Atom") {
+                ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+            } else if(prop.propertyType === PropertyType.PROPERTY){
                 var type = findEffectPropertyType(prop);
                 //effectTypes.noValue;
                 if (type === effectTypes.noValue) {
-                    ob.ef.push(exportNoValueControl(prop, frameRate));
+                    ob.ef.push(exportNoValueControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.sliderControl) {
-                    ob.ef.push(exportSliderControl(prop, frameRate));
+                    ob.ef.push(exportSliderControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.colorControl) {
-                    ob.ef.push(exportColorControl(prop, frameRate));
+                    ob.ef.push(exportColorControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.dropDownControl) {
-                    ob.ef.push(exportDropDownControl(prop, frameRate));
+                    ob.ef.push(exportDropDownControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.dropDownControl) {
-                    ob.ef.push(exportDropDownControl(prop, frameRate));
+                    ob.ef.push(exportDropDownControl(prop, frameRate, stretch));
                 } else if(type === effectTypes.customValue) {
-                    ob.ef.push(exportCustomControl(prop, frameRate));
+                    ob.ef.push(exportCustomControl(prop, frameRate, stretch));
                 }  else if(type === effectTypes.layerIndex) {
-                    ob.ef.push(exportLayerIndexControl(prop, frameRate));
+                    ob.ef.push(exportLayerIndexControl(prop, frameRate, stretch));
                 }  else if(type === effectTypes.maskIndex) {
-                    ob.ef.push(exportMaskIndexControl(prop, frameRate));
+                    ob.ef.push(exportMaskIndexControl(prop, frameRate, stretch));
                 } else {
-                    ob.ef.push(exportPointControl(prop, frameRate));
+                    ob.ef.push(exportPointControl(prop, frameRate, stretch));
                 }
             } else {
                 if(prop.name !== 'Compositing Options' && prop.matchName !== 'ADBE Effect Built In Params' && prop.propertyType !== PropertyType.NAMED_GROUP) {
-                    ob.ef.push(exportCustomEffect(prop, frameRate));
+                    ob.ef.push(exportCustomEffect(prop, frameRate, stretch));
+                } else {
+                    bm_eventDispatcher.log(prop.matchName)
                 }
             }
         }
@@ -246,6 +283,7 @@ var bm_effectsHelper = (function () {
         //bm_eventDispatcher.log('PropertyType.PROPERTY' + PropertyType.PROPERTY);
         //bm_eventDispatcher.log('PropertyType.INDEXED_GROUP' + PropertyType.INDEXED_GROUP);
         //bm_eventDispatcher.log('PropertyType.NAMED_GROUP' + PropertyType.NAMED_GROUP);
+        var stretch = layerData.sr;
         if (!(layerInfo.effect && layerInfo.effect.numProperties > 0)) {
             return;
         }
@@ -255,14 +293,16 @@ var bm_effectsHelper = (function () {
         var effectsArray = [];
         for (i = 0; i < len; i += 1) {
             effectElement = effects(i + 1);
-            var effectType = getEffectType(effectElement.matchName);
-            /*
-            //If the effect is not a Slider Control and is not enabled, it won't be exported.
-            if(effectType !== effectTypes.group && !effectElement.enabled){
-                continue;
+            if(effectElement.enabled) {
+                var effectType = getEffectType(effectElement.matchName);
+                /*
+                //If the effect is not a Slider Control and is not enabled, it won't be exported.
+                if(effectType !== effectTypes.group && !effectElement.enabled){
+                    continue;
+                }
+                */
+                effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate, stretch));
             }
-            */
-            effectsArray.push(exportCustomEffect(effectElement ,effectType, frameRate));
         }
         if (effectsArray.length) {
             layerData.ef = effectsArray;

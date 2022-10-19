@@ -1,4 +1,4 @@
-var bm_XMPHelper = (function(){
+$.__bodymovin.bm_XMPHelper = (function(){
     var ob = {};
     ob.init = init;
     ob.created = true;

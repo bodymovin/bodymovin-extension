@@ -1,7 +1,8 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global bm_eventDispatcher, bm_generalUtils, bm_keyframeHelper*/
-var bm_layerStylesHelper = (function () {
+/*global bm_keyframeHelper*/
+$.__bodymovin.bm_layerStylesHelper = (function () {
     'use strict';
+    var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
     var ob = {};
     var layerStyleTypes = {
         stroke: 0
@@ -16,12 +17,12 @@ var bm_layerStylesHelper = (function () {
         }
     }
     
-    function exportStroke(style, frameRate) {
+    function exportStroke(style, frameRate, stretch) {
         var ob = {};
         ob.ty = layerStyleTypes.stroke;
         ob.nm = style.name;
-        ob.c = bm_keyframeHelper.exportKeyframes(style.property('frameFX/color'), frameRate);
-        ob.s = bm_keyframeHelper.exportKeyframes(style.property('frameFX/size'), frameRate);
+        ob.c = bm_keyframeHelper.exportKeyframes(style.property('frameFX/color'), frameRate, stretch);
+        ob.s = bm_keyframeHelper.exportKeyframes(style.property('frameFX/size'), frameRate, stretch);
         return ob;
     }
     
@@ -29,6 +30,7 @@ var bm_layerStylesHelper = (function () {
         if (!(layerInfo.property('Layer Styles') && layerInfo.property('Layer Styles').numProperties > 0)) {
             return;
         }
+        var stretch = layerData.sr;
         var styles = layerInfo.property('Layer Styles');
         var i, len = styles.numProperties, styleElement;
         var stylesArray = [];
@@ -38,7 +40,7 @@ var bm_layerStylesHelper = (function () {
                 var styleType = getStyleType(styleElement.matchName);
                 switch (styleType) {
                 case layerStyleTypes.stroke:
-                    stylesArray.push(exportStroke(styleElement, frameRate));
+                    stylesArray.push(exportStroke(styleElement, frameRate, stretch));
                     break;
                 }
             }

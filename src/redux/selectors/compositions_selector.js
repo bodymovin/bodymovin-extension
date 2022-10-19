@@ -1,14 +1,16 @@
 import { createSelector } from 'reselect'
 
 const getFilter = (state) => state.compositions.filter
+const getSelected = (state) => state.compositions.show_only_selected
 const getItems = (state) => state.compositions.items
 const getList = (state) => state.compositions.list
 
-function getVisibleItems(items, list, filter) {
+function getVisibleItems(items, list, filter, showOnlySelected) {
+  filter = filter.toLowerCase();
 	let renderItemIds = list.filter((id, val) => {
       let item = items[id]
       //return true
-  		return item.name.indexOf(filter) !== -1 || filter === ''
+  		return item.name.toLowerCase().indexOf(filter) !== -1 || filter === ''
   	})
   	let renderItems = renderItemIds.map((id) => {
       let item = items[id]
@@ -18,7 +20,7 @@ function getVisibleItems(items, list, filter) {
         hidden: !(item.name.indexOf(filter) !== -1 || filter === '')
       }*/
       return item
-    })
+    }).filter((item) => (!showOnlySelected || (showOnlySelected && item.selected)))
     return renderItems
 }
 
@@ -31,12 +33,13 @@ function checkRenderable(items, list) {
 }
 
 const getCompositionsList = createSelector(
-  [ getFilter, getItems, getList ],
-  (filter, items, list) => {
+  [ getFilter, getItems, getList, getSelected ],
+  (filter, items, list, showOnlySelected) => {
   	return {
 		canRender: checkRenderable(items, list),
 		filter: filter,
-		visibleItems: getVisibleItems(items, list, filter) 
+    showOnlySelected: showOnlySelected,
+		visibleItems: getVisibleItems(items, list, filter, showOnlySelected) 
   	}
   }
 )

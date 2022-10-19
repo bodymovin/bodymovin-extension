@@ -1,5 +1,6 @@
-var bm_ProjectHelper = (function(){
+$.__bodymovin.bm_ProjectHelper = (function(){
 
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
     var fileString = '';
 
     var ob = {};
@@ -18,9 +19,14 @@ var bm_ProjectHelper = (function(){
     function getProjectData(){
         var proj = app.project;
         var ff = proj.file;
-        var demoFile = new File(ff.absoluteURI);
-        demoFile.open('r', 'TEXT', '????');
-        fileString = demoFile.read(demoFile.length);
+        if(!ff) {
+            fileString = '<no file>';
+        } else {
+            var demoFile = new File(ff.absoluteURI);
+            demoFile.open('r', 'TEXT', '????');
+            //demoFile.encoding = 'UTF-8';
+            fileString = demoFile.read(demoFile.length);
+        }
     }
 
     function getGradientData(shapeNavigation, numKeys){
@@ -35,7 +41,8 @@ var bm_ProjectHelper = (function(){
         var gradientIndex = 0, navigationIndex = 0;
         var i = 0, len = shapeNavigation.length;
         while(i<len){
-            navigationIndex = fileString.indexOf(shapeNavigation[i],navigationIndex);
+            var encoded = unescape(encodeURIComponent(shapeNavigation[i]))
+            navigationIndex = fileString.indexOf(encoded,navigationIndex);
             i += 1;
         }
         gradientIndex = fileString.indexOf('ADBE Vector Grad Colors',navigationIndex);

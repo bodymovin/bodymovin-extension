@@ -1,8 +1,11 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global app, bm_eventDispatcher */
 
-var bm_projectManager = (function () {
+$.__bodymovin.bm_projectManager = (function () {
     'use strict';
+    var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
+    var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+    var bm_XMPHelper = $.__bodymovin.bm_XMPHelper;
     var commands = {};
     var projectId = '';
     var project;

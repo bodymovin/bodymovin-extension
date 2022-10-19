@@ -206,4 +206,4 @@ function bezFunction(){
     };
 }
 
-var bez = bezFunction();
+$.__bodymovin.bez = bezFunction();

@@ -4,9 +4,42 @@ let initialState = {
 	list: [],
   filter: '',
   items:{},
-  current: 0
+  current: 0,
+  show_only_selected: false
 }
 let extensionReplacer = /\.\w*$/g
+
+let defaultComposition = {
+    id: 0,
+    name: '',
+    destination: '',
+    absoluteURI: '',
+    selected: false,
+    renderStatus: 0,
+    settings: {
+        segmented: false,
+        segmentedTime: 10,
+        standalone: false,
+        demo: false,
+        avd: false,
+        glyphs: false,
+        hiddens: false,
+        original_names: false,
+        should_encode_images: false,
+        should_compress: false,
+        should_skip_images: false,
+        compression_rate: 80,
+        extraComps: {
+            active: false,
+            list:[]
+        },
+        guideds: false,
+        ignore_expression_properties: false,
+        export_old_format: false,
+        skip_default_properties: false,
+        not_supported_properties: false,
+    }
+  }
 
 function updateFilter(state, action) {
 	let newState = {...state}
@@ -25,32 +58,18 @@ function toggleComposition(state, action) {
 }
 
 function createComp(comp) {
-  return {
-    id: comp.id,
-    name: comp.name,
-    destination: '',
-    absoluteURI: '',
-    selected: false,
-    renderStatus: 0,
-    settings: {
-        segmented: false,
-        segmentTime: 10,
-        standalone: false,
-        demo: false,
-        glyphs: true,
-        hiddens: false,
-        original_names: false,
-        extraComps: {
-            active: false,
-            list:[]
-        },
-        guideds: false
-    }
-  }
+  return {...defaultComposition, id:comp.id, name: comp.name, settings: {...defaultComposition.settings}}
 }
 
 function setStoredData(state, action) {
   let compositions = action.projectData.compositions
+  var item
+  for(var comp in compositions) {
+    if(compositions.hasOwnProperty(comp)){
+      item = compositions[comp]
+      compositions[comp] = {...item, settings:{...defaultComposition.settings, ...item.settings}}
+    }
+  }
   let newState = {...state}
   newState.items = compositions
   return newState
@@ -250,8 +269,8 @@ function cancelSettings(state, action) {
     newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
     newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
   } else {
-    newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
-    newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+    newItem.destination = newItem.destination.replace(extensionReplacer,'.tgs')
+    newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.tgs')
   }
   newItems[state.current] = newItem
   newState.items = newItems
@@ -273,8 +292,8 @@ function toggleSettingsValue(state, action) {
           newItem.destination = newItem.destination.replace(extensionReplacer,'.js')
           newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.js')
         } else {
-          newItem.destination = newItem.destination.replace(extensionReplacer,'.json')
-          newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.json')
+          newItem.destination = newItem.destination.replace(extensionReplacer,'.tgs')
+          newItem.absoluteURI = newItem.absoluteURI.replace(extensionReplacer,'.tgs')
         }
       }
     }
@@ -324,6 +343,12 @@ function updateSettingsValue(state, action) {
 
 }
 
+function toggleSelected(state, action) {
+  let newState = {...state}
+  newState.show_only_selected = !newState.show_only_selected
+  return newState
+}
+
 export default function compositions(state = initialState, action) {
   switch (action.type) {
     case actionTypes.COMPOSITIONS_UPDATED:
@@ -351,6 +376,8 @@ export default function compositions(state = initialState, action) {
       return toggleExtraComp(state, action)
     case actionTypes.SETTINGS_UPDATE_VALUE:
       return updateSettingsValue(state, action)
+    case actionTypes.SETTINGS_TOGGLE_SELECTED:
+      return toggleSelected(state, action)
     default:
       return state
   }

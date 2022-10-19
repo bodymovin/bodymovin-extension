@@ -1,230 +1,19 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global $, bm_eventDispatcher, esprima, escodegen*/
+/*global $, esprima, escodegen*/
 
-var bm_expressionHelper = (function () {
+$.__bodymovin.bm_expressionHelper = (function () {
     'use strict';
+    var esprima = $.__bodymovin.esprima;
+    var variableDeclaration_helper = $.__bodymovin.bm_variableDeclarationHelper;
+    var valueAssignment_helper = $.__bodymovin.bm_valueAssignmentHelper;
+    var reservedProperties_helper = $.__bodymovin.bm_reserverPropertiesHelper;
     var ob = {};
     var options = {
         tokens: true,
         range: true
     };
     var expressionStr;
-    var pendingBodies = [], doneBodies = [];
-    function spliceSlice(str, index, count, add) {
-        return str.slice(0, index) + (add || "") + str.slice(index + count);
-    }
-
-    function addReturnStatement(expression) {
-        var parsed = esprima.parse(expression, options);
-        var body = parsed.body;
-        var lastRange = body[body.length - 1].range;
-        return spliceSlice(expression, lastRange[0], 0, 'var $bm_rt = ');
-    }
-
-    function includeUndeclaredVariables() {
-        doneBodies.sort(function (a, b) {
-            return parseInt(b.p, 10) - parseInt(a.p, 10);
-        });
-        var i, len = doneBodies.length;
-        var declarationStr = '';
-        for (i = 0; i < len; i += 1) {
-            if (doneBodies[i].u.length) {
-                declarationStr = 'var ' + doneBodies[i].u.join(',') + ';';
-                expressionStr = spliceSlice(expressionStr, doneBodies[i].p, 0, declarationStr);
-            }
-        }
-    }
-
-    function exportNextBody() {
-        if (pendingBodies.length === 0) {
-            includeUndeclaredVariables();
-        } else {
-            var next = pendingBodies.shift();
-            var preDeclared = [];
-            preDeclared = preDeclared.concat(next.pre);
-            preDeclared = preDeclared.concat(next.d);
-            preDeclared = preDeclared.concat(next.u);
-            findUndeclaredVariables(next.body, next.pos, preDeclared);
-        }
-    }
-
-    function findUndeclaredVariables(body, pos, predeclared, declared, undeclared, isContinuation) {
-
-        function addAssignment(expression) {
-            var variableName;
-            if (expression.left && expression.left.name) {
-                variableName = expression.left.name;
-                if(variableName === 'value'){
-                    return;
-                }
-                var i = 0, len = declared.length;
-                while (i < len) {
-                    if (declared[i] === variableName) {
-                        return;
-                    }
-                    i += 1;
-                }
-                i = 0;
-                len = declared.length;
-                while (i < len) {
-                    if (undeclared[i] === variableName) {
-                        return;
-                    }
-                    i += 1;
-                }
-                undeclared.push(variableName);
-            }
-        }
-
-        function addSequenceExpressions(expressions) {
-            var i, len = expressions.length;
-            for (i = 0; i < len; i += 1) {
-                if (expressions[i].type === 'AssignmentExpression') {
-                    addAssignment(expressions[i]);
-                }
-            }
-        }
-
-        function addDeclaredVariable(variableName) {
-            var i = 0, len = declared.length;
-            while (i < len) {
-                if (declared[i] === variableName) {
-                    return;
-                }
-                i += 1;
-            }
-            declared.push(variableName);
-        }
-
-        function addIfStatement(statement){
-            if(statement.consequent){
-                if (statement.consequent.type === 'BlockStatement') {
-                    findUndeclaredVariables(statement.consequent.body, 0, null, declared, undeclared, true);
-                } else if (statement.consequent.type === 'ExpressionStatement') {
-                    expression = statement.consequent.expression;
-                    if (expression.type === 'AssignmentExpression') {
-                        addAssignment(expression);
-                    } else if (expression.type === 'SequenceExpression') {
-                        addSequenceExpressions(expression.expressions);
-                    }
-                } else if (statement.consequent.type === 'ReturnStatement') {
-                    //
-                }
-            }
-            if (statement.alternate) {
-                if (statement.alternate.type === 'IfStatement') {
-                    addIfStatement(statement.alternate)
-                } else if (statement.alternate.type === 'BlockStatement') {
-                    findUndeclaredVariables(statement.alternate.body, 0, null, declared, undeclared, true);
-                } else if (statement.alternate.type === 'ExpressionStatement') {
-                    expression = statement.alternate.expression;
-                    if (expression.type === 'AssignmentExpression') {
-                        addAssignment(expression);
-                    } else if (expression.type === 'SequenceExpression') {
-                        addSequenceExpressions(expression.expressions);
-                    }
-                }
-            }
-        }
-
-        function addTryStatement(statement){
-            if (statement.block) {
-                if (statement.block.type === 'BlockStatement') {
-                    findUndeclaredVariables(statement.block.body, 0, null, declared, undeclared, true);
-                }
-            }
-            if (statement.handler) {
-                if (statement.handler.body.type === 'BlockStatement') {
-                    findUndeclaredVariables(statement.handler.body.body, 0, null, declared, undeclared, true);
-                }
-            }
-        }
-
-        if (!declared) {
-            declared = [];
-        }
-        if (!undeclared) {
-            undeclared = [];
-        }
-        var i, len;
-        if (predeclared) {
-            len = predeclared.length;
-            for (i = 0; i < len; i += 1) {
-                declared.push(predeclared[i]);
-            }
-        }
-        len = body.length;
-        var j, jLen, expression, declarations;
-        for (i = 0; i < len; i += 1) {
-            if (body[i].type === 'VariableDeclaration') {
-                declarations = body[i].declarations;
-                jLen = declarations.length;
-                for (j = 0; j < jLen; j += 1) {
-                    if (declarations[j].type === 'VariableDeclarator') {
-                        if (declarations[j].id && declarations[j].id.name) {
-                            addDeclaredVariable(declarations[j].id.name);
-                        }
-                    }
-                }
-            } else if (body[i].type === 'ExpressionStatement') {
-                expression = body[i].expression;
-                if (expression.type === 'AssignmentExpression') {
-                    addAssignment(expression);
-                } else if (expression.type === 'SequenceExpression') {
-                    addSequenceExpressions(expression.expressions);
-                }
-                //
-            } else if (body[i].type === 'ForStatement') {
-                if (body[i].init) {
-                    if (body[i].init.type === 'SequenceExpression') {
-                        addSequenceExpressions(body[i].init.expressions);
-                    } else if (body[i].init.type === 'AssignmentExpression') {
-                        addAssignment(body[i].init);
-                    }
-                }
-                if (body[i].body) {
-                    if (body[i].body.type === 'BlockStatement') {
-                        findUndeclaredVariables(body[i].body.body, 0, null, declared, undeclared, true);
-                    } else if (body[i].body.type === 'ExpressionStatement') {
-                        expression = body[i].body.expression;
-                        if (expression.type === 'AssignmentExpression') {
-                            addAssignment(expression);
-                        } else if (expression.type === 'SequenceExpression') {
-                            addSequenceExpressions(expression.expressions);
-                        }
-                        //addAssignment(body[i].body);
-                    }
-                }
-            } else if (body[i].type === 'IfStatement') {
-                addIfStatement(body[i]);
-            } else if (body[i].type === 'TryStatement') {
-                addTryStatement(body[i]);
-            } else if (body[i].type === 'FunctionDeclaration') {
-                if (body[i].body && body[i].body.type === 'BlockStatement') {
-                    var p = [];
-                    if (body[i].params) {
-                        jLen = body[i].params.length;
-                        for (j = 0; j < jLen; j += 1) {
-                            p.push(body[i].params[j].name);
-                        }
-                    }
-                    pendingBodies.push({body: body[i].body.body, d: declared, u: undeclared, pre: p, pos: body[i].body.range[0] + 1});
-                }
-            }
-        }
-        if (!isContinuation) {
-            doneBodies.push({u: undeclared, p: pos});
-            exportNextBody();
-        }
-    }
-
-    function searchUndeclaredVariables() {
-        var parsed = esprima.parse(expressionStr, options);
-        var body = parsed.body;
-        pendingBodies.push({body: body, d: [], u: [], pre: [], pos: 0});
-        exportNextBody();
-    }
-
+    var separate_functions = {bodies:[],names:[]};
 
     function searchOperations(body) {
         var i, len = body.length;
@@ -248,8 +37,6 @@ var bm_expressionHelper = (function () {
             } else if (body[i].type === 'SwitchStatement') {
                 handleSwitchStatement(body[i]);
             } else {
-                //bm_eventDispatcher.log(body[i].type);
-                //bm_eventDispatcher.log(body[i]);
             }
         }
     }
@@ -272,7 +59,6 @@ var bm_expressionHelper = (function () {
             case "UpdateExpression":
                 return element;
             default:
-                //bm_eventDispatcher.log('es: ', element);
                 return element;
         }
     }
@@ -280,13 +66,15 @@ var bm_expressionHelper = (function () {
     function getOperatorName(operator) {
         switch (operator) {
             case '+':
-                return 'sum';
+                return '$bm_sum';
             case '-':
-                return 'sub';
+                return '$bm_sub';
             case '*':
-                return 'mul';
+                return '$bm_mul';
             case '/':
-                return 'div';
+                return '$bm_div';
+            case '%':
+                return '$bm_mod';
 
         }
     }
@@ -297,6 +85,7 @@ var bm_expressionHelper = (function () {
             case '-':
             case '*':
             case '/':
+            case '%':
                 return true;
         }
         return false;
@@ -306,20 +95,39 @@ var bm_expressionHelper = (function () {
         if (expression.left.type === 'Literal' && expression.right.type === 'Literal') {
             return expression;
         }
-        if(!isOperatorTransformable(expression.operator)){
-            return expression;
-        }
-        var callStatementOb = {
-            'arguments': [
-                getBinaryElement(expression.left),
-                getBinaryElement(expression.right)
-            ],
-            type: "CallExpression",
-            callee: {
-                name: getOperatorName(expression.operator),
-                type: 'Identifier'
+        var callStatementOb;
+        if(expression.operator === 'instanceof' && expression.right.type === 'Identifier' && expression.right.name === 'Array') {
+            callStatementOb = {
+                'arguments': [
+                    getBinaryElement(expression.left)
+                ],
+                type: "CallExpression",
+                callee: {
+                    name: '$bm_isInstanceOfArray',
+                    type: 'Identifier'
+                }
+            };
+        } else if(!isOperatorTransformable(expression.operator)){
+            if(expression.left.type === 'BinaryExpression') {
+                expression.left = getBinaryElement(expression.left);
             }
-        };
+            if(expression.right.type === 'BinaryExpression') {
+                expression.right = getBinaryElement(expression.right);
+            }
+            callStatementOb = expression;
+        } else {
+            callStatementOb = {
+                'arguments': [
+                    getBinaryElement(expression.left),
+                    getBinaryElement(expression.right)
+                ],
+                type: "CallExpression",
+                callee: {
+                    name: getOperatorName(expression.operator),
+                    type: 'Identifier'
+                }
+            };
+        }
         return callStatementOb;
     }
 
@@ -361,18 +169,7 @@ var bm_expressionHelper = (function () {
 
     function handleCallExpression(expression) {
         var args = expression['arguments'];
-        var i, len = args.length;
-        for (i = 0; i < len; i += 1) {
-            if (args[i].type === 'BinaryExpression') {
-                args[i] = convertBinaryExpression(args[i]);
-            } else if (args[i].type === 'UnaryExpression') {
-                args[i] = convertUnaryExpression(args[i]);
-            } else  if (args[i].type === 'CallExpression') {
-                handleCallExpression(args[i]);
-            } else  if (args[i].type === 'MemberExpression') {
-                handleMemberExpression(args[i]);
-            }
-        }
+        handleSequenceExpressions(args);
         if(expression.callee.name === 'eval'){
             var wrappingNode = {
                 type: 'MemberExpression',
@@ -391,10 +188,41 @@ var bm_expressionHelper = (function () {
                 }
             }
             args[0] = wrappingNode
+        } else if (expression.callee.type === 'FunctionExpression') {
+            handleFunctionDeclaration(expression.callee);
+        } else {
+            replaceCalledExpressionIdentifier(expression);
+        }
+    }
+
+    function findFunctionNameInFunctions(name) {
+        var names = separate_functions.names;
+        var _index = -1;
+        var i = names.length - 1;
+        while(i >= 0) {
+            if(names[i] === name) {
+                _index = i;
+                break;
+            }
+            i -= 1;
+        }
+        return _index;
+    }
+
+    function replaceCalledExpressionIdentifier(expression) {
+        var index = findFunctionNameInFunctions(expression.callee.name);
+        if(index !== -1) {
+            expression.callee.type = 'MemberExpression';
+            expression.callee.computed = true;
+            expression.callee.object = {type:'Identifier', name: '__expression_functions'};
+            expression.callee.property = {type:'Literal', raw: index.toString(), value: index}
         }
     }
 
     function handleIfStatement(ifStatement) {
+        if(ifStatement.test.type === 'BinaryExpression') {
+            ifStatement.test = convertBinaryExpression(ifStatement.test);
+        }
         if (ifStatement.consequent) {
             if (ifStatement.consequent.type === 'BlockStatement') {
                 searchOperations(ifStatement.consequent.body);
@@ -485,7 +313,22 @@ var bm_expressionHelper = (function () {
         }
     }
 
+    function convertAssignmentToBinaryExpression(assignmentExpression) {
+        var function_arguments = [];
+        function_arguments.push(assignmentExpression.left);
+        function_arguments.push(assignmentExpression.right)
+        assignmentExpression.right = {
+            type: 'CallExpression',
+            arguments: function_arguments,
+            callee: {name:getOperatorName(assignmentExpression.operator.substr(0,1)), type:'Identifier'}
+        }
+        assignmentExpression.operator = '=';
+    }
+
     function handleAssignmentExpression(assignmentExpression) {
+        if(assignmentExpression.operator === '+=' || assignmentExpression.operator === '-=') {
+            convertAssignmentToBinaryExpression(assignmentExpression)
+        }
         if(assignmentExpression.right){
             if(assignmentExpression.right.type === 'BinaryExpression') {
                 assignmentExpression.right = convertBinaryExpression(assignmentExpression.right);
@@ -495,16 +338,25 @@ var bm_expressionHelper = (function () {
                 handleCallExpression(assignmentExpression.right);
             } else  if (assignmentExpression.right.type=== 'MemberExpression') {
                 handleMemberExpression(assignmentExpression.right);
+            } else  if (assignmentExpression.right.type=== 'ConditionalExpression') {
+                handleConditionalExpression(assignmentExpression.right);
             }
         }
     }
 
     function handleConditionalExpression(conditionalExpression) {
+        if(conditionalExpression.test.type === 'BinaryExpression') {
+            conditionalExpression.test = convertBinaryExpression(conditionalExpression.test);
+        }
         if(conditionalExpression.consequent){
             if (conditionalExpression.consequent.type=== 'AssignmentExpression') {
                 handleAssignmentExpression(conditionalExpression.consequent);
             } else if (conditionalExpression.consequent.type=== 'BinaryExpression') {
                 conditionalExpression.consequent = convertBinaryExpression(conditionalExpression.consequent);
+            } else if (conditionalExpression.consequent.type=== 'SequenceExpression') {
+                handleSequenceExpressions(conditionalExpression.consequent.expressions);
+            } else if (conditionalExpression.consequent.type=== 'CallExpression') {
+                handleCallExpression(conditionalExpression.consequent);
             }
         }
         if(conditionalExpression.alternate){
@@ -512,6 +364,31 @@ var bm_expressionHelper = (function () {
                 handleAssignmentExpression(conditionalExpression.alternate);
             } else if (conditionalExpression.alternate.type=== 'BinaryExpression') {
                 conditionalExpression.alternate = convertBinaryExpression(conditionalExpression.alternate);
+            } else if (conditionalExpression.alternate.type=== 'SequenceExpression') {
+                handleSequenceExpressions(conditionalExpression.alternate.expressions);
+            } else if (conditionalExpression.alternate.type=== 'CallExpression') {
+                handleCallExpression(conditionalExpression.alternate);
+            }
+        }
+    }
+
+    function handleSequenceExpressions(expressions) {
+        var i, len = expressions.length;
+        for (i = 0; i < len; i += 1) {
+            if (expressions[i].type === 'CallExpression') {
+                handleCallExpression(expressions[i]);
+            } else if (expressions[i].type === 'BinaryExpression') {
+                expressions[i] = convertBinaryExpression(expressions[i]);
+            } else if (expressions[i].type === 'UnaryExpression') {
+                expressions[i] = convertUnaryExpression(expressions[i]);
+            } else if (expressions[i].type === 'AssignmentExpression') {
+                handleAssignmentExpression(expressions[i]);
+            } else if (expressions[i].type === 'ConditionalExpression') {
+                handleConditionalExpression(expressions[i]);
+            } else if (expressions[i].type === 'MemberExpression') {
+                handleMemberExpression(expressions[i]);
+            } else  if (expressions[i].type === 'ArrayExpression') {
+                handleSequenceExpressions(expressions[i].elements);
             }
         }
     }
@@ -527,6 +404,8 @@ var bm_expressionHelper = (function () {
             handleAssignmentExpression(expressionStatement.expression);
         } else if (expressionStatement.expression.type === 'ConditionalExpression') {
             handleConditionalExpression(expressionStatement.expression);
+        } else if (expressionStatement.expression.type === 'SequenceExpression') {
+            handleSequenceExpressions(expressionStatement.expression.expressions);
         }
     }
 
@@ -540,167 +419,124 @@ var bm_expressionHelper = (function () {
         searchOperations(body);
     }
 
-    function createAssignmentObject(){
-        return {
-            type: 'ExpressionStatement',
-            expression: createAssignmentExpressionObject()
-        }
-    }
+    function findExpressionStatementsWithAssignmentExpressions(body) {
 
-    function createAssignmentExpressionObject(){
-        return {
-                left: {
-                    name: '$bm_rt',
-                        type: 'Identifier'
-                },
-                type: "AssignmentExpression",
-                    operator: '='
-            }
-    }
-
-    function convertExpressionStatementToVariableDeclaration(expressionStatement) {
-        var assignmentObject;
-        if(expressionStatement.expression.type === 'Literal'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'Identifier'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'CallExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'ArrayExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'BinaryExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'MemberExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'LogicalExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'UnaryExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'ConditionalExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'AssignmentExpression'){
-            assignmentObject = createAssignmentObject();
-            assignmentObject.expression.right = expressionStatement.expression;
-            return assignmentObject;
-        } else if(expressionStatement.expression.type === 'SequenceExpression'){
-            assignmentObject = createAssignmentExpressionObject();
-            assignmentObject.right = expressionStatement.expression.expressions[expressionStatement.expression.expressions.length - 1];
-            expressionStatement.expression.expressions[expressionStatement.expression.expressions.length - 1] = assignmentObject;
-        }
-        return expressionStatement;
-    }
-
-    function assignVariableToIfStatement(ifStatement){
-        if (ifStatement.consequent) {
-            if (ifStatement.consequent.type === 'BlockStatement') {
-                assignVariable(ifStatement.consequent.body);
-            } else if (ifStatement.consequent.type === 'ExpressionStatement') {
-                ifStatement.consequent = convertExpressionStatementToVariableDeclaration(ifStatement.consequent);
-            }
-        }
-        if (ifStatement.alternate) {
-            if (ifStatement.alternate.type === 'IfStatement') {
-                assignVariableToIfStatement(ifStatement.alternate);
-            } else if (ifStatement.alternate.type === 'BlockStatement') {
-                assignVariable(ifStatement.alternate.body);
-            } else if (ifStatement.alternate.type === 'ExpressionStatement') {
-                ifStatement.alternate = convertExpressionStatementToVariableDeclaration(ifStatement.alternate);
-            }
-        }
-    }
-
-    function assignVariableToSwitchStatement(switchStatement) {
-        var cases = switchStatement.cases;
-        var i, len = cases.length;
-        for (i = 0; i < len; i += 1) {
-            if (cases[i].consequent.length) {
-                assignVariable(cases[i].consequent)
-            }
-        }
-    }
-
-    function assignVariable(body){
-        var len = body.length - 1;
-        var flag = len >= 0 ? true : false;
-        var lastElem;
-        while (flag) {
-            lastElem = body[len];
-            if(lastElem.type === 'IfStatement'){
-                assignVariableToIfStatement(lastElem);
-                body[len] = lastElem;
-                len -= 1;
-            } else if (lastElem.type === 'SwitchStatement') {
-                assignVariableToSwitchStatement(lastElem); 
-                body[len] = lastElem;
-                flag = false;
-            } else if (lastElem.type === 'ExpressionStatement') {
-                lastElem = convertExpressionStatementToVariableDeclaration(lastElem);
-                body[len] = lastElem;
-                flag = false;
-            } else if (lastElem.type === 'TryStatement') {
-                if (lastElem.block) {
-                    if (lastElem.block.type === 'BlockStatement') {
-                        assignVariable(lastElem.block.body);
-                    }
+        var i, len = body.length;
+        var j, jLen;
+        for(i = 0; i < len; i += 1) {
+            if (body[i].type === 'ExpressionStatement') {
+                if(body[i].expression.type === 'CallExpression') {
+                    jLen = body[i].expression.arguments.length;
+                    for (j = 0; j < jLen; j += 1) {
+                        if(body[i].expression.arguments[j].type === 'AssignmentExpression') {
+                            body[i].expression.arguments[j] = body[i].expression.arguments[j].right;
+                        }
+                    } 
                 }
-                if (lastElem.handler) {
-                    if (lastElem.handler.body.type === 'BlockStatement') {
-                        assignVariable(lastElem.handler.body.body);
-                    }
+            } else if (body[i].type === 'FunctionDeclaration') {
+                if (body[i].body && body[i].body.type === 'BlockStatement') {
+                    findExpressionStatementsWithAssignmentExpressions(body[i].body.body);
                 }
-                body[len] = lastElem;
-                flag = false;
-            } else if ((lastElem.type !== 'EmptyStatement' && lastElem.type !== 'FunctionDeclaration' && lastElem.type !== 'BreakStatement') || len === 0) {
-                flag = false;
-            } else {
-                len -= 1;
             }
-            if(len < 0){
-                flag = false;
+        }
+    }
+
+    function expressionIsValue(expression) {
+        if(expression === 'value') {
+            return true;
+        }
+        return false;
+    }
+
+    function expressionIsConstant(expressionTree) {
+        if(expressionTree.body.length === 1  && expressionTree.body[0].type === "ExpressionStatement") {
+            if (expressionTree.body[0].expression) {
+                if(expressionTree.body[0].expression.type === "ArrayExpression") {
+                    var i = 0, len = expressionTree.body[0].expression.elements.length;
+                    while(i < len) {
+                        if(expressionTree.body[0].expression.elements[i].type !== 'Literal') {
+                            return false;
+                        }
+                        i += 1;
+                    }
+                    return true;
+                } else if(expressionTree.body[0].expression.type === "Literal") {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function buildStaticValue(expression, returnOb) {
+        returnOb.a = 0;
+        returnOb.k = eval(expression)
+    }
+
+    function separateBodyDeclaredFunctions(body) {
+        var i, len = body.length;
+        separate_functions.bodies.length = 0;
+        separate_functions.names.length = 0;
+        for(i = 0; i < len; i += 1) {
+            if (body[i].type === 'FunctionDeclaration') {
+                separate_functions.names.push(body[i].id.name);
+                separate_functions.bodies.push(body[i]);
+                body.splice(i,1);
+                i -= 1;
+                len -= 1;
             }
         }
     }
 
     function checkExpression(prop, returnOb) {
         if (prop.expressionEnabled && !prop.expressionError) {
-            pendingBodies.length = 0;
-            doneBodies.length = 0;
+            if(expressionIsValue(prop.expression)) {
+                return;
+            }
             expressionStr = prop.expression;
             expressionStr = correctEaseAndWizz(expressionStr);
             expressionStr = correctKhanyu(expressionStr);
             expressionStr = correctElseToken(expressionStr);
+            expressionStr = fixThrowExpression(expressionStr);
             expressionStr = renameNameProperty(expressionStr);
-            searchUndeclaredVariables();
+
+            expressionStr = variableDeclaration_helper.searchUndeclaredVariables(expressionStr);
             var parsed = esprima.parse(expressionStr, options);
-            var body = parsed.body;
-            if(expressionStr.indexOf("use javascript") !== 1){
-                replaceOperations(body);
+            if(expressionIsConstant(parsed)) {
+                buildStaticValue(expressionStr, returnOb);
+                return;
             }
-            assignVariable(body);
+            var body = parsed.body;
+            // TODO this needs more work. 
+            // Global declared variables are not accessible to functions and should be.
+            // Methods invoked from within an array need to be renamed
+            //separateBodyDeclaredFunctions(body);
+            findExpressionStatementsWithAssignmentExpressions(body);
+            findExpressionStatementsWithAssignmentExpressions(separate_functions.bodies);
+            if(expressionStr.indexOf("use javascript") === -1){
+                replaceOperations(body);
+                replaceOperations(separate_functions.bodies);
+            }
+            
+            //Replacing reserved properties like position, anchorPoint with __transform.position,  __transform.anchorPoint
+            reservedProperties_helper.replaceProperties(body);
+            
+            valueAssignment_helper.assignVariable(body);
+            valueAssignment_helper.assignVariable(separate_functions.bodies);
 
             var escodegen = ob.escodegen;
             expressionStr = escodegen.generate(parsed);
 
             expressionStr = 'var $bm_rt;\n' + expressionStr;
+            var generatedFunctions = [];
+            var i, len = separate_functions.bodies.length;
+            for(i = 0; i < len; i += 1) {
+                generatedFunctions.push(escodegen.generate(separate_functions.bodies[i]));
+            }
             returnOb.x = expressionStr;
+            if(generatedFunctions.length) {
+                returnOb.xf = generatedFunctions;
+            }
         }
     }
 
@@ -730,6 +566,11 @@ var bm_expressionHelper = (function () {
             str = str.replace('key(1)[2];', 'key(1)[2].length;');
         }
         return str;
+    }
+
+    function fixThrowExpression(str){
+        var throwRegex = /(throw (["'])(?:(?=(\\?))\3[\S\s])*?\2)\s*([^;])/g;
+        return str.replace(throwRegex, '$1;\n$4');
     }
 
     ob.checkExpression = checkExpression;
