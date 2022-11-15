@@ -176,6 +176,23 @@ $.__bodymovin.bm_generalUtils = (function () {
         return finalString;
     }
 
+    function cloneObject(ob, shallow) {
+        if (shallow === undefined) {
+            shallow = true;
+        }
+        var clone = {};
+        for (var s in ob) {
+            if (ob.hasOwnProperty(s)) {
+                if(typeof s === 'object' && !shallow) {
+                    clone[s] = cloneObject(ob[s], shallow);
+                } else {
+                    clone[s] = ob[s];
+                }
+            }
+        }
+        return clone;
+    }
+
     ob.random = random;
     ob.roundNumber = roundNumber;
     ob.setTimeout = setTimeout;
@@ -186,6 +203,7 @@ $.__bodymovin.bm_generalUtils = (function () {
     ob.findAttributes = findAttributes;
     ob.extendPrototype = extendPrototype;
     ob.sanitizeName = sanitizeName;
+    ob.cloneObject = cloneObject;
     
     return ob;
     

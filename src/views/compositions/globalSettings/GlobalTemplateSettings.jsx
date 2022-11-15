@@ -2,6 +2,7 @@ import React from 'react'
 import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import BaseButton from '../../../components/buttons/Base_button'
+import BaseLink from '../../../components/buttons/Base_Link'
 import Variables from '../../../helpers/styles/variables'
 import selector from '../../../redux/selectors/global_settings_template_selector'
 import {
@@ -13,17 +14,18 @@ import {
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    height: '100%',
     padding: '10px',
+    border: `1px solid ${Variables.colors.gray_lighter}`,
   },
   header: {
     width: '100%',
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     color: 'green',
-    fontSize: '14px',
+    fontSize: '16px',
   },
   content: {
     width: '100%',
@@ -64,7 +66,7 @@ class GlobalTemplateSettings extends React.Component {
     return (
       <div className={css(styles.wrapper)}>
         <div className={css(styles.header)}>
-          <div className={css(styles.headerTitle)}>Template</div>
+          <div className={css(styles.headerTitle)}>Templates</div>
           <BaseButton
               text='Add Template'
               type='gray'
@@ -80,11 +82,12 @@ class GlobalTemplateSettings extends React.Component {
                 <li  className={css(styles.templatesListItem)} key={template.value}>
                   <div className={css(styles.templatesListItemContainer)} >
                     <div>{template.text}</div>
-                    <BaseButton
+                    <BaseLink
                         text='Delete'
-                        type='gray'
-                        classes={styles.button}
+                        type='green'
+                        classes={styles.right}
                         onClick={() => this.props.onTemplateDelete(template.value)}
+                        selected={false}
                     />
                   </div>
                 </li>

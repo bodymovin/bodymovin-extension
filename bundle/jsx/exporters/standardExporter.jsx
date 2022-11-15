@@ -91,20 +91,26 @@ $.__bodymovin.bm_standardExporter = (function () {
 					time: config.segmentedTime,
 				});
 				
-			} else if (true) {
-				var temporaryFolder = bm_fileManager.getTemporaryFolder();
-				var originFolder = new Folder(temporaryFolder.fsName);
-				var destinationFolder = new Folder(temporaryFolder.fsName);
-				destinationFolder.changePath('standard');
-				originFolder.changePath('raw');
-				bm_eventDispatcher.sendEvent('bm:create:slots', 
-				{
-					origin: originFolder.fsName, 
-					fileName: _destinationData.fileName,
-					destination: destinationFolder.fsName,
-					prettyPrint: settingsHelper.shouldPrettyPrint(),
-				});
-			} else {
+			} 
+			
+			/*
+			Not converting props for now
+				else if (true) {
+					var temporaryFolder = bm_fileManager.getTemporaryFolder();
+					var originFolder = new Folder(temporaryFolder.fsName);
+					var destinationFolder = new Folder(temporaryFolder.fsName);
+					destinationFolder.changePath('standard');
+					originFolder.changePath('raw');
+					bm_eventDispatcher.sendEvent('bm:create:slots', 
+					{
+						origin: originFolder.fsName, 
+						fileName: _destinationData.fileName,
+						destination: destinationFolder.fsName,
+						prettyPrint: settingsHelper.shouldPrettyPrint(),
+					});
+				}
+			*/
+			else {
 				moveAssetsToDestination();
 			}
 

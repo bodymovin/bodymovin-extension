@@ -27,6 +27,7 @@ const storingDataSelector = createSelector(
 					shouldSaveInProjectFile: compositionState.shouldSaveInProjectFile,
 					shouldSkipDoneView: compositionState.shouldSkipDoneView,
 					shouldReuseFontData: compositionState.shouldReuseFontData,
+					templates: compositionState.templates,
   			},
         reports: {
           renderers: reports.settings.renderers,

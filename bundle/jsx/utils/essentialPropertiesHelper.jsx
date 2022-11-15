@@ -7,7 +7,8 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   var bm_generalUtils = $.__bodymovin.bm_generalUtils;
   var keyframeHelper;
 
-  var properties = [];
+  var rootProperties = [];
+  var exportedProps = {};
   var counter = 0;
 
   var propType = {
@@ -15,6 +16,7 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
     Point: 2,
     Scale: 3,
     Float: 4,
+    Asset: 50,
     Undefined: 99,
   }
 
@@ -100,41 +102,43 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
     'ADBE Text Scale 3D': propType.Scale,
     'ADBE Vector Scale': propType.Scale,
   }
-
-  function iterateProperty(parent, frameRate) {
-    var totalProperties = parent.numProperties;
-      for (var i = 0; i < totalProperties; i += 1) {
-        var property = parent.property(i + 1);
-        var propData = {
-          property: property,
-          // id: 'prop_' + counter++,
-          id: property.name,
-        }
-        // TODO: check if there is a better way to identify type
-        if (property.matchName === 'ADBE Layer Source Alternate') {
-          // It's a layer source
-          propData.type = 'source';
-        } else if (property.matchName === 'ADBE Layer Overrides Group') {
-          // bm_eventDispatcher.log('=== ITERATE ===')
-          iterateProperty(property, frameRate);
-        } else {
-          // It's a property
-          // bm_generalUtils.iterateProperty(property)
-          // bm_generalUtils.iterateOwnProperties(property)
-          propData.type = 'property';
-          if (propData.id.substr(0, 1) === '#') {
-            bm_eventDispatcher.log('=== EXPORT SOURCE ===')
-            propData.val = keyframeHelper.exportKeyframes(property.essentialPropertySource, frameRate, 1);
-          } else {
-            bm_eventDispatcher.log('=== EXPORT PROPERTY ===')
-            propData.val = keyframeHelper.exportKeyframes(property, frameRate, 1);
-          }
-        }
-        properties.push(propData);
-      }
-  }
   
+  // Searches for all essential properties in a composition
   function addCompProperties(composition, frameRate) {
+
+    function iterateProperty(parent, frameRate, properties) {
+      var totalProperties = parent.numProperties;
+        for (var i = 0; i < totalProperties; i += 1) {
+          var property = parent.property(i + 1);
+          var propData = {
+            property: property,
+            // id: 'prop_' + counter++,
+            id: property.name,
+          }
+          // TODO: check if there is a better way to identify type
+          if (property.matchName === 'ADBE Layer Source Alternate') {
+            // It's a layer source
+            propData.type = 'source';
+            propData.layer = property.essentialPropertySource;
+          } else if (property.matchName === 'ADBE Layer Overrides Group') {
+            propData.type = 'group';
+            propData.properties = [];
+            iterateProperty(property, frameRate, propData.properties);
+          } else {
+            // It's a property
+            // bm_generalUtils.iterateProperty(property)
+            // bm_generalUtils.iterateOwnProperties(property)
+            propData.type = 'property';
+            if (propData.id.substr(0, 1) === '#') {
+              propData.val = keyframeHelper.exportKeyframes(property.essentialPropertySource, frameRate, 1);
+            } else {
+              propData.val = keyframeHelper.exportKeyframes(property, frameRate, 1);
+            }
+          }
+          properties.push(propData);
+        }
+    }
+  
     try {
       if (!composition.essentialProperty) {
         return;
@@ -144,7 +148,7 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
         keyframeHelper = $.__bodymovin.bm_keyframeHelper;
       }
       var essentialProperty = composition.essentialProperty;
-      iterateProperty(essentialProperty, frameRate);
+      iterateProperty(essentialProperty, frameRate, rootProperties);
 
     } catch (error) {
       if (error) {
@@ -157,50 +161,101 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
     }
   }
 
+  // Searches if a property is part of the essential properties
   function searchProperty(property) {
-    var i, len = properties.length;
-    for(i = 0; i < len; i += 1) {
-      // Not using strict equality because sources don't match
-      // eslint-disable-next-line eqeqeq
-      if (properties[i].property.essentialPropertySource == property) {
-        if (matchType[property.matchName]) {
-          properties[i].prop.t = matchType[property.matchName];
-        } else {
-          properties[i].prop.t = propType.Undefined;
+
+    function searchPropertyInList(property, list, groupId) {
+      var i, len = list.length;
+      for(i = 0; i < len; i += 1) {
+        if (list[i].type === 'property' ) {
+          // Not using strict equality because sources don't match
+          // eslint-disable-next-line eqeqeq
+          if (list[i].property.essentialPropertySource == property) {
+            if (groupId) {
+              return groupId;
+            } else {
+              if (matchType[property.matchName]) {
+                list[i].prop.t = matchType[property.matchName];
+              } else {
+                list[i].prop.t = propType.Undefined;
+              }
+            }
+            return list[i].id;
+          }
+        } else if (list[i].type === 'group' ) {
+          var propId = searchPropertyInList(property, list[i].properties, list[i].id);
+          if (propId) {
+            if (matchType[property.matchName]) {
+              list[i].prop.t = matchType[property.matchName];
+            } else {
+              list[i].prop.t = propType.Undefined;
+            }
+            return propId;
+          }
         }
-        return properties[i];
       }
+      return null;
     }
-    return null;
+  
+    return searchPropertyInList(property, rootProperties, '');
   }
 
+  // Traverses and returns a dictionary with the essential properties
   function exportProperties() {
-    var props = {};
+    exportedProps = {};
     var count = 0;
-    for (var i = 0; i < properties.length; i += 1) {
-      if (properties[i].type === 'property') {
-        var prop = {
-          p: properties[i].val,
+    var prop;
+    for (var i = 0; i < rootProperties.length; i += 1) {
+      if (rootProperties[i].type === 'property') {
+        prop = {
+          p: rootProperties[i].val,
         }
-        properties[i].prop = prop;
+        rootProperties[i].prop = prop;
+        exportedProps[rootProperties[i].id] = prop;
         count += 1;
-        props[properties[i].id] = prop;
+      } else if (rootProperties[i].type === 'source') {
+        // adding counter but skipping the prop creating since it will be set by the source itself
+        count += 1;
+      } else if (rootProperties[i].type === 'group' && rootProperties[i].properties.length > 0) {
+        prop = {
+          p: rootProperties[i].properties[0].val,
+        }
+        rootProperties[i].prop = prop;
+        exportedProps[rootProperties[i].id] = prop;
+        count += 1;
       }
     }
     if (count === 0) {
       return undefined;
     }
-    return props;
+    return exportedProps;
+  }
+
+  // Searches if an asset is part of the essential properties
+  function searchAsset(sourceData, savingData) {
+    for (var i = 0; i < rootProperties.length; i += 1) {
+      if (rootProperties[i].type === 'source' && rootProperties[i].layer.source === sourceData.source) {
+        var prop = {
+          t: propType.Asset,
+          p: bm_generalUtils.cloneObject(savingData, true),
+        }
+        exportedProps[rootProperties[i].id] = prop;
+        return rootProperties[i].id;
+      }
+    }
+    return '';
   }
 
   function reset() {
     counter = 0;
-    properties = [];
+    rootProperties = [];
+    exportedProps = {};
   }
   
   ob.addCompProperties = addCompProperties;
   ob.exportProperties = exportProperties;
   ob.searchProperty = searchProperty;
+  ob.searchAsset = searchAsset;
   ob.reset = reset;
   
   return ob;

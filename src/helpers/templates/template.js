@@ -1,214 +1,1991 @@
 
-const validationTypes = {
-  SLOTS: 'slots',
-  ASSETS: 'assets',
-}
-
-const compare = (operation, left, right) => {
-  switch (operation) {
-    case '>=':
-      return left >= right;
-    case '>':
-      return left > right;
-    case '===':
-      return left === right;
-    case '==':
-      return left == right;
-    case '<':
-      return left < right;
-    case '<=':
-      return left <= right;
-    default: 
-      return true;
-  }
-}
-
-const errorFactory = (type, message) => {
-  return {
-    type,
-    message,
-  }
-}
-
-const searchPropertyInLayer = (layers, propertyId) => {
-  let property = null;
-  
-  return property;
-}
-
-const searchPropertyInLayers = (layers, propertyId) => {
-  let i = 0;
-  let property = '';
-  while (i < layers.length) {
-    property = searchPropertyInLayer(layers[i], propertyId);
-    if (property) {
-      break;
-    }
-    i += 1;
-  }
-  return property;
-}
-
-const searchPropertyInAssets = (assets, propertyId) => {
-  return '';
-}
-
-const searchPropertyType = (animationData, propertyId) => {
-  let propertyType = 'Unknown';
-  if (animationData.layers) {
-    propertyType = searchPropertyInLayers(animationData.layers, propertyId) || propertyType;
-  }
-  if (!propertyType && animationData.assets) {
-    propertyType = searchPropertyInAssets(animationData.assets, propertyId) || propertyType;
-  }
-  return propertyType;
-}
-
-const validateSlot = async (slots, slotValidation) => {
-  const errors = [];
-  if (slotValidation.name) {
-    const matchingSlots = slots.filter(slot => {
-      if (slotValidation.type === 'regex') {
-        const slotRegex = new RegExp(slotValidation.name);
-        if (slotRegex.exec(slot.key)) {
-          return true;
-        }
-      } else if (slotValidation.name === slot.key) {
-        return true;
-      }
-      return false;
-    })
-    if (!matchingSlots.length) {
-      errors.push(errorFactory(
-        validationTypes.SLOTS,
-        `Missing slot with name '${slotValidation.name}'`,
-      ));
-    } else {
-      if (slotValidation.count) {
-        if (!compare(slotValidation.count.operation, matchingSlots.length, slotValidation.count.value)) {
-          errors.push(errorFactory(
-            validationTypes.SLOTS,
-            `Slot '${slotValidation.name}' doesn't satisfy count ${slotValidation.count.operation} ${slotValidation.count.value}`,
-          ));
-        }
-      }
-      if (slotValidation.property) {
-        matchingSlots.forEach(match => {
-          if (match.mappedProperties.indexOf(slotValidation.property) === -1) {
-            errors.push(errorFactory(
-              validationTypes.SLOTS,
-              `Slot '${slotValidation.name}' is not applied to the correct property '${slotValidation.property}'; it is applied to '${match.mappedProperties.join()}' instead`,
-            ));
-          }
-        })
-      }
-    }
-  }
-  return errors;
-}
-
-const mapSlotsWithProperties = (animationData) => {
-  const slots = {}
-  const addPropToSlot = (slotId, propertyType) => {
-    if (!slots[slotId]) {
-      slots[slotId] = [];
-    }
-    if (slots[slotId].indexOf(propertyType) === -1) {
-      slots[slotId].push(propertyType);
-    }
-  }
-  const searchPropsInLayer = (layer) => {
-    if (layer.ks) {
-      if (layer.ks.p && layer.ks.p.pid) {
-        addPropToSlot(layer.ks.p.pid, 'position');
-      }
-      if (layer.ks.s && layer.ks.p.pid) {
-        addPropToSlot(layer.ks.s.pid, 'scale');
-      }
-      if (layer.ks.r && layer.ks.r.pid) {
-        addPropToSlot(layer.ks.r.pid, 'rotation');
-      }
-      if (layer.ks.o && layer.ks.o.pid) {
-        addPropToSlot(layer.ks.o.pid, 'opacity');
-      }
-      if (layer.ks.a && layer.ks.a.pid) {
-        addPropToSlot(layer.ks.a.pid, 'anchor');
-      }
-    }
-  }
-  if (animationData.layers) {
-    animationData.layers.forEach(searchPropsInLayer)
-  }
-  if (animationData.assets) {
-    animationData.assets.forEach(asset => {
-      if (asset.layers) {
-        asset.layers.forEach(searchPropsInLayer)
-      }
-    })
-  }
-  return slots;
-}
-
-const validateSlots = async (data, slotsValidation) => {
-  let errors = [];
-  if (slotsValidation) {
-    if (!data.slots) {
-      errors.push(errorFactory(validationTypes.SLOTS, 'No slots on the json file'));
-    } else {
-      const slotPropertyMap = mapSlotsWithProperties(data);
-      const slots = Object.keys(data.slots).map(slotKey => {
-        return {
-          ...data.slots[slotKey],
-          key: slotKey,
-          propertyType: searchPropertyType(data, slotKey),
-          mappedProperties: slotPropertyMap[slotKey],
-        }
-      });
-      if (slotsValidation.entries) {
-        const slotIdErrors = (await Promise.all(
-          slotsValidation.entries.map(entryData => {
-            return validateSlot(slots, entryData)
-          })
-        ))
-        .filter(errors => errors.length > 0)
-        errors = errors.concat(
-          slotIdErrors.flat()
-        )
-      }
-    }
-  }
-  return errors;
-}
+import validationTypes from "./enums/validationTypes";
+import compare from "./helpers/compareOperation";
+import errorFactory from "./helpers/errorFactory";
+import validateSlots from "./slots/slots";
 
 const validateAssets = (animationData, assetsValidation) => {
-  let errors = [];
+  const templateError = errorFactory();
   if (assetsValidation) {
     const assets = animationData.assets
       ? animationData.assets.filter(asset => !asset.layers)
       : []
     if (assetsValidation.count) {
       if (!compare(assetsValidation.count.operation, assets.length, assetsValidation.count.value)) {
-        errors.push(errorFactory(
+        templateError.add(
           validationTypes.ASSETS,
           `Total assets (${assets.length}) don't satisfy count ${assetsValidation.count.operation} ${assetsValidation.count.value}`,
-        ));
+        );
       }
     }
   }
-  return errors;
+  return templateError;
 }
 
 const validate = async (data, parser) => {
   try {
+    // console.log(JSON.stringify(data));
+    const templateError = errorFactory();
     const validations = await Promise.all([
       validateSlots(data, parser.slots),
       validateAssets(data, parser.assets),
     ])
-    const errors = validations.filter(error => error.length);
-    return errors.flat();
+    validations.forEach(error => templateError.concat(error));
+    console.log(templateError.getErrors());
+    return templateError.getErrors();
   } catch (error) {
+    console.log(error);
     throw new Error('Unhandle Error');
   }
 }
-
 export default validate;
+
+
+// const data = {
+// 	"v": "4.8.0",
+// 	"fr": 90,
+// 	"ip": 0,
+// 	"op": 720,
+// 	"w": 1024,
+// 	"h": 768,
+// 	"nm": "a_precomp_container_MASTER",
+// 	"ddd": 0,
+// 	"assets": [
+// 		{
+// 			"id": "image_0",
+// 			"w": 278,
+// 			"h": 278,
+// 			"u": "images/",
+// 			"p": "img_0.jpg",
+// 			"e": 0,
+// 			"sid": "_image_slot"
+// 		},
+// 		{
+// 			"id": "comp_0",
+// 			"nm": "a_precomp_container",
+// 			"fr": 90,
+// 			"pfr": 1,
+// 			"layers": [
+// 				{
+// 					"ddd": 0,
+// 					"ind": 1,
+// 					"ty": 0,
+// 					"nm": "a_shape",
+// 					"refId": "comp_1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"s": true,
+// 							"x": {
+// 								"a": 0,
+// 								"k": 512,
+// 								"ix": 3
+// 							},
+// 							"y": {
+// 								"a": 0,
+// 								"k": 384,
+// 								"ix": 4
+// 							}
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								150,
+// 								150,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"w": 300,
+// 					"h": 300,
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 2,
+// 					"ty": 0,
+// 					"nm": "a_image",
+// 					"refId": "comp_2",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								512,
+// 								384,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								400,
+// 								300,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"w": 800,
+// 					"h": 600,
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				}
+// 			]
+// 		},
+// 		{
+// 			"id": "comp_1",
+// 			"nm": "a_shape",
+// 			"fr": 24,
+// 			"layers": [
+// 				{
+// 					"ddd": 0,
+// 					"ind": 1,
+// 					"ty": 1,
+// 					"nm": "Blue Solid 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								211.625,
+// 								88,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								25,
+// 								25,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"sw": 50,
+// 					"sh": 50,
+// 					"sc": "#0000ff",
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 2,
+// 					"ty": 1,
+// 					"nm": "Blue Solid 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								245.5,
+// 								159,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								25,
+// 								25,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"sw": 50,
+// 					"sh": 50,
+// 					"sc": "#0000ff",
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 3,
+// 					"ty": 1,
+// 					"nm": "Blue Solid 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"s": true,
+// 							"x": {
+// 								"sid": "Blue Solid 1 X Position",
+// 								"a": 0,
+// 								"k": 153.938,
+// 								"ix": 3
+// 							},
+// 							"y": {
+// 								"sid": "Blue Solid 1 Y Position",
+// 								"a": 0,
+// 								"k": 191.75,
+// 								"ix": 4
+// 							}
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								25,
+// 								25,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"sw": 50,
+// 					"sh": 50,
+// 					"sc": "#0000ff",
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 4,
+// 					"ty": 4,
+// 					"nm": "Shape Layer 3",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"sid": "Opacity",
+// 							"a": 1,
+// 							"k": [
+// 								{
+// 									"i": {
+// 										"x": [
+// 											0.833
+// 										],
+// 										"y": [
+// 											0.833
+// 										]
+// 									},
+// 									"o": {
+// 										"x": [
+// 											0.167
+// 										],
+// 										"y": [
+// 											0.167
+// 										]
+// 									},
+// 									"t": 0,
+// 									"s": [
+// 										-76
+// 									]
+// 								},
+// 								{
+// 									"t": 67.5,
+// 									"s": [
+// 										0
+// 									]
+// 								}
+// 							],
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								150,
+// 								150,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								0,
+// 								0,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"sid": "Scale1",
+// 							"a": 1,
+// 							"k": [
+// 								{
+// 									"i": {
+// 										"x": [
+// 											0.833,
+// 											0.833,
+// 											0.833
+// 										],
+// 										"y": [
+// 											0.833,
+// 											0.833,
+// 											0.833
+// 										]
+// 									},
+// 									"o": {
+// 										"x": [
+// 											0.167,
+// 											0.167,
+// 											0.167
+// 										],
+// 										"y": [
+// 											0.167,
+// 											0.167,
+// 											0.167
+// 										]
+// 									},
+// 									"t": 0,
+// 									"s": [
+// 										100,
+// 										100,
+// 										100
+// 									]
+// 								},
+// 								{
+// 									"t": 48.75,
+// 									"s": [
+// 										100,
+// 										100,
+// 										100
+// 									]
+// 								}
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"shapes": [
+// 						{
+// 							"ind": 0,
+// 							"ty": "sh",
+// 							"ix": 1,
+// 							"ks": {
+// 								"a": 0,
+// 								"k": {
+// 									"i": [
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										]
+// 									],
+// 									"o": [
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										]
+// 									],
+// 									"v": [
+// 										[
+// 											50,
+// 											-50
+// 										],
+// 										[
+// 											50,
+// 											50
+// 										],
+// 										[
+// 											-50,
+// 											50
+// 										],
+// 										[
+// 											-50,
+// 											-50
+// 										]
+// 									],
+// 									"c": true
+// 								},
+// 								"ix": 2
+// 							},
+// 							"nm": "Path 1",
+// 							"mn": "ADBE Vector Shape - Group",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "rc",
+// 							"d": 1,
+// 							"s": {
+// 								"a": 0,
+// 								"k": [
+// 									100,
+// 									100
+// 								],
+// 								"ix": 2
+// 							},
+// 							"p": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 3
+// 							},
+// 							"r": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 4
+// 							},
+// 							"nm": "Rectangle Path 1",
+// 							"mn": "ADBE Vector Shape - Rect",
+// 							"hd": false
+// 						},
+// 						{
+// 							"d": 1,
+// 							"ty": "el",
+// 							"s": {
+// 								"a": 1,
+// 								"k": [
+// 									{
+// 										"i": {
+// 											"x": [
+// 												0.833,
+// 												0.833
+// 											],
+// 											"y": [
+// 												0.833,
+// 												0.833
+// 											]
+// 										},
+// 										"o": {
+// 											"x": [
+// 												0.167,
+// 												0.167
+// 											],
+// 											"y": [
+// 												0.167,
+// 												0.167
+// 											]
+// 										},
+// 										"t": 0,
+// 										"s": [
+// 											100,
+// 											100
+// 										]
+// 									},
+// 									{
+// 										"t": 33.75,
+// 										"s": [
+// 											148,
+// 											148
+// 										]
+// 									}
+// 								],
+// 								"ix": 2
+// 							},
+// 							"p": {
+// 								"a": 1,
+// 								"k": [
+// 									{
+// 										"i": {
+// 											"x": 0.833,
+// 											"y": 0.833
+// 										},
+// 										"o": {
+// 											"x": 0.167,
+// 											"y": 0.167
+// 										},
+// 										"t": 0,
+// 										"s": [
+// 											0,
+// 											0
+// 										],
+// 										"to": [
+// 											6.167,
+// 											0
+// 										],
+// 										"ti": [
+// 											-6.167,
+// 											0
+// 										]
+// 									},
+// 									{
+// 										"t": 33.75,
+// 										"s": [
+// 											37,
+// 											0
+// 										]
+// 									}
+// 								],
+// 								"ix": 3
+// 							},
+// 							"nm": "Ellipse Path 1",
+// 							"mn": "ADBE Vector Shape - Ellipse",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "sr",
+// 							"sy": 1,
+// 							"d": 1,
+// 							"pt": {
+// 								"a": 1,
+// 								"k": [
+// 									{
+// 										"i": {
+// 											"x": [
+// 												0.833
+// 											],
+// 											"y": [
+// 												0.833
+// 											]
+// 										},
+// 										"o": {
+// 											"x": [
+// 												0.167
+// 											],
+// 											"y": [
+// 												0.167
+// 											]
+// 										},
+// 										"t": 0,
+// 										"s": [
+// 											14
+// 										]
+// 									},
+// 									{
+// 										"t": 33.75,
+// 										"s": [
+// 											5
+// 										]
+// 									}
+// 								],
+// 								"ix": 3
+// 							},
+// 							"p": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 4
+// 							},
+// 							"r": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 5
+// 							},
+// 							"ir": {
+// 								"a": 0,
+// 								"k": 50,
+// 								"ix": 6
+// 							},
+// 							"is": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 8
+// 							},
+// 							"or": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 7
+// 							},
+// 							"os": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 9
+// 							},
+// 							"ix": 5,
+// 							"nm": "Polystar Path 1",
+// 							"mn": "ADBE Vector Shape - Star",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "gr",
+// 							"it": [
+// 								{
+// 									"ty": "tr",
+// 									"p": {
+// 										"a": 0,
+// 										"k": [
+// 											0,
+// 											0
+// 										],
+// 										"ix": 2
+// 									},
+// 									"a": {
+// 										"a": 0,
+// 										"k": [
+// 											0,
+// 											0
+// 										],
+// 										"ix": 1
+// 									},
+// 									"s": {
+// 										"a": 0,
+// 										"k": [
+// 											100,
+// 											100
+// 										],
+// 										"ix": 3
+// 									},
+// 									"r": {
+// 										"a": 0,
+// 										"k": 0,
+// 										"ix": 6
+// 									},
+// 									"o": {
+// 										"a": 0,
+// 										"k": 100,
+// 										"ix": 7
+// 									},
+// 									"sk": {
+// 										"a": 0,
+// 										"k": 0,
+// 										"ix": 4
+// 									},
+// 									"sa": {
+// 										"a": 0,
+// 										"k": 0,
+// 										"ix": 5
+// 									},
+// 									"nm": "Transform"
+// 								}
+// 							],
+// 							"nm": "Group 1",
+// 							"np": 0,
+// 							"cix": 2,
+// 							"bm": 0,
+// 							"ix": 6,
+// 							"mn": "ADBE Vector Group",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "op",
+// 							"nm": "Offset Paths 1",
+// 							"a": {
+// 								"a": 0,
+// 								"k": 10,
+// 								"ix": 1
+// 							},
+// 							"lj": 1,
+// 							"ml": {
+// 								"a": 0,
+// 								"k": 4,
+// 								"ix": 3
+// 							},
+// 							"ix": 7,
+// 							"mn": "ADBE Vector Filter - Offset",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "pb",
+// 							"nm": "Pucker & Bloat 1",
+// 							"a": {
+// 								"a": 0,
+// 								"k": 10,
+// 								"ix": 1
+// 							},
+// 							"ix": 8,
+// 							"mn": "ADBE Vector Filter - PB",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "rd",
+// 							"nm": "Round Corners 1",
+// 							"r": {
+// 								"a": 0,
+// 								"k": 10,
+// 								"ix": 1
+// 							},
+// 							"ix": 9,
+// 							"mn": "ADBE Vector Filter - RC",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "tm",
+// 							"s": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 1
+// 							},
+// 							"e": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 2
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 3
+// 							},
+// 							"m": 1,
+// 							"ix": 10,
+// 							"nm": "Trim Paths 1",
+// 							"mn": "ADBE Vector Filter - Trim",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "tw",
+// 							"a": {
+// 								"a": 0,
+// 								"k": 10,
+// 								"ix": 1
+// 							},
+// 							"c": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 2
+// 							},
+// 							"ix": 11,
+// 							"nm": "Twist 1",
+// 							"mn": "ADBE Vector Filter - Twist",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "gs",
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 9
+// 							},
+// 							"w": {
+// 								"a": 0,
+// 								"k": 2,
+// 								"ix": 10
+// 							},
+// 							"g": {
+// 								"p": 3,
+// 								"k": {
+// 									"a": 0,
+// 									"k": [
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										0.5,
+// 										0.5,
+// 										0.5,
+// 										0,
+// 										1,
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										1,
+// 										0.5,
+// 										0.5,
+// 										1,
+// 										0
+// 									],
+// 									"ix": 8
+// 								}
+// 							},
+// 							"s": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 4
+// 							},
+// 							"e": {
+// 								"a": 0,
+// 								"k": [
+// 									100,
+// 									0
+// 								],
+// 								"ix": 5
+// 							},
+// 							"t": 1,
+// 							"lc": 1,
+// 							"lj": 1,
+// 							"ml": 4,
+// 							"ml2": {
+// 								"a": 0,
+// 								"k": 4,
+// 								"ix": 13
+// 							},
+// 							"bm": 0,
+// 							"nm": "Gradient Stroke 1",
+// 							"mn": "ADBE Vector Graphic - G-Stroke",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "gf",
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 10
+// 							},
+// 							"r": 1,
+// 							"bm": 0,
+// 							"g": {
+// 								"p": 3,
+// 								"k": {
+// 									"a": 0,
+// 									"k": [
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										0.5,
+// 										0.5,
+// 										0.5,
+// 										0,
+// 										1,
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										1,
+// 										0.5,
+// 										0.5,
+// 										1,
+// 										0
+// 									],
+// 									"ix": 9
+// 								}
+// 							},
+// 							"s": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 5
+// 							},
+// 							"e": {
+// 								"a": 0,
+// 								"k": [
+// 									100,
+// 									0
+// 								],
+// 								"ix": 6
+// 							},
+// 							"t": 1,
+// 							"nm": "Gradient Fill 2",
+// 							"mn": "ADBE Vector Graphic - G-Fill",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "st",
+// 							"c": {
+// 								"a": 0,
+// 								"k": [
+// 									1,
+// 									1,
+// 									1,
+// 									1
+// 								],
+// 								"ix": 3
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 4
+// 							},
+// 							"w": {
+// 								"a": 0,
+// 								"k": 2,
+// 								"ix": 5
+// 							},
+// 							"lc": 1,
+// 							"lj": 1,
+// 							"ml": 4,
+// 							"bm": 0,
+// 							"nm": "Stroke 1",
+// 							"mn": "ADBE Vector Graphic - Stroke",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "gf",
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 10
+// 							},
+// 							"r": 1,
+// 							"bm": 0,
+// 							"g": {
+// 								"p": 3,
+// 								"k": {
+// 									"a": 0,
+// 									"k": [
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										0.5,
+// 										0.5,
+// 										0.5,
+// 										0,
+// 										1,
+// 										0,
+// 										1,
+// 										0,
+// 										0,
+// 										1,
+// 										0.5,
+// 										0.5,
+// 										1,
+// 										0
+// 									],
+// 									"ix": 9
+// 								}
+// 							},
+// 							"s": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 5
+// 							},
+// 							"e": {
+// 								"a": 0,
+// 								"k": [
+// 									100,
+// 									0
+// 								],
+// 								"ix": 6
+// 							},
+// 							"t": 1,
+// 							"nm": "Gradient Fill 1",
+// 							"mn": "ADBE Vector Graphic - G-Fill",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "fl",
+// 							"c": {
+// 								"a": 0,
+// 								"k": [
+// 									0.484705865383,
+// 									1,
+// 									1,
+// 									1
+// 								],
+// 								"ix": 4
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 75,
+// 								"ix": 5
+// 							},
+// 							"r": 1,
+// 							"bm": 0,
+// 							"nm": "Fill 1",
+// 							"mn": "ADBE Vector Graphic - Fill",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "rp",
+// 							"c": {
+// 								"a": 0,
+// 								"k": 3,
+// 								"ix": 1
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 2
+// 							},
+// 							"m": 1,
+// 							"ix": 17,
+// 							"tr": {
+// 								"ty": "tr",
+// 								"p": {
+// 									"a": 0,
+// 									"k": [
+// 										100,
+// 										0
+// 									],
+// 									"ix": 2
+// 								},
+// 								"a": {
+// 									"a": 0,
+// 									"k": [
+// 										0,
+// 										0
+// 									],
+// 									"ix": 1
+// 								},
+// 								"s": {
+// 									"a": 0,
+// 									"k": [
+// 										100,
+// 										100
+// 									],
+// 									"ix": 3
+// 								},
+// 								"r": {
+// 									"a": 0,
+// 									"k": 0,
+// 									"ix": 4
+// 								},
+// 								"so": {
+// 									"a": 0,
+// 									"k": 100,
+// 									"ix": 5
+// 								},
+// 								"eo": {
+// 									"a": 0,
+// 									"k": 100,
+// 									"ix": 6
+// 								},
+// 								"nm": "Transform"
+// 							},
+// 							"nm": "Repeater 1",
+// 							"mn": "ADBE Vector Filter - Repeater",
+// 							"hd": false
+// 						}
+// 					],
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"ct": 1,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 5,
+// 					"ty": 4,
+// 					"nm": "Shape Layer 2",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								150,
+// 								150,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								0,
+// 								0,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"shapes": [
+// 						{
+// 							"ind": 1,
+// 							"ty": "sh",
+// 							"ix": 2,
+// 							"ks": {
+// 								"a": 0,
+// 								"k": {
+// 									"i": [
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										]
+// 									],
+// 									"o": [
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										],
+// 										[
+// 											0,
+// 											0
+// 										]
+// 									],
+// 									"v": [
+// 										[
+// 											-35.25,
+// 											35.25
+// 										],
+// 										[
+// 											50,
+// 											50
+// 										],
+// 										[
+// 											-50,
+// 											50
+// 										],
+// 										[
+// 											-50,
+// 											-50
+// 										]
+// 									],
+// 									"c": true
+// 								},
+// 								"ix": 2
+// 							},
+// 							"nm": "Path 2",
+// 							"mn": "ADBE Vector Shape - Group",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "zz",
+// 							"nm": "Zig Zag 1",
+// 							"s": {
+// 								"a": 0,
+// 								"k": 19,
+// 								"ix": 1
+// 							},
+// 							"r": {
+// 								"a": 0,
+// 								"k": 1,
+// 								"ix": 2
+// 							},
+// 							"pt": {
+// 								"a": 0,
+// 								"k": 1,
+// 								"ix": 3
+// 							},
+// 							"ix": 3,
+// 							"mn": "ADBE Vector Filter - Zigzag",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "fl",
+// 							"c": {
+// 								"a": 0,
+// 								"k": [
+// 									0.92549020052,
+// 									0.838431358337,
+// 									0.29411765933,
+// 									1
+// 								],
+// 								"ix": 4
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 5
+// 							},
+// 							"r": 1,
+// 							"bm": 0,
+// 							"nm": "Fill 1",
+// 							"mn": "ADBE Vector Graphic - Fill",
+// 							"hd": false
+// 						}
+// 					],
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"ct": 1,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 6,
+// 					"ty": 4,
+// 					"nm": "Shape Layer 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								150,
+// 								150,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								0,
+// 								0,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"shapes": [
+// 						{
+// 							"ty": "rc",
+// 							"d": 1,
+// 							"s": {
+// 								"a": 0,
+// 								"k": [
+// 									200,
+// 									200
+// 								],
+// 								"ix": 2
+// 							},
+// 							"p": {
+// 								"a": 0,
+// 								"k": [
+// 									0,
+// 									0
+// 								],
+// 								"ix": 3
+// 							},
+// 							"r": {
+// 								"a": 0,
+// 								"k": 0,
+// 								"ix": 4
+// 							},
+// 							"nm": "Rectangle Path 1",
+// 							"mn": "ADBE Vector Shape - Rect",
+// 							"hd": false
+// 						},
+// 						{
+// 							"ty": "fl",
+// 							"c": {
+// 								"a": 0,
+// 								"k": [
+// 									1,
+// 									0,
+// 									1,
+// 									1
+// 								],
+// 								"ix": 4
+// 							},
+// 							"o": {
+// 								"a": 0,
+// 								"k": 100,
+// 								"ix": 5
+// 							},
+// 							"r": 1,
+// 							"bm": 0,
+// 							"nm": "Fill 1",
+// 							"mn": "ADBE Vector Graphic - Fill",
+// 							"hd": false
+// 						}
+// 					],
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"ct": 1,
+// 					"bm": 0
+// 				}
+// 			]
+// 		},
+// 		{
+// 			"id": "comp_2",
+// 			"nm": "a_image",
+// 			"fr": 24,
+// 			"layers": [
+// 				{
+// 					"ddd": 0,
+// 					"ind": 1,
+// 					"ty": 2,
+// 					"nm": "profile.jpg",
+// 					"cl": "jpg",
+// 					"refId": "image_0",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								400,
+// 								300,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								139,
+// 								139,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 2,
+// 					"ty": 1,
+// 					"nm": "Deep Red Solid 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								400,
+// 								300,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								50,
+// 								25,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"sw": 100,
+// 					"sh": 50,
+// 					"sc": "#990000",
+// 					"ip": 0,
+// 					"op": 1811.25,
+// 					"st": 0,
+// 					"bm": 0
+// 				},
+// 				{
+// 					"ddd": 0,
+// 					"ind": 3,
+// 					"ty": 0,
+// 					"nm": "precomp",
+// 					"refId": "comp_3",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								400,
+// 								300,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								512,
+// 								384,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"w": 1024,
+// 					"h": 768,
+// 					"ip": 0,
+// 					"op": 720,
+// 					"st": 0,
+// 					"bm": 0
+// 				}
+// 			]
+// 		},
+// 		{
+// 			"id": "comp_3",
+// 			"nm": "precomp",
+// 			"fr": 30,
+// 			"layers": [
+// 				{
+// 					"ddd": 0,
+// 					"ind": 1,
+// 					"ty": 1,
+// 					"nm": "Deep Green Solid 1",
+// 					"sr": 1,
+// 					"ks": {
+// 						"o": {
+// 							"a": 0,
+// 							"k": 100,
+// 							"ix": 11
+// 						},
+// 						"r": {
+// 							"a": 0,
+// 							"k": 0,
+// 							"ix": 10
+// 						},
+// 						"p": {
+// 							"a": 0,
+// 							"k": [
+// 								512,
+// 								384,
+// 								0
+// 							],
+// 							"ix": 2,
+// 							"l": 2
+// 						},
+// 						"a": {
+// 							"a": 0,
+// 							"k": [
+// 								32.5,
+// 								50,
+// 								0
+// 							],
+// 							"ix": 1,
+// 							"l": 2
+// 						},
+// 						"s": {
+// 							"a": 0,
+// 							"k": [
+// 								100,
+// 								100,
+// 								100
+// 							],
+// 							"ix": 6,
+// 							"l": 2
+// 						}
+// 					},
+// 					"ao": 0,
+// 					"sw": 65,
+// 					"sh": 100,
+// 					"sc": "#049900",
+// 					"ip": 0,
+// 					"op": 720,
+// 					"st": 0,
+// 					"bm": 0
+// 				}
+// 			]
+// 		}
+// 	],
+// 	"layers": [
+// 		{
+// 			"ddd": 0,
+// 			"ind": 1,
+// 			"ty": 0,
+// 			"nm": "a_precomp_container",
+// 			"refId": "comp_0",
+// 			"sr": 1,
+// 			"ks": {
+// 				"o": {
+// 					"a": 0,
+// 					"k": 100,
+// 					"ix": 11
+// 				},
+// 				"r": {
+// 					"a": 0,
+// 					"k": 0,
+// 					"ix": 10
+// 				},
+// 				"p": {
+// 					"a": 0,
+// 					"k": [
+// 						512,
+// 						384,
+// 						0
+// 					],
+// 					"ix": 2,
+// 					"l": 2
+// 				},
+// 				"a": {
+// 					"a": 0,
+// 					"k": [
+// 						512,
+// 						384,
+// 						0
+// 					],
+// 					"ix": 1,
+// 					"l": 2
+// 				},
+// 				"s": {
+// 					"a": 0,
+// 					"k": [
+// 						100,
+// 						100,
+// 						100
+// 					],
+// 					"ix": 6,
+// 					"l": 2
+// 				}
+// 			},
+// 			"ao": 0,
+// 			"w": 1024,
+// 			"h": 768,
+// 			"ip": 0,
+// 			"op": 720,
+// 			"st": 0,
+// 			"bm": 0
+// 		}
+// 	],
+// 	"markers": [
+		
+// 	],
+// 	"slots": {
+// 		"Scale1": {
+// 			"p": {
+// 				"a": 1,
+// 				"k": [
+// 					{
+// 						"i": {
+// 							"x": [
+// 								0.833,
+// 								0.833,
+// 								0.833
+// 							],
+// 							"y": [
+// 								0.833,
+// 								0.833,
+// 								0.833
+// 							]
+// 						},
+// 						"o": {
+// 							"x": [
+// 								0.167,
+// 								0.167,
+// 								0.167
+// 							],
+// 							"y": [
+// 								0.167,
+// 								0.167,
+// 								0.167
+// 							]
+// 						},
+// 						"t": 0,
+// 						"s": [
+// 							100,
+// 							100,
+// 							100
+// 						]
+// 					},
+// 					{
+// 						"i": {
+// 							"x": [
+// 								0.833,
+// 								0.833,
+// 								0.833
+// 							],
+// 							"y": [
+// 								0.833,
+// 								0.833,
+// 								0.833
+// 							]
+// 						},
+// 						"o": {
+// 							"x": [
+// 								0.167,
+// 								0.167,
+// 								0.167
+// 							],
+// 							"y": [
+// 								0.167,
+// 								0.167,
+// 								0.167
+// 							]
+// 						},
+// 						"t": 48.75,
+// 						"s": [
+// 							100,
+// 							100,
+// 							100
+// 						]
+// 					},
+// 					{
+// 						"t": 118,
+// 						"s": [
+// 							100,
+// 							100,
+// 							100
+// 						]
+// 					}
+// 				],
+// 				"ix": 1
+// 			},
+// 			"t": 3
+// 		},
+// 		"Opacity": {
+// 			"p": {
+// 				"a": 1,
+// 				"k": [
+// 					{
+// 						"i": {
+// 							"x": [
+// 								0.833
+// 							],
+// 							"y": [
+// 								0.833
+// 							]
+// 						},
+// 						"o": {
+// 							"x": [
+// 								0.167
+// 							],
+// 							"y": [
+// 								0.167
+// 							]
+// 						},
+// 						"t": 0,
+// 						"s": [
+// 							-76
+// 						]
+// 					},
+// 					{
+// 						"t": 67.5,
+// 						"s": [
+// 							0
+// 						]
+// 					}
+// 				],
+// 				"ix": 2
+// 			},
+// 			"t": 4
+// 		},
+// 		"Blue Solid 1 X Position": {
+// 			"p": {
+// 				"a": 0,
+// 				"k": 153.938,
+// 				"ix": 3
+// 			},
+// 			"t": 4
+// 		},
+// 		"Blue Solid 1 Y Position": {
+// 			"p": {
+// 				"a": 0,
+// 				"k": 191.75,
+// 				"ix": 4
+// 			},
+// 			"t": 4
+// 		},
+// 		"_image_slot": {
+// 			"t": 50,
+// 			"p": {
+// 				"id": "image_0",
+// 				"w": 278,
+// 				"h": 278,
+// 				"u": "images/",
+// 				"p": "img_0.jpg",
+// 				"e": 0,
+// 				"fileId": "x1brnkfshx"
+// 			}
+// 		}
+// 	},
+// 	"props": {
+		
+// 	}
+// }
+
+// const parser = {
+// 	"slots": {
+//     "rules": [
+//       {
+//         "properties": ["fill color", "stroke color"],
+//         "type": "assigned"
+//       }
+//     ],
+// 		"entries": [
+// 			{
+// 				"name": "Blue Solid 1 X Position",
+// 				"type": "regex",
+// 				"count": {
+// 					"operation": ">=",
+// 					"value": 2
+// 				},
+// 				"property": "position-x"
+// 			},
+// 			{
+// 				"name": "Scale",
+// 				"type": "regex",
+// 				"count": {
+// 					"operation": ">",
+// 					"value": 1
+// 				},
+// 				"property": "scale"
+// 			},
+// 			{
+// 				"name": "Opacity",
+// 				"type": "regex",
+// 				"count": {
+// 					"operation": ">=",
+// 					"value": 1
+// 				},
+// 				"property": "opacity"
+// 			}
+// 		]
+// 	},
+	// "layers": {
+	// 	"count": {
+	// 		"operation": "===",
+	// 		"value": 1
+	// 	},
+	// 	"entries": [
+	// 		{
+	// 			"type": 0,
+	// 			"count": {
+	// 				"operation": "===",
+	// 				"value": 3
+	// 			}
+	// 		}
+	// 	]
+	// },
+	// "assets": {
+	// 	"count": {
+	// 		"operation": ">",
+	// 		"value": 3
+	// 	}
+	// }
+// }
+
+// validate(data, parser);

@@ -441,10 +441,11 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         settingsHelper = $.__bodymovin.bm_settingsHelper;
         essentialPropertiesHelper.searchProperty(prop);
         var returnOb = {}
-        var essentialProp = essentialPropertiesHelper.searchProperty(prop);
-        if (essentialProp) {
-            returnOb.pid = essentialProp.id;
-        } else if (bm_expressionHelper.shouldBakeExpression(prop)) {
+        var essentialPropId = essentialPropertiesHelper.searchProperty(prop);
+        if (essentialPropId) {
+            returnOb.sid = essentialPropId;
+        }
+        if (bm_expressionHelper.shouldBakeExpression(prop)) {
             returnOb = bakeExpressions(prop, frRate);
         } else {
             if (prop.numKeys <= 1) {

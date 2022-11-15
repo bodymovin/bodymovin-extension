@@ -19,102 +19,106 @@ const shapeTypes = {
   SHAPE: 'sh',
   ZIGZAG: 'zz',
   TRANSFORM: 'tr',
+  MERGE_PATH: 'mm',
 }
 
 
-const convertRectangle = (shape, slots, properties) => {
-  convertProperty(shape.p, slots, properties);
-  convertProperty(shape.r, slots, properties);
-  convertProperty(shape.s, slots, properties);
+const convertRectangle = (shape, props, properties) => {
+  convertProperty(shape.p, props, properties);
+  convertProperty(shape.r, props, properties);
+  convertProperty(shape.s, props, properties);
 }
 
-const convertEllipse = (shape, slots, properties) => {
-  convertProperty(shape.p, slots, properties);
-  convertProperty(shape.s, slots, properties);
+const convertEllipse = (shape, props, properties) => {
+  convertProperty(shape.p, props, properties);
+  convertProperty(shape.s, props, properties);
 }
 
-const convertStar = (shape, slots, properties) => {
-  convertProperty(shape.ir, slots, properties);
-  convertProperty(shape.is, slots, properties);
-  convertProperty(shape.or, slots, properties);
-  convertProperty(shape.os, slots, properties);
-  convertProperty(shape.p, slots, properties);
-  convertProperty(shape.r, slots, properties);
-  convertProperty(shape.pt, slots, properties);
+const convertStar = (shape, props, properties) => {
+  convertProperty(shape.ir, props, properties);
+  convertProperty(shape.is, props, properties);
+  convertProperty(shape.or, props, properties);
+  convertProperty(shape.os, props, properties);
+  convertProperty(shape.p, props, properties);
+  convertProperty(shape.r, props, properties);
+  convertProperty(shape.pt, props, properties);
 }
 
-const convertGroup = (shape, slots, properties) => {
+const convertGroup = (shape, props, properties) => {
   // eslint-disable-next-line no-use-before-define
-  iterateShapes(shape.it, slots, properties);
-  console.log('shape.it', shape.it);
+  iterateShapes(shape.it, props, properties);
 }
 
-const convertOffset = (shape, slots, properties) => {
-  convertProperty(shape.a, slots, properties);
-  convertProperty(shape.ml, slots, properties);
+const convertOffset = (shape, props, properties) => {
+  convertProperty(shape.a, props, properties);
+  convertProperty(shape.ml, props, properties);
 }
 
-const convertPuckerAndBloat = (shape, slots, properties) => {
-  convertProperty(shape.a, slots, properties);
+const convertPuckerAndBloat = (shape, props, properties) => {
+  convertProperty(shape.a, props, properties);
 }
 
-const convertRoundedCorners = (shape, slots, properties) => {
-  convertProperty(shape.r, slots, properties);
+const convertRoundedCorners = (shape, props, properties) => {
+  convertProperty(shape.r, props, properties);
 }
 
-const convertTrimPaths = (shape, slots, properties) => {
-  convertProperty(shape.s, slots, properties);
-  convertProperty(shape.e, slots, properties);
-  convertProperty(shape.o, slots, properties);
+const convertTrimPaths = (shape, props, properties) => {
+  convertProperty(shape.s, props, properties);
+  convertProperty(shape.e, props, properties);
+  convertProperty(shape.o, props, properties);
 }
 
-const convertTwist = (shape, slots, properties) => {
-  convertProperty(shape.a, slots, properties);
-  convertProperty(shape.c, slots, properties);
+const convertTwist = (shape, props, properties) => {
+  convertProperty(shape.a, props, properties);
+  convertProperty(shape.c, props, properties);
 }
 
-const convertGradientStroke = (shape, slots, properties) => {
-  convertProperty(shape.e, slots, properties);
-  convertProperty(shape.g, slots, properties);
-  convertProperty(shape.ml2, slots, properties);
-  convertProperty(shape.o, slots, properties);
-  convertProperty(shape.s, slots, properties);
+const convertGradientStroke = (shape, props, properties) => {
+  convertProperty(shape.e, props, properties);
+  convertProperty(shape.g, props, properties);
+  convertProperty(shape.ml2, props, properties);
+  convertProperty(shape.o, props, properties);
+  convertProperty(shape.s, props, properties);
 }
 
-const convertGradientFill = (shape, slots, properties) => {
-  convertProperty(shape.e, slots, properties);
-  convertProperty(shape.g, slots, properties);
-  convertProperty(shape.o, slots, properties);
-  convertProperty(shape.s, slots, properties);
+const convertGradientFill = (shape, props, properties) => {
+  convertProperty(shape.e, props, properties);
+  convertProperty(shape.g, props, properties);
+  convertProperty(shape.o, props, properties);
+  convertProperty(shape.s, props, properties);
 }
 
-const convertFill = (shape, slots, properties) => {
-  convertProperty(shape.c, slots, properties);
-  convertProperty(shape.o, slots, properties);
+const convertFill = (shape, props, properties) => {
+  convertProperty(shape.c, props, properties);
+  convertProperty(shape.o, props, properties);
 }
 
-const convertStroke = (shape, slots, properties) => {
-  convertProperty(shape.c, slots, properties);
-  convertProperty(shape.o, slots, properties);
-  convertProperty(shape.w, slots, properties);
+const convertStroke = (shape, props, properties) => {
+  convertProperty(shape.c, props, properties);
+  convertProperty(shape.o, props, properties);
+  convertProperty(shape.w, props, properties);
 }
 
-const convertRepeater = (shape, slots, properties) => {
-  convertProperty(shape.o, slots, properties);
-  convertTransform(shape.tr, slots, properties);
+const convertRepeater = (shape, props, properties) => {
+  convertProperty(shape.o, props, properties);
+  convertTransform(shape.tr, props, properties);
 }
 
-const convertPath = (shape, slots, properties) => {
-  convertTransform(shape.ks, slots, properties);
+const convertPath = (shape, props, properties) => {
+  convertProperty(shape.ks, props, properties);
 }
 
-const convertZigZag = (shape, slots, properties) => {
-  convertProperty(shape.s, slots, properties);
-  convertProperty(shape.r, slots, properties);
-  convertProperty(shape.pt, slots, properties);
+const convertZigZag = (shape, props, properties) => {
+  convertProperty(shape.s, props, properties);
+  convertProperty(shape.r, props, properties);
+  convertProperty(shape.pt, props, properties);
 }
 
-const convertGeneric = (shape, slots, properties) => {
+const convertMergePath = () => {
+  // Nothing to convert on merge paths
+}
+
+const convertGeneric = (shape, props, properties) => {
   console.log('GENERIC', shape)
 }
 
@@ -136,20 +140,21 @@ const shapePropConverters = {
   [shapeTypes.SHAPE]:  convertPath,
   [shapeTypes.ZIGZAG]:  convertZigZag,
   [shapeTypes.TRANSFORM]:  convertTransform,
+  [shapeTypes.MERGE_PATH]:  convertMergePath,
 }
 
-const iterateShapes = (shapes, slots, properties) => {
+const iterateShapes = (shapes, props, properties) => {
   shapes.forEach((shapeProperty) => {
     if (shapePropConverters[shapeProperty.ty]) {
-      shapePropConverters[shapeProperty.ty](shapeProperty, slots, properties)
+      shapePropConverters[shapeProperty.ty](shapeProperty, props, properties)
     }  else {
       console.log('TYPE MISSING', shapeProperty.ty);
     }
   })
 }
 
-const convertShape = (shape, slots, properties) => {
-  iterateShapes(shape.shapes, slots, properties);
+const convertShape = (shape, props, properties) => {
+  iterateShapes(shape.shapes, props, properties);
 }
 
 export default convertShape;

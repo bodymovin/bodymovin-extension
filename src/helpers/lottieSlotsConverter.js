@@ -1,5 +1,5 @@
 let properties = [];
-let slots;
+let props;
 
 const layerTypes = {
 	COMP: 0,
@@ -18,7 +18,7 @@ const convertProperty = (property) => {
 				id: `slot_${properties.length}`
 			}
 			properties.push(slot);
-			slots[slot.id] = {
+			props[slot.id] = {
 				k: property.k,
 				a: property.a,
 			}
@@ -55,16 +55,15 @@ const convertLayers = (layers) => {
 }
 
 const convertAnimation = (animationData) => {
-	if (!animationData.slots) {
-		animationData.slots = {};
+	if (!animationData.props) {
+		animationData.props = {};
 	}
-	slots = animationData.slots;
+	props = animationData.props;
 	properties.length = 0;
 
 	if (animationData.layers) {
 		convertLayers(animationData.layers);
 	}
-	console.log('PASO 1');
 	if (animationData.assets) {
 		animationData.assets.forEach(asset => {
 			console.log(asset)

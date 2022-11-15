@@ -7,35 +7,33 @@ const layerTypes = {
 }
 
 
-const convertLayer = (layer, slots, properties) => {
+const convertLayer = (layer, props, properties) => {
 	if (layer.ks) {
-		convertTransform(layer.ks, slots, properties);
+		convertTransform(layer.ks, props, properties);
 	}
 	if (layer.ty === layerTypes.SHAPE) {
-		convertShape(layer, slots, properties);
+		convertShape(layer, props, properties);
 	}
 }
 
-const convertLayers = (layers, slots, properties) => {
-	layers.forEach(layer => convertLayer(layer, slots, properties))
+const convertLayers = (layers, props, properties) => {
+	layers.forEach(layer => convertLayer(layer, props, properties))
 }
 
 const convertAnimation = (animationData) => {
-	if (!animationData.slots) {
-		animationData.slots = {};
+	if (!animationData.props) {
+		animationData.props = {};
 	}
-	const slots = animationData.slots;
+	const props = animationData.props;
 	const properties = [];
 
 	if (animationData.layers) {
-		convertLayers(animationData.layers, slots, properties);
+		convertLayers(animationData.layers, props, properties);
 	}
-	console.log('PASO 1');
 	if (animationData.assets) {
 		animationData.assets.forEach(asset => {
-			console.log(asset)
 			if (asset.layers) {
-				convertLayers(asset.layers, slots, properties)
+				convertLayers(asset.layers, props, properties)
 			}
 		})
 	}

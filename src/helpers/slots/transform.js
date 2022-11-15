@@ -1,16 +1,16 @@
 import convertProperty from './property';
 
 
-const convertTransform = (transform, slots, properties) => {
-	convertProperty(transform.o, slots, properties);
-	convertProperty(transform.r, slots, properties);
-	convertProperty(transform.p, slots, properties);
-	convertProperty(transform.s, slots, properties);
-	convertProperty(transform.a, slots, properties);
-	convertProperty(transform.so, slots, properties);
-	convertProperty(transform.eo, slots, properties);
-	convertProperty(transform.sk, slots, properties);
-	convertProperty(transform.sa, slots, properties);
+const convertTransform = (transform, props, properties) => {
+	convertProperty(transform.o, props, properties);
+	convertProperty(transform.r, props, properties);
+	convertProperty(transform.p, props, properties);
+	convertProperty(transform.s, props, properties);
+	convertProperty(transform.a, props, properties);
+	convertProperty(transform.so, props, properties);
+	convertProperty(transform.eo, props, properties);
+	convertProperty(transform.sk, props, properties);
+	convertProperty(transform.sa, props, properties);
 }
 
 export default convertTransform

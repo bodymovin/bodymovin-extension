@@ -11,6 +11,7 @@ $.__bodymovin.bm_sourceHelper = (function () {
     var renderQueueHelper = $.__bodymovin.bm_renderQueueHelper;
     var assetsStorage = $.__bodymovin.assetsStorage;
     var annotationsManager = $.__bodymovin.bm_annotationsManager;
+    var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
     var compSources = [], imageSources = [], videoSources = [], fonts = []
     , currentExportingImage, assetsArray, folder, currentCompID
     , imageCount = 0, videoCount = 0
@@ -573,6 +574,10 @@ $.__bodymovin.bm_sourceHelper = (function () {
             p: imageName,
             e: 0,
             fileId: renderFileData.id
+        }
+        var essentialPropertyId = essentialPropertiesHelper.searchAsset(currentSourceData, currentSavingAsset);
+        if (essentialPropertyId) {
+            currentSavingAsset.sid = essentialPropertyId;
         }
         assetsArray.push(currentSavingAsset);
         var originalAssetsFlag = metadata ? metadata.copyAsset : settingsHelper.shouldCopyOriginalAsset();

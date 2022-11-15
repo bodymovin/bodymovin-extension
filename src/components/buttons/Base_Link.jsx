@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
       background: 'transparent',
     },
     green: {
-      color: Variables.colors.white,
+      color: Variables.colors.green,
     	':disabled': {
           color: Variables.colors.gray2,
       		cursor: 'default'
@@ -49,6 +49,9 @@ const styles = StyleSheet.create({
     },
     text: {
       'border-bottom': '1px solid ' + Variables.colors.white,
+    },
+    'text--green': {
+      'borderBottomColor': Variables.colors.green,
     },
     'text--selected': {
       'border-bottom': 'none',
@@ -117,6 +120,7 @@ class BaseButton extends React.Component{
         }
         <span className={css(
           styles.text,
+          this.props.type === 'green' && styles['text--green'],
           this.props.selected && styles['text--selected'],
         )} >
           {this.props.text}

@@ -129,6 +129,7 @@ function *saveStoredData() {
 			actions.SETTINGS_SAVE_IN_PROJECT_FILE,
 			actions.SETTINGS_SKIP_DONE_VIEW,
 			actions.SETTINGS_REUSE_FONT_DATA,
+			actions.SETTINGS_TEMPLATES_LOADED,
 		])
 		const storingData = yield select(storingDataSelector)
 		try {

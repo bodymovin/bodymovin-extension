@@ -307,7 +307,8 @@ $.__bodymovin.bm_renderManager = (function () {
             fonts : [],
             layers : [],
             markers : [],
-            slots: [],
+            slots: {},
+            props: {},
             metadata: buildCompositionMetadata(compSettings.metadata),
         };
         currentExportedComps.push(currentCompID);

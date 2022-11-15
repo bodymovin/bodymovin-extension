@@ -1,23 +1,23 @@
-const convertProperty = (property, slots, properties) => {
+const convertProperty = (property, props, properties) => {
 	if (property && 'k' in property) {
 		const stringifiedValue = JSON.stringify(property.k)
-		let slot = properties.find((_slot) => {
+		let prop = properties.find((_slot) => {
 			return _slot.stringified === stringifiedValue;
 		})
-		if (!slot) {
-			slot = {
+		if (!prop) {
+			prop = {
 				stringified: stringifiedValue,
-				id: `slot_${properties.length}`
+				id: `p_${properties.length}`
 			}
-			properties.push(slot);
-			slots[slot.id] = {
+			properties.push(prop);
+			props[prop.id] = {
 				k: property.k,
 				a: property.a,
 			}
 		}
 		delete property.k;
 		delete property.a;
-		property.pid = slot.id;
+		property.pid = prop.id;
 	}
 }
 
