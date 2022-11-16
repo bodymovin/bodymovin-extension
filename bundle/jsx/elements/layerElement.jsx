@@ -75,19 +75,31 @@ $.__bodymovin.bm_layerElement = (function () {
         }
         
         if (layerInfo.hasTrackMatte) {
+            layerData.tk = {
+                t: 0,
+                i: 0,
+            }
             switch (layerInfo.trackMatteType) {
             case TrackMatteType.ALPHA:
-                layerData.tt = 1;
+                layerData.tk.t = 1;
                 break;
             case TrackMatteType.ALPHA_INVERTED:
-                layerData.tt = 2;
+                layerData.tk.t = 2;
                 break;
             case TrackMatteType.LUMA:
-                layerData.tt = 3;
+                layerData.tk.t = 3;
                 break;
             case TrackMatteType.LUMA_INVERTED:
-                layerData.tt = 4;
+                layerData.tk.t = 4;
                 break;
+            }
+            if ('trackMatteLayer' in layerInfo) {
+                if (layerInfo.trackMatteLayer.index === layerInfo.index - 1) {
+                    layerData.tt = layerData.tk.t;
+                }
+                layerData.tk.i = layerInfo.trackMatteLayer.index;
+            } else {
+                layerData.tk.i = layerInfo.index - 1;
             }
         } else if (layerInfo.isTrackMatte) {
             if (layerInfo.isValid !== false) {
