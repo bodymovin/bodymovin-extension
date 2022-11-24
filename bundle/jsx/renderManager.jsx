@@ -139,10 +139,10 @@ $.__bodymovin.bm_renderManager = (function () {
             bm_eventDispatcher.log(error.fileName);
         }
     }
-    
+ 
     function createLayers(comp, layers, framerate, deepTraversing, compTimeRange) {
         var currentCompSettings = settingsHelper.get();
-        var i, len = comp.layers.length, layerInfo, layerData, prevLayerData;
+        var i, len = comp.layers.length, layerInfo, layerData;
         var newInPoint, newOutPoint, newTimeRange;
         for (i = 0; i < len; i += 1) {
             layerInfo = comp.layers[i + 1];
@@ -159,12 +159,14 @@ $.__bodymovin.bm_renderManager = (function () {
                 layerData.render = true;
                 layerData.hd = true;
             }
-            if (layerData.td && prevLayerData && prevLayerData.td) {
+            // Now that layers can mask any other layer in the stack and multiple layers, this condition is no longer valid
+            /* if (layerData.td && prevLayerData && prevLayerData.td) {
                 prevLayerData.td = false;
                 if (prevLayerData.enabled === false && !currentCompSettings.hiddens) {
                     prevLayerData.render = false;
                 }
-            } else if (layerData.tt) {
+            } else
+            if (layerData.tt) {
                 if (layerData.render === false) {
                     if (prevLayerData.enabled === false && !currentCompSettings.hiddens) {
                         prevLayerData.render = false;
@@ -174,7 +176,7 @@ $.__bodymovin.bm_renderManager = (function () {
                 } else if (prevLayerData.render === false) {
                     delete layerData.tt;
                 }
-            }
+            } */
             layers.push(layerData);
             if (settingsHelper.shouldBakeBeyondWorkArea()) {
                 newTimeRange = [0, comp.duration];
@@ -188,7 +190,6 @@ $.__bodymovin.bm_renderManager = (function () {
                 layerData._excluded = true;
             }
             pendingLayers.push({data: layerData, layer: layerInfo, framerate: framerate, range: newTimeRange});
-            prevLayerData = layerData;
         }
         restoreParents(layers);
         for (i = 0; i < len; i += 1) {
