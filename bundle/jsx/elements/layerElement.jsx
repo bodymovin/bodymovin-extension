@@ -89,6 +89,11 @@ $.__bodymovin.bm_layerElement = (function () {
                 layerData.tt = 4;
                 break;
             }
+            if ('trackMatteLayer' in layerInfo) {
+                layerData.tp = layerInfo.trackMatteLayer.index;
+            } else {
+                layerData.tp = layerInfo.index - 1;
+            }
         } else if (layerInfo.isTrackMatte) {
             if (layerInfo.isValid !== false) {
                 layerData.render = true;
