@@ -5,7 +5,9 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   var ob = {};
   var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
   var bm_generalUtils = $.__bodymovin.bm_generalUtils;
+  var settingsHelper = $.__bodymovin.bm_settingsHelper;
   var keyframeHelper;
+  var textHelper;
 
   var rootProperties = [];
   var exportedProps = {};
@@ -124,6 +126,12 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
             propData.type = 'group';
             propData.properties = [];
             iterateProperty(property, frameRate, propData.properties);
+          } else if (property.matchName === 'ADBE Text Document') {
+            propData.type = 'property';
+            propData.val = {};
+            var textDocumentSource = property.essentialPropertySource
+            var textLayer = textDocumentSource.parentProperty.parentProperty
+            textHelper.exportTextDocumentData(textLayer, propData.val, frameRate);
           } else {
             // It's a property
             // bm_generalUtils.iterateProperty(property)
@@ -138,14 +146,19 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
           properties.push(propData);
         }
     }
-  
     try {
       if (!composition.essentialProperty) {
+        return;
+      }
+      if (!settingsHelper.shouldExportEssentialProperties()) {
         return;
       }
       
       if (!keyframeHelper) {
         keyframeHelper = $.__bodymovin.bm_keyframeHelper;
+      }
+      if (!textHelper) {
+        textHelper = $.__bodymovin.bm_textHelper;
       }
       var essentialProperty = composition.essentialProperty;
       iterateProperty(essentialProperty, frameRate, rootProperties);
@@ -239,6 +252,8 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
           t: propType.Asset,
           p: bm_generalUtils.cloneObject(savingData, true),
         }
+        // Removing the fileId since it's an internal property
+        prop.p.fileId = undefined;
         exportedProps[rootProperties[i].id] = prop;
         return rootProperties[i].id;
       }

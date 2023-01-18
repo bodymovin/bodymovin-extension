@@ -115,6 +115,12 @@ $.__bodymovin.bm_settingsHelper = (function () {
     function shouldCopyOriginalAsset() {
         return _settings.original_assets;
     }
+    function shouldExportEssentialProperties() {
+        return _settings.essentialProperties.active;
+    }
+    function shouldSkipExternalComposition() {
+        return shouldExportEssentialProperties() && _settings.essentialProperties.skipExternalComp;
+    }
 
     ob.set = setData
     ob.get = getData
@@ -144,6 +150,8 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldReplaceCharactersWithComps = shouldReplaceCharactersWithComps;
     ob.shouldUseCompNamesAsIds = shouldUseCompNamesAsIds;
     ob.shouldCopyOriginalAsset = shouldCopyOriginalAsset;
+    ob.shouldExportEssentialProperties = shouldExportEssentialProperties;
+    ob.shouldSkipExternalComposition = shouldSkipExternalComposition;
 
     return ob;
 }());

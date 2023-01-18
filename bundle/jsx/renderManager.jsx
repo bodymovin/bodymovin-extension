@@ -255,6 +255,16 @@ $.__bodymovin.bm_renderManager = (function () {
         }
     }
 
+    function getRenderingComp(comp) {
+        if (settingsHelper.shouldSkipExternalComposition()) {
+            const totalLayers = comp.layers.length;
+            if (totalLayers === 1) {
+                return comp.layers[1];
+            }
+        }
+        return comp;
+    }
+
     function render(
         comp,
         destination,
@@ -272,6 +282,14 @@ $.__bodymovin.bm_renderManager = (function () {
         if(!bm_fileManager.createTemporaryFolder()) {
             return;
         };
+        settingsHelper.set(compSettings);
+        var renderingComp = getRenderingComp(comp);
+        var renderingCompSource;
+        if (renderingComp === comp) {
+            renderingCompSource = comp;
+        } else {
+            renderingCompSource = renderingComp.source;
+        }
 
         processesState.render = 'working';
         processesState.report = 'working';
@@ -283,9 +301,8 @@ $.__bodymovin.bm_renderManager = (function () {
         app.beginUndoGroup("Render Bodymovin Animation");
         currentExportedComps = [];
         hasExpressionsFlag = false;
-        currentCompID = comp.id;
+        currentCompID = renderingCompSource.id;
         currentCompUID = compUid;
-        settingsHelper.set(compSettings)
 
         bm_ProjectHelper.init();
         bm_eventDispatcher.sendEvent('bm:render:update', {type: 'update', message: 'Starting Render', compId: currentCompID, progress: 0});
@@ -296,12 +313,12 @@ $.__bodymovin.bm_renderManager = (function () {
         pendingComps.length = 0;
         var exportData = {
             v : versionHelper.get(),
-            fr : comp.frameRate,
-            ip : comp.workAreaStart * comp.frameRate,
-            op : (comp.workAreaStart + comp.workAreaDuration) * comp.frameRate,
-            w : comp.width,
-            h : comp.height,
-            nm: comp.name,
+            fr : renderingCompSource.frameRate,
+            ip : renderingCompSource.workAreaStart * renderingCompSource.frameRate,
+            op : (renderingCompSource.workAreaStart + renderingCompSource.workAreaDuration) * renderingCompSource.frameRate,
+            w : renderingCompSource.width,
+            h : renderingCompSource.height,
+            nm: renderingCompSource.name,
             ddd : 0,
             assets : [],
             comps : [],
@@ -314,12 +331,15 @@ $.__bodymovin.bm_renderManager = (function () {
         };
         currentExportedComps.push(currentCompID);
         ob.renderData.exportData = exportData;
-        ob.renderData.firstFrame = exportData.ip * comp.frameRate;
-        createLayers(comp, exportData.layers, exportData.fr, true, [comp.workAreaStart, comp.workAreaStart + comp.workAreaDuration]);
+        ob.renderData.firstFrame = exportData.ip * renderingCompSource.frameRate;
+        if (renderingCompSource !== comp) {
+            essentialPropertiesHelper.addCompProperties(renderingComp, renderingComp.frameRate);
+        }
+        createLayers(renderingCompSource, exportData.layers, exportData.fr, true, [renderingCompSource.workAreaStart, renderingCompSource.workAreaStart + renderingCompSource.workAreaDuration]);
         exportExtraComps(exportData);
-        exportCompMarkers(exportData, comp);
-        exportMotionBlur(exportData, comp);
-        exportEssentialProps(exportData, comp);
+        exportCompMarkers(exportData, renderingCompSource);
+        exportMotionBlur(exportData, renderingCompSource);
+        exportEssentialProps(exportData);
         totalLayers = pendingLayers.length;
         currentLayer = 0;
         createReport();

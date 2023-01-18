@@ -1,5 +1,5 @@
 /*jslint vars: true , plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global layerElement, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
+/*global $,layerElement, File, app, ParagraphJustification, bm_textAnimatorHelper, bm_keyframeHelper, bm_sourceHelper, bm_textShapeHelper*/
 $.__bodymovin.bm_textHelper = (function () {
     'use strict';
     var bm_keyframeHelper = $.__bodymovin.bm_keyframeHelper;
@@ -7,6 +7,7 @@ $.__bodymovin.bm_textHelper = (function () {
     var bm_expressionHelper = $.__bodymovin.bm_expressionHelper;
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var annotationsManager = $.__bodymovin.bm_annotationsManager;
+    var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
     var ob = {};
     
     function getJustification(value) {
@@ -62,6 +63,11 @@ $.__bodymovin.bm_textHelper = (function () {
         }
         var arr = [];
         data.k = arr;
+        
+        var essentialPropId = essentialPropertiesHelper.searchProperty(layerInfo.property("Source Text"));
+        if (essentialPropId) {
+            data.sid = essentialPropId;
+        }
         var numKeys = sourceTextProp.numKeys;
         var j, jLen = numKeys ? numKeys : 1;
         if(jLen === 0){
@@ -232,6 +238,7 @@ $.__bodymovin.bm_textHelper = (function () {
     }
     
     ob.exportText = exportText;
+    ob.exportTextDocumentData = exportTextDocumentData;
     
     return ob;
     

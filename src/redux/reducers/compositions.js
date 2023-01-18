@@ -121,6 +121,10 @@ let defaultComposition = {
           active: false,
           id: 0,
           errors: [],
+        },
+        essentialProperties: {
+          active: true,
+          skipExternalComp: false,
         }
     }
   }
