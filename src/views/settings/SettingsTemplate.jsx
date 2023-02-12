@@ -22,17 +22,17 @@ class SettingsTemplate extends React.PureComponent {
   render() {
     return (
     	<SettingsCollapsableItem 
-        title={'Template'}
-        description={'Use a template to attach to animation to validate export'}
+        title={'Blueprint'}
+        description={'Use a blueprint to attach to the animation to validate export'}
         >
         <SettingsListItem 
-          title='Activate template validation'
-          description='if active, after render, the result will be validated against the selected template'
+          title='Activate blueprint validation'
+          description='if active, after render, the result will be validated against the selected blueprint'
           toggleItem={() => this.props.toggle(`${this.namespace}active`)}
           active={this.props.data ? this.props.data.active : false}  />
         <SettingsListDropdown 
-          title='Select template'
-          description='Select a template to use for validation'
+          title='Select blueprint'
+          description='Select a blueprint to use for validation'
           onChange={this.handleTemplateChange}
           current={this.props.data.id}
           options={this.props.templates}  

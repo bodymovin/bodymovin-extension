@@ -106,7 +106,7 @@ let RenderItem = (props) => {
                         <div
                             onClick={()=>props.template(props.item)}
                             className={css(styles.compElementContentToggle)}
-                            title={'Template report'}
+                            title={'Blueprint report'}
                         >
                         <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                         </div>

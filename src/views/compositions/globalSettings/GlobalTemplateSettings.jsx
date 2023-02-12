@@ -66,9 +66,9 @@ class GlobalTemplateSettings extends React.Component {
     return (
       <div className={css(styles.wrapper)}>
         <div className={css(styles.header)}>
-          <div className={css(styles.headerTitle)}>Templates</div>
+          <div className={css(styles.headerTitle)}>Blueprints</div>
           <BaseButton
-              text='Add Template'
+              text='Add Blueprint'
               type='gray'
               classes={styles.button}
               onClick={this.props.loadTemplate}
