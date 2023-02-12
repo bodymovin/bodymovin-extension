@@ -11,7 +11,6 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
 
   var rootProperties = [];
   var exportedProps = {};
-  var counter = 0;
 
   var propType = {
     Color: 1,
@@ -104,6 +103,46 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
     'ADBE Text Scale 3D': propType.Scale,
     'ADBE Vector Scale': propType.Scale,
   }
+
+  function clearTextProperties(propertyName, data) {
+    var textDict = {
+      'font': 'f',
+      'f': 'f',
+      'size': 's',
+      's': 's',
+      'color': 'fc',
+      'fc': 'fc',
+      'justification': 'j',
+      'justify': 'j',
+      'j': 'j',
+      'text': 't',
+      't': 't',
+      'all caps': 'ca',
+      'allcaps': 'ca',
+      'ca': 'ca',
+    }
+    if (propertyName.indexOf('|') !== -1) {
+      var properties = propertyName.split('|');
+      var keyframes = data.k;
+      var persistingProps = {};
+      var i;
+      for (i  = 0; i < properties.length; i += 1) {
+        var sanitizedProp = bm_generalUtils.trimText(properties[i]);
+        if (textDict.hasOwnProperty(sanitizedProp)) {
+          persistingProps[textDict[sanitizedProp]] = true;
+        }
+      }
+      for (i = 0; i < keyframes.length; i += 1) {
+        var keyframe = keyframes[i];
+        var textDocumentProp = keyframe.s;
+        for (var s in textDocumentProp) {
+          if (textDocumentProp.hasOwnProperty(s) && !persistingProps.hasOwnProperty(s)) {
+            delete textDocumentProp[s];
+          }
+        }
+      }
+    }
+  }
   
   // Searches for all essential properties in a composition
   function addCompProperties(composition, frameRate) {
@@ -114,7 +153,6 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
           var property = parent.property(i + 1);
           var propData = {
             property: property,
-            // id: 'prop_' + counter++,
             id: property.name,
           }
           // TODO: check if there is a better way to identify type
@@ -132,6 +170,7 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
             var textDocumentSource = property.essentialPropertySource
             var textLayer = textDocumentSource.parentProperty.parentProperty
             textHelper.exportTextDocumentData(textLayer, propData.val, frameRate);
+            clearTextProperties(property.name, propData.val)
           } else {
             // It's a property
             // bm_generalUtils.iterateProperty(property)
@@ -262,7 +301,6 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   }
 
   function reset() {
-    counter = 0;
     rootProperties = [];
     exportedProps = {};
   }

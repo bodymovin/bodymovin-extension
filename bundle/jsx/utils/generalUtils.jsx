@@ -176,6 +176,10 @@ $.__bodymovin.bm_generalUtils = (function () {
         return finalString;
     }
 
+    function trimText(text) {
+        return text.replace(/^\s+|\s+$/g, '');
+    }
+
     function cloneObject(ob, shallow) {
         if (shallow === undefined) {
             shallow = true;
@@ -204,6 +208,7 @@ $.__bodymovin.bm_generalUtils = (function () {
     ob.extendPrototype = extendPrototype;
     ob.sanitizeName = sanitizeName;
     ob.cloneObject = cloneObject;
+    ob.trimText = trimText;
     
     return ob;
     
