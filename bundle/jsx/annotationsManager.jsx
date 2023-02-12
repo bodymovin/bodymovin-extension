@@ -184,6 +184,14 @@ $.__bodymovin.bm_annotationsManager = (function () {
         return value - 1;
     }
 
+    function formatVerticalAlignment(value) {
+        // Changing the value to the new vertical centering including the bounding box
+        if (value === 2) {
+            return 3;
+        }
+        return value - 1;
+    }
+
     function addTextProperties(effect, data) {
         // matchnames are not working for inner elements
         // Pseudo/Bodymovin Text Props 3-0001 -> Pseudo/BM Vert Alignment
@@ -199,7 +207,8 @@ $.__bodymovin.bm_annotationsManager = (function () {
             // bm_eventDispatcher.log('VALUE: ' + prop.value);
             //
             if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0001') {
-                data.vj = prop.value - 1;
+
+                data.vj = formatVerticalAlignment(prop.value);
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0002') {
                 data.rs = prop.value - 1;
             } else if (prop.matchName === 'Pseudo/Bodymovin Text Props 7-0003') {
