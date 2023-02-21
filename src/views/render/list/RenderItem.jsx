@@ -3,6 +3,7 @@ import { StyleSheet, css } from 'aphrodite'
 import status_button from '../../../assets/svg/cancel_button.svg'
 import complete_icon from '../../../assets/svg/complete_icon.svg'
 import report_icon from '../../../assets/svg/report.svg'
+import warning_icon from '../../../assets/svg/warning.svg'
 import Variables from '../../../helpers/styles/variables'
 import BodymovinFolder from '../../../components/bodymovin/bodymovin_folder'
 
@@ -108,7 +109,7 @@ let RenderItem = (props) => {
                             className={css(styles.compElementContentToggle)}
                             title={'Blueprint report'}
                         >
-                        <img src={complete_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
+                        <img src={warning_icon}  className={css(styles.compElementContentFolder__image)} alt='toggle' />
                         </div>
                     }
 				<div className={css(styles.compElementContentFolder)}>

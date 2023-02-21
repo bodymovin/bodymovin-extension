@@ -208,7 +208,7 @@ function *loadTemplate() {
 			var readResult = window.cep.fs.readFile(result.data[0]);
         if(readResult.err === 0) {
 					var jsonData = JSON.parse(readResult.data);
-					if (jsonData.type === 'template') {
+					if (jsonData.type === 'blueprint') {
 						yield put(templateLoaded(jsonData))
 					}
 	    } else {
