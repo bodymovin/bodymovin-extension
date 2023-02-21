@@ -186,10 +186,8 @@ $.__bodymovin.bm_annotationsManager = (function () {
 
     function formatVerticalAlignment(value) {
         // Changing the value to the new vertical centering including the bounding box
-        if (value === 2) {
-            return 3;
-        }
-        return value - 1;
+        // Values 0 - 1 - 2 are deprecated, replaced by 3 - 4 - 5
+        return value - 1 + 3;
     }
 
     function addTextProperties(effect, data) {
