@@ -439,11 +439,27 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     
     function exportKeyframes(prop, frRate, stretch, keyframeValues) {
         settingsHelper = $.__bodymovin.bm_settingsHelper;
-        essentialPropertiesHelper.searchProperty(prop);
         var returnOb = {}
-        var essentialPropId = essentialPropertiesHelper.searchProperty(prop);
-        if (essentialPropId) {
-            returnOb.sid = essentialPropId;
+        if (settingsHelper.shouldExportEssentialProperties()) {
+            if (settingsHelper.shouldExportEssentialPropertiesAsSlots()) {
+                var essentialPropId = essentialPropertiesHelper.searchPropertyId(prop);
+                if (essentialPropId) {
+                    returnOb.sid = essentialPropId;
+                }
+            } else {
+                var essentialProperty = essentialPropertiesHelper.searchProperty(prop);
+                if (essentialProperty) {
+                    for (var key in essentialProperty) {
+                        if (essentialProperty.hasOwnProperty(key)) {
+                            returnOb[key] = essentialProperty[key];
+                        }
+                    }
+                    if(prop.propertyIndex && !settingsHelper.shouldIgnoreExpressionProperties()) {
+                        returnOb.ix = prop.propertyIndex;
+                    }
+                    return returnOb;
+                }
+            }
         }
         if (bm_expressionHelper.shouldBakeExpression(prop)) {
             returnOb = bakeExpressions(prop, frRate);

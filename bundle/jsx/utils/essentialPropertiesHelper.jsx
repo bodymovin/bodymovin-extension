@@ -146,6 +146,7 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   
   // Searches for all essential properties in a composition
   function addCompProperties(composition, frameRate) {
+    bm_eventDispatcher.log('addCompProperties');
 
     function iterateProperty(parent, frameRate, properties) {
       var totalProperties = parent.numProperties;
@@ -216,6 +217,31 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   // Searches if a property is part of the essential properties
   function searchProperty(property) {
 
+    function searchPropertyInList(property, list) {
+      var i, len = list.length;
+      for(i = 0; i < len; i += 1) {
+        if (list[i].type === 'property' ) {
+          // Not using strict equality because sources don't match
+          // eslint-disable-next-line eqeqeq
+          if (list[i].property.essentialPropertySource == property) {
+            return list[i].val;
+          }
+        } else if (list[i].type === 'group' ) {
+          var prop = searchPropertyInList(property, list[i].properties);
+          if (prop) {
+            return prop;
+          }
+        }
+      }
+      return null;
+    }
+  
+    return searchPropertyInList(property, rootProperties, '');
+  }
+
+  // Searches if a property is part of the essential properties
+  function searchPropertyId(property) {
+
     function searchPropertyInList(property, list, groupId) {
       var i, len = list.length;
       for(i = 0; i < len; i += 1) {
@@ -254,6 +280,9 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
 
   // Traverses and returns a dictionary with the essential properties
   function exportProperties() {
+    if (!settingsHelper.shouldExportEssentialPropertiesAsSlots()) {
+      return undefined;
+    }
     exportedProps = {};
     var count = 0;
     var prop;
@@ -308,6 +337,7 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
   ob.addCompProperties = addCompProperties;
   ob.exportProperties = exportProperties;
   ob.searchProperty = searchProperty;
+  ob.searchPropertyId = searchPropertyId;
   ob.searchAsset = searchAsset;
   ob.reset = reset;
   

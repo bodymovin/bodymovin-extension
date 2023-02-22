@@ -124,6 +124,7 @@ let defaultComposition = {
         },
         essentialProperties: {
           active: true,
+          useSlots: false,
           skipExternalComp: false,
         }
     }
@@ -181,6 +182,7 @@ function setStoredData(state, action) {
       compositions[comp] = deepmerge(defaultComposition, item, { arrayMerge: overwriteMerge })
     }
   }
+  console.log('compositions', compositions);
   let newState = {...state}
   newState.items = {
     ...newState.items,

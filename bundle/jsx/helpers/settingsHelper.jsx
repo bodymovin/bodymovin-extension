@@ -118,6 +118,9 @@ $.__bodymovin.bm_settingsHelper = (function () {
     function shouldExportEssentialProperties() {
         return _settings.essentialProperties.active;
     }
+    function shouldExportEssentialPropertiesAsSlots() {
+        return _settings.essentialProperties.useSlots;
+    }
     function shouldSkipExternalComposition() {
         return shouldExportEssentialProperties() && _settings.essentialProperties.skipExternalComp;
     }
@@ -151,6 +154,7 @@ $.__bodymovin.bm_settingsHelper = (function () {
     ob.shouldUseCompNamesAsIds = shouldUseCompNamesAsIds;
     ob.shouldCopyOriginalAsset = shouldCopyOriginalAsset;
     ob.shouldExportEssentialProperties = shouldExportEssentialProperties;
+    ob.shouldExportEssentialPropertiesAsSlots = shouldExportEssentialPropertiesAsSlots;
     ob.shouldSkipExternalComposition = shouldSkipExternalComposition;
 
     return ob;

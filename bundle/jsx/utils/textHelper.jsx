@@ -8,6 +8,7 @@ $.__bodymovin.bm_textHelper = (function () {
     var bm_eventDispatcher = $.__bodymovin.bm_eventDispatcher;
     var annotationsManager = $.__bodymovin.bm_annotationsManager;
     var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
+    var settingsHelper = $.__bodymovin.bm_settingsHelper;
     var ob = {};
     
     function getJustification(value) {
@@ -63,10 +64,21 @@ $.__bodymovin.bm_textHelper = (function () {
         }
         var arr = [];
         data.k = arr;
-        
-        var essentialPropId = essentialPropertiesHelper.searchProperty(layerInfo.property("Source Text"));
-        if (essentialPropId) {
-            data.sid = essentialPropId;
+
+        if (settingsHelper.shouldExportEssentialProperties()) {
+            if (settingsHelper.shouldExportEssentialPropertiesAsSlots()) {
+                var essentialPropId = essentialPropertiesHelper.searchPropertyId(layerInfo.property("Source Text"));
+                if (essentialPropId) {
+                    data.sid = essentialPropId;
+                }
+            } else {
+                // TODO: implement once AE supports it
+                /*var essentialProperty = essentialPropertiesHelper.searchProperty(layerInfo.property("Source Text"));
+                if (essentialProperty) {
+                    data.k = essentialProperty;
+                    return;
+                }*/
+            }
         }
         var numKeys = sourceTextProp.numKeys;
         var j, jLen = numKeys ? numKeys : 1;

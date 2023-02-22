@@ -170,6 +170,7 @@ class Settings extends React.PureComponent {
     this.toggleExtendBakeBeyondWorkArea = this.toggleValue.bind(this,'expressions:shouldBakeBeyondWorkArea')
     this.toggleCompNamesAsIds = this.toggleValue.bind(this,'useCompNamesAsIds')
     this.toggleEssentialPropertiesActive = this.toggleValue.bind(this,'essentialProperties:active')
+    this.toggleEssentialPropertiesAsSlots = this.toggleValue.bind(this,'essentialProperties:useSlots')
     this.toggleEssentialPropertiesCompSkip = this.toggleValue.bind(this,'essentialProperties:skipExternalComp')
     this.toggleBundleFonts = this.toggleValue.bind(this,'bundleFonts')
     this.toggleInlineFonts = this.toggleValue.bind(this,'inlineFonts')
@@ -396,26 +397,36 @@ class Settings extends React.PureComponent {
                 description='Composition names will be used as reference ids'
                 toggleItem={this.toggleCompNamesAsIds}
                 active={this.props.settings ? this.props.settings.useCompNamesAsIds : false}  />
-                
+            </SettingsCollapsableItem>
             <SettingsCollapsableItem 
               title={'Essential properties'}
               description={'Essential properties'}
               >
+                
                 <SettingsListItem
-                  title='Export essential properties as slots'
-                  description='This will map essential properties to slots on the json file that allows for easy modification.'
+                  title='Export essential properties'
+                  description='Export essential properties from the root composition'
                   toggleItem={this.toggleEssentialPropertiesActive}
                   active={this.props.settings ? this.props.settings.essentialProperties.active : false}
                 />
-                <SettingsListItem
-                  title='Skip outermost external composition'
-                  description='Usually essential comps are applied to the outermost composition. This will skip that composition, but still include the slots in the final JSON'
-                  toggleItem={this.toggleEssentialPropertiesCompSkip}
-                  active={this.props.settings ? this.props.settings.essentialProperties.skipExternalComp : false}
-                />
+                {this.props.settings.essentialProperties.active &&
+                  <SettingsListItem
+                    title='Export essential properties as slots'
+                    description='If active will map essential properties to slots on the json file that allows for easy modification. If deactivated, it will replace the properties inline in the composition.'
+                    toggleItem={this.toggleEssentialPropertiesAsSlots}
+                    active={this.props.settings ? this.props.settings.essentialProperties.useSlots : false}
+                  />
+                }
+                {this.props.settings.essentialProperties.active && this.props.settings.essentialProperties.useSlots &&
+                  <SettingsListItem
+                    title='Skip outermost external composition'
+                    description='Usually essential comps are applied to the outermost composition. This will skip that composition, but still include the slots in the final JSON'
+                    toggleItem={this.toggleEssentialPropertiesCompSkip}
+                    active={this.props.settings ? this.props.settings.essentialProperties.skipExternalComp : false}
+                  />
+                }
 
               </SettingsCollapsableItem>
-            </SettingsCollapsableItem>
             <SettingsMetadata
               data={this.props.settings.metadata}
               toggle={this.toggleValue}
