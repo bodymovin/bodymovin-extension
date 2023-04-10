@@ -1681,6 +1681,22 @@
     return renderers[key];
   }
 
+  function getRegisteredRenderer() {
+    // Returns canvas by default for compatibility
+    if (renderers.canvas) {
+      return 'canvas';
+    } // Returns any renderer that is registered
+
+
+    for (var key in renderers) {
+      if (renderers[key]) {
+        return key;
+      }
+    }
+
+    return '';
+  }
+
   function _typeof$4(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof$4 = function _typeof(obj) { return typeof obj; }; } else { _typeof$4 = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof$4(obj); }
 
   var AnimationItem = function AnimationItem() {
@@ -1802,7 +1818,7 @@
     ? wrapperAttributes.getNamedItem('data-anim-type').value : wrapperAttributes.getNamedItem('data-bm-type') // eslint-disable-line no-nested-ternary
     ? wrapperAttributes.getNamedItem('data-bm-type').value : wrapperAttributes.getNamedItem('bm-type') // eslint-disable-line no-nested-ternary
     ? wrapperAttributes.getNamedItem('bm-type').value : wrapperAttributes.getNamedItem('data-bm-renderer') // eslint-disable-line no-nested-ternary
-    ? wrapperAttributes.getNamedItem('data-bm-renderer').value : wrapperAttributes.getNamedItem('bm-renderer') ? wrapperAttributes.getNamedItem('bm-renderer').value : 'canvas';
+    ? wrapperAttributes.getNamedItem('data-bm-renderer').value : wrapperAttributes.getNamedItem('bm-renderer') ? wrapperAttributes.getNamedItem('bm-renderer').value : getRegisteredRenderer() || 'canvas';
     var loop = wrapperAttributes.getNamedItem('data-anim-loop') // eslint-disable-line no-nested-ternary
     ? wrapperAttributes.getNamedItem('data-anim-loop').value : wrapperAttributes.getNamedItem('data-bm-loop') // eslint-disable-line no-nested-ternary
     ? wrapperAttributes.getNamedItem('data-bm-loop').value : wrapperAttributes.getNamedItem('bm-loop') ? wrapperAttributes.getNamedItem('bm-loop').value : '';
@@ -1830,7 +1846,11 @@
       params.prerender = false;
     }
 
-    this.setParams(params);
+    if (!params.path) {
+      this.trigger('destroy');
+    } else {
+      this.setParams(params);
+    }
   };
 
   AnimationItem.prototype.includeLayers = function (data) {
@@ -5242,7 +5262,7 @@
   lottie.useWebWorker = setWebWorker;
   lottie.setIDPrefix = setPrefix;
   lottie.__getFactory = getFactory;
-  lottie.version = '5.10.2';
+  lottie.version = '5.11.0';
 
   function checkReady() {
     if (document.readyState === 'complete') {
@@ -10757,6 +10777,7 @@
     dData = this.copyData(dData, newData);
     this.data.d.k[index].s = dData;
     this.recalculate(index);
+    this.setCurrentData(dData);
     this.elem.addDynamicProperty(this);
   };
 
@@ -12251,7 +12272,7 @@
     var len = this.layers ? this.layers.length : 0;
 
     for (i = 0; i < len; i += 1) {
-      if (this.elements[i]) {
+      if (this.elements[i] && this.elements[i].destroy) {
         this.elements[i].destroy();
       }
     }
@@ -14269,7 +14290,7 @@
     var len = this.layers ? this.layers.length : 0;
 
     for (i = len - 1; i >= 0; i -= 1) {
-      if (this.elements[i]) {
+      if (this.elements[i] && this.elements[i].destroy) {
         this.elements[i].destroy();
       }
     }
@@ -15585,7 +15606,9 @@
     var len = this.layers ? this.layers.length : 0;
 
     for (i = 0; i < len; i += 1) {
-      this.elements[i].destroy();
+      if (this.elements[i] && this.elements[i].destroy) {
+        this.elements[i].destroy();
+      }
     }
 
     this.elements.length = 0;
@@ -17171,8 +17194,6 @@
 
   var TextExpressionInterface = function () {
     return function (elem) {
-      var _prevValue;
-
       var _sourceText;
 
       function _thisLayerFunction(name) {
@@ -17190,8 +17211,7 @@
           elem.textProperty.getValue();
           var stringValue = elem.textProperty.currentData.t;
 
-          if (stringValue !== _prevValue) {
-            _prevValue = elem.textProperty.currentData.t;
+          if (!_sourceText || stringValue !== _sourceText.value) {
             _sourceText = new String(stringValue); // eslint-disable-line no-new-wrappers
             // If stringValue is an empty string, eval returns undefined, so it has to be returned as a String primitive
 
