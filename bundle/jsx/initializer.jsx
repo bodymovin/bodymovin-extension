@@ -30,6 +30,7 @@ if (!Function.prototype.bm_bind) (function(){
   var files = [
   'JSON.jsx',
   'eventManager.jsx',
+  'main.jsx',
   'enums/layerTypes.jsx',
   'enums/layerStyleTypes.jsx',
   'enums/shapeTypes.jsx',

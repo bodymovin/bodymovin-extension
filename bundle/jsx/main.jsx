@@ -2,7 +2,7 @@
 /*global $, File, Folder*/
 
 $.__bodymovin = $.__bodymovin || {esprima:{}}
-$.__bodymovin.host_script = (function () {
+$.__bodymovin.bm_main = (function () {
     'use strict';
     var ob = {};
     
