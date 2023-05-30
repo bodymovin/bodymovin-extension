@@ -31,7 +31,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
         mesh_warp: 31,
         ripple: 32,
         spherize: 33,
-        freePin3: 34
+        freePin3: 34,
+        geometry2: 35,
     };
     
     function getEffectType(name) {
@@ -66,6 +67,8 @@ $.__bodymovin.bm_effectsHelper = (function () {
             return effectTypes.spherize;
         case 'ADBE FreePin3':
             return effectTypes.freePin3;
+        case 'ADBE Geometry2':
+            return effectTypes.geometry2;
         default:
             // bm_eventDispatcher.log(name)
             return effectTypes.group;
