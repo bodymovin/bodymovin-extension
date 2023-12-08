@@ -268,8 +268,10 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                                 } else {
                                     yNormal = (key.value[k] - lastKey.value[k]);
                                 }
+                                var nmlFlag = true;
                                 if(Math.abs(yNormal) < 0.0000001) {
                                     yNormal = 1;
+                                    nmlFlag = false;
                                 }
                                 // bm_eventDispatcher.log('yNormal')
                                 // bm_eventDispatcher.log(yNormal)
@@ -283,6 +285,10 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                                 // bm_eventDispatcher.log(bezierInY)
                                 bezierIn.y[k] = 1 - (bezierInY*duration)/yNormal;
                                 bezierOut.y[k] = (bezierY*duration)/yNormal;
+                                if(!nmlFlag)
+                                {
+                                    bezierIn.y[k] = -(bezierInY*duration)/yNormal;
+                                }
                             }
                         }
                         break;
