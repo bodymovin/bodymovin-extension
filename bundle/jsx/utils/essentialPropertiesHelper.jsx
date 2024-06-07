@@ -165,7 +165,8 @@ $.__bodymovin.bm_essentialPropertiesHelper = (function () {
             propData.type = 'group';
             propData.properties = [];
             iterateProperty(property, frameRate, propData.properties);
-          } else if (property.matchName === 'ADBE Text Document') {
+          } else if (property.matchName === 'ADBE Text Document' 
+                || property.matchName === 'ADBE EP Text Document') {
             propData.type = 'property';
             propData.val = {};
             var textDocumentSource = property.essentialPropertySource
