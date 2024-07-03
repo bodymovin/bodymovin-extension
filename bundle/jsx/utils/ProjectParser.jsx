@@ -28,7 +28,7 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         } else {
             var demoFile = new File(ff.absoluteURI);
             demoFile.open('r', 'TEXT', '????');
-            //demoFile.encoding = 'UTF-8';
+            demoFile.encoding = 'BINARY';
             fileString = demoFile.read(demoFile.length);
         }
     }
@@ -44,6 +44,13 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         }
     }
 
+    function toUTF8ByteString(str) {
+        var uriEncoded = encodeURIComponent(str);
+        return uriEncoded.replace(/%([0-9A-F]{2})/g, function(match, p1) {
+            return String.fromCharCode('0x' + p1);
+        });
+    }
+
     function getGradientData(shapeNavigation, numKeys){
         if(!fileString){
             getProjectData();
@@ -56,14 +63,14 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         var gradientIndex = 0, navigationIndex = 0;
         var i = 0, len = shapeNavigation.length;
         while (i < len) {
-            var encoded = unescape(encodeURIComponent(shapeNavigation[i] + 'LIST'));
+            var encoded = toUTF8ByteString(shapeNavigation[i] + 'LIST');
             var stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
             if (stringIndex === -1) {
-                encoded = unescape(encodeURIComponent(shapeNavigation[i] + ' LIST'));
+                encoded = toUTF8ByteString(shapeNavigation[i] + ' LIST');
                 stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
             }
             if (stringIndex === -1) {
-                encoded = unescape(encodeURIComponent(shapeNavigation[i]));
+                encoded = toUTF8ByteString(shapeNavigation[i]);
                 stringIndex = fileString.indexOf(encoded, navigationIndex + 1);
             }
             navigationIndex = stringIndex;
