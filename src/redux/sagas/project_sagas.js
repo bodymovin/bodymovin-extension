@@ -43,8 +43,8 @@ function *projectGetStoredData(action) {
 		}
 		if(projectData) {
 			yield put({ 
-					type: actions.PROJECT_STORED_DATA,
-					projectData: projectData
+				type: actions.PROJECT_STORED_DATA,
+				projectData: projectData
 			})
 		}
 	} catch(err){
@@ -55,8 +55,8 @@ function *getPaths(action) {
 		let pathsData = yield call(getPathsFromLocalStorage)
 		if(pathsData) {
 			yield put({ 
-					type: actions.PATHS_FETCHED,
-					pathsData: pathsData
+				type: actions.PATHS_FETCHED,
+				pathsData: pathsData
 			})
 		}
 	} catch(err){
@@ -73,7 +73,7 @@ function saveProjectDataToPath(data) {
 	try {
 		if (data.extraState.shouldKeepCopyOfSettings
 			&& data.extraState.settingsDestinationCopy) {
-				fs.writeFileSync(data.extraState.settingsDestinationCopy.destination, JSON.stringify(data))
+			fs.writeFileSync(data.extraState.settingsDestinationCopy.destination, JSON.stringify(data))
 		}
 	} catch (err) {
 	}
@@ -147,7 +147,7 @@ function *saveStoredData() {
 				yield put({ 
 					type: actions.SETTINGS_SAVE_FAILED,
 					projects,
-			})
+				})
 			}
 		}
 	}
@@ -200,7 +200,7 @@ function *start() {
 			yield call(pingServer)
 		} catch (err) {
 			yield put({ 
-					type: actions.SERVER_PING_FAIL,
+				type: actions.SERVER_PING_FAIL,
 			})
 		}
 	}
@@ -219,14 +219,14 @@ function *compressAllSettings() {
 }
 
 export default [
-  takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
-  takeEvery([actions.APP_INITIALIZED], getPaths),
-  takeEvery([actions.APP_INITIALIZED], getVersion),
-  takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
-  takeEvery([actions.APP_INITIALIZED], start),
-  takeEvery([actions.PROJECT_SET_ID], compressAllSettings),
-  takeEvery([actions.APP_CLEAR_CACHE_CONFIRMED], clearCache),
-  takeEvery([actions.APP_CLEAR_CACHE_PROJECTS], clearProjectsFromCache),
-  fork(saveStoredData),
-  fork(savePathsData)
+	takeEvery(actions.PROJECT_SET_ID, projectGetStoredData),
+	takeEvery([actions.APP_INITIALIZED], getPaths),
+	takeEvery([actions.APP_INITIALIZED], getVersion),
+	takeEvery([actions.APP_INITIALIZED], getLottieFilesSizes),
+	takeEvery([actions.APP_INITIALIZED], start),
+	takeEvery([actions.PROJECT_SET_ID], compressAllSettings),
+	takeEvery([actions.APP_CLEAR_CACHE_CONFIRMED], clearCache),
+	takeEvery([actions.APP_CLEAR_CACHE_PROJECTS], clearProjectsFromCache),
+	fork(saveStoredData),
+	fork(savePathsData)
 ]

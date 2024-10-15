@@ -15,28 +15,28 @@ function finalize() {
 function featuresLoaded(features) {
 	return {
 		type: actionTypes.SUPPORTED_FEATURES_LOAD_SUCCESS,
-    features,
+		features,
 	}
 }
 
 function featuresLoadFailed(features) {
 	return {
 		type: actionTypes.SUPPORTED_FEATURES_LOAD_FAILED,
-    features,
+		features,
 	}
 }
 
 function featuresSelectionUpdated(features) {
 	return {
 		type: actionTypes.SUPPORTED_FEATURES_SELECTION_UPDATED,
-    features,
+		features,
 	}
 }
 
 export {
 	initialize,
 	finalize,
-  featuresLoaded,
-  featuresLoadFailed,
-  featuresSelectionUpdated,
+	featuresLoaded,
+	featuresLoadFailed,
+	featuresSelectionUpdated,
 }

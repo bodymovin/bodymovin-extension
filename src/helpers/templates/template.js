@@ -5,38 +5,38 @@ import errorFactory from "./helpers/errorFactory";
 import validateSlots from "./slots/slots";
 
 const validateAssets = (animationData, assetsValidation) => {
-  const templateError = errorFactory();
-  if (assetsValidation) {
-    const assets = animationData.assets
-      ? animationData.assets.filter(asset => !asset.layers)
-      : []
-    if (assetsValidation.count) {
-      if (!compare(assetsValidation.count.operation, assets.length, assetsValidation.count.value)) {
-        templateError.add(
-          validationTypes.ASSETS,
-          `Total assets (${assets.length}) don't satisfy count ${assetsValidation.count.operation} ${assetsValidation.count.value}`,
-        );
-      }
-    }
-  }
-  return templateError;
+	const templateError = errorFactory();
+	if (assetsValidation) {
+		const assets = animationData.assets
+			? animationData.assets.filter(asset => !asset.layers)
+			: []
+		if (assetsValidation.count) {
+			if (!compare(assetsValidation.count.operation, assets.length, assetsValidation.count.value)) {
+				templateError.add(
+					validationTypes.ASSETS,
+					`Total assets (${assets.length}) don't satisfy count ${assetsValidation.count.operation} ${assetsValidation.count.value}`,
+				);
+			}
+		}
+	}
+	return templateError;
 }
 
 const validate = async (data, parser) => {
-  try {
-    // console.log(JSON.stringify(data));
-    const templateError = errorFactory();
-    const validations = await Promise.all([
-      validateSlots(data, parser.slots),
-      validateAssets(data, parser.assets),
-    ])
-    validations.forEach(error => templateError.concat(error));
-    console.log(templateError.getErrors());
-    return templateError.getErrors();
-  } catch (error) {
-    console.log(error);
-    throw new Error('Unhandle Error');
-  }
+	try {
+		// console.log(JSON.stringify(data));
+		const templateError = errorFactory();
+		const validations = await Promise.all([
+			validateSlots(data, parser.slots),
+			validateAssets(data, parser.assets),
+		])
+		validations.forEach(error => templateError.concat(error));
+		console.log(templateError.getErrors());
+		return templateError.getErrors();
+	} catch (error) {
+		console.log(error);
+		throw new Error('Unhandle Error');
+	}
 }
 export default validate;
 
@@ -1965,27 +1965,27 @@ export default validate;
 // 			}
 // 		]
 // 	},
-	// "layers": {
-	// 	"count": {
-	// 		"operation": "===",
-	// 		"value": 1
-	// 	},
-	// 	"entries": [
-	// 		{
-	// 			"type": 0,
-	// 			"count": {
-	// 				"operation": "===",
-	// 				"value": 3
-	// 			}
-	// 		}
-	// 	]
-	// },
-	// "assets": {
-	// 	"count": {
-	// 		"operation": ">",
-	// 		"value": 3
-	// 	}
-	// }
+// "layers": {
+// 	"count": {
+// 		"operation": "===",
+// 		"value": 1
+// 	},
+// 	"entries": [
+// 		{
+// 			"type": 0,
+// 			"count": {
+// 				"operation": "===",
+// 				"value": 3
+// 			}
+// 		}
+// 	]
+// },
+// "assets": {
+// 	"count": {
+// 		"operation": ">",
+// 		"value": 3
+// 	}
+// }
 // }
 
 // validate(data, parser);

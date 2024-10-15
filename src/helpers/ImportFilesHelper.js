@@ -179,7 +179,9 @@ function processTransform(transformData, layerId) {
 function createLayer(layerData, compId) {
 	switch (layerData.ty) {
 		case 1:
-		createSolid(layerData, compId)
+			createSolid(layerData, compId)
+			break;
+		default: return;
 	}
 }
 

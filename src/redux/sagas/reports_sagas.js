@@ -39,6 +39,6 @@ function *handleImportSelected(action) {
 }
 
 export default [
-  takeEvery(actions.GOTO_REPORTS, getReportData),
-  takeEvery(actions.REPORTS_IMPORT_SELECTED, handleImportSelected),
+	takeEvery(actions.GOTO_REPORTS, getReportData),
+	takeEvery(actions.REPORTS_IMPORT_SELECTED, handleImportSelected),
 ]

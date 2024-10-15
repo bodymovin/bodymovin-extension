@@ -4,12 +4,12 @@ import refresh from '../../assets/animations/refresh.json'
 import { StyleSheet, css } from 'aphrodite'
 
 const styles = StyleSheet.create({
-    wrapper: {
-      width: '100%',
-      height: '100%',
-      background:'none',
-      cursor: 'pointer'
-    }
+	wrapper: {
+		width: '100%',
+		height: '100%',
+		background:'none',
+		cursor: 'pointer'
+	}
 })
 
 class BodymovinCheckbox extends React.Component {

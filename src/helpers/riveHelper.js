@@ -2,18 +2,18 @@ import { fetchWithId } from './FileLoader'
 
 const saveFile = async (origin, destination, fileName) => {
 	const encodedImageResponse = await fetchWithId('http://localhost:3119/convertToFlare/', 
-	{
-		method: 'post',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			origin: encodeURIComponent(origin),
-			destination: encodeURIComponent(destination),
-			fileName: encodeURIComponent(fileName),
+		{
+			method: 'post',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				origin: encodeURIComponent(origin),
+				destination: encodeURIComponent(destination),
+				fileName: encodeURIComponent(fileName),
+			})
 		})
-	})
 	const jsonResponse = await encodedImageResponse.json()
 	if(jsonResponse.status === 'success') {
 		return true;
@@ -23,5 +23,5 @@ const saveFile = async (origin, destination, fileName) => {
 }
 
 export {
- saveFile
+	saveFile
 }

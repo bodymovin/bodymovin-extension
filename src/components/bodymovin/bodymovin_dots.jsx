@@ -4,13 +4,13 @@ import Bodymovin from './bodymovin'
 import dots from '../../assets/animations/dots.json'
 
 const styles = StyleSheet.create({
-    container: {
+	container: {
     	width: '100%',
     	height: '100%',
     	cursor: 'pointer',
     	background: 'none',
     	padding: 0
-    }
+	}
 })
 
 class BodymovinSettings extends React.Component {

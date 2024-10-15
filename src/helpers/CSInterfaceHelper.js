@@ -29,8 +29,8 @@ function sendCommandWithListeners(command, commandArguments, successEvent, faile
 		function onData(ev) {
 			if (ev.data) {
 				const data = (typeof ev.data === "string")
-				? JSON.parse(ev.data)
-				: ev.data
+					? JSON.parse(ev.data)
+					: ev.data
 				resolve(data)
 			}
 			csInterface.removeEventListener(successEvent, onData)

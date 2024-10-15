@@ -11,13 +11,13 @@ const getTemplatesData = (state) => {
 }
 
 const getRenderComposition = createSelector(
-  [getItems, getCurrentComp, getTemplatesData ],
-  (items, current, templatesData) => {
+	[getItems, getCurrentComp, getTemplatesData ],
+	(items, current, templatesData) => {
   	return {
   		data: items[current] ? items[current].settings.template : null,
 			templates: templatesData.list,
 		}
-  }
+	}
 )
 
 export default getRenderComposition

@@ -1,5 +1,5 @@
 
 export default {
-  SLOTS: 'slots',
-  ASSETS: 'assets',
+	SLOTS: 'slots',
+	ASSETS: 'assets',
 }

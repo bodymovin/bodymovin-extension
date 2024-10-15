@@ -9,14 +9,14 @@ import reports from './reports_sagas'
 import supported_features from './supported_features_sagas'
 
 export default function* rootSaga() {	
-  yield all([
+	yield all([
   	...compositions,
   	...project,
   	...preview,
   	...render,
-    ...importFiles,
-    ...annotations,
+		...importFiles,
+		...annotations,
   	...reports,
 		...supported_features,
-  ])
+	])
 }

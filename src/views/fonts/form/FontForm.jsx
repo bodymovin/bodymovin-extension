@@ -11,34 +11,34 @@ const styles = StyleSheet.create({
 		borderBottom: '2px solid ' +  Variables.colors.gray_lighter
 	},
 	originSelect: {
-      display:'inline-block',
-      verticalAlign:'middle',
-      paddingBottom: '10px',
-      marginRight: '15px'
+		display:'inline-block',
+		verticalAlign:'middle',
+		paddingBottom: '10px',
+		marginRight: '15px'
 
-    },
-    'originSelect--radio': {
-      width: '20px',
-      padding:'2px',
-      background:'none',
-      display:'inline-block',
-      verticalAlign:'middle',
+	},
+	'originSelect--radio': {
+		width: '20px',
+		padding:'2px',
+		background:'none',
+		display:'inline-block',
+		verticalAlign:'middle',
       	':focus':{
       		border:'none',
       		outline:'none'
       	}
-    },
-    'originSelect--label': {
+	},
+	'originSelect--label': {
   		display:'inline-block',
 		verticalAlign:'middle',
 		color:'white',
 		fontSize: '10px'
-    },
-    inputLabel:{
+	},
+	inputLabel:{
     	color:'white',
     	fontSize: '10px'
-    },
-    inputBox:{
+	},
+	inputBox:{
     	color:'white',
     	width:'100%',
       	border: '1px solid ' + Variables.colors.white,
@@ -49,20 +49,20 @@ const styles = StyleSheet.create({
       	':focus':{
       		outline:'none'
       	}
-    },
-    inputBlock:{
+	},
+	inputBlock:{
     	padding: '0 4px 10px 4px'
-    },
-    halfBlock:{
+	},
+	halfBlock:{
     	width:'50%',
       	display: 'inline-block'
-    },
-    fontNameTitle: {
+	},
+	fontNameTitle: {
     	color: Variables.colors.white,
     	fontFamily: 'Roboto-Bold',
     	fontSize: '12px',
     	padding: '0 4px 10px 4px'
-    }
+	}
 })
 
 let FontForm = function(props) {

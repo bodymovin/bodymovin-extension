@@ -1,3 +1,3 @@
 export default {
-  ASSIGNED: 'assigned',
+	ASSIGNED: 'assigned',
 }

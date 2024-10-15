@@ -12,43 +12,43 @@ const getShouldSkipDoneView = (state) => state.compositions.shouldSkipDoneView
 const getShouldReuseFontData = (state) => state.compositions.shouldReuseFontData
 
 const getCompositionsList = createSelector(
-  [
-    getCompNamesAsDefault,
-    getAEAsPath,
-    getDefaultPathAsFolder,
-    getDefaultFolderPath,
-    getShouldIncludeCompNameAsFolder,
-    getShouldKeepSettingsCopy,
-    getSettingsDestinationCopy,
-    getShouldSaveInProjectFile,
-    getShouldSkipDoneView,
-    getShouldReuseFontData,
-  ],
-  (
-    shouldUseCompNameAsDefault,
-    shouldUseAEPathAsDestinationFolder,
-    shouldUsePathAsDefaultFolder,
-    defaultFolderPath,
-    shouldIncludeCompNameAsFolder,
-    shouldKeepCopyOfSettings,
-    settingsDestinationCopy,
-    shouldSaveInProjectFile,
-    shouldSkipDoneView,
-    shouldReuseFontData,
-  ) => {
+	[
+		getCompNamesAsDefault,
+		getAEAsPath,
+		getDefaultPathAsFolder,
+		getDefaultFolderPath,
+		getShouldIncludeCompNameAsFolder,
+		getShouldKeepSettingsCopy,
+		getSettingsDestinationCopy,
+		getShouldSaveInProjectFile,
+		getShouldSkipDoneView,
+		getShouldReuseFontData,
+	],
+	(
+		shouldUseCompNameAsDefault,
+		shouldUseAEPathAsDestinationFolder,
+		shouldUsePathAsDefaultFolder,
+		defaultFolderPath,
+		shouldIncludeCompNameAsFolder,
+		shouldKeepCopyOfSettings,
+		settingsDestinationCopy,
+		shouldSaveInProjectFile,
+		shouldSkipDoneView,
+		shouldReuseFontData,
+	) => {
   	return {
-      shouldUseCompNameAsDefault: shouldUseCompNameAsDefault,
-      shouldUseAEPathAsDestinationFolder: shouldUseAEPathAsDestinationFolder,
-      shouldUsePathAsDefaultFolder: shouldUsePathAsDefaultFolder,
-      defaultFolderPath: defaultFolderPath,
-      shouldIncludeCompNameAsFolder: shouldIncludeCompNameAsFolder,
-      shouldKeepCopyOfSettings: shouldKeepCopyOfSettings,
-      settingsDestinationCopy: settingsDestinationCopy,
-      shouldSaveInProjectFile: shouldSaveInProjectFile,
-      shouldSkipDoneView: shouldSkipDoneView,
-      shouldReuseFontData: shouldReuseFontData,
+			shouldUseCompNameAsDefault: shouldUseCompNameAsDefault,
+			shouldUseAEPathAsDestinationFolder: shouldUseAEPathAsDestinationFolder,
+			shouldUsePathAsDefaultFolder: shouldUsePathAsDefaultFolder,
+			defaultFolderPath: defaultFolderPath,
+			shouldIncludeCompNameAsFolder: shouldIncludeCompNameAsFolder,
+			shouldKeepCopyOfSettings: shouldKeepCopyOfSettings,
+			settingsDestinationCopy: settingsDestinationCopy,
+			shouldSaveInProjectFile: shouldSaveInProjectFile,
+			shouldSkipDoneView: shouldSkipDoneView,
+			shouldReuseFontData: shouldReuseFontData,
   	}
-  }
+	}
 )
 
 export default getCompositionsList

@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
       	flexDirection:'column',
 	},
 	toggleButton: {
-			fontSize: '12px',
-			color: '#eee',
-			textDecoration:'underline',
-			cursor: 'pointer',
-			paddingTop: '6px',
-			':hover': {
-				color: Variables.colors.green,
-			}
+		fontSize: '12px',
+		color: '#eee',
+		textDecoration:'underline',
+		cursor: 'pointer',
+		paddingTop: '6px',
+		':hover': {
+			color: Variables.colors.green,
+		}
 	},
 	header: {
 		flex: '0 0 auto',
@@ -101,7 +101,7 @@ class Compositions extends React.Component {
 				<div 
 					className={css(styles.toggleButton)} 
 					onClick={this.props.selectAllComps}>
-						{'Select All Comps'}
+					{'Select All Comps'}
 				</div>
 			)
 		} else {
@@ -109,7 +109,7 @@ class Compositions extends React.Component {
 				<div 
 					className={css(styles.toggleButton)} 
 					onClick={this.props.unselectAllComps}>
-						{'Unselect All Comps'}
+					{'Unselect All Comps'}
 				</div>
 			)
 		}
@@ -142,7 +142,7 @@ class Compositions extends React.Component {
 					<div 
 						className={css(styles.toggleButton)} 
 						onClick={this.props.toggleShowSelected}>
-							{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
+						{this.props.showOnlySelected ? 'Show All' : 'Show Selected Compositions'}
 					</div>
 					{this.renderSelectAllButton()}
 				</div>
@@ -152,7 +152,7 @@ class Compositions extends React.Component {
 					/>
 				}
 			</div>
-			)
+		)
 	}
 }
 

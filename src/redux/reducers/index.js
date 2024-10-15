@@ -12,15 +12,15 @@ import reports from './reports'
 import supported_features from './supported_features'
 
 export default combineReducers({
-  routes,
-  compositions,
-  render,
-  project,
-  preview,
-  alerts,
-  paths,
-  importer,
-  annotations,
-  reports,
-  supported_features,
+	routes,
+	compositions,
+	render,
+	project,
+	preview,
+	alerts,
+	paths,
+	importer,
+	annotations,
+	reports,
+	supported_features,
 })

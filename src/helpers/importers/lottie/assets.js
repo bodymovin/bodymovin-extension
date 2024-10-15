@@ -16,7 +16,7 @@ const LOTTIE_IMAGES_IMPORT = 'lottie_images_import';
 async function importLottieAssetsFromPath(assets, path) {
 	if (assets) {
 		const imageAssets = assets
-		.filter(asset => asset.id && asset.w)
+			.filter(asset => asset.id && asset.w)
 		let i = 0, asset;
 		for (i = 0; i < imageAssets.length; i += 1) {
 			asset = imageAssets[i];
@@ -55,7 +55,7 @@ async function loadImage(asset, animationPath) {
 async function importLottieAssetsFromUrl(assets, jsonUrl) {
 	if (assets) {
 		const imageAssets = assets
-		.filter(asset => asset.id && asset.w)
+			.filter(asset => asset.id && asset.w)
 		let i = 0, asset;
 		for (i = 0; i < imageAssets.length; i += 1) {
 			const assetId = random(10);

@@ -6,40 +6,40 @@ import BaseButton from '../buttons/Base_button'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: '100%',
-    height: '100%',
-    padding: '10px',
-    position: 'absolute',
-    top:'0',
-    left:'0',
-    backgroundColor:'rgba(71,71,71,.9)',
-    overflow: 'auto',
-    display: 'flex',
-    'flex-direction': 'column',
-  },
-  aligner: {
+	wrapper: {
+		width: '100%',
+		height: '100%',
+		padding: '10px',
+		position: 'absolute',
+		top:'0',
+		left:'0',
+		backgroundColor:'rgba(71,71,71,.9)',
+		overflow: 'auto',
+		display: 'flex',
+		'flex-direction': 'column',
+	},
+	aligner: {
   	textAlign: 'center'
-  },
-  pars_container:{
+	},
+	pars_container:{
   	paddingBottom: '10px'
-  },
-  par:{
+	},
+	par:{
   	fontFamily: 'Roboto-Bold',
   	fontSize: '12px',
   	lineHeight: '15px',
   	textAlign: 'center',
   	color: Variables.colors.white
-  },
-  bm_container: {
+	},
+	bm_container: {
   	height: '1px',
   	'min-height': '50px',
-    flex: '1 1 auto',
-  },
-  buttonContainer: {
-    padding: '0 10px',
-    display: 'inline-block',
-  }
+		flex: '1 1 auto',
+	},
+	buttonContainer: {
+		padding: '0 10px',
+		display: 'inline-block',
+	}
 })
 
 class BaseAlert extends React.Component {
@@ -50,39 +50,39 @@ class BaseAlert extends React.Component {
 		})
 	}
 
-  buildButtons(buttons) {
-    return buttons.map((button, index) => {
-      return (
-      <div className={css(styles.buttonContainer)} key={index}>
-        <BaseButton
-          text={button.text}
-          type={button.type || 'green'}
-          onClick={button.action}
-        />
-      </div>
-    )
-    })
-  }
+	buildButtons(buttons) {
+		return buttons.map((button, index) => {
+			return (
+				<div className={css(styles.buttonContainer)} key={index}>
+					<BaseButton
+						text={button.text}
+						type={button.type || 'green'}
+						onClick={button.action}
+					/>
+				</div>
+			)
+		})
+	}
 
 	render() {
-    return (<div className={css(styles.wrapper)}>
-      <Bodymovin autoplay={true} loop={true} animationData={alertAnim}>
-        <div className={css(styles.bm_container)}></div>
-      </Bodymovin>
-      <div className={css(styles.pars_container)}>
-        {this.createPars(this.props.pars)}
-      </div>
-      {this.props.children}
-      <div className={css(styles.aligner)}>
-        {this.buildButtons(this.props.buttons)}
-      </div>
-    </div>)
-  }
+		return (<div className={css(styles.wrapper)}>
+			<Bodymovin autoplay={true} loop={true} animationData={alertAnim}>
+				<div className={css(styles.bm_container)}></div>
+			</Bodymovin>
+			<div className={css(styles.pars_container)}>
+				{this.createPars(this.props.pars)}
+			</div>
+			{this.props.children}
+			<div className={css(styles.aligner)}>
+				{this.buildButtons(this.props.buttons)}
+			</div>
+		</div>)
+	}
 }
 
 BaseAlert.defaultProps = {
-  pars: [],
-  buttons: [],
+	pars: [],
+	buttons: [],
 }
 
 export default BaseAlert

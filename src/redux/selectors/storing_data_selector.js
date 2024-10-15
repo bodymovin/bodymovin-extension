@@ -7,8 +7,8 @@ const getReports = (state) => state.reports
 const getName = (state) => state.project.name
 
 const storingDataSelector = createSelector(
-  [ getCompositionState, getPreviewState, getID, getReports, getName ],
-  (compositionState, previewState, id, reports, name) => {
+	[ getCompositionState, getPreviewState, getID, getReports, getName ],
+	(compositionState, previewState, id, reports, name) => {
 
   	const compositions = compositionState.items
   	return {
@@ -29,20 +29,20 @@ const storingDataSelector = createSelector(
 					shouldReuseFontData: compositionState.shouldReuseFontData,
 					templates: compositionState.templates,
   			},
-        reports: {
-          renderers: reports.settings.renderers,
-          messageTypes: reports.settings.messageTypes,
-          builders: reports.settings.builders,
-        },
-        preview: {
-          backgroundColor: previewState.backgroundColor,
-          shouldLockTimelineToComposition: previewState.shouldLockTimelineToComposition,
-        },
+				reports: {
+					renderers: reports.settings.renderers,
+					messageTypes: reports.settings.messageTypes,
+					builders: reports.settings.builders,
+				},
+				preview: {
+					backgroundColor: previewState.backgroundColor,
+					shouldLockTimelineToComposition: previewState.shouldLockTimelineToComposition,
+				},
 				name: name, 
   		},
   		id: id,
   	}
-  }
+	}
 )
 
 export default storingDataSelector

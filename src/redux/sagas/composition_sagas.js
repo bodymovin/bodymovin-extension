@@ -57,8 +57,8 @@ function *getCompositionDestination() {
 			const compositions = yield call(getDestinationPath, action.comp, destinationPath, shouldUseCompNameAsDefault)
 			if (compositions) {
 				yield put({ 
-						type: actions.COMPOSITIONS_UPDATED,
-						compositions: compositions
+					type: actions.COMPOSITIONS_UPDATED,
+					compositions: compositions
 				})
 			}
 		} catch(err) {
@@ -178,9 +178,9 @@ function *loadSettings() {
 		result = window.cep.fs.showOpenDialogEx(false, false);
 		if (result && result.data.length) {
 			var readResult = window.cep.fs.readFile(result.data[0]);
-        if(readResult.err === 0) {
-					var jsonData = JSON.parse(readResult.data);
-					yield put(settingsLoaded(jsonData))
+			if(readResult.err === 0) {
+				var jsonData = JSON.parse(readResult.data);
+				yield put(settingsLoaded(jsonData))
 	    } else {
 			}
 		}
@@ -206,11 +206,11 @@ function *loadTemplate() {
 		result = window.cep.fs.showOpenDialogEx(false, false);
 		if (result && result.data.length) {
 			var readResult = window.cep.fs.readFile(result.data[0]);
-        if(readResult.err === 0) {
-					var jsonData = JSON.parse(readResult.data);
-					if (jsonData.type === 'blueprint') {
-						yield put(templateLoaded(jsonData))
-					}
+			if(readResult.err === 0) {
+				var jsonData = JSON.parse(readResult.data);
+				if (jsonData.type === 'blueprint') {
+					yield put(templateLoaded(jsonData))
+				}
 	    } else {
 			}
 		}
@@ -220,17 +220,17 @@ function *loadTemplate() {
 }
 
 export default [
-  fork(getCSCompositions),
-  fork(getCompositionDestination),
-  takeEvery(actions.RENDER_START, startRender),
-  takeEvery(actions.RENDER_STOP, stopRender),
-  takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
-  takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
-  takeEvery(actions.SETTINGS_APPLY, applySettings),
-  takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
-  takeEvery(actions.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE, searchDefaultDestinationPath),
-  takeEvery(actions.SETTINGS_COPY_PATH_UPDATE, searchSettingsCopyPath),
-  takeEvery(actions.SETTINGS_LOAD, loadSettings),
-  takeEvery(actions.RENDER_FINISHED, handleRenderFinished),
-  takeEvery(actions.SETTINGS_TEMPLATES_LOAD, loadTemplate),
+	fork(getCSCompositions),
+	fork(getCompositionDestination),
+	takeEvery(actions.RENDER_START, startRender),
+	takeEvery(actions.RENDER_STOP, stopRender),
+	takeEvery(actions.COMPOSITION_DISPLAY_SETTINGS, goToSettings),
+	takeEvery(actions.SETTINGS_REMEMBER, saveSettings),
+	takeEvery(actions.SETTINGS_APPLY, applySettings),
+	takeEvery(actions.SETTINGS_BANNER_LIBRARY_FILE_UPDATE, searchLottiePath),
+	takeEvery(actions.SETTINGS_DEFAULT_FOLDER_PATH_UPDATE, searchDefaultDestinationPath),
+	takeEvery(actions.SETTINGS_COPY_PATH_UPDATE, searchSettingsCopyPath),
+	takeEvery(actions.SETTINGS_LOAD, loadSettings),
+	takeEvery(actions.RENDER_FINISHED, handleRenderFinished),
+	takeEvery(actions.SETTINGS_TEMPLATES_LOAD, loadTemplate),
 ]

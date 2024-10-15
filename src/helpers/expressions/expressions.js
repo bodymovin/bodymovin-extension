@@ -38,7 +38,7 @@ function fixThrowExpression(str){
 }
 
 function renameNameProperty(str){
-	var regName = /([.'"])name([\s'";.\)\]])/g;
+	var regName = /([.'"])name([\s'";.)\]])/g;
 	return str.replace(regName,'$1_name$2');
 }
 
@@ -63,7 +63,6 @@ function searchOperations(body) {
 			handleTryStatement(body[i]);
 		} else if (body[i].type === 'SwitchStatement') {
 			handleSwitchStatement(body[i]);
-		} else {
 		}
 	}
 }

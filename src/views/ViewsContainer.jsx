@@ -15,35 +15,35 @@ import SupportedFeatures from './supported_features/SupportedFeatures'
 
 function getView(route) {
 	switch(route) {
-      case routes.compositions:
-        return <Compositions />
-      case routes.render:
-        return <Render />
-      case routes.preview:
-        return <PreviewView />
-      case routes.settings:
-        return <SettingsView />
-      case routes.fonts:
-        return <FontsView />
-      case routes.player:
-        return <PlayerView />
-      case routes.importFile:
-        return <FileImportView />
-      case routes.annotations:
-        return <AnnotationsView />
-      case routes.reports:
-        return <ReportsView />
-      case routes.supported_features:
-        return <SupportedFeatures />
-      default:
-        return <Compositions />
-    }
+		case routes.compositions:
+			return <Compositions />
+		case routes.render:
+			return <Render />
+		case routes.preview:
+			return <PreviewView />
+		case routes.settings:
+			return <SettingsView />
+		case routes.fonts:
+			return <FontsView />
+		case routes.player:
+			return <PlayerView />
+		case routes.importFile:
+			return <FileImportView />
+		case routes.annotations:
+			return <AnnotationsView />
+		case routes.reports:
+			return <ReportsView />
+		case routes.supported_features:
+			return <SupportedFeatures />
+		default:
+			return <Compositions />
+	}
 }
 
 let ViewsContainer = (props) => <div style={{width:'100%',height:'100%'}}>{getView(props.route)}</div>
 
 function mapStateToProps(state) {
-  return state.routes
+	return state.routes
 }
 
 export default connect(mapStateToProps,null)(ViewsContainer)

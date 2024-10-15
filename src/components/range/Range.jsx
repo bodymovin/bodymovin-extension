@@ -4,45 +4,45 @@ import Thumb from '../../assets/svg/preview_thumb.svg'
 import Variables from '../../helpers/styles/variables'
 
 const styles = StyleSheet.create({
-    container: {
-      width: '100%',
-      height: '30px',
-      backgroundColor:'transparent',
-      position: 'relative',
-      top: 0,
-      left: 0,
-      cursor: 'pointer'
-    },
-    progress: {
-      width: '100%',
-      height: '10px',
-      position: 'absolute',
-      margin: 'auto',
-      top:0,
-      bottom:0,
-      backgroundColor: Variables.colors.gray_darkest,
-      borderRadius: '5px',
-      overflow:'hidden'
-    },
-    progress_color: {
-      width: '100%',
-      height: '100%',
-      background: Variables.gradients.blueGreenFull
-    },
-    thumb: {
-      width: '20px',
-      height: '20px',
-      position: 'absolute',
-      margin: 'auto',
-      top:0,
-      bottom:0,
-      pointerEvents: 'none'
-    },
-    thumbDisplay: {
-      width: '100%',
-      height: '100%',
-      transform: 'translateX(-50%)'
-    }
+	container: {
+		width: '100%',
+		height: '30px',
+		backgroundColor:'transparent',
+		position: 'relative',
+		top: 0,
+		left: 0,
+		cursor: 'pointer'
+	},
+	progress: {
+		width: '100%',
+		height: '10px',
+		position: 'absolute',
+		margin: 'auto',
+		top:0,
+		bottom:0,
+		backgroundColor: Variables.colors.gray_darkest,
+		borderRadius: '5px',
+		overflow:'hidden'
+	},
+	progress_color: {
+		width: '100%',
+		height: '100%',
+		background: Variables.gradients.blueGreenFull
+	},
+	thumb: {
+		width: '20px',
+		height: '20px',
+		position: 'absolute',
+		margin: 'auto',
+		top:0,
+		bottom:0,
+		pointerEvents: 'none'
+	},
+	thumbDisplay: {
+		width: '100%',
+		height: '100%',
+		transform: 'translateX(-50%)'
+	}
 })
 
 class Range extends React.Component {
@@ -129,20 +129,20 @@ class Range extends React.Component {
 		}
 
 		return (<div 
-					ref={(elem)=>this.container = elem} 
-					className={css(styles.container)} 
-					onMouseDown={this.mouseDownHandler} >
-					<div className={css(styles.progress)}>
-						<div className={css(styles.progress_color)} style={progressStyler}>
+			ref={(elem)=>this.container = elem} 
+			className={css(styles.container)} 
+			onMouseDown={this.mouseDownHandler} >
+			<div className={css(styles.progress)}>
+				<div className={css(styles.progress_color)} style={progressStyler}>
 						
-						</div>
-					</div>
-					<div className={css(styles.thumb)} style={styler}>
-						<div className={css(styles.thumbDisplay)} style={styler}>
-							<img src={Thumb} alt="Thumb"/>
-						</div>
-					</div>
-				</div>)
+				</div>
+			</div>
+			<div className={css(styles.thumb)} style={styler}>
+				<div className={css(styles.thumbDisplay)} style={styler}>
+					<img src={Thumb} alt="Thumb"/>
+				</div>
+			</div>
+		</div>)
 	}
 }
 

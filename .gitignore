@@ -3,9 +3,6 @@
 # dependencies
 node_modules
 
-# testing
-coverage
-
 # production
 build
 
@@ -18,4 +15,3 @@ bodymovinCert.p12
 bodymovin.zxp
 ZXPSignCmd.exe
 package-lock.json
-test/

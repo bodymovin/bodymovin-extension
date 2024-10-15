@@ -37,11 +37,11 @@ class Alerts extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return {alerts: state.alerts}
+	return {alerts: state.alerts}
 }
 
 const mapDispatchToProps = {
-  hideAlert: hideAlert
+	hideAlert: hideAlert
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Alerts)

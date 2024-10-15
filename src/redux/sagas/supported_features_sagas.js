@@ -11,7 +11,7 @@ import callApi from '../../helpers/sync/canilottie'
 function *ping() {
 	while(true) {
 		const selectedProperties = yield call(getSelectedProperties)
-    yield put(featuresSelectionUpdated(selectedProperties));
+		yield put(featuresSelectionUpdated(selectedProperties));
 		yield call(delay, 250)
 	}
 }
@@ -27,19 +27,19 @@ function *initialize(action) {
 }
 
 function *getTemplates() {
-  const supportedFeaturesData = yield select(supportedFeaturesSelector)
-  if (!supportedFeaturesData.documentedFeatures) {
-    try {
-      const jsonData = yield call(callApi);
-      yield put(featuresLoaded(jsonData));
-    } catch (error) {
-      yield put(featuresLoadFailed());
-    }
+	const supportedFeaturesData = yield select(supportedFeaturesSelector)
+	if (!supportedFeaturesData.documentedFeatures) {
+		try {
+			const jsonData = yield call(callApi);
+			yield put(featuresLoaded(jsonData));
+		} catch (error) {
+			yield put(featuresLoadFailed());
+		}
 
-  }
+	}
 }
 
 export default [
-  takeEvery(actions.SUPPORTED_FEATURES_INITIALIZE, initialize),
-  takeEvery(actions.SUPPORTED_FEATURES_INITIALIZE, getTemplates),
+	takeEvery(actions.SUPPORTED_FEATURES_INITIALIZE, initialize),
+	takeEvery(actions.SUPPORTED_FEATURES_INITIALIZE, getTemplates),
 ]

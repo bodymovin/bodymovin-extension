@@ -165,7 +165,7 @@ async function getAllProjectsNamedFromLocalStorage() {
 	const namedProjects = [];
 	for (let key in localStorage) {
 		if (!localStorage.hasOwnProperty(key)) {
-				continue;
+			continue;
 		}
 		if (key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX) {
 			try {
@@ -198,29 +198,29 @@ function clearLocalStorage() {
 function clearProjectsInLocalStorage(ids) {
 	for (let key in localStorage) {
 		if (!localStorage.hasOwnProperty(key)) {
-				continue;
+			continue;
 		}
 		if (ids.includes(key) || (ids.length === 0 && key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX))
-		localStorage.removeItem(key);
+			localStorage.removeItem(key);
 	}
 }
 
 async function compressAllProjects() {
 	for (let key in localStorage) {
 		if (!localStorage.hasOwnProperty(key)) {
-				continue;
+			continue;
 		}
 		if (key.substring(0, PROJECT_PREFIX.length) === PROJECT_PREFIX) {
 			try {
 				
 				var project = localStorage.getItem(key);
 				if (project) {
-						var decompressed = LZString.decompress(project);
-						if (!decompressed) {
-							var compressed = LZString.compress(project);
-							localStorage.setItem(key, compressed)
-						} else { 
-						}
+					var decompressed = LZString.decompress(project);
+					if (!decompressed) {
+						var compressed = LZString.compress(project);
+						localStorage.setItem(key, compressed)
+					} else { 
+					}
 				}
 			} catch (error) {
 				// continue

@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import { StyleSheet, css } from 'aphrodite'
 import {
 	initialize,
-  finalize, 
+	finalize, 
 } from '../../redux/actions/supportedFeaturesActions'
 import supported_features_selector from '../../redux/selectors/supported_features_view_selector'
 import BaseHeader from '../../components/header/Base_Header'
@@ -14,11 +14,11 @@ const styles = StyleSheet.create({
 	wrapper: {
 		width: '100%',
 		height: '100%',
-    padding: '10px 10px 30px 10px',
+		padding: '10px 10px 30px 10px',
 		backgroundColor: '#474747',
 		display: 'flex',
-    flexDirection:'column',
-    color: Variables.colors.white,
+		flexDirection:'column',
+		color: Variables.colors.white,
 	},
 	header: {
 		flex: '0 0 auto',
@@ -27,145 +27,145 @@ const styles = StyleSheet.create({
 		flex: '1 1 auto',
 		height: '100%',
 		display: 'flex',
-    flexDirection:'column',
-    minHeight: 0,
+		flexDirection:'column',
+		minHeight: 0,
 	},
 	frameContainer: {
 		height: '100%',
 		width: '100%',
 	},
-  instructionsContainer: {
+	instructionsContainer: {
 		height: '100%',
 		width: '100%',
-    padding: '8px',
-  },
-  dropdown: {
-    margin: '8px 0',
-  },
+		padding: '8px',
+	},
+	dropdown: {
+		margin: '8px 0',
+	},
 })
 
 class SupportedFeatures extends React.Component {
 
   state = {
-    selectedFeature: null,
+  	selectedFeature: null,
   }
 
   updateSelectedFeature = () => {
-    if (!this.state.selectedFeature && this.props.features.length) {
-      this.setState({
-        selectedFeature: this.props.features[0]
-      })
-    } else if (this.state.selectedFeature && !this.props.features.length) {
-      this.setState({
-        selectedFeature: null
-      })
-    } else if (this.state.selectedFeature) {
-      const feature = this.props.features.find(feature => feature.matchName === this.state.selectedFeature.matchName)
-      if (!feature) {
-        this.setState({
-          selectedFeature: this.props.features[0]
-        })
-      } else if(this.state.selectedFeature !== feature) {
-        this.setState({
-          selectedFeature: feature
-        })
-      }
-    }
+  	if (!this.state.selectedFeature && this.props.features.length) {
+  		this.setState({
+  			selectedFeature: this.props.features[0]
+  		})
+  	} else if (this.state.selectedFeature && !this.props.features.length) {
+  		this.setState({
+  			selectedFeature: null
+  		})
+  	} else if (this.state.selectedFeature) {
+  		const feature = this.props.features.find(feature => feature.matchName === this.state.selectedFeature.matchName)
+  		if (!feature) {
+  			this.setState({
+  				selectedFeature: this.props.features[0]
+  			})
+  		} else if(this.state.selectedFeature !== feature) {
+  			this.setState({
+  				selectedFeature: feature
+  			})
+  		}
+  	}
   }
 
   componentDidMount() {
-    this.props.initialize()
-    this.updateSelectedFeature()
+  	this.props.initialize()
+  	this.updateSelectedFeature()
   }
 
   componentWillUnmount() {
-    this.props.finalize()
+  	this.props.finalize()
   }
 
   componentDidUpdate() {
-    this.updateSelectedFeature()
+  	this.updateSelectedFeature()
   }
 
   handleChange = (ev) => {
-    this.setState({
-      selectedFeature: this.props.features.find(feature => feature.matchName === ev.target.value)
-    })
+  	this.setState({
+  		selectedFeature: this.props.features.find(feature => feature.matchName === ev.target.value)
+  	})
   }
 
   buildFeaturesInfo(features) {
-    if(!features.length || !this.state.selectedFeature) {
-      return null;
-    }
-    return (
-      <select 
-        className={css(styles.dropdown)} 
-        onChange={this.handleChange}
-        value={this.state.selectedFeature.matchName}
-      >
-        {features.map(option => (
-          <option 
-            key={option.matchName} 
-            value={option.matchName}
-          >
-            {option.name}
-          </option>))}
-      </select>
-    )
+  	if(!features.length || !this.state.selectedFeature) {
+  		return null;
+  	}
+  	return (
+  		<select 
+  			className={css(styles.dropdown)} 
+  			onChange={this.handleChange}
+  			value={this.state.selectedFeature.matchName}
+  		>
+  			{features.map(option => (
+  				<option 
+  					key={option.matchName} 
+  					value={option.matchName}
+  				>
+  					{option.name}
+  				</option>))}
+  		</select>
+  	)
   }
 
   setRef(elem) {
-    if (elem) {
-      if (elem.contentWindow) {
-        window.addEventListener('message', function(ev) {
-          if (ev.data.name === 'lottieEvent') {
-            var payload = ev.data.payload;
-            if (payload.type === 'link') {
-              openInBrowser(payload.link);
-            }
-          }
-        })
-      }
-    }
+  	if (elem) {
+  		if (elem.contentWindow) {
+  			window.addEventListener('message', function(ev) {
+  				if (ev.data.name === 'lottieEvent') {
+  					var payload = ev.data.payload;
+  					if (payload.type === 'link') {
+  						openInBrowser(payload.link);
+  					}
+  				}
+  			})
+  		}
+  	}
   }
 
   buildInfo() {
-    if (!this.state.selectedFeature) {
-      return (
-        <div className={css(styles.instructionsContainer)}>
-            <div>Select one or more properties from your composition to get information about their support</div>
-        </div>
-      );
-    }
-    if (!this.state.selectedFeature.link) {
-      return  (
-        <div className={css(styles.missingDataContainer)}>
-          <div>No data for this property</div>
-        </div>
-      )
-    }
-    return (
-      <iframe
-        src={`${this.state.selectedFeature.link}?mode=embed`}
-        className={css(styles.frameContainer)}
-        ref={this.setRef}
-      />
-    )
+  	if (!this.state.selectedFeature) {
+  		return (
+  			<div className={css(styles.instructionsContainer)}>
+  				<div>Select one or more properties from your composition to get information about their support</div>
+  			</div>
+  		);
+  	}
+  	if (!this.state.selectedFeature.link) {
+  		return  (
+  			<div className={css(styles.missingDataContainer)}>
+  				<div>No data for this property</div>
+  			</div>
+  		)
+  	}
+  	return (
+  		<iframe
+  			src={`${this.state.selectedFeature.link}?mode=embed`}
+  			className={css(styles.frameContainer)}
+  			ref={this.setRef}
+  		/>
+  	)
   }
 
-	render() {
-    // console.log(this.props.features.map(f => `"${f.matchName}"`).join(","));
-		return (
-			<div className={css(styles.wrapper)}>
-        <div className={css(styles.header)} >
-          <BaseHeader />
-				</div>
-        {this.buildFeaturesInfo(this.props.features)}
-        <div className={css(styles.infoContainer)}>
-          {this.buildInfo()}
-        </div>
-			</div>
-			)
-	}
+  render() {
+  	// console.log(this.props.features.map(f => `"${f.matchName}"`).join(","));
+  	return (
+  		<div className={css(styles.wrapper)}>
+  			<div className={css(styles.header)} >
+  				<BaseHeader />
+  			</div>
+  			{this.buildFeaturesInfo(this.props.features)}
+  			<div className={css(styles.infoContainer)}>
+  				{this.buildInfo()}
+  			</div>
+  		</div>
+  	)
+  }
 }
 
 function mapStateToProps(state) {
