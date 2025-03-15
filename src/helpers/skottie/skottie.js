@@ -36,7 +36,7 @@ const getFolder = async () => {
 }
 
 const getLatestVersion = async () => {
-	const packageResponse = await fetch('https://unpkg.com/canvaskit-wasm@latest/package.json');
+	const packageResponse = await fetch('https://cdn.jsdelivr.net/npm/canvaskit-wasm@latest/package.json');
 	const packageData = await packageResponse.json();
 	const versionParts = packageData.version.split('.');
 	if (Number(versionParts[1]) === Number(lockedMinorVersion[1])) {
@@ -78,8 +78,8 @@ const getSavedVersion = async () => {
 
 const saveLatestVersion = async version => {
 	// const files = await Promise.all([
-	// 	fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.js'),
-	// 	fetch('https://unpkg.com/canvaskit-wasm@latest/bin/full/canvaskit.wasm'),
+	// 	fetch('https://cdn.jsdelivr.net/npm/canvaskit-wasm@latest/bin/full/canvaskit.js'),
+	// 	fetch('https://cdn.jsdelivr.net/npm/canvaskit-wasm@latest/bin/full/canvaskit.wasm'),
 	// ])
 	// const savingFolder = await getFolder()
 	// const fileName = version.split('.').join('_').replace(/\W/g, '')
