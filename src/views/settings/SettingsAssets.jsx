@@ -57,7 +57,7 @@ class SettingsAssets extends React.PureComponent {
           active={this.props.settings ? this.props.settings.should_reuse_images : false}  />
         <SettingsListItem 
           title='Include video and audio assets'
-          description='This is not yet supported by players. Only available for experimantal purposes.'
+          description='This is not yet supported by players. Only available for experimental purposes.'
           toggleItem={this.props.toggleIncludeVideo}
           active={this.props.settings ? this.props.settings.should_include_av_assets : false}  />
       </SettingsCollapsableItem>
