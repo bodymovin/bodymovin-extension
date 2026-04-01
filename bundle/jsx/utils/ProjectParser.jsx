@@ -27,8 +27,14 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             fileString = '<no file>';
         } else {
             var demoFile = new File(ff.absoluteURI);
-            demoFile.open('r', 'TEXT', '????');
-            //demoFile.encoding = 'UTF-8';
+            var isAE26OrAbove = parseFloat(app.version) >= 26;
+            if (isAE26OrAbove) {
+                demoFile.encoding = 'BINARY';
+                demoFile.open('r', 'BINARY', '????');
+            } else {
+                demoFile.open('r', 'TEXT', '????');
+                //demoFile.encoding = 'UTF-8';
+            }
             fileString = demoFile.read(demoFile.length);
         }
     }
@@ -225,6 +231,6 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         };
 
     }
-    
+
     return ob;
 }())
