@@ -94,11 +94,36 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
     }
 
+    function validateInjectedKeyframeValues(prop, keyframeValues) {
+        if (prop.propertyValueType !== PropertyValueType.NO_VALUE) {
+            return;
+        }
+        if (keyframeValues === undefined || keyframeValues === null) {
+            throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied keyframe values were missing.');
+        }
+        if (prop.numKeys <= 1) {
+            if (!(keyframeValues instanceof Array)) {
+                throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied static value is invalid.');
+            }
+            return;
+        }
+        if (!(keyframeValues instanceof Array) || keyframeValues.length < prop.numKeys) {
+            throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied keyframe sequence is incomplete.');
+        }
+        var i;
+        for (i = 0; i < prop.numKeys; i += 1) {
+            if (!(keyframeValues[i] instanceof Array)) {
+                throw new Error('Bodymovin could not export an injected NO_VALUE property because one or more keyframe values are invalid.');
+            }
+        }
+    }
+
     function exportKeys(prop, frRate, stretch, keyframeValues) {
         var exportOldFormat = settingsHelper.shouldExportOldFormat();
         var currentExpression = '';
         property = prop;
         var propertyValueType = property.propertyValueType;
+        validateInjectedKeyframeValues(prop, keyframeValues);
         
         frameRate = frRate;
         beziersArray = [];

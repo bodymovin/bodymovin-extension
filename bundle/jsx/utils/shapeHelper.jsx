@@ -11,7 +11,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
     var shapeItemTypes = $.__bodymovin.shapeTypes;
     var getItemType = $.__bodymovin.getShapeType;
     var ob = {};
-    var navigationShapeTree = [];
     var extraParams = {};
 
     function reverseShape(ks) {
@@ -278,9 +277,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                 ob.r = prop.property('Fill Rule').value;
                 ob.bm = bm_blendModes.getBlendModeShape(prop.property('Blend Mode').value);
-                navigationShapeTree.push(prop.name);
-                exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
-                navigationShapeTree.pop();
+                exportGradientData(ob, prop, frameRate, stretch, createGradientMeta(prop));
 
             } else if (itemType === shapeItemTypes.gStroke) {
                 ob = {};
@@ -288,9 +285,7 @@ $.__bodymovin.bm_shapeHelper = (function () {
                 // bm_generalUtils.iterateProperty(prop);
                 ob.o = bm_keyframeHelper.exportKeyframes(prop.property('Opacity'), frameRate, stretch);
                 ob.w = bm_keyframeHelper.exportKeyframes(prop.property('Stroke Width'), frameRate, stretch);
-                navigationShapeTree.push(prop.name);
-                exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree);
-                navigationShapeTree.pop();
+                exportGradientData(ob, prop, frameRate, stretch, createGradientMeta(prop));
                 ob.lc = prop.property('Line Cap').value;
                 ob.lj = prop.property('Line Join').value;
                 if (ob.lj === 1) {
@@ -367,7 +362,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     ix: prop.propertyIndex
                 };
 
-                navigationShapeTree.push(prop.name);
                 iterateProperties(prop.property('Contents'), ob.it, frameRate, stretch, isText, enabled, includeHiddenData);
                 if (!isText) {
                     trOb = {};
@@ -385,7 +379,6 @@ $.__bodymovin.bm_shapeHelper = (function () {
                     trOb.nm = transformProperty.name;
                     ob.it.push(trOb);
                 }
-                navigationShapeTree.pop();
             } else if (itemType === shapeItemTypes.roundedCorners) {
                 ob = {
                     ty : itemType,
@@ -444,9 +437,25 @@ $.__bodymovin.bm_shapeHelper = (function () {
         }
     }
 
-    function exportGradientData(ob,prop,frameRate, stretch, navigationShapeTree){
+    function createGradientMeta(prop) {
+        var gradientIndexes = extraParams.gradientIndexes || {};
+        var matchName = prop.matchName;
+        var gradientIndex = gradientIndexes[matchName] || 0;
+        gradientIndexes[matchName] = gradientIndex + 1;
+        extraParams.gradientIndexes = gradientIndexes;
+        return {
+            compId: extraParams.compId,
+            compName: extraParams.compName,
+            layerId: extraParams.layerId,
+            layerName: extraParams.layerName,
+            matchName: matchName,
+            gradientIndex: gradientIndex
+        };
+    }
+
+    function exportGradientData(ob,prop,frameRate, stretch, gradientMeta){
         var property = prop.property('Colors');
-        var gradientData = bm_ProjectHelper.getGradientData(navigationShapeTree, property.numKeys);
+        var gradientData = bm_ProjectHelper.getGradientData(gradientMeta, property.numKeys);
         ob.g = {
             p:gradientData.p,
             k:bm_keyframeHelper.exportKeyframes(property, frameRate, stretch, gradientData.m)
@@ -580,13 +589,13 @@ $.__bodymovin.bm_shapeHelper = (function () {
     
     function exportShape(layerInfo, layerOb, frameRate, isText, params, includeHiddenData) {
         var stretch = layerOb.sr || 1;
-        extraParams = params;
+        extraParams = params || {};
         var containingComp = layerInfo.containingComp;
-        navigationShapeTree.length = 0;
-        navigationShapeTree.push(containingComp.name);
-        // Suffix LIST is at the end of layer names, 
-        // so it guarantees to correctly find the full layer name when searching the gradient tree path
-        navigationShapeTree.push(layerInfo.name);
+        extraParams.compId = containingComp.id;
+        extraParams.compName = containingComp.name;
+        extraParams.layerId = layerInfo.id !== undefined ? layerInfo.id : layerInfo.index;
+        extraParams.layerName = layerInfo.name;
+        extraParams.gradientIndexes = {};
         var shapes = [], contents = layerInfo.property('ADBE Root Vectors Group');
         layerOb.shapes = shapes;
         iterateProperties(contents, shapes, frameRate, stretch, isText, true, includeHiddenData);
