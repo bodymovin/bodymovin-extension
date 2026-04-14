@@ -271,6 +271,35 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         return readFirstGroupByMatchNames(bytes, [matchName]);
     }
 
+    function collectGroupsByMatchNames(bytes, matchNames, groups) {
+        while (bytes.bytesAvailable() > 0) {
+            var tag = readTag(bytes);
+            if (tag.name === 'tdmn') {
+                var key = tag.bytes.readUTF8String();
+                if (matchesValue(key, matchNames)) {
+                    var groupTag = readTag(bytes);
+                    if (groupTag.name === 'LIST') {
+                        groupTag.name = readKeyName(groupTag.bytes);
+                        groupTag.bytes = groupTag.bytes.readBytes(groupTag.bytes.bytesAvailable());
+                        groups.push({
+                            matchName: key,
+                            name: groupTag.name,
+                            bytes: groupTag.bytes.data
+                        });
+                        continue;
+                    }
+                }
+            }
+            if (tag.name === 'LIST') {
+                var listName = readKeyName(tag.bytes);
+                if (listName === 'btdk') {
+                    continue;
+                }
+                collectGroupsByMatchNames(tag.bytes, matchNames, groups);
+            }
+        }
+    }
+
     function readFirstGroupByMatchNames(bytes, matchNames) {
         while (bytes.bytesAvailable() > 0) {
             var tag = readTag(bytes);
@@ -676,19 +705,13 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             failGradient('layer_not_found', ref);
         }
 
-        var layerBytes = new ByteArray(layer.bytes);
+        var groups = [];
+        collectGroupsByMatchNames(new ByteArray(layer.bytes), [ref.matchName], groups);
+        var groupData = groups[ref.gradientIndex];
         var gradientText = '';
-        var i;
-        for (i = 0; layerBytes.bytesAvailable() > 0 && i <= ref.gradientIndex; i += 1) {
-            var groupTag = readFirstGroupByMatchName(layerBytes, ref.matchName);
-            if (groupTag.bytes.empty()) {
-                break;
-            }
-            if (i === ref.gradientIndex) {
-                var tag = readFirstTagByName(groupTag.bytes, 'GCky');
-                if (tag.bytes.empty()) {
-                    break;
-                }
+        if (groupData) {
+            var tag = readFirstTagByName(new ByteArray(groupData.bytes), 'GCky');
+            if (!tag.bytes.empty()) {
                 var frameIndex = 0;
                 while (tag.bytes.bytesAvailable() > 0) {
                     var stringTag = readTag(tag.bytes);
@@ -703,7 +726,6 @@ $.__bodymovin.bm_ProjectHelper = (function(){
                     }
                     frameIndex += 1;
                 }
-                break;
             }
         }
 
