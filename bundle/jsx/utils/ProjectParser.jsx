@@ -7,6 +7,8 @@ $.__bodymovin.bm_ProjectHelper = (function(){
     var JSON = $.__bodymovin.JSON;
     var fileString = '';
     var parsedProjectData = null;
+    var lastProjectReadError = '';
+    var lastProjectReadPath = '';
 
     var ob = {};
     ob.init = init;
@@ -17,37 +19,73 @@ $.__bodymovin.bm_ProjectHelper = (function(){
     function init(){
         fileString = '';
         parsedProjectData = null;
+        lastProjectReadError = '';
+        lastProjectReadPath = '';
     }
 
     function end(){
         fileString = '';
         parsedProjectData = null;
+        lastProjectReadError = '';
+        lastProjectReadPath = '';
+    }
+
+    function readProjectFile(projectFile) {
+        if (!projectFile) {
+            return false;
+        }
+        lastProjectReadPath = projectFile.fsName || projectFile.absoluteURI || '';
+        if (!projectFile.exists) {
+            lastProjectReadError = 'project_file_missing';
+            return false;
+        }
+        var isAE26OrAbove = parseFloat(app.version) >= 26;
+        var isOpen;
+        if (isAE26OrAbove) {
+            projectFile.encoding = 'BINARY';
+            isOpen = projectFile.open('r', 'BINARY', '????');
+        } else {
+            isOpen = projectFile.open('r', 'TEXT', '????');
+            //projectFile.encoding = 'UTF-8';
+        }
+        if (!isOpen) {
+            lastProjectReadError = 'project_file_read_failed';
+            return false;
+        }
+        fileString = projectFile.read(projectFile.length);
+        projectFile.close();
+        if (!fileString) {
+            lastProjectReadError = 'project_file_empty';
+            return false;
+        }
+        lastProjectReadError = '';
+        return true;
     }
 
     function getProjectData(){
         var proj = app.project;
         var ff = proj.file;
-        if(!ff) {
-            fileString = '';
-        } else {
-            var demoFile = new File(ff.absoluteURI);
-            var isAE26OrAbove = parseFloat(app.version) >= 26;
-            var isOpen;
-            if (isAE26OrAbove) {
-                demoFile.encoding = 'BINARY';
-                isOpen = demoFile.open('r', 'BINARY', '????');
-            } else {
-                isOpen = demoFile.open('r', 'TEXT', '????');
-                //demoFile.encoding = 'UTF-8';
-            }
-            if (isOpen) {
-                fileString = demoFile.read(demoFile.length);
-                demoFile.close();
-            } else {
-                fileString = '';
-            }
-        }
+        fileString = '';
         parsedProjectData = null;
+        lastProjectReadError = '';
+        lastProjectReadPath = '';
+        if(!ff) {
+            lastProjectReadError = 'project_not_saved';
+            return;
+        }
+        if (readProjectFile(ff)) {
+            return;
+        }
+        if (ff.fsName && readProjectFile(new File(ff.fsName))) {
+            return;
+        }
+        if (ff.absoluteURI && readProjectFile(new File(ff.absoluteURI))) {
+            return;
+        }
+        if (!lastProjectReadError) {
+            lastProjectReadError = 'project_file_read_failed';
+            lastProjectReadPath = ff.fsName || ff.absoluteURI || '';
+        }
     }
 
     function ByteArray(data) {
@@ -535,6 +573,8 @@ $.__bodymovin.bm_ProjectHelper = (function(){
         var message = 'Bodymovin could not export gradient data (' + reason + ').';
         if (ref) {
             message += ' ' + buildGradientLabel(ref);
+        } else if (lastProjectReadPath) {
+            message += ' path="' + lastProjectReadPath + '"';
         }
         bm_eventDispatcher.log(message);
         bm_eventDispatcher.alert(message);
@@ -556,7 +596,7 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             getProjectData();
         }
         if (!fileString) {
-            failGradient('project_not_saved');
+            failGradient(lastProjectReadError || 'project_not_saved');
         }
 
         var body = readBody(new ByteArray(fileString));
