@@ -8,7 +8,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     var bakeExpressions = $.__bodymovin.bm_keyframeBakerHelper;
     var essentialPropertiesHelper = $.__bodymovin.bm_essentialPropertiesHelper;
     var renderHelper = $.__bodymovin.bm_renderHelper;
-    var ob = {}, property, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
+    var ob = {}, property, effectivePropertyValueType, j = 1, jLen, beziersArray, averageSpeed, duration, bezierIn, bezierOut, frameRate;
     var hasRovingKeyframes = false;
     
     function getPropertyValue(value, roundFlag) {
@@ -67,7 +67,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
     }
 
     function buildKeyInfluence(key, lastKey, indexTime) {
-        switch (property.propertyValueType) {
+        switch (effectivePropertyValueType) {
         case PropertyValueType.ThreeD_SPATIAL:
         case PropertyValueType.TwoD_SPATIAL:
         case PropertyValueType.SHAPE:
@@ -94,11 +94,42 @@ $.__bodymovin.bm_keyframeHelper = (function () {
         }
     }
 
+    function shouldUseInjectedKeyframeValues(keyframeValues) {
+        return keyframeValues !== undefined && keyframeValues !== null;
+    }
+
+    function validateInjectedKeyframeValues(prop, keyframeValues, useInjectedKeyframeValues) {
+        if (!useInjectedKeyframeValues && prop.propertyValueType !== PropertyValueType.NO_VALUE) {
+            return;
+        }
+        if (keyframeValues === undefined || keyframeValues === null) {
+            throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied keyframe values were missing.');
+        }
+        if (prop.numKeys <= 1) {
+            if (!(keyframeValues instanceof Array)) {
+                throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied static value is invalid.');
+            }
+            return;
+        }
+        if (!(keyframeValues instanceof Array) || keyframeValues.length < prop.numKeys) {
+            throw new Error('Bodymovin could not export an injected NO_VALUE property because the supplied keyframe sequence is incomplete.');
+        }
+        var i;
+        for (i = 0; i < prop.numKeys; i += 1) {
+            if (!(keyframeValues[i] instanceof Array)) {
+                throw new Error('Bodymovin could not export an injected NO_VALUE property because one or more keyframe values are invalid.');
+            }
+        }
+    }
+
     function exportKeys(prop, frRate, stretch, keyframeValues) {
         var exportOldFormat = settingsHelper.shouldExportOldFormat();
         var currentExpression = '';
         property = prop;
-        var propertyValueType = property.propertyValueType;
+        var useInjectedKeyframeValues = shouldUseInjectedKeyframeValues(keyframeValues);
+        var propertyValueType = useInjectedKeyframeValues ? PropertyValueType.NO_VALUE : property.propertyValueType;
+        effectivePropertyValueType = propertyValueType;
+        validateInjectedKeyframeValues(prop, keyframeValues, useInjectedKeyframeValues);
         
         frameRate = frRate;
         beziersArray = [];
@@ -151,7 +182,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     interpolationType = 'linear';
                 }
                 buildKeyInfluence(key, lastKey, indexTime);
-                switch (property.propertyValueType) {
+                switch (propertyValueType) {
                 case PropertyValueType.ThreeD_SPATIAL:
                 case PropertyValueType.TwoD_SPATIAL:
                     lastKey.to = bm_generalUtils.roundNumber(property.keyOutSpatialTangent(indexTime), 3);
@@ -181,7 +212,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                 bezierOut = {};
                 averageSpeed = 0;
                 var infOut, infIn;
-                switch (property.propertyValueType) {
+                switch (propertyValueType) {
                 case PropertyValueType.ThreeD_SPATIAL:
                 case PropertyValueType.TwoD_SPATIAL:
                     var curveLength = getCurveLength(lastKey.value, key.value, lastKey.to, key.ti);
@@ -225,7 +256,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     }
                     averageSpeed = [];
                     for (i = 0; i < len; i += 1) {
-                        if(property.propertyValueType === PropertyValueType.COLOR){
+                        if(propertyValueType === PropertyValueType.COLOR){
                             averageSpeed[i] =  255*(key.value[i] - lastKey.value[i]) / duration;
                         } else {
                             averageSpeed[i] =  (key.value[i] - lastKey.value[i]) / duration;
@@ -237,7 +268,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     bezierIn.y = bezierIn.x;
                     bezierOut.y = bezierOut.x;
                 } else {
-                    switch (property.propertyValueType) {
+                    switch (propertyValueType) {
                     case PropertyValueType.ThreeD_SPATIAL:
                     case PropertyValueType.TwoD_SPATIAL:
                     case PropertyValueType.SHAPE:
@@ -263,7 +294,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                                 bezierOut.y[k] = bezierOut.x[k];
                             } else {
                                 var yNormal;
-                                if(property.propertyValueType === PropertyValueType.COLOR){
+                                if(propertyValueType === PropertyValueType.COLOR){
                                     yNormal = 255*(key.value[k] - lastKey.value[k]);
                                 } else {
                                     yNormal = (key.value[k] - lastKey.value[k]);
@@ -323,7 +354,7 @@ $.__bodymovin.bm_keyframeHelper = (function () {
                     }
 
                 }
-                if (property.propertyValueType === PropertyValueType.ThreeD_SPATIAL || property.propertyValueType === PropertyValueType.TwoD_SPATIAL) {
+                if (propertyValueType === PropertyValueType.ThreeD_SPATIAL || propertyValueType === PropertyValueType.TwoD_SPATIAL) {
                     segmentOb.to = lastKey.to;
                     segmentOb.ti = key.ti;
                 }
