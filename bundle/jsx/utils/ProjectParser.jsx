@@ -39,15 +39,8 @@ $.__bodymovin.bm_ProjectHelper = (function(){
             lastProjectReadError = 'project_file_missing';
             return false;
         }
-        var isAE26OrAbove = parseFloat(app.version) >= 26;
-        var isOpen;
-        if (isAE26OrAbove) {
-            projectFile.encoding = 'BINARY';
-            isOpen = projectFile.open('r', 'BINARY', '????');
-        } else {
-            isOpen = projectFile.open('r', 'TEXT', '????');
-            //projectFile.encoding = 'UTF-8';
-        }
+        projectFile.encoding = 'BINARY';
+        var isOpen = projectFile.open('r', 'BINARY', '????');
         if (!isOpen) {
             lastProjectReadError = 'project_file_read_failed';
             return false;
